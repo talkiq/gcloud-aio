@@ -4,7 +4,7 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../core/', '../auth/')
+LOCAL_DEPS = ('../core/',)
 
 
 @nox.session
@@ -19,11 +19,11 @@ def unit_tests(session, python_version):
     session.run(
         'py.test',
         '--quiet',
-        '--cov=gcloud.aio.taskqueue',
+        '--cov=gcloud.aio.auth',
         '--cov=tests.unit',
         '--cov-append',
         '--cov-report=',
-        '--cov-fail-under=26',
+        '--cov-fail-under=33',
         os.path.join('tests', 'unit'),
         *session.posargs)
 
@@ -66,5 +66,5 @@ def cover(session, python_version):
 
     session.install('coverage', 'pytest-cov')
 
-    session.run('coverage', 'report', '--show-missing', '--fail-under=26')
+    session.run('coverage', 'report', '--show-missing', '--fail-under=33')
     session.run('coverage', 'erase')

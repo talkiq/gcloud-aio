@@ -1,4 +1,5 @@
 **/*.egg-info/*
+**/.cache/*
 **/__pycache__/*
 **/dist/*
 */.coverage

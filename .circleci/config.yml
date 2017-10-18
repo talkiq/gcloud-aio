@@ -14,6 +14,8 @@ jobs:
       - image: googleapis/nox:0.17.0
     steps:
       - checkout
+      - run: nox -f auth/nox.py
+      - run: nox -f core/nox.py
       - run: nox -f taskqueue/nox.py
       - run: nox -s lint_setup_py
 
