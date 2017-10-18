@@ -9,7 +9,7 @@ with open(os.path.join(PACKAGE_ROOT, 'README.rst')) as f:
 
 
 REQUIREMENTS = [
-    'gcloud-aio-taskqueue >= 0.0.0 < 1.0.0',
+    'gcloud-aio-taskqueue >= 0.0.0, < 1.0.0',
 ]
 
 

@@ -1,6 +1,6 @@
-.nox/*
-*/*.egg-info/*
-*/.coverage
+**/*.egg-info/*
 **/__pycache__/*
+**/dist/*
+*/.coverage
 */build/*
-*/dist/*
+.nox/*
