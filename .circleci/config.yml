@@ -15,6 +15,7 @@ jobs:
     steps:
       - checkout
       - run: nox -f auth/nox.py
+      - run: nox -f bigquery/nox.py
       - run: nox -f core/nox.py
       - run: nox -f taskqueue/nox.py
       - run: nox -s lint_setup_py
