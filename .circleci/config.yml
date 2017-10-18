@@ -20,15 +20,13 @@ jobs:
   pypi:
     docker:
       - image: python:3.6.2-alpine3.6
-    environment:
-    - PACKAGE: echo "${CIRCLE_TAG}" | sed 's/-.*//'
     steps:
       - run: pip install twine
       - checkout
       - deploy:
           name: upload to pypi
           command: |
-            cd ${PACKAGE}
+            cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
             python setup.py sdist bdist_wheel
             twine upload dist/*
 
