@@ -1,0 +1,85 @@
+version: 2
+
+jobs:
+  lint:
+    docker:
+      - image: python:3.6.2
+    steps:
+      - checkout
+      - run: pip install pre-commit
+      - run: pre-commit run --all-files
+
+  nox:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
+      - run: nox -f taskqueue/nox.py
+      - run: nox -s lint_setup_py
+
+  pypi:
+    docker:
+      - image: python:3.6.2-alpine3.6
+    environment:
+    - PACKAGE: echo "${CIRCLE_TAG}" | sed 's/-.*//'
+    steps:
+      - run: pip install twine
+      - checkout
+      - deploy:
+          name: upload to pypi
+          command: |
+            cd ${PACKAGE}
+            python setup.py sdist bdist_wheel
+            twine upload dist/*
+
+  github:
+    docker:
+      - image: python:3.6.2-alpine3.6
+    steps:
+      - run: apk add --no-cache curl git openssh-client
+      - checkout
+      - run:
+          name: install github-release
+          command: |
+            curl -L https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2 > github-release.tar.bz2
+            tar xjf github-release.tar.bz2
+            rm -f github-release.tar.bz2
+      - deploy:
+          name: create GitHub release
+          command: |
+            git log $(git tag --sort=version:refname | tail -n2 | head -n1)..${CIRCLE_TAG} --pretty=format:'- %s' > release-description.md
+            ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}" || true
+            cat release-description.md | grep $(echo "${CIRCLE_TAG}" | sed 's/-.*//') | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
+
+workflows:
+  version: 2
+  run-jobs:
+    jobs:
+      - lint:
+          filters:
+            tags:
+              only: /.*/
+
+      - nox:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+
+      - pypi:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - nox
+      - github:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - nox
