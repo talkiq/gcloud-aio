@@ -52,7 +52,7 @@ def test_task_lifecycle():
 
     task_queue = 'test-pull'
 
-    task = fire(test_task_lifecycle, project, creds, task_queue)
+    task = fire(do_task_lifecycle, project, creds, task_queue)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(task)
