@@ -1,0 +1,6 @@
+fixes:
+  - gcloud/aio/auth/::auth/gcloud/aio/auth/
+  - gcloud/aio/bigquery/::bigquery/gcloud/aio/bigquery/
+  - gcloud/aio/core/::core/gcloud/aio/core/
+  - gcloud/aio/storage/::storage/gcloud/aio/storage/
+  - gcloud/aio/taskqueue/::taskqueue/gcloud/aio/taskqueue/
