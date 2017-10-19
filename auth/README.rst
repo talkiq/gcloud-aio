@@ -26,7 +26,7 @@ We're still working on documentation -- for now, you can use the `smoke test`_
 as an example.
 
 .. _scopes: https://developers.google.com/identity/protocols/googlescopes
-.. _smoke test: tests/integration/smoke_test.py
+.. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/auth/tests/integration/smoke_test.py
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-auth.svg?style=flat-square
     :alt: Latest PyPI Version
