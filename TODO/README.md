@@ -2,18 +2,6 @@
 
 ## components
 
-### datastore/
-
-> smoke test: `python -m gcloud.aio.datastore smoke`
-
-> scopes: `https://developers.google.com/identity/protocols/googlescopes#datastorev1`
-
-### storage/
-
-> smoke test: `python -m gcloud.aio.storage smoke`
-
-> scopes: `https://developers.google.com/identity/protocols/googlescopes#storagev1`
-
 ### taskqueue/
 
 > smoke test: `python -m gcloud.aio.taskqueue smoke`

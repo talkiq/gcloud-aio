@@ -43,6 +43,7 @@ jobs:
     docker:
       - image: googleapis/nox:0.17.0
     steps:
+      - run: echo ${GOOGLE_SERVICE_JSON} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - checkout
       - run: nox -f storage/nox.py
 
@@ -50,6 +51,7 @@ jobs:
     docker:
       - image: googleapis/nox:0.17.0
     steps:
+      - run: echo ${GOOGLE_SERVICE_JSON} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - checkout
       - run: nox -f taskqueue/nox.py
 
