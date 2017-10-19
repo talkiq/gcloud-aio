@@ -20,7 +20,7 @@ REQUIREMENTS = [
 setuptools.setup(
     name='gcloud-aio',
     version='0.0.3',
-    description='Asyncio API Client library for Google Cloud',
+    description='Asyncio Client library for Google Cloud API',
     long_description=README,
     install_requires=REQUIREMENTS,
     author='Jonathan Dobson',
