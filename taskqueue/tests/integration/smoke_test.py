@@ -27,7 +27,8 @@ async def do_task_lifecycle(project, creds, task_queue):
 
         # STATS
         stats = await tq.get_stats()
-        assert stats['items']
+        assert stats['id'].endswith(task_queue)
+        assert stats['stats']['totalTasks'] > 0
 
         # LEASE
         tasks = await tq.lease_task(lease_seconds=10, num_tasks=1)
