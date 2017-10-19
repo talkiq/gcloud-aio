@@ -1,16 +1,6 @@
 # gcloud/aio
 
-## smoke tests
-
-Each component has a smoke test, which you can run via `python -m gcloud.aio.<component> smoke`. You will need to have a service file for our `talkiq-integration` project, located in the root repo directory and called `service-integration.json`. The smoke tests also serve as examples. :)
-
 ## components
-
-### auth/
-
-> smoke test: `python -m gcloud.aio.auth smoke`
-
-Implements a Token class for authorizing against GCloud. All of the other components accept a token instance argument. You can define a single token for all of the required components in the project, or define one token for each component. Each component corresponds to one GCloud service, and each GCloud service [requires "scopes"](https://developers.google.com/identity/protocols/googlescopes).
 
 ### datastore/
 
