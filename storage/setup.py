@@ -7,21 +7,20 @@ PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(PACKAGE_ROOT, 'README.rst')) as f:
     README = f.read()
 
-
-REQUIREMENTS = [
-    'gcloud-aio-auth >= 0.0.0, < 1.0.0',
-    'gcloud-aio-bigquery >= 0.0.0, < 1.0.0',
-    'gcloud-aio-core >= 0.0.0, < 1.0.0',
-    'gcloud-aio-storage >= 0.0.0, < 1.0.0',
-    'gcloud-aio-taskqueue >= 0.0.1, < 1.0.0',
-]
+with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
+    REQUIREMENTS = [r.strip() for r in f.readlines()]
 
 
 setuptools.setup(
-    name='gcloud-aio',
-    version='0.0.3',
-    description='Asyncio API Client library for Google Cloud',
+    name='gcloud-aio-storage',
+    version='0.0.0',
+    description='Asyncio Python Client for Google Cloud Storage',
     long_description=README,
+    namespace_packages=[
+        'gcloud',
+        'gcloud.aio',
+    ],
+    packages=setuptools.find_packages(exclude=('tests',)),
     install_requires=REQUIREMENTS,
     author='Jonathan Dobson',
     author_email='jon.m.dobson@gmail.com',
