@@ -1,5 +1,5 @@
-gcloud-aio
-==========
+Asyncio Google Cloud Client Library for Python
+==============================================
 
 Installation
 ------------
