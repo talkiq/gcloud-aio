@@ -26,9 +26,9 @@ Installation
 .. _Storage README: https://github.com/talkiq/gcloud-aio/blob/master/storage/README.rst
 .. _Task Queue README: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/README.rst
 
-.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-storage.svg?style=flat-square
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio.svg?style=flat-square
     :alt: Latest PyPI Version
-    :target: https://pypi.org/project/gcloud-aio-storage/
+    :target: https://pypi.org/project/gcloud-aio/
 
 .. |circleci| image:: https://img.shields.io/circleci/project/github/talkiq/gcloud-aio/master.svg?style=flat-square
     :alt: CircleCI Test Status
@@ -38,6 +38,6 @@ Installation
     :alt: Code Coverage
     :target: https://codecov.io/gh/talkiq/gcloud-aio
 
-.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-storage.svg?style=flat-square
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio.svg?style=flat-square
     :alt: Python Version Support
-    :target: https://pypi.org/project/gcloud-aio-storage/
+    :target: https://pypi.org/project/gcloud-aio/
