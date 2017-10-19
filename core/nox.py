@@ -27,21 +27,6 @@ def unit_tests(session, python_version):
 
 @nox.session
 @nox.parametrize('python_version', ['3.6'])
-def integration_tests(session, python_version):
-    if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
-        session.skip('Credentials must be set via environment variable.')
-
-    session.interpreter = 'python{}'.format(python_version)
-    session.virtualenv_dirname = 'integration-' + python_version
-
-    session.install('mock', 'pytest')
-    session.install('.')
-
-    session.run('py.test', '--quiet', 'tests/integration')
-
-
-@nox.session
-@nox.parametrize('python_version', ['3.6'])
 def lint_setup_py(session, python_version):
     session.interpreter = 'python{}'.format(python_version)
     session.virtualenv_dirname = 'setup'
