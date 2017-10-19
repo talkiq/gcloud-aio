@@ -9,17 +9,17 @@ with open(os.path.join(PACKAGE_ROOT, 'README.rst')) as f:
 
 
 REQUIREMENTS = [
-    'gcloud-aio-auth >= 0.0.0, < 1.0.0',
-    'gcloud-aio-bigquery >= 0.0.0, < 1.0.0',
-    'gcloud-aio-core >= 0.0.0, < 1.0.0',
-    'gcloud-aio-storage >= 0.0.0, < 1.0.0',
-    'gcloud-aio-taskqueue >= 0.0.1, < 1.0.0',
+    'gcloud-aio-auth >= 0.5.0, < 1.0.0',
+    'gcloud-aio-bigquery >= 0.5.0, < 1.0.0',
+    'gcloud-aio-core >= 0.5.0, < 1.0.0',
+    'gcloud-aio-storage >= 0.5.0, < 1.0.0',
+    'gcloud-aio-taskqueue >= 0.5.0, < 1.0.0',
 ]
 
 
 setuptools.setup(
     name='gcloud-aio',
-    version='0.0.3',
+    version='0.5.0',
     description='Asyncio Client library for Google Cloud API',
     long_description=README,
     install_requires=REQUIREMENTS,
