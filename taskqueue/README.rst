@@ -10,6 +10,14 @@ Installation
 
     $ pip install --upgrade gcloud-aio-taskqueue
 
+Usage
+-----
+
+We're still working on documentation -- for now, you can use the `smoke test`_
+as an example.
+
+.. _smoke test: tests/integration/smoke_test.py
+
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-taskqueue/
