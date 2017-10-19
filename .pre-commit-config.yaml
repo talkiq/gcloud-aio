@@ -25,12 +25,13 @@ repos:
     hooks:
     -   id: pylint
         args:
-            - -d duplicate-code
-            - -d fixme
-            - -d import-error
-            - -d invalid-name
-            - -d locally-disabled
-            - -d missing-docstring
+        - -d duplicate-code
+        - -d fixme
+        - -d import-error
+        - -d invalid-name
+        - -d locally-disabled
+        - -d missing-docstring
+        exclude: "^TODO/*"
 -   repo: git://github.com/Lucas-C/pre-commit-hooks
     sha: v1.1.4
     hooks:
