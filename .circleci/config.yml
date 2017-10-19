@@ -83,9 +83,13 @@ jobs:
       - deploy:
           name: create GitHub release
           command: |
-            git log $(git tag --sort=version:refname | tail -n2 | head -n1)..${CIRCLE_TAG} --pretty=format:'- %s' > release-description.md
+            export PROJECT=$(echo "${CIRCLE_TAG}" | sed 's/-.*//')
+            export PREV_RELEASE=$(git tag --sort=version:refname | grep ${PROJECT} | tail -n2 | head -n1)
+            [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
+
+            git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' > release-description.md
             ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}" || true
-            cat release-description.md | grep $(echo "${CIRCLE_TAG}" | sed 's/-.*//') | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
+            cat release-description.md | grep ${PROJECT} | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
 
 workflows:
   version: 2
