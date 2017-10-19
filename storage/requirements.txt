@@ -1,4 +1,4 @@
 aiohttp >= 1.0.0, < 2.0.0
-gcloud-aio-auth >= 0.0.0, < 1.0.0
-gcloud-aio-core >= 0.0.0, < 1.0.0
+gcloud-aio-auth >= 0.5.0, < 1.0.0
+gcloud-aio-core >= 0.5.0, < 1.0.0
 ujson >= 1.0.0, < 2.0.0
