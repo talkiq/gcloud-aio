@@ -9,17 +9,47 @@ jobs:
       - run: pip install pre-commit
       - run: pre-commit run --all-files
 
-  nox:
+  test-base:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
+      - run: nox -s lint_setup_py
+
+  test-auth:
     docker:
       - image: googleapis/nox:0.17.0
     steps:
       - checkout
       - run: nox -f auth/nox.py
+
+  test-bigquery:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
       - run: nox -f bigquery/nox.py
+
+  test-core:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
       - run: nox -f core/nox.py
+
+  test-storage:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
       - run: nox -f storage/nox.py
+
+  test-taskqueue:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - checkout
       - run: nox -f taskqueue/nox.py
-      - run: nox -s lint_setup_py
 
   pypi:
     docker:
@@ -62,7 +92,37 @@ workflows:
             tags:
               only: /.*/
 
-      - nox:
+      - test-base:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - test-auth:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - test-bigquery:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - test-core:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - test-storage:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - test-taskqueue:
           filters:
             tags:
               only: /.*/
@@ -70,18 +130,30 @@ workflows:
             - lint
 
       - pypi:
+          context: org-global
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
-            - nox
+            - test-base
+            - test-auth
+            - test-bigquery
+            - test-core
+            - test-storage
+            - test-taskqueue
       - github:
+          context: org-global
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
-            - nox
+            - test-base
+            - test-auth
+            - test-bigquery
+            - test-core
+            - test-storage
+            - test-taskqueue
