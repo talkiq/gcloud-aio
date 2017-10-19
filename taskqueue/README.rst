@@ -1,9 +1,19 @@
 Asyncio Python Client for Google Cloud Task Queue
 =================================================
 
+|pypi| |pythons|
+
 Installation
 ------------
 
 .. code-block:: console
 
     $ pip install --upgrade gcloud-aio-taskqueue
+
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-taskqueue/
+
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-taskqueue.svg?style=flat-square
+    :alt: Python Version Support
+    :target: https://pypi.org/project/gcloud-aio-taskqueue/

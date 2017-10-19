@@ -1,9 +1,19 @@
 Asyncio Python Client for Google Cloud Storage
 ==============================================
 
+|pypi| |pythons|
+
 Installation
 ------------
 
 .. code-block:: console
 
     $ pip install --upgrade gcloud-aio-storage
+
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-storage.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-storage/
+
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-storage.svg?style=flat-square
+    :alt: Python Version Support
+    :target: https://pypi.org/project/gcloud-aio-storage/
