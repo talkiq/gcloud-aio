@@ -1,13 +1,3 @@
-# gcloud/aio
-
-## components
-
-### taskqueue/
-
-> smoke test: `python -m gcloud.aio.taskqueue smoke`
-
-> scopes: `https://developers.google.com/identity/protocols/googlescopes#taskqueuev1beta2`
-
 ## taskmanager/
 
 > smoke test: `python -m gcloud.aio.taskmanager smoke`
