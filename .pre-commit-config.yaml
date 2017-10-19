@@ -15,7 +15,7 @@ repos:
     -   id: double-quote-string-fixer
     -   id: end-of-file-fixer
     -   id: file-contents-sorter
-        files: .gitignore auth/requirements.txt core/requirements.txt taskqueue/requierements.txt
+        files: .gitignore
     -   id: mixed-line-ending
     -   id: name-tests-test
     -   id: requirements-txt-fixer
