@@ -1,0 +1,30 @@
+import asyncio
+import os
+
+import aiohttp
+from gcloud.aio.core.utils.aio import fire
+from gcloud.aio.storage import make_download
+
+
+async def download_object(project, creds, bucket_name, object_name):
+    with aiohttp.ClientSession() as session:
+        download = make_download(project, creds, bucket_name, session=session)
+        result = await download(object_name)
+
+    assert result
+
+
+def test_object_is_downloaded():
+    project = os.environ['GCLOUD_PROJECT']
+    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+
+    bucket_name = 'talkiq-integration-transcripts'
+    call_id = '07fbe0cc-7f87-1235-06b0-0cc47a392728'
+    side = 'callee'
+    link = 0
+    object_name = '{}/{}/{}/rtp.pcap.wav.ctm'.format(call_id, side, link)
+
+    task = fire(download_object, project, creds, bucket_name, object_name)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(task)
