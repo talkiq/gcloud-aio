@@ -96,38 +96,26 @@ workflows:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
       - test-auth:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
       - test-bigquery:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
       - test-core:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
       - test-storage:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
       - test-taskqueue:
           filters:
             tags:
               only: /.*/
-          requires:
-            - lint
 
       - pypi:
           context: org-global
@@ -137,6 +125,7 @@ workflows:
             tags:
               only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
+            - lint
             - test-base
             - test-auth
             - test-bigquery
@@ -151,6 +140,7 @@ workflows:
             tags:
               only: /[a-z]-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
+            - lint
             - test-base
             - test-auth
             - test-bigquery
