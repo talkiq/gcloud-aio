@@ -14,12 +14,6 @@
 
 > scopes: `https://developers.google.com/identity/protocols/googlescopes#storagev1`
 
-### bigquery/
-
-> smoke test: `python -m gcloud.aio.bigquery smoke`
-
-> scopes: `https://developers.google.com/identity/protocols/googlescopes#bigqueryv2`
-
 ### taskqueue/
 
 > smoke test: `python -m gcloud.aio.taskqueue smoke`

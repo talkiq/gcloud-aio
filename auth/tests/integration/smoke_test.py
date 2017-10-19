@@ -2,13 +2,13 @@ import asyncio
 import os
 
 import aiohttp
-import gcloud.aio.auth as auth
+from gcloud.aio.auth import Token
 from gcloud.aio.core.utils.aio import fire
 
 
 async def get_token(project, creds, scopes):
     with aiohttp.ClientSession() as session:
-        token = auth.Token(project, creds, session=session, scopes=scopes)
+        token = Token(project, creds, session=session, scopes=scopes)
         result = await token.get()
 
     assert result is not None
