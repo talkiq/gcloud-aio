@@ -85,10 +85,11 @@ jobs:
           command: |
             export PROJECT=$(echo "${CIRCLE_TAG}" | sed 's/-.*//')
             export PREV_RELEASE=$(git tag --sort=version:refname | grep ${PROJECT} | tail -n2 | head -n1)
+            [ "${PREV_RELEASE}" = "${CIRCLE_TAG}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
             [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
 
             git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' > release-description.md
-            ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}" || true
+            ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}"
             cat release-description.md | grep ${PROJECT} | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
 
 workflows:
