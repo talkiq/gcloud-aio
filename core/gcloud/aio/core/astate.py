@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from gcloud.aio.core.utils.aio import fire
+from gcloud.aio.core.aio import fire
 
 
 log = logging.getLogger(__name__)
