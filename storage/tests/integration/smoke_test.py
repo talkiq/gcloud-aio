@@ -2,7 +2,6 @@ import asyncio
 import os
 
 import aiohttp
-from gcloud.aio.core.utils.aio import fire
 from gcloud.aio.storage import make_download
 
 
@@ -24,7 +23,6 @@ def test_object_is_downloaded():
     link = 0
     object_name = '{}/{}/{}/rtp.pcap.wav.ctm'.format(call_id, side, link)
 
-    task = fire(download_object, project, creds, bucket_name, object_name)
-
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(task)
+    loop.run_until_complete(
+        download_object(project, creds, bucket_name, object_name))
