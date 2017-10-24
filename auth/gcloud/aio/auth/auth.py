@@ -8,8 +8,8 @@ import typing
 
 import aiohttp
 import jwt
+from gcloud.aio.core.aio import auto
 from gcloud.aio.core.http import post
-from gcloud.aio.core.utils.aio import auto
 
 
 ScopeList = typing.List[str]
