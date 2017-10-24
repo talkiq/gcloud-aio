@@ -9,10 +9,10 @@ import logging
 import random
 import traceback
 
+from gcloud.aio.core.aio import call_later
+from gcloud.aio.core.aio import fire
 from gcloud.aio.core.astate import AwaitableState
 from gcloud.aio.core.astate import make_stepper
-from gcloud.aio.core.utils.aio import call_later
-from gcloud.aio.core.utils.aio import fire
 from gcloud.aio.taskqueue.utils import decode
 
 
