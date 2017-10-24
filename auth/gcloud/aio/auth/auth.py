@@ -2,6 +2,7 @@
 Google Cloud auth via service account file
 """
 import datetime
+import json
 import time
 import typing
 
@@ -9,8 +10,6 @@ import aiohttp
 import jwt
 from gcloud.aio.core.http import post
 from gcloud.aio.core.utils.aio import auto
-from gcloud.aio.core.utils.jason import extract_json_fields
-from gcloud.aio.core.utils.jason import json_read
 
 
 ScopeList = typing.List[str]
@@ -42,14 +41,13 @@ async def acquire_token(session: aiohttp.ClientSession,
         session=session
     )
 
-    data = extract_json_fields(
-        content, (
-            ('access_token', str),
-            ('expires_in', int)
-        )
-    )
+    if 'error' in content:
+        raise Exception('{}'.format(content))
 
-    return data
+    return {
+        'access_token': str(content['access_token']),
+        'expires_in': int(content['expires_in']),
+    }
 
 
 def generate_assertion(service_data: dict, scopes: ScopeList = None):
@@ -91,7 +89,11 @@ class Token(object):
                  scopes: ScopeList = None):
 
         self.project = project
-        self.service_data = json_read(service_file)
+
+        with open(service_file, 'r') as f:
+            service_data_str = f.read()
+
+        self.service_data = json.loads(service_data_str)
 
         # sanity check
         assert self.project == self.service_data['project_id'], MISMATCH
