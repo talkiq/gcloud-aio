@@ -3,7 +3,6 @@ import os
 
 import aiohttp
 from gcloud.aio.auth import Token
-from gcloud.aio.core.utils.aio import fire
 
 
 async def get_token(project, creds, scopes):
@@ -19,7 +18,6 @@ def test_token_is_created():
     creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
-    task = fire(get_token, project, creds, scopes)
-
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(task)
+    loop.run_until_complete(
+        get_token(project, creds, scopes))

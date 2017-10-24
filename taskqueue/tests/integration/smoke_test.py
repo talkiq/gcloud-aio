@@ -4,7 +4,6 @@ import os
 import uuid
 
 import aiohttp
-from gcloud.aio.core.utils.aio import fire
 from gcloud.aio.core.utils.b64 import clean_b64decode
 from gcloud.aio.taskqueue import TaskQueue
 
@@ -53,7 +52,6 @@ def test_task_lifecycle():
 
     task_queue = 'test-pull'
 
-    task = fire(do_task_lifecycle, project, creds, task_queue)
-
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(task)
+    loop.run_until_complete(
+        do_task_lifecycle(project, creds, task_queue))
