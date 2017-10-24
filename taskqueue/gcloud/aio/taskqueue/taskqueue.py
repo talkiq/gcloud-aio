@@ -8,12 +8,12 @@ import logging
 
 import ujson
 from gcloud.aio.auth import Token
+from gcloud.aio.core.aio import call_later
 from gcloud.aio.core.http import delete
 from gcloud.aio.core.http import get
 from gcloud.aio.core.http import HttpError
 from gcloud.aio.core.http import patch
 from gcloud.aio.core.http import post
-from gcloud.aio.core.utils.aio import call_later
 from gcloud.aio.taskqueue.utils import encode
 
 
