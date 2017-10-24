@@ -5,7 +5,7 @@ from gcloud.aio.core.utils.aio import complete
 from gcloud.aio.core.utils.aio import fire
 
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 
 class AwaitableState:
