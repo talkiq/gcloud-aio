@@ -18,7 +18,7 @@ from gcloud.aio.core.utils.misc import backoff
 
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 
 class FailFastError(Exception):
