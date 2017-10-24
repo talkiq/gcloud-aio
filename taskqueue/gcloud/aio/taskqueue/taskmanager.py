@@ -6,6 +6,7 @@ import collections
 import datetime
 import json
 import logging
+import random
 import traceback
 
 from gcloud.aio.core.astate import AwaitableState
@@ -13,12 +14,44 @@ from gcloud.aio.core.astate import make_stepper
 from gcloud.aio.core.utils.aio import call_later
 from gcloud.aio.core.utils.aio import fire
 from gcloud.aio.core.utils.b64 import clean_b64decode
-from gcloud.aio.core.utils.misc import backoff
 
 
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 log = logging.getLogger(__name__)
+
+
+def backoff(base=2, factor=1, max_value=None):
+
+    """Generator for exponential decay.
+
+    The Google docs warn to back off from polling their API if there is no
+    work available in a task queue. So we does.
+
+    # modified from:
+    # https://github.com/litl/backoff/blob/master/backoff.py
+
+        base: the mathematical base of the exponentiation operation
+        factor: factor to multiply the exponentation by.
+        max_value: The maximum value to yield. Once the value in the
+             true exponential sequence exceeds this, the value
+             of max_value will forever after be yielded.
+    """
+
+    n = 0
+
+    # initial backoff delay is nothing
+    yield 0
+
+    while True:
+
+        a = factor * base ** n
+
+        if max_value is None or a < max_value:
+            yield a
+            n += 1
+        else:
+            yield max_value - random.random() * max_value / 10
 
 
 class FailFastError(Exception):
