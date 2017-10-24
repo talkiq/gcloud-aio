@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-from gcloud.aio.core.utils.aio import complete
 from gcloud.aio.core.utils.aio import fire
 
 
@@ -19,10 +18,10 @@ class AwaitableState:
     :data for arbitrary context beyond :name.
     """
 
-    def __init__(self, name, future=None, data=None):
+    def __init__(self, name, future, data=None):
 
         self.name = name
-        self.future = future or complete('hi')
+        self.future = future
         self.data = data
 
         if asyncio.iscoroutine(self.future):
