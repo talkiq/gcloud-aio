@@ -1,16 +1,10 @@
 import asyncio
-import json
 import os
 import uuid
 
 import aiohttp
-from gcloud.aio.core.utils.b64 import clean_b64decode
+from gcloud.aio.taskqueue import deserialize_task
 from gcloud.aio.taskqueue import TaskQueue
-
-
-def deserialize(task):
-    data = clean_b64decode(task['payloadBase64']).decode('utf-8')
-    return json.loads(data)
 
 
 async def do_task_lifecycle(project, creds, task_queue):
@@ -33,7 +27,7 @@ async def do_task_lifecycle(project, creds, task_queue):
         tasks = await tq.lease_task(lease_seconds=10, num_tasks=1)
         assert len(tasks) == 1
 
-        payload = deserialize(tasks[0])
+        payload = deserialize_task(tasks[0])
         assert payload
 
         # RENEW

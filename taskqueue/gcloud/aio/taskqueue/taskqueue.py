@@ -14,7 +14,7 @@ from gcloud.aio.core.http import HttpError
 from gcloud.aio.core.http import patch
 from gcloud.aio.core.http import post
 from gcloud.aio.core.utils.aio import call_later
-from gcloud.aio.core.utils.b64 import clean_b64encode
+from gcloud.aio.taskqueue.utils import encode
 
 
 API_ROOT = 'https://www.googleapis.com/taskqueue/v1beta2/projects'
@@ -33,7 +33,7 @@ def make_insert_body(queue_name: str, payload: dict):
 
     delta = datetime.datetime.now() - datetime.datetime(1970, 1, 1)
     micro_sec_since_epock = int(delta.total_seconds() * 1000000)
-    encoded_payload = clean_b64encode(ujson.dumps(payload))
+    encoded_payload = encode(ujson.dumps(payload))
 
     return {
         'kind': 'taskqueues#task',
@@ -259,9 +259,7 @@ class LocalTaskQueue(object):
         task = {
             'id': LocalTaskQueue.next_id('tid'),
             'retry_count': retry_count,
-            'payloadBase64': clean_b64encode(
-                json.dumps(payload).encode('utf-8')
-            )
+            'payloadBase64': encode(json.dumps(payload).encode('utf-8'))
         }
 
         return task

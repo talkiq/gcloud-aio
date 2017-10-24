@@ -13,7 +13,7 @@ from gcloud.aio.core.astate import AwaitableState
 from gcloud.aio.core.astate import make_stepper
 from gcloud.aio.core.utils.aio import call_later
 from gcloud.aio.core.utils.aio import fire
-from gcloud.aio.core.utils.b64 import clean_b64decode
+from gcloud.aio.taskqueue.utils import decode
 
 
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -109,7 +109,7 @@ async def _default_worker(_payload):
 
 def deserialize_task(task):
 
-    data = clean_b64decode(task['payloadBase64']).decode('utf-8')
+    data = decode(task['payloadBase64']).decode('utf-8')
 
     return json.loads(data)
 
