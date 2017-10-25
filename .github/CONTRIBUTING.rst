@@ -42,11 +42,9 @@ Roughly speaking, we'd appreciate if your commits looked list this:
 The first line is the most specific in this format, it should have the format
 ``type(project): message``, where:
 
-- ``type`` is one of ``feat``, ``fix``, ``docs``, ``refactor``, ``style``,
-``perf``, ``test``, or ``chore``
+- ``type`` is one of ``feat``, ``fix``, ``docs``, ``refactor``, ``style``, ``perf``, ``test``, or ``chore``
 - ``project`` is ``auth``, ``bigquery``, ``core``, etc.
-- ``message`` is a concise description of the patch and brings the line to no
-more than 72 characters
+- ``message`` is a concise description of the patch and brings the line to no more than 72 characters
 
 Coding Conventions
 ------------------
@@ -63,3 +61,8 @@ any new or returning contributors with relevant comments where appropriate.
 .. _nox: https://nox.readthedocs.io/en/latest/
 .. _pre-commit: http://pre-commit.com/
 .. _Pull Request: https://github.com/talkiq/gcloud-aio/pull/new/master
+
+Thanks for your contribution!
+
+With love,
+TalkIQ
