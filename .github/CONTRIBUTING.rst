@@ -57,10 +57,17 @@ in CI against all changesets.
 Other than the above enforced standards, we like code that is easy-to-read for
 any new or returning contributors with relevant comments where appropriate.
 
+Releases
+--------
+
+If you are a maintainer looking to release a new version, see our
+`Release documentation`_.
+
 .. _conventional changelog: https://github.com/conventional-changelog/conventional-changelog
 .. _nox: https://nox.readthedocs.io/en/latest/
 .. _pre-commit: http://pre-commit.com/
 .. _Pull Request: https://github.com/talkiq/gcloud-aio/pull/new/master
+.. _Release documentation: https://github.com/talkiq/gcloud-aio/blob/master/.github/RELEASE.rst
 
 Thanks for your contribution!
 
