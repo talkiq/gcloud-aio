@@ -63,7 +63,7 @@ class Storage(object):
         url = '{}/{}/o'.format(STORAGE_UPLOAD_API_ROOT, bucket)
         headers = headers or {}
 
-        # TODO: verify
+        # TODO: verify this
         if not isinstance(file_data, bytes):
             body = file_data.encode('utf-8')
         else:

@@ -223,8 +223,7 @@ class TaskManager:
         state_step = {'LEASE': self.after_lease}
         stepper = make_stepper(default_step, state_step, name='TM')
 
-        # TODO: this stepper + AwaitableState abstraction has hardly been worth
-        # it, and I regret it
+        # TODO: migrate away from stepper + AwaitableState
         while self.running:
             state, args = await stepper(state, args)
             self.state = state
