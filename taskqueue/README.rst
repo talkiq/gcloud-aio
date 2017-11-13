@@ -16,9 +16,8 @@ Usage
 We're still working on documentation -- for now, you can use the `smoke test`_
 as an example.
 
-In addition to the `TaskManager` implementation -- which directly maps to the
+In addition to the `TaskQueue` implementation -- which directly maps to the
 Google Cloud API -- this project implements a Pull Task Queue Manager, which:
-This implements a pull task queue manager, which:
 
 - leases tasks from a single pull task queue
 - renews tasks as necessary
