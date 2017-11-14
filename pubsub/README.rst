@@ -27,6 +27,7 @@ generated -- once we've tested that version, will update this library.
 Here's the rough usage pattern for subscribing:
 
 .. code-block:: python
+
     import gcloud.aio.pubsub as pubsub
 
     subscriber = pubsub.Client(project)

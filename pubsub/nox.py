@@ -4,16 +4,13 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../core/', '../auth/')
-
-
 @nox.session
 @nox.parametrize('python_version', ['3.6'])
 def unit_tests(session, python_version):
     session.interpreter = 'python{}'.format(python_version)
     session.virtualenv_dirname = 'unit-' + python_version
 
-    session.install('pytest', 'pytest-cov', *LOCAL_DEPS)
+    session.install('pytest', 'pytest-cov')
     session.install('-e', '.')
 
     session.run(
@@ -37,7 +34,7 @@ def integration_tests(session, python_version):
     session.interpreter = 'python{}'.format(python_version)
     session.virtualenv_dirname = 'integration-' + python_version
 
-    session.install('aiohttp', 'pytest', *LOCAL_DEPS)
+    session.install('aiohttp', 'pytest')
     session.install('.')
 
     session.run('py.test', '--quiet', 'tests/integration')
