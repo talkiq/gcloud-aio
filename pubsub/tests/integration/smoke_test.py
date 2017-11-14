@@ -22,18 +22,19 @@ async def do_lifecycle(project, topic, subscription):
     num_jobs = 4
 
     uuids = [uuid.uuid4().hex for _ in range(num_jobs)]
-    payloads = []
     for i in range(num_jobs):
         data = {'this': {'is': {'a': {'test': uuids[i]}}}}
         topic.publish(json.dumps(data).encode('utf-8'))
 
-    async for idx, (job_id, message) in enumerate(subscription.poll()):
+    num_processed = 0
+    async for job_id, message in subscription.poll():
         job = json.loads(message.data.decode('utf-8'))
         assert job['this']['is']['a']['test'] in uuids
 
         await subscription.acknowledge([job_id])
+        num_processed += 1
 
-        if idx == len(payloads) - 1:
+        if num_processed == num_jobs:
             break
 
     subscription.delete()
