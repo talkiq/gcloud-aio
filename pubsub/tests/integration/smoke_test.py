@@ -7,10 +7,14 @@ import gcloud.aio.pubsub as pubsub
 
 async def do_lifecycle(project, topic, subscription):
     subscriber = pubsub.Client(project)
-    topic = subscriber.topic(topic)
-    subscription = topic.subscription(subscription)
 
-    # empty the subscription
+    # create an empty topic
+    topic = subscriber.topic(topic)
+    topic.create_if_missing()
+
+    # create an empty subscription
+    subscription = topic.subscription(subscription)
+    subscription.create_if_missing()
     subscription.pull(return_immediately=True, max_messages=1_000_000)
 
     # push four jobs
@@ -29,6 +33,9 @@ async def do_lifecycle(project, topic, subscription):
 
         if idx == len(payloads) - 1:
             break
+
+    subscription.delete()
+    topic.delete()
 
 
 def test_pubsub_lifecycle():

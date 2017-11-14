@@ -42,6 +42,10 @@ A couple additional features you might want to play with:
 
 .. code-block:: python
 
+    # creates a subscription/topic if it does not exist
+    subscription.create_if_missing()
+    topic.create_if_missing()
+
     # the retries argument can be used to retry acks when intermittent gRPC
     # errors are received
     await subscription.acknowledge([job_ids], retries=3)

@@ -4,6 +4,7 @@ import logging
 import google.auth.exceptions
 import google.cloud.pubsub as pubsub
 import google.gax.errors
+import grpc
 
 
 log = logging.getLogger(__name__)
@@ -25,6 +26,16 @@ class Subscription(pubsub.subscription.Subscription):
 
         return await self.acknowledge(ack_ids, client=client,
                                       retries=retries-1)
+
+    def create_if_missing(self, client=None):
+        if self.exists(client=client):
+            return
+
+        try:
+            self.create(client=client)
+        except google.gax.errors.RetryError as e:
+            if e.cause._state != grpc.StatusCode.ALREADY_EXISTS:  # pylint: disable=protected-access
+                raise
 
     async def poll(self, max_messages=1, client=None,
                    max_intermittent_errors=1, max_errors=0):
