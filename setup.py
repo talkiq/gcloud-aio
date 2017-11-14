@@ -12,6 +12,7 @@ REQUIREMENTS = [
     'gcloud-aio-auth >= 0.5.0, < 1.0.0',
     'gcloud-aio-bigquery >= 0.5.0, < 1.0.0',
     'gcloud-aio-core >= 0.5.0, < 1.0.0',
+    'gcloud-aio-pubsub >= 0.5.0, < 1.0.0',
     'gcloud-aio-storage >= 0.5.0, < 1.0.0',
     'gcloud-aio-taskqueue >= 0.5.0, < 1.0.0',
 ]
@@ -19,7 +20,7 @@ REQUIREMENTS = [
 
 setuptools.setup(
     name='gcloud-aio',
-    version='0.5.0',
+    version='0.5.1',
     description='Asyncio Client library for Google Cloud API',
     long_description=README,
     install_requires=REQUIREMENTS,
