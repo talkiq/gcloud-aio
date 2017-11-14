@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import uuid
 
@@ -18,17 +19,18 @@ async def do_lifecycle(project, topic, subscription):
     subscription.pull(return_immediately=True, max_messages=1_000_000)
 
     # push four jobs
-    payloads = [
-        {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}},
-        {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}},
-        {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}},
-        {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}},
-    ]
-    for payload in payloads:
-        topic.publish(payload)
+    num_jobs = 4
+
+    uuids = [uuid.uuid4().hex for _ in range(num_jobs)]
+    payloads = []
+    for i in range(num_jobs):
+        data = {'this': {'is': {'a': {'test': uuids[i]}}}}
+        topic.publish(json.dumps(data).encode('utf-8'))
 
     async for idx, (job_id, message) in enumerate(subscription.poll()):
-        assert message in payloads
+        job = json.loads(message.data.decode('utf-8'))
+        assert job['this']['is']['a']['test'] in uuids
+
         await subscription.acknowledge([job_id])
 
         if idx == len(payloads) - 1:
