@@ -39,6 +39,14 @@ jobs:
       - checkout
       - run: nox -f core/nox.py
 
+  test-pubsub:
+    docker:
+      - image: googleapis/nox:0.17.0
+    steps:
+      - run: echo ${GOOGLE_SERVICE_JSON} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - checkout
+      - run: nox -f pubsub/nox.py
+
   test-storage:
     docker:
       - image: googleapis/nox:0.17.0
@@ -117,6 +125,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - test-pubsub:
+          filters:
+            tags:
+              only: /.*/
       - test-storage:
           filters:
             tags:
@@ -139,6 +151,7 @@ workflows:
             - test-auth
             - test-bigquery
             - test-core
+            - test-pubsub
             - test-storage
             - test-taskqueue
       - github:
@@ -154,5 +167,6 @@ workflows:
             - test-auth
             - test-bigquery
             - test-core
+            - test-pubsub
             - test-storage
             - test-taskqueue
