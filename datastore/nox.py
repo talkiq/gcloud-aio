@@ -23,7 +23,7 @@ def unit_tests(session, python_version):
         '--cov=tests.unit',
         '--cov-append',
         '--cov-report=',
-        '--cov-fail-under=100',
+        '--cov-fail-under=52',
         os.path.join('tests', 'unit'),
         *session.posargs)
 
@@ -66,6 +66,6 @@ def cover(session, python_version):
 
     session.install('codecov', 'coverage', 'pytest-cov')
 
-    session.run('coverage', 'report', '--show-missing', '--fail-under=100')
+    session.run('coverage', 'report', '--show-missing', '--fail-under=52')
     session.run('codecov')
     session.run('coverage', 'erase')
