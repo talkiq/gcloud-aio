@@ -1,5 +1,6 @@
 import asyncio
 import os
+import uuid
 
 from gcloud.aio.datastore import Datastore
 
@@ -23,7 +24,7 @@ def test_item_lifecycle():
     creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
     kind_name = 'gcloud-aio-test'
-    object_name = 'test_record'
+    object_name = 'test_record_{}'.format(uuid.uuid4())
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
