@@ -9,6 +9,7 @@ built to work with Python's asyncio.
 The following clients are available:
 
 - `Google Cloud BigQuery`_ (`BigQuery README`_)
+- `Google Cloud Datastore`_ (`Datastore README`_)
 - `Google Cloud PubSub`_ (`PubSub README`_)
 - `Google Cloud Storage`_ (`Storage README`_)
 - `Google Cloud Task Queue`_ (`Task Queue README`_)
@@ -21,10 +22,12 @@ Installation
     $ pip install --upgrade gcloud-aio
 
 .. _Google Cloud BigQuery: https://pypi.org/project/gcloud-aio-bigquery/
+.. _Google Cloud Datastore: https://pypi.org/project/gcloud-aio-datastore/
 .. _Google Cloud PubSub: https://pypi.org/project/gcloud-aio-pubsub/
 .. _Google Cloud Storage: https://pypi.org/project/gcloud-aio-storage/
 .. _Google Cloud Task Queue: https://pypi.org/project/gcloud-aio-taskqueue/
 .. _BigQuery README: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/README.rst
+.. _Datastore README: https://github.com/talkiq/gcloud-aio/blob/master/datastore/README.rst
 .. _PubSub README: https://github.com/talkiq/gcloud-aio/blob/master/pubsub/README.rst
 .. _Storage README: https://github.com/talkiq/gcloud-aio/blob/master/storage/README.rst
 .. _Task Queue README: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/README.rst
