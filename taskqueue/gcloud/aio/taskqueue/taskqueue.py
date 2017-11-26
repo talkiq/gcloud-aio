@@ -5,6 +5,7 @@ import asyncio
 import datetime
 import json
 import logging
+import time
 
 import ujson
 from gcloud.aio.auth import Token
@@ -228,21 +229,22 @@ class TaskQueue(object):
 
 
 class LocalTaskQueue(object):
-
     """
     An asynchronous in-memory Task Queue
     """
-
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, *args, **kwargs):  # pylint: disable=unused-argument
-
         self.queue = asyncio.Queue()
+        self.deleted = {}
         self.leased = {}
         self.ready = {}
-        self.deleted = {}
 
-        self.task_queue = kwargs.get('task_queue') or 'q:{}'.format(
-            self.next_id()
-        )
+        self.duration = 0
+        self.start_time = None
+
+        self.on_empty = kwargs.get('on_empty')
+        self.task_queue = kwargs.get('task_queue', 'q:{}'.format(
+            self.next_id()))
 
     @classmethod
     def next_id(cls, name='tqid'):
@@ -309,6 +311,14 @@ class LocalTaskQueue(object):
             del self.ready[id_]
             self.deleted[id_] = task
 
+        if self.on_empty:
+            if not self.ready and not self.leased and not self.queue.qsize():
+                if self.start_time:
+                    self.duration = time.perf_counter() - self.start_time
+
+                self.on_empty()
+                return
+
         await asyncio.sleep(0)
 
     async def lease_task(self, lease_seconds=60, num_tasks=1):
@@ -323,6 +333,9 @@ class LocalTaskQueue(object):
                 task = self.queue.get_nowait()
             except asyncio.QueueEmpty:
                 break
+
+            if not self.start_time:
+                self.start_time = time.perf_counter()
 
             if task['id'] in self.deleted:
                 del self.deleted[task['id']]
