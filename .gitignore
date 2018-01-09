@@ -2,6 +2,8 @@
 **/.cache/*
 **/__pycache__/*
 **/dist/*
+*.pyc
 */.coverage
 */build/*
 .nox/*
+venv/*

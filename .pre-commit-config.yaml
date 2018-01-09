@@ -31,6 +31,7 @@ repos:
         - -d invalid-name
         - -d locally-disabled
         - -d missing-docstring
+        - -d unused-variable  # TODO: bug in pylint?
 -   repo: git://github.com/Lucas-C/pre-commit-hooks
     sha: v1.1.4
     hooks:
