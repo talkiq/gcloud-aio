@@ -4,7 +4,7 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../core/', '../auth/')
+LOCAL_DEPS = ('../auth/', )
 
 
 @nox.session
@@ -37,7 +37,7 @@ def integration_tests(session, python_version):
     session.interpreter = 'python{}'.format(python_version)
     session.virtualenv_dirname = 'integration-' + python_version
 
-    session.install('aiohttp', 'pytest', *LOCAL_DEPS)
+    session.install('pytest', 'pytest-mock', *LOCAL_DEPS)
     session.install('.')
 
     session.run('py.test', '--quiet', 'tests/integration')
