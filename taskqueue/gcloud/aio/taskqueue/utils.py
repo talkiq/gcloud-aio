@@ -56,7 +56,8 @@ def decode(payload):
     for URL variants exist, where the + and / characters of standard
     Base64 are respectively replaced by - and _
     """
-    return base64.b64decode(payload.replace('-', '+').replace('_', '/'))
+    variant = payload.replace('-', '+').replace('_', '/')
+    return base64.b64decode(variant).decode()
 
 
 def encode(payload):

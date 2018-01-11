@@ -1,6 +1,5 @@
 # pylint: disable=too-many-locals
 import asyncio
-import json
 import os
 
 import aiohttp
@@ -19,15 +18,12 @@ async def do_task_lifecycle(mocker, project, creds, task_queue):
 
     with aiohttp.ClientSession() as session:
         tasks = [
-            {'test_idx': 1},
-            {'test_idx': 2},
-            {'test_idx': 3},
-            {'test_idx': 4},
+            '{"test_idx": 1}',
+            '{"test_idx": 2}',
+            '{"test_idx": 3}',
+            '{"test_idx": 4}',
+            'not-a-json-task',
         ]
-
-        @asyncio.coroutine
-        def mock_coro():
-            return
 
         worker = get_mock_coro('ok')
 
@@ -42,7 +38,7 @@ async def do_task_lifecycle(mocker, project, creds, task_queue):
 
         # INSERT
         for task in tasks:
-            await tm.tq.insert(encode(json.dumps(task)))
+            await tm.tq.insert(encode(task))
 
         await asyncio.sleep(3)
         tm.stop()

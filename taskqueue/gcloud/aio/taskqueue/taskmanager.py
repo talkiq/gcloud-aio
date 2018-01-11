@@ -7,7 +7,6 @@ import datetime
 import logging
 import traceback
 
-import ujson
 from gcloud.aio.taskqueue.error import FailFastError
 from gcloud.aio.taskqueue.taskqueue import LOCATION
 from gcloud.aio.taskqueue.taskqueue import TaskQueue
@@ -55,11 +54,11 @@ class TaskManager:
             return
 
         properties = {
-            'bucket': payload.get('bucket'),
             'error': str(exception),
             'generation': None,
             'metageneration': None,
-            'time_created': datetime.datetime.now(),
+            'payload': payload,
+            'time_created': datetime.datetime.now(datetime.timezone.utc),
             'traceback': traceback.format_exc(exception),
             'update': None,
         }
@@ -89,7 +88,7 @@ class TaskManager:
 
     async def process(self, task):
         name = task['name']
-        payload = ujson.loads(decode(task['pullMessage']['payload']))
+        payload = decode(task['pullMessage']['payload'])
         self.tasks[name] = task
 
         autorenew = asyncio.ensure_future(self.autorenew(name))

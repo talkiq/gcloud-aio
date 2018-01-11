@@ -41,7 +41,7 @@ async def do_task_lifecycle(project, creds, task_queue):
 
         leased_message = leased['tasks'][0]['pullMessage']
         leased_payload = json.loads(decode(leased_message['payload']))
-        leased_tag = decode(leased_message['tag']).decode()
+        leased_tag = decode(leased_message['tag'])
         assert leased_payload == payload
         assert leased_tag == tag
 
