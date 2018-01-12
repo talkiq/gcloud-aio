@@ -13,7 +13,7 @@ Installation
 Usage
 -----
 
-We're still working on documentation -- for now, you can use the `smoke test`_
+We're still working on documentation -- for now, you can use the `smoke tests`_
 as an example.
 
 In addition to the `TaskQueue` implementation -- which directly maps to the
@@ -25,7 +25,7 @@ Google Cloud API -- this project implements a Pull Task Queue Manager, which:
 - deletes tasks when they are completed successfully
 - dead-letters and deletes tasks when they have failed too many times
 
-.. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/tests/integration/smoke_test.py
+.. _smoke tests: https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square
     :alt: Latest PyPI Version
