@@ -59,7 +59,7 @@ class TaskManager:
             'metageneration': None,
             'payload': payload,
             'time_created': datetime.datetime.now(datetime.timezone.utc),
-            'traceback': traceback.format_exc(exception),
+            'traceback': traceback.format_exc(),
             'update': None,
         }
 
