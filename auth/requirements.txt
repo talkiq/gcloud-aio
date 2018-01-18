@@ -1,4 +1,4 @@
 aiohttp >= 2.0.0, < 3.0.0
 cryptography >= 2.0.0, < 3.0.0
-gcloud-aio-core >= 0.7.0, < 1.0.0
+gcloud-aio-core >= 0.7.1, < 1.0.0
 pyjwt >= 1.5.3, < 2.0.0
