@@ -1,4 +1,4 @@
-import json
+import ujson
 from urllib.parse import quote_plus
 from urllib.parse import urlencode
 
@@ -52,7 +52,7 @@ async def post(url, payload=None, timeout=60, urlencoded=False,
     else:
 
         if payload:
-            payload = json.dumps(payload)
+            payload = ujson.dumps(payload)
             payload = payload.encode('utf-8')
             content_length = str(len(payload))
         else:
@@ -114,7 +114,7 @@ async def patch(url, payload=None, timeout=60, session=None, headers=None,
     headers = headers or {}
 
     if payload:
-        payload = json.dumps(payload)
+        payload = ujson.dumps(payload)
         payload = payload.encode('utf-8')
         content_length = str(len(payload))
     else:
