@@ -175,20 +175,18 @@ class Blob(object):
 
     async def upload_from_string(self, data, session=None):
 
-        response = await self.bucket.storage.upload(
+        status, content = await self.bucket.storage.upload(
             self.bucket.name,
             self.name,
             data,
             session=session
         )
 
-        if response.status < 200 or response.status >= 300:
+        if status < 200 or status >= 300:
 
-            content = await response.text()
+            raise HttpError('{}: {}'.format(status, content))
 
-            raise HttpError('{}: {}'.format(response.code, content))
-
-        data = await response.json()
+        data = ujson.loads(content)
         self.__dict__.update(data)
 
         return data
