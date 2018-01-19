@@ -184,12 +184,11 @@ class Blob(object):
 
         if status < 200 or status >= 300:
 
-            raise HttpError('{}: {}'.format(status, content))
+            raise HttpError('{}: {}'.format(status, ujson.dumps(content)))
 
-        data = ujson.loads(content)
-        self.__dict__.update(data)
+        self.__dict__.update(content)
 
-        return data
+        return content
 
 
 async def download(bucket, object_name):
