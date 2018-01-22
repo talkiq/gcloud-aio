@@ -18,7 +18,8 @@ class TaskQueue:
     def __init__(self, project, service_file, taskqueue, location=LOCATION,
                  session=None, token=None):
         # pylint: disable=too-many-arguments
-        self.session = session or aiohttp.ClientSession()
+        self.session = session or aiohttp.ClientSession(conn_timeout=10,
+                                                        read_timeout=10)
 
         self.api_root = '{}/projects/{}/locations/{}/queues/{}'.format(
             API_ROOT, project, location, taskqueue)

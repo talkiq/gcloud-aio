@@ -55,7 +55,8 @@ class TaskManager:
                 task = await self.tq.renew(self.tasks[name],
                                            lease_seconds=self.lease_seconds)
                 self.tasks[name] = task
-        except concurrent.futures.CancelledError:
+        except (concurrent.futures.CancelledError,
+                concurrent.futures.TimeoutError):
             pass
         except Exception as e:  # pylint: disable=broad-except
             log.error('failed to autorenew task: %s', name)
