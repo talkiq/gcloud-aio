@@ -80,11 +80,8 @@ class TaskManager:
             tasks = task_lease.get('tasks')
             log.info('grabbed %d tasks', len(tasks))
 
-            futures = []
             for task in tasks:
-                futures.append(asyncio.ensure_future(self.process(task)))
-
-            await asyncio.gather(*futures)
+                asyncio.ensure_future(self.process(task))
 
     async def process(self, task):
         name = task['name']
@@ -133,7 +130,7 @@ class TaskManager:
                 await self.fail(task, payload, e)
                 return
 
-            log.info('successfully processing task: %s', name)
+            log.info('successfully processed task: %s', name)
 
             autorenew.cancel()
             with contextlib.suppress(asyncio.CancelledError):
