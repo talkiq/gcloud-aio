@@ -42,12 +42,16 @@ class TaskManager:
         self.tasks = dict()
 
     async def autorenew(self, name):
-        while True:
-            await asyncio.sleep(self.lease_seconds / 2)
+        try:
+            while True:
+                await asyncio.sleep(self.lease_seconds / 2)
 
-            task = await self.tq.renew(self.tasks[name],
-                                       lease_seconds=self.lease_seconds)
-            self.tasks[name] = task
+                task = await self.tq.renew(self.tasks[name],
+                                           lease_seconds=self.lease_seconds)
+                self.tasks[name] = task
+        except Exception as e:  # pylint: disable=broad-except
+            log.error('failed to autorenew task: %s', name)
+            log.exception(e)
 
     async def fail(self, task, payload, exception):
         if not self.deadletter_insert_function:
