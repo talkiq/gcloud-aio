@@ -49,7 +49,7 @@ class TaskManager:
             while True:
                 # N.B. the below is an interuptible version of:
                 #     await asyncio.sleep(self.lease_seconds / 2)
-                for _ in range(self.lease_seconds // 2):
+                for _ in range(int(self.lease_seconds // 2)):
                     await asyncio.sleep(1)
 
                 task = await self.tq.renew(self.tasks[name],
