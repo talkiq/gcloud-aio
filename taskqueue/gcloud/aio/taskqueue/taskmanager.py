@@ -6,6 +6,7 @@ import concurrent.futures
 import contextlib
 import datetime
 import logging
+import sys
 import traceback
 
 from gcloud.aio.taskqueue.error import FailFastError
@@ -23,8 +24,9 @@ class TaskManager:
     def __init__(self, project, service_file, taskqueue, worker,
                  backoff_base=2, backoff_factor=1.1, backoff_max_value=60,
                  batch_size=1, deadletter_insert_function=None,
-                 lease_seconds=10, location=LOCATION, max_concurrency=20,
-                 retry_limit=None, session=None, token=None):
+                 lease_seconds=10, location=LOCATION,
+                 max_concurrency=sys.maxsize, retry_limit=None, session=None,
+                 token=None):
         # pylint: disable=too-many-arguments,too-many-locals
         self.worker = worker
 
