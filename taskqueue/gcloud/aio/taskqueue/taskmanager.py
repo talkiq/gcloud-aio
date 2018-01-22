@@ -82,9 +82,17 @@ class TaskManager:
         while self.running:
             # only lease new tasks when we have room
             async with self.semaphore:
-                task_lease = await self.tq.lease(
-                    lease_seconds=self.lease_seconds,
-                    num_tasks=self.batch_size)
+                task_lease = None
+                try:
+                    task_lease = await self.tq.lease(
+                        lease_seconds=self.lease_seconds,
+                        num_tasks=self.batch_size)
+                except concurrent.futures.CancelledError:
+                    return
+                except concurrent.futures.TimeoutError:
+                    pass
+                except Exception as e:  # pylint: disable=broad-except
+                    log.exception(e)
 
             if not task_lease:
                 await asyncio.sleep(next(self.backoff))
