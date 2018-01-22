@@ -45,7 +45,10 @@ class TaskManager:
     async def autorenew(self, name):
         try:
             while True:
-                await asyncio.sleep(self.lease_seconds / 2)
+                # N.B. the below is an interuptible version of:
+                #     await asyncio.sleep(self.lease_seconds / 2)
+                for _ in range(self.lease_seconds // 2):
+                    await asyncio.sleep(1)
 
                 task = await self.tq.renew(self.tasks[name],
                                            lease_seconds=self.lease_seconds)
