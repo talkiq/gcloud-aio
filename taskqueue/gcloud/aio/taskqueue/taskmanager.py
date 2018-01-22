@@ -2,6 +2,7 @@
 An asynchronous task manager for Google Appengine Task Queues
 """
 import asyncio
+import concurrent.futures
 import contextlib
 import datetime
 import logging
@@ -49,6 +50,8 @@ class TaskManager:
                 task = await self.tq.renew(self.tasks[name],
                                            lease_seconds=self.lease_seconds)
                 self.tasks[name] = task
+        except concurrent.futures.CancelledError:
+            pass
         except Exception as e:  # pylint: disable=broad-except
             log.error('failed to autorenew task: %s', name)
             log.exception(e)
