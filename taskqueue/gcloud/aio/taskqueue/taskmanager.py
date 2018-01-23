@@ -3,13 +3,16 @@ An asynchronous task manager for Google Appengine Task Queues
 """
 import asyncio
 import concurrent.futures
-import contextlib
 import datetime
 import logging
+import multiprocessing
 import sys
+import time
 import traceback
 
+import requests
 from gcloud.aio.taskqueue.error import FailFastError
+from gcloud.aio.taskqueue.taskqueue import API_ROOT
 from gcloud.aio.taskqueue.taskqueue import LOCATION
 from gcloud.aio.taskqueue.taskqueue import TaskQueue
 from gcloud.aio.taskqueue.utils import backoff
@@ -17,6 +20,63 @@ from gcloud.aio.taskqueue.utils import decode
 
 
 log = logging.getLogger(__name__)
+
+
+class LeaseManager:
+    def __init__(self, headers, task, lease_seconds):
+        # TODO: token rotation
+        self.headers = headers
+        self.task = task
+        self.lease_seconds = lease_seconds
+
+        self.event = multiprocessing.Manager().Event()
+        self.future = None
+
+    def start(self, loop=None):
+        loop = asyncio.get_event_loop()
+        executor = concurrent.futures.ProcessPoolExecutor(1)
+        self.future = loop.run_in_executor(
+            executor, self.autorenew, self.event, self.headers, self.task,
+            self.lease_seconds)
+        return self
+
+    async def stop(self):
+        if not self.future:
+            return
+        self.event.set()
+        return await self.future
+
+    @staticmethod
+    def autorenew(event, headers, task, lease_seconds):
+        url = '{}/{}:renewLease'.format(API_ROOT, task['name'])
+        body = {
+            'leaseDuration': '{}s'.format(lease_seconds),
+            'responseView': 'FULL',
+        }
+
+        while not event.is_set():
+            time.sleep(lease_seconds / 2)
+
+            body['scheduleTime'] = task['scheduleTime']
+
+            try:
+                resp = requests.post(url, headers=headers, json=body)
+                resp.raise_for_status()
+                task = resp.json()
+            except requests.exceptions.HTTPError as e:
+                log.error('failed to autorenew task: %s', task['name'])
+                try:
+                    log.error(resp.json())
+                except ValueError:
+                    log.error(resp.text())
+                log.exception(e)
+                event.set()
+            except Exception as e:  # pylint: disable=broad-except
+                log.error('failed to autorenew task: %s', task['name'])
+                log.exception(e)
+                event.set()
+
+        return task
 
 
 class TaskManager:
@@ -42,25 +102,6 @@ class TaskManager:
                             location=location, session=session, token=token)
 
         self.running = False
-        self.tasks = dict()
-
-    async def autorenew(self, name):
-        try:
-            while True:
-                # N.B. the below is an interuptible version of:
-                #     await asyncio.sleep(self.lease_seconds / 2)
-                for _ in range(int(self.lease_seconds // 2)):
-                    await asyncio.sleep(1)
-
-                task = await self.tq.renew(self.tasks[name],
-                                           lease_seconds=self.lease_seconds)
-                self.tasks[name] = task
-        except (concurrent.futures.CancelledError,
-                concurrent.futures.TimeoutError):
-            pass
-        except Exception as e:  # pylint: disable=broad-except
-            log.error('failed to autorenew task: %s', name)
-            log.exception(e)
 
     async def fail(self, task, payload, exception):
         if not self.deadletter_insert_function:
@@ -107,9 +148,9 @@ class TaskManager:
     async def process(self, task):
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
-        self.tasks[name] = task
 
-        autorenew = asyncio.ensure_future(self.autorenew(name))
+        autorenew = LeaseManager(await self.tq.headers(), task,
+                                 self.lease_seconds).start()
 
         async with self.semaphore:
             log.info('processing task: %s', name)
@@ -120,13 +161,7 @@ class TaskManager:
                 log.error('[FailFastError] failed to process task: %s', name)
                 log.exception(e)
 
-                autorenew.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await autorenew
-
-                task = self.tasks[name]
-                del self.tasks[name]
-
+                task = await autorenew.stop()
                 await self.tq.delete(task)
                 await self.fail(task, payload, e)
                 return
@@ -134,12 +169,7 @@ class TaskManager:
                 log.error('failed to process task: %s', name)
                 log.exception(e)
 
-                autorenew.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await autorenew
-
-                task = self.tasks[name]
-                del self.tasks[name]
+                task = await autorenew.stop()
 
                 tries = task['status']['attemptDispatchCount']
                 if self.retry_limit is None or tries < self.retry_limit:
@@ -152,14 +182,7 @@ class TaskManager:
                 return
 
             log.info('successfully processed task: %s', name)
-
-            autorenew.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await autorenew
-
-            task = self.tasks[name]
-            del self.tasks[name]
-
+            task = await autorenew.stop()
             await self.tq.ack(task)
 
     def start(self):

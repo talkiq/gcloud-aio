@@ -19,6 +19,10 @@ log = logging.getLogger(__name__)
 
 
 async def raise_for_status(resp):
+    if not resp:
+        # TODO: clean this (and retry loops) up
+        raise aiohttp.client_exceptions.ServerDisconnectedError()
+
     try:
         resp.raise_for_status()
     except aiohttp.client_exceptions.ClientResponseError as e:
@@ -57,7 +61,13 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.post(url, json=body, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.post(url, json=body,
+                                    headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -70,7 +80,13 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.post(url, json=body, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.post(url, json=body,
+                                    headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -79,7 +95,12 @@ class TaskQueue:
         url = '{}/{}'.format(API_ROOT, tname)
 
         s = session or self.session
-        resp = await s.delete(url, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.delete(url, headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -97,7 +118,13 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.get(url, params=params, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.get(url, params=params,
+                                   headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -115,7 +142,13 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.post(url, json=body, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.post(url, json=body,
+                                    headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -132,7 +165,13 @@ class TaskQueue:
             body['filter'] = task_filter
 
         s = session or self.session
-        resp = await s.post(url, json=body, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.post(url, json=body,
+                                    headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -147,7 +186,13 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.get(url, params=params, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.get(url, params=params,
+                                   headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
 
@@ -161,6 +206,12 @@ class TaskQueue:
         }
 
         s = session or self.session
-        resp = await s.post(url, json=body, headers=await self.headers())
+        for _ in range(3):
+            try:
+                resp = await s.post(url, json=body,
+                                    headers=await self.headers())
+                break
+            except aiohttp.client_exceptions.ServerDisconnectedError:
+                log.warning('retrying due to server disconnect')
         await raise_for_status(resp)
         return await resp.json()
