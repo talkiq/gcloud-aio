@@ -2,6 +2,7 @@
 An asynchronous queue for Google Appengine Task Queues
 """
 import asyncio
+import logging
 
 import aiohttp
 from gcloud.aio.auth import Token
@@ -12,6 +13,21 @@ LOCATION = 'us-central1'
 SCOPES = [
     'https://www.googleapis.com/auth/cloud-tasks',
 ]
+
+
+log = logging.getLogger(__name__)
+
+
+async def raise_for_status(resp):
+    try:
+        resp.raise_for_status()
+    except aiohttp.client_exceptions.ClientResponseError as e:
+        try:
+            log.error(await resp.json())
+        except aiohttp.client_exceptions.ContentTypeError:
+            log.error(await resp.text)
+
+        raise
 
 
 class TaskQueue:
@@ -42,7 +58,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.post(url, json=body, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/cancelLease
@@ -55,7 +71,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.post(url, json=body, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/delete
@@ -64,7 +80,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.delete(url, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     async def drain(self):
@@ -82,7 +98,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.get(url, params=params, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
@@ -100,7 +116,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.post(url, json=body, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/lease
@@ -117,7 +133,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.post(url, json=body, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/list
@@ -132,7 +148,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.get(url, params=params, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/renewLease
@@ -146,5 +162,5 @@ class TaskQueue:
 
         s = session or self.session
         resp = await s.post(url, json=body, headers=await self.headers())
-        resp.raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
