@@ -6,7 +6,6 @@ import concurrent.futures
 import datetime
 import logging
 import multiprocessing
-import sys
 import time
 import traceback
 
@@ -23,8 +22,10 @@ log = logging.getLogger(__name__)
 
 
 class LeaseManager:
-    def __init__(self, event, headers, task, lease_seconds):
+    def __init__(self, event, executor, headers, task, lease_seconds):
+        # pylint: disable=too-many-arguments
         self.event = event
+        self.executor = executor
         self.future = None
 
         # TODO: token rotation
@@ -34,9 +35,8 @@ class LeaseManager:
 
     def start(self, loop=None):
         loop = asyncio.get_event_loop()
-        executor = concurrent.futures.ProcessPoolExecutor(1)
         self.future = loop.run_in_executor(
-            executor, self.autorenew, self.event, self.headers, self.task,
+            self.executor, self.autorenew, self.event, self.headers, self.task,
             self.lease_seconds)
         return self
 
@@ -83,9 +83,9 @@ class TaskManager:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, project, service_file, taskqueue, worker,
                  backoff_base=2, backoff_factor=1.1, backoff_max_value=60,
-                 batch_size=1, deadletter_insert_function=None,
+                 batch_size=10, deadletter_insert_function=None,
                  lease_seconds=10, location=LOCATION,
-                 max_concurrency=sys.maxsize, retry_limit=None, session=None,
+                 max_concurrency=100, retry_limit=None, session=None,
                  token=None):
         # pylint: disable=too-many-arguments,too-many-locals
         self.worker = worker
@@ -97,6 +97,7 @@ class TaskManager:
         self.lease_seconds = lease_seconds
         self.retry_limit = retry_limit
 
+        self.executor = concurrent.futures.ProcessPoolExecutor(max_concurrency)
         self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
         self.tq = TaskQueue(project, service_file, taskqueue,
@@ -151,7 +152,7 @@ class TaskManager:
         payload = decode(task['pullMessage']['payload'])
 
         try:
-            autorenew = LeaseManager(self.manager.Event(),
+            autorenew = LeaseManager(self.manager.Event(), self.executor,
                                      await self.tq.headers(), task,
                                      self.lease_seconds).start()
 
