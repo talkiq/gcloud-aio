@@ -205,3 +205,4 @@ class TaskManager:
     def stop(self):
         log.info('stopping task manager')
         self.running = False
+        self.executor.shutdown(wait=True)
