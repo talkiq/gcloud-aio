@@ -44,7 +44,11 @@ class LeaseManager:
         if not self.future:
             return
         self.event.set()
-        return await self.future
+        try:
+            return await self.future
+        except concurrent.futures.process.BrokenProcessPool:
+            # if the ProcessPool broke, hopefully it did so before renewing
+            return self.task
 
     @staticmethod
     def autorenew(event, headers, task, lease_seconds):
