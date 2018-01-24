@@ -97,7 +97,9 @@ async def raise_for_status(resp):
 async def retry(coro, exceptions=None, retries=3):
     for attempt in range(retries):
         try:
-            return await coro
+            resp = await coro
+            if resp is not None:
+                return resp
         except Exception as e:  # pylint: disable=broad-except
             if exceptions is not None and e not in exceptions:
                 raise
@@ -105,5 +107,4 @@ async def retry(coro, exceptions=None, retries=3):
                 raise
             log.warning('retrying due to %s', e)
 
-    raise aiohttp.client_exceptions.ClientResponseError(
-        None, None, code=429, message='hit retry limit ({})'.format(retries))
+    raise Exception('hit retry limit ({})'.format(retries))
