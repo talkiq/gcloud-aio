@@ -23,14 +23,14 @@ log = logging.getLogger(__name__)
 
 
 class LeaseManager:
-    def __init__(self, headers, task, lease_seconds):
+    def __init__(self, event, headers, task, lease_seconds):
+        self.event = event
+        self.future = None
+
         # TODO: token rotation
         self.headers = headers
         self.task = task
         self.lease_seconds = lease_seconds
-
-        self.event = multiprocessing.Manager().Event()
-        self.future = None
 
     def start(self, loop=None):
         loop = asyncio.get_event_loop()
@@ -97,6 +97,7 @@ class TaskManager:
         self.lease_seconds = lease_seconds
         self.retry_limit = retry_limit
 
+        self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
         self.tq = TaskQueue(project, service_file, taskqueue,
                             location=location, session=session, token=token)
@@ -150,7 +151,8 @@ class TaskManager:
         payload = decode(task['pullMessage']['payload'])
 
         try:
-            autorenew = LeaseManager(await self.tq.headers(), task,
+            autorenew = LeaseManager(self.manager.Event(),
+                                     await self.tq.headers(), task,
                                      self.lease_seconds).start()
 
             async with self.semaphore:
