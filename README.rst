@@ -8,11 +8,11 @@ built to work with Python's asyncio.
 
 The following clients are available:
 
-- `Google Cloud BigQuery`_ (`BigQuery README`_)
-- `Google Cloud Datastore`_ (`Datastore README`_)
-- `Google Cloud PubSub`_ (`PubSub README`_)
-- `Google Cloud Storage`_ (`Storage README`_)
-- `Google Cloud Task Queue`_ (`Task Queue README`_)
+- |pypibq| `Google Cloud BigQuery`_ (`BigQuery README`_)
+- |pypids| `Google Cloud Datastore`_ (`Datastore README`_)
+- |pypips| `Google Cloud PubSub`_ (`PubSub README`_)
+- |pypist| `Google Cloud Storage`_ (`Storage README`_)
+- |pypitq| `Google Cloud Task Queue`_ (`Task Queue README`_)
 
 Installation
 ------------
@@ -35,6 +35,26 @@ Installation
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio/
+
+.. |pypibq| image:: https://img.shields.io/pypi/v/gcloud-aio-bigquery.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-bigquery/
+
+.. |pypids| image:: https://img.shields.io/pypi/v/gcloud-aio-datastore.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-datastore/
+
+.. |pypips| image:: https://img.shields.io/pypi/v/gcloud-aio-pubsub.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-pubsub/
+
+.. |pypist| image:: https://img.shields.io/pypi/v/gcloud-aio-storage.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-storage/
+
+.. |pypitq| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square
+    :alt: Latest PyPI Version
+    :target: https://pypi.org/project/gcloud-aio-taskqueue/
 
 .. |circleci| image:: https://img.shields.io/circleci/project/github/talkiq/gcloud-aio/master.svg?style=flat-square
     :alt: CircleCI Test Status
