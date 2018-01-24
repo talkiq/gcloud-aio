@@ -151,11 +151,11 @@ class TaskManager:
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
 
-        try:
-            autorenew = LeaseManager(self.manager.Event(), self.executor,
-                                     await self.tq.headers(), task,
-                                     self.lease_seconds).start()
+        autorenew = LeaseManager(self.manager.Event(), self.executor,
+                                 await self.tq.headers(), task,
+                                 self.lease_seconds).start()
 
+        try:
             async with self.semaphore:
                 log.info('processing task: %s', name)
 
