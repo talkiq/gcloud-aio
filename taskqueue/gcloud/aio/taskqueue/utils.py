@@ -80,14 +80,14 @@ def encode(payload):
     return encoded.replace(b'+', b'-').replace(b'/', b'_').decode('utf-8')
 
 
-def raise_for_status(resp):
+async def raise_for_status(resp):
     if resp.status >= 400:
         loop = asyncio.get_event_loop()
 
         try:
-            log.error(loop.run_until_complete(resp.json()))
+            log.error(await resp.json())
         except aiohttp.client_exceptions.ContentTypeError:
-            log.error(loop.run_until_complete(resp.text()))
+            log.error(await resp.text())
 
         raise aiohttp.client_exceptions.ClientResponseError(
             resp.request_info, resp.history, code=resp.status,
