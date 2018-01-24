@@ -34,7 +34,7 @@ class LeaseManager:
         self.lease_seconds = lease_seconds
 
     def start(self, loop=None):
-        loop = asyncio.get_event_loop()
+        loop = loop or asyncio.get_event_loop()
         self.future = loop.run_in_executor(
             self.executor, self.autorenew, self.event, self.headers, self.task,
             self.lease_seconds)
@@ -151,9 +151,13 @@ class TaskManager:
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
 
-        autorenew = LeaseManager(self.manager.Event(), self.executor,
-                                 await self.tq.headers(), task,
-                                 self.lease_seconds).start()
+        try:
+            autorenew = LeaseManager(self.manager.Event(), self.executor,
+                                     await self.tq.headers(), task,
+                                     self.lease_seconds).start()
+        except concurrent.futures.process.BrokenProcessPool:
+            log.error('process pool broke, quitting TaskManager')
+            self.running = False
 
         try:
             async with self.semaphore:
@@ -189,6 +193,8 @@ class TaskManager:
                 log.info('successfully processed task: %s', name)
                 task = await autorenew.stop()
                 await self.tq.ack(task)
+        except Exception as e:  # pylint: disable=broad-except
+            log.exception(e)
         finally:
             await autorenew.stop()
 
