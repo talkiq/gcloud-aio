@@ -151,6 +151,7 @@ class TaskManager:
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
 
+        autorenew = None
         try:
             autorenew = LeaseManager(self.manager.Event(), self.executor,
                                      await self.tq.headers(), task,
@@ -170,7 +171,8 @@ class TaskManager:
                               name)
                     log.exception(e)
 
-                    task = await autorenew.stop()
+                    if autorenew is not None:
+                        task = await autorenew.stop()
                     await self.tq.delete(task)
                     await self.fail(task, payload, e)
                     return
@@ -178,7 +180,8 @@ class TaskManager:
                     log.error('failed to process task: %s', name)
                     log.exception(e)
 
-                    task = await autorenew.stop()
+                    if autorenew is not None:
+                        task = await autorenew.stop()
 
                     tries = task['status']['attemptDispatchCount']
                     if self.retry_limit is None or tries < self.retry_limit:
@@ -191,12 +194,14 @@ class TaskManager:
                     return
 
                 log.info('successfully processed task: %s', name)
-                task = await autorenew.stop()
+                if autorenew is not None:
+                    task = await autorenew.stop()
                 await self.tq.ack(task)
         except Exception as e:  # pylint: disable=broad-except
             log.exception(e)
         finally:
-            await autorenew.stop()
+            if autorenew is not None:
+                await autorenew.stop()
 
     def start(self):
         if self.running:
