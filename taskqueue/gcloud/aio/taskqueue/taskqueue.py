@@ -6,6 +6,8 @@ import logging
 
 import aiohttp
 from gcloud.aio.auth import Token
+from gcloud.aio.taskqueue.utils import raise_for_status
+from gcloud.aio.taskqueue.utils import retry
 
 
 API_ROOT = 'https://cloudtasks.googleapis.com/v2beta2'
@@ -14,24 +16,9 @@ SCOPES = [
     'https://www.googleapis.com/auth/cloud-tasks',
 ]
 
+aiohttp.ClientResponse.raise_for_status = raise_for_status
 
 log = logging.getLogger(__name__)
-
-
-async def raise_for_status(resp):
-    if not resp:
-        # TODO: clean this (and retry loops) up
-        raise aiohttp.client_exceptions.ServerDisconnectedError()
-
-    try:
-        resp.raise_for_status()
-    except aiohttp.client_exceptions.ClientResponseError as e:
-        try:
-            log.error(await resp.json())
-        except aiohttp.client_exceptions.ContentTypeError:
-            log.error(await resp.text)
-
-        raise
 
 
 class TaskQueue:
@@ -61,14 +48,9 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.post(url, json=body,
-                                    headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.post(url, headers=await self.headers(),
+                                  json=body))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/cancelLease
@@ -80,14 +62,9 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.post(url, json=body,
-                                    headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.post(url, headers=await self.headers(),
+                                  json=body))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/delete
@@ -95,13 +72,8 @@ class TaskQueue:
         url = '{}/{}'.format(API_ROOT, tname)
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.delete(url, headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.delete(url, headers=await self.headers()))
+        resp.raise_for_status()
         return await resp.json()
 
     async def drain(self):
@@ -118,14 +90,9 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.get(url, params=params,
-                                   headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.get(url, headers=await self.headers(),
+                                 params=params))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
@@ -142,14 +109,9 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.post(url, json=body,
-                                    headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.post(url, headers=await self.headers(),
+                                  json=body))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/lease
@@ -165,14 +127,9 @@ class TaskQueue:
             body['filter'] = task_filter
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.post(url, json=body,
-                                    headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.post(url, headers=await self.headers(),
+                                  json=body))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/list
@@ -186,14 +143,9 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.get(url, params=params,
-                                   headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.get(url, headers=await self.headers(),
+                                 params=params))
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/renewLease
@@ -206,12 +158,7 @@ class TaskQueue:
         }
 
         s = session or self.session
-        for _ in range(3):
-            try:
-                resp = await s.post(url, json=body,
-                                    headers=await self.headers())
-                break
-            except aiohttp.client_exceptions.ServerDisconnectedError:
-                log.warning('retrying due to server disconnect')
-        await raise_for_status(resp)
+        resp = await retry(s.post(url, headers=await self.headers(),
+                                  json=body))
+        resp.raise_for_status()
         return await resp.json()

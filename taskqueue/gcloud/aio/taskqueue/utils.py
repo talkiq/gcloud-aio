@@ -1,5 +1,12 @@
+import asyncio
 import base64
+import logging
 import random
+
+import aiohttp
+
+
+log = logging.getLogger(__name__)
 
 
 def backoff(base=2, factor=1.1, max_value=None):
@@ -71,3 +78,29 @@ def encode(payload):
 
     encoded = base64.b64encode(payload)
     return encoded.replace(b'+', b'-').replace(b'/', b'_').decode('utf-8')
+
+
+def raise_for_status(resp):
+    if resp.status >= 400:
+        loop = asyncio.get_event_loop()
+
+        try:
+            log.error(loop.run_until_complete(resp.json()))
+        except aiohttp.client_exceptions.ContentTypeError:
+            log.error(loop.run_until_complete(resp.text()))
+
+        raise aiohttp.client_exceptions.ClientResponseError(
+            resp.request_info, resp.history, code=resp.status,
+            headers=resp.headers, message=resp.reason)
+
+
+async def retry(coro, exceptions=None, retries=3):
+    for attempt in range(retries):
+        try:
+            return await coro
+        except Exception as e:  # pylint: disable=broad-except
+            if exceptions is not None and e not in exceptions:
+                raise
+            if attempt >= retries - 1:
+                raise
+            log.warning('retrying due to %s', e)
