@@ -156,8 +156,15 @@ class TaskManager:
             autorenew = LeaseManager(self.manager.Event(), self.executor,
                                      await self.tq.headers(), task,
                                      self.lease_seconds).start()
-        except concurrent.futures.process.BrokenProcessPool:
+        # N.B. theoretically, we should only catch
+        # concurrent.futures.process.BrokenProcessPool but I've come across
+        # several other errors (such as EOFError and ConnectionRefusedError)
+        # and at this point I'm sick of having to update the blacklist. If we
+        # get an exception while creating a LeaseManager, that's enough for me
+        # to be reasonably sure the pool is broken without needing proof.
+        except Exception as e:  # pylint: disable=broad-except
             log.error('process pool broke, quitting TaskManager')
+            log.exception(e)
             self.running = False
 
         try:
