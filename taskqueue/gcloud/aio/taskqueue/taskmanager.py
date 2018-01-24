@@ -21,6 +21,12 @@ from gcloud.aio.taskqueue.utils import decode
 log = logging.getLogger(__name__)
 
 
+def log_future_exception(fut):
+    e = fut.exception()
+    if e:
+        log.exception(e)
+
+
 class LeaseManager:
     def __init__(self, event, executor, headers, task, lease_seconds):
         # pylint: disable=too-many-arguments
@@ -149,7 +155,8 @@ class TaskManager:
             log.info('grabbed %d tasks', len(tasks))
 
             for task in tasks:
-                asyncio.ensure_future(self.process(task))
+                f = asyncio.ensure_future(self.process(task))
+                f.add_done_callback(log_future_exception)
 
     async def process(self, task):
         name = task['name']
