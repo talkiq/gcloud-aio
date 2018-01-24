@@ -149,41 +149,45 @@ class TaskManager:
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
 
-        autorenew = LeaseManager(await self.tq.headers(), task,
-                                 self.lease_seconds).start()
+        try:
+            autorenew = LeaseManager(await self.tq.headers(), task,
+                                     self.lease_seconds).start()
 
-        async with self.semaphore:
-            log.info('processing task: %s', name)
+            async with self.semaphore:
+                log.info('processing task: %s', name)
 
-            try:
-                await self.worker(payload)
-            except FailFastError as e:
-                log.error('[FailFastError] failed to process task: %s', name)
-                log.exception(e)
+                try:
+                    await self.worker(payload)
+                except FailFastError as e:
+                    log.error('[FailFastError] failed to process task: %s',
+                              name)
+                    log.exception(e)
 
-                task = await autorenew.stop()
-                await self.tq.delete(task)
-                await self.fail(task, payload, e)
-                return
-            except Exception as e:  # pylint: disable=broad-except
-                log.error('failed to process task: %s', name)
-                log.exception(e)
+                    task = await autorenew.stop()
+                    await self.tq.delete(task)
+                    await self.fail(task, payload, e)
+                    return
+                except Exception as e:  # pylint: disable=broad-except
+                    log.error('failed to process task: %s', name)
+                    log.exception(e)
 
-                task = await autorenew.stop()
+                    task = await autorenew.stop()
 
-                tries = task['status']['attemptDispatchCount']
-                if self.retry_limit is None or tries < self.retry_limit:
-                    await self.tq.cancel(task)
+                    tries = task['status']['attemptDispatchCount']
+                    if self.retry_limit is None or tries < self.retry_limit:
+                        await self.tq.cancel(task)
+                        return
+
+                    log.warning('exceeded retry_limit, failing task')
+                    await self.tq.delete(name)
+                    await self.fail(task, payload, e)
                     return
 
-                log.warning('exceeded retry_limit, failing task')
-                await self.tq.delete(name)
-                await self.fail(task, payload, e)
-                return
-
-            log.info('successfully processed task: %s', name)
-            task = await autorenew.stop()
-            await self.tq.ack(task)
+                log.info('successfully processed task: %s', name)
+                task = await autorenew.stop()
+                await self.tq.ack(task)
+        finally:
+            await autorenew.stop()
 
     def start(self):
         if self.running:
