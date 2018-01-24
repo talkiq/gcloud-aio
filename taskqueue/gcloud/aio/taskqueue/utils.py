@@ -105,6 +105,6 @@ async def retry(coro, exceptions=None, retries=3):
                 raise
             if attempt >= retries - 1:
                 raise
-            log.warning('retrying due to %s', e)
+            log.warning('retrying due to %s', str(e))
 
     raise Exception('hit retry limit ({})'.format(retries))
