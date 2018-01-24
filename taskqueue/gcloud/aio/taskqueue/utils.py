@@ -104,3 +104,6 @@ async def retry(coro, exceptions=None, retries=3):
             if attempt >= retries - 1:
                 raise
             log.warning('retrying due to %s', e)
+
+    raise aiohttp.client_exceptions.ClientResponseError(
+        None, None, code=429, message='hit retry limit ({})'.format(retries))
