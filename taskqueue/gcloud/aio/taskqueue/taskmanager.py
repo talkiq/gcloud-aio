@@ -173,10 +173,11 @@ class TaskManager:
         # and at this point I'm sick of having to update the blacklist. If we
         # get an exception while creating a LeaseManager, that's enough for me
         # to be reasonably sure the pool is broken without needing proof.
-        except (concurrent.futures.process.BrokenProcessPool, Exception) as e:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             log.error('process pool broke, quitting TaskManager')
             log.exception(e)
             self.running = False
+            return
 
         try:
             async with self.semaphore:
