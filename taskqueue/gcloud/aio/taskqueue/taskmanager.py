@@ -1,6 +1,7 @@
 """
 An asynchronous task manager for Google Appengine Task Queues
 """
+import aiohttp
 import asyncio
 import concurrent.futures
 import datetime
@@ -115,6 +116,16 @@ class TaskManager:
 
         self.running = False
 
+    def get_session(self):
+        connector = aiohttp.TCPConnector(
+            enable_cleanup_closed=True,
+            force_close=True,
+            limit_per_host=1)
+        return aiohttp.ClientSession(
+            connector=connector,
+            conn_timeout=10,
+            read_timeout=10)
+
     async def fail(self, task, payload, exception):
         if not self.deadletter_insert_function:
             return
@@ -137,9 +148,11 @@ class TaskManager:
             async with self.semaphore:
                 task_lease = None
                 try:
-                    task_lease = await self.tq.lease(
-                        lease_seconds=self.lease_seconds,
-                        num_tasks=self.batch_size)
+                    async with self.get_session() as session:
+                        task_lease = await self.tq.lease(
+                            lease_seconds=self.lease_seconds,
+                            num_tasks=self.batch_size,
+                            session=session)
                 except concurrent.futures.CancelledError:
                     return
                 except concurrent.futures.TimeoutError:
@@ -182,7 +195,7 @@ class TaskManager:
             return
 
         try:
-            async with self.semaphore:
+            async with self.semaphore, self.get_session() as session:
                 log.info('processing task: %s', name)
 
                 try:
@@ -194,7 +207,7 @@ class TaskManager:
 
                     if autorenew is not None:
                         task = await autorenew.stop()
-                    await self.tq.delete(name)
+                    await self.tq.delete(name, session=session)
                     await self.fail(task, payload, e)
                     return
                 except Exception as e:  # pylint: disable=broad-except
@@ -206,18 +219,18 @@ class TaskManager:
 
                     tries = task['status']['attemptDispatchCount']
                     if self.retry_limit is None or tries < self.retry_limit:
-                        await self.tq.cancel(task)
+                        await self.tq.cancel(task, session=session)
                         return
 
                     log.warning('exceeded retry_limit, failing task')
-                    await self.tq.delete(name)
+                    await self.tq.delete(name, session=session)
                     await self.fail(task, payload, e)
                     return
 
                 log.info('successfully processed task: %s', name)
                 if autorenew is not None:
                     task = await autorenew.stop()
-                await self.tq.ack(task)
+                await self.tq.ack(task, session=session)
         except Exception as e:  # pylint: disable=broad-except
             log.exception(e)
         finally:
