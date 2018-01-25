@@ -158,6 +158,8 @@ class TaskManager:
                 f = asyncio.ensure_future(self.process(task))
                 f.add_done_callback(log_future_exception)
 
+            await asyncio.sleep(0)
+
     async def process(self, task):
         name = task['name']
         payload = decode(task['pullMessage']['payload'])
