@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import logging
 import random
@@ -82,8 +81,6 @@ def encode(payload):
 
 async def raise_for_status(resp):
     if resp.status >= 400:
-        loop = asyncio.get_event_loop()
-
         try:
             log.error(await resp.json())
         except aiohttp.client_exceptions.ContentTypeError:
