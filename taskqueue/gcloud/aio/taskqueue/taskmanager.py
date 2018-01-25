@@ -8,8 +8,8 @@ import logging
 import multiprocessing
 import time
 import traceback
-import aiohttp
 
+import aiohttp
 import requests
 from gcloud.aio.taskqueue.error import FailFastError
 from gcloud.aio.taskqueue.taskqueue import API_ROOT
@@ -116,16 +116,12 @@ class TaskManager:
 
         self.running = False
 
-    @classmethod
-    def get_session(self):
-        connector = aiohttp.TCPConnector(
-            enable_cleanup_closed=True,
-            force_close=True,
-            limit_per_host=1)
-        return aiohttp.ClientSession(
-            connector=connector,
-            conn_timeout=10,
-            read_timeout=10)
+    @staticmethod
+    def get_session():
+        connector = aiohttp.TCPConnector(enable_cleanup_closed=True,
+                                         force_close=True, limit_per_host=1)
+        return aiohttp.ClientSession(connector=connector, conn_timeout=10,
+                                     read_timeout=10)
 
     async def fail(self, task, payload, exception):
         if not self.deadletter_insert_function:
@@ -152,8 +148,7 @@ class TaskManager:
                     async with self.get_session() as session:
                         task_lease = await self.tq.lease(
                             lease_seconds=self.lease_seconds,
-                            num_tasks=self.batch_size,
-                            session=session)
+                            num_tasks=self.batch_size, session=session)
                 except concurrent.futures.CancelledError:
                     return
                 except concurrent.futures.TimeoutError:
