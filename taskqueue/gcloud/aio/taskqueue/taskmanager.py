@@ -194,7 +194,7 @@ class TaskManager:
 
                     if autorenew is not None:
                         task = await autorenew.stop()
-                    await self.tq.delete(task)
+                    await self.tq.delete(name)
                     await self.fail(task, payload, e)
                     return
                 except Exception as e:  # pylint: disable=broad-except
