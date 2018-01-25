@@ -1,7 +1,6 @@
 """
 An asynchronous task manager for Google Appengine Task Queues
 """
-import aiohttp
 import asyncio
 import concurrent.futures
 import datetime
@@ -9,6 +8,7 @@ import logging
 import multiprocessing
 import time
 import traceback
+import aiohttp
 
 import requests
 from gcloud.aio.taskqueue.error import FailFastError
@@ -116,6 +116,7 @@ class TaskManager:
 
         self.running = False
 
+    @classmethod
     def get_session(self):
         connector = aiohttp.TCPConnector(
             enable_cleanup_closed=True,
