@@ -66,7 +66,10 @@ class LeaseManager:
         }
 
         while not event.is_set():
-            time.sleep(lease_seconds / 2)
+            for _ in range(int(lease_seconds // 2) * 10):
+                time.sleep(0.1)
+                if event.is_set():
+                    break
 
             body['scheduleTime'] = task['scheduleTime']
 
