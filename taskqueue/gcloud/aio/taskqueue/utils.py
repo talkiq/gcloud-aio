@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import logging
 import random
@@ -92,16 +93,19 @@ async def raise_for_status(resp):
 
 
 async def retry(coro, exceptions=None, retries=3):
-    for attempt in range(retries):
+    attempt = 0
+    while True:
+        attempt += 1
+
         try:
-            resp = await coro
-            if resp is not None:
-                return resp
+            return await coro
         except Exception as e:  # pylint: disable=broad-except
             if exceptions is not None and e not in exceptions:
                 raise
-            if attempt >= retries - 1:
-                raise
-            log.warning('retrying due to %s', str(e))
 
-    raise Exception('hit retry limit ({})'.format(retries))
+            if attempt >= retries:
+                raise
+
+            log.warning('retrying with attempt %d of %d', attempt, retries,
+                        exc_info=e)
+            await asyncio.sleep(0.5)
