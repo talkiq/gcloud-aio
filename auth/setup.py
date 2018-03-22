@@ -28,9 +28,11 @@ setuptools.setup(
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,
     zip_safe=False,
+    license='MIT License',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
