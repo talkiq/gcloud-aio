@@ -2,8 +2,8 @@ import functools
 import logging
 import uuid
 
+import aiohttp
 from gcloud.aio.auth import Token
-from gcloud.aio.core.http import post
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -71,46 +71,37 @@ class Table(object):
 
     async def insert(self, rows, skip_invalid=False, ignore_unknown=True,
                      session=None):
-
         session = session or self.session
 
-        body = make_insert_body(
-            rows,
-            skip_invalid=skip_invalid,
-            ignore_unknown=ignore_unknown
-        )
-
-        headers = await self.headers()
-
-        url = '{}/{}'.format(
-            API_ROOT,
-            INSERT_TEMPLATE.format(
-                proj=self.project,
-                dataset=self.dataset_name,
-                table=self.table_name
-            )
-        )
-
+        url = '{}/{}'.format(API_ROOT, INSERT_TEMPLATE.format(
+            proj=self.project, dataset=self.dataset_name,
+            table=self.table_name))
         log.info('Inserting %d rows to %s', len(rows), url)
 
-        status, content = await post(
-            url,
-            payload=body,
-            headers=headers
-        )
+        body = make_insert_body(rows, skip_invalid=skip_invalid,
+                                ignore_unknown=ignore_unknown)
+        payload = json.dumps(body).encode('utf-8')
 
-        success = 299 >= status >= 200 and 'insertErrors' not in content
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json'
+        })
 
-        if success:
-            return success
+        async with aiohttp.ClientSession() as s:
+            response = await s.post(url, data=payload, headers=headers,
+                                    params=None, timeout=60)
+            content = await response.json()
 
-        log.debug('response code: %d', status)
+        if 299 >= response.status >= 200 and 'insertErrors' not in content:
+            return True
+
+        log.debug('response code: %d', response.status)
         log.debug('url: %s', url)
-        log.debug('body:\n%s\n', body)
+        log.debug('body:\n%s\n', payload)
 
-        raise Exception('Could not insert: {}'.format(json.dumps(
-            content, sort_keys=True
-        )))
+        raise Exception('Could not insert: {}'.format(
+            json.dumps(content, sort_keys=True)))
 
 
 async def stream_insert(table, rows):
