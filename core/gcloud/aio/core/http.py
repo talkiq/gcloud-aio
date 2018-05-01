@@ -59,24 +59,3 @@ async def post(url, payload=None, timeout=60, urlencoded=False,
             content = await response.text()
 
     return response.status, content
-
-
-async def get(url, timeout=60, json_response=True, session=None, headers=None,
-              params=None):
-    # pylint: disable=too-many-arguments
-
-    async with ensure_session(session) as s:  # pylint: disable=not-async-context-manager
-
-        response = await s.get(
-            url,
-            headers=headers,
-            params=params,
-            timeout=timeout
-        )
-
-        if json_response:
-            content = await response.json()
-        else:
-            content = await response.text()
-
-    return response.status, content
