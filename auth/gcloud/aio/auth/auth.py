@@ -1,6 +1,7 @@
 """
 Google Cloud auth via service account file
 """
+import asyncio
 import datetime
 import json
 import time
@@ -8,7 +9,6 @@ import typing
 
 import aiohttp
 import jwt
-from gcloud.aio.core.aio import auto
 from gcloud.aio.core.http import post
 
 
@@ -121,7 +121,7 @@ class Token(object):
 
         elif not self.access_token:
 
-            self.acquiring = self.acquire_access_token()
+            self.acquiring = asyncio.ensure_future(self.acquire_access_token())
 
             await self.acquiring
 
@@ -132,11 +132,11 @@ class Token(object):
 
             if delta > self.access_token_duration / 2:
 
-                self.acquiring = self.acquire_access_token()
+                self.acquiring = asyncio.ensure_future(
+                    self.acquire_access_token())
 
                 await self.acquiring
 
-    @auto
     async def acquire_access_token(self):
 
         data = await acquire_token(
