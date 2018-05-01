@@ -6,10 +6,6 @@ import ujson
 from asyncio_extras.contextmanager import async_contextmanager
 
 
-class HttpError(Exception):
-    pass
-
-
 @async_contextmanager
 async def ensure_session(session):
 

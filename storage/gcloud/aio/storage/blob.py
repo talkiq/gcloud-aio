@@ -1,5 +1,4 @@
 import ujson
-from gcloud.aio.core.http import HttpError
 
 
 class Blob:
@@ -25,7 +24,7 @@ class Blob:
                                                            session=session)
 
         if status < 200 or status >= 300:
-            raise HttpError('{}: {}'.format(status, ujson.dumps(content)))
+            raise Exception('{}: {}'.format(status, ujson.dumps(content)))
 
         self.__dict__.update(content)
         return content
