@@ -25,13 +25,6 @@ jobs:
       - checkout
       - run: nox -f bigquery/nox.py
 
-  test-core:
-    docker:
-      - image: googleapis/nox:0.17.0
-    steps:
-      - checkout
-      - run: nox -f core/nox.py
-
   test-datastore:
     docker:
       - image: googleapis/nox:0.17.0
@@ -118,10 +111,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - test-core:
-          filters:
-            tags:
-              only: /.*/
       - test-datastore:
           filters:
             tags:
@@ -150,7 +139,6 @@ workflows:
             - lint
             - test-auth
             - test-bigquery
-            - test-core
             - test-datastore
             - test-pubsub
             - test-storage
@@ -166,7 +154,6 @@ workflows:
             - lint
             - test-auth
             - test-bigquery
-            - test-core
             - test-datastore
             - test-pubsub
             - test-storage
