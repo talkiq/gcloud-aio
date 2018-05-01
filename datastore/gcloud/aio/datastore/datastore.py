@@ -1,11 +1,15 @@
 import datetime
 import logging
 
+import aiohttp
 from gcloud.aio.auth import Token
-from gcloud.aio.core.http import post
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
 from gcloud.aio.datastore.constants import TypeName
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 
 API_ROOT = 'https://datastore.googleapis.com/v1/projects'
@@ -115,20 +119,23 @@ class Datastore(object):
     async def transact(self):
         url = '{}/{}:beginTransaction'.format(API_ROOT, self.project)
         headers = await self.headers()
-        body = {}
+        headers.update({
+            'Content-Length': '0',
+            'Content-Type': 'application/json'
+        })
 
-        status, content = await post(url, payload={}, headers=headers)
+        async with aiohttp.ClientSession() as s:
+            response = await s.post(url, data={}, headers=headers, params=None,
+                                    timeout=60)
+            content = await response.json()
 
         # TODO: make this raise_for_status-able.
-        success = 299 >= status >= 200
-
-        if success:
+        if 299 >= response.status >= 200:
             transaction = content['transaction']
             return transaction
 
-        log.debug('response code: %d', status)
+        log.debug('response code: %d', response.status)
         log.debug('url: %s', url)
-        log.debug('body:\n%s\n', body)
 
         raise Exception('Could not transact: {}'.format(content))
 
@@ -136,18 +143,24 @@ class Datastore(object):
         url = '{}/{}:commit'.format(API_ROOT, self.project)
 
         body = make_commit_body(transaction, mode, mutations)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json'
+        })
 
-        status, content = await post(url, payload=body, headers=headers)
+        async with aiohttp.ClientSession() as s:
+            response = await s.post(url, data=payload, headers=headers,
+                                    params=None, timeout=60)
+            content = await response.json()
 
         # TODO: make this raise_for_status-able.
-        success = 299 >= status >= 200 and 'insertErrors' not in content
+        if 299 >= response.status >= 200 and 'insertErrors' not in content:
+            return True
 
-        if success:
-            return success
-
-        raise Exception('{}: {} > {}'.format(status, url, content))
+        raise Exception('{}: {} > {}'.format(response.status, url, content))
 
     # TODO: look into deletion payload format
 
