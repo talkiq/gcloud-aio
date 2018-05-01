@@ -41,26 +41,3 @@ def auto(fn):
         return fire(fn, *args, **kwargs)
 
     return wrapper
-
-
-async def _call_later(delay, callable_, *args, **kwargs):
-
-    """
-    The bus stop, where we wait.
-    """
-
-    await asyncio.sleep(delay)
-
-    fire(callable_, *args, **kwargs)
-
-
-def call_later(delay, callable_, *args, **kwargs):
-
-    """
-    After :delay seconds, call :callable with :args and :kwargs; :callable can
-    be a synchronous or asynchronous callable (a coroutine). Note that _this_
-    function is synchronous - mission accomplished - it can be used from within
-    any synchronous or asynchronous callable.
-    """
-
-    return fire(_call_later, delay, callable_, *args, **kwargs)
