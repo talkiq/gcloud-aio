@@ -1,9 +1,12 @@
 import logging
 
 import aiohttp
-import ujson
 from gcloud.aio.auth import Token
 from gcloud.aio.storage.bucket import Bucket
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 
 STORAGE_API_ROOT = 'https://www.googleapis.com/storage/v1/b'
@@ -73,7 +76,7 @@ class Storage:
             file_data = file_data.encode('utf-8')
 
         if file_data:
-            file_data = ujson.dumps(file_data).encode('utf-8')
+            file_data = json.dumps(file_data).encode('utf-8')
             content_length = str(len(file_data))
         else:
             content_length = '0'

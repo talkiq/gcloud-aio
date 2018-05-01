@@ -1,7 +1,10 @@
 import logging
 
-import ujson
 from gcloud.aio.storage.blob import Blob
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 
 log = logging.getLogger(__name__)
@@ -23,7 +26,7 @@ class Bucket:
                       content)
             return
 
-        content = ujson.loads(content)
+        content = json.loads(content)
 
         return Blob(self, blob_name, content)
 
