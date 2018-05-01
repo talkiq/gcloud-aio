@@ -6,10 +6,11 @@ import datetime
 import json
 import time
 import typing
+from urllib.parse import quote_plus
+from urllib.parse import urlencode
 
 import aiohttp
 import jwt
-from gcloud.aio.core.http import post
 
 
 ScopeList = typing.List[str]
@@ -20,26 +21,22 @@ MISMATCH = "Project name passed to Token does not match service_file's " \
            'project_id.'
 
 
-async def acquire_token(session: aiohttp.ClientSession,
-                        service_data: dict,
+async def acquire_token(session: aiohttp.ClientSession, service_data: dict,
                         scopes: ScopeList = None):
-
     url, assertion = generate_assertion(service_data, scopes)
 
-    payload = {
-        'grant_type': JWT_GRANT_TYPE,
-        'assertion': assertion
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
     }
+    payload = urlencode({
+        'assertion': assertion,
+        'grant_type': JWT_GRANT_TYPE,
+    }, quote_via=quote_plus)
 
-    _status, content = await post(
-        url,
-        payload,
-        headers={'content-type': 'application/x-www-form-urlencoded'},
-        timeout=60,
-        urlencoded=True,
-        json_response=True,
-        session=session
-    )
+    async with session as s:
+        response = await s.post(url, data=payload, headers=headers,
+                                params=None, timeout=60)
+        content = await response.json()
 
     if 'error' in content:
         raise Exception('{}'.format(content))
@@ -100,7 +97,7 @@ class Token(object):
 
         self.scopes = scopes or []
 
-        self.session = session
+        self.session = session or aiohttp.ClientSession()
         self.access_token = None
         self.access_token_duration = None
         self.access_token_acquired_at = None
