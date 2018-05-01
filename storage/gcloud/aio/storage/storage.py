@@ -1,10 +1,8 @@
 import logging
-import mimetypes
 
 import aiohttp
+import ujson
 from gcloud.aio.auth import Token
-from gcloud.aio.core.http import get
-from gcloud.aio.core.http import post
 from gcloud.aio.storage.bucket import Bucket
 
 
@@ -33,8 +31,12 @@ class Storage:
             'Authorization': 'Bearer {}'.format(token),
         }
 
-        return await get(url, params=params or {}, headers=headers,
-                         session=self.session, json_response=False)
+        async with session as s:
+            response = await s.get(url, headers=headers, params=params or {},
+                                   timeout=60)
+            content = await response.text()
+
+        return response.status, content
 
     async def list_objects(self, bucket, params=None, session=None):
         session = session or self.session
@@ -45,8 +47,12 @@ class Storage:
             'Authorization': 'Bearer {}'.format(token),
         }
 
-        return await get(url, params=params or {}, headers=headers,
-                         session=self.session, json_response=True)
+        async with session as s:
+            response = await s.get(url, headers=headers, params=params or {},
+                                   timeout=60)
+            content = await response.json()
+
+        return response.status, content
 
     async def upload(self, bucket, object_name, file_data, headers=None,
                      session=None):
@@ -58,31 +64,33 @@ class Storage:
         url = '{}/{}/o'.format(STORAGE_UPLOAD_API_ROOT, bucket)
         headers = headers or {}
 
-        # TODO: verify this
-        if not isinstance(file_data, bytes):
-            body = file_data.encode('utf-8')
-        else:
-            body = file_data
-
-        body_length = str(len(body))
-
         params = {
             'name': object_name,
             'uploadType': 'media',
         }
 
-        content_type = mimetypes.guess_type(object_name)[0]
-        content_type = content_type or 'application/octet-stream'
+        if not isinstance(file_data, bytes):
+            file_data = file_data.encode('utf-8')
+
+        if file_data:
+            file_data = ujson.dumps(file_data).encode('utf-8')
+            content_length = str(len(file_data))
+        else:
+            content_length = '0'
 
         headers.update({
-            'accept': 'application/json',
+            'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(token),
-            'Content-Length': body_length,
-            'Content-Type': content_type,
+            'Content-Length': content_length,
+            'Content-Type': 'application/json',
         })
 
-        return await post(url, params=params, payload=body, headers=headers,
-                          timeout=120, session=session)
+        async with session as s:
+            response = await s.post(url, data=file_data, headers=headers,
+                                    params=params, timeout=120)
+            content = await response.json()
+
+        return response.status, content
 
     async def download_as_string(self, bucket, object_name, session=None):
         object_name = object_name.replace('/', '%2F')
