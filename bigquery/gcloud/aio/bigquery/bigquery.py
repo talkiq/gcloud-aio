@@ -2,9 +2,12 @@ import functools
 import logging
 import uuid
 
-import ujson
 from gcloud.aio.auth import Token
 from gcloud.aio.core.http import post
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 
 API_ROOT = 'https://www.googleapis.com/bigquery/v2'
@@ -105,7 +108,7 @@ class Table(object):
         log.debug('url: %s', url)
         log.debug('body:\n%s\n', body)
 
-        raise Exception('Could not insert: {}'.format(ujson.dumps(
+        raise Exception('Could not insert: {}'.format(json.dumps(
             content, sort_keys=True
         )))
 
