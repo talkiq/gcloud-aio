@@ -4,7 +4,7 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../core/', '../auth/')
+LOCAL_DEPS = ('../auth/', )
 
 
 @nox.session
