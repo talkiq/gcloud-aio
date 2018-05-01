@@ -43,7 +43,7 @@ The first line is the most specific in this format, it should have the format
 ``type(project): message``, where:
 
 - ``type`` is one of ``feat``, ``fix``, ``docs``, ``refactor``, ``style``, ``perf``, ``test``, or ``chore``
-- ``project`` is ``auth``, ``bigquery``, ``core``, etc.
+- ``project`` is ``auth``, ``bigquery``, ``datastore``, etc.
 - ``message`` is a concise description of the patch and brings the line to no more than 72 characters
 
 Coding Conventions
