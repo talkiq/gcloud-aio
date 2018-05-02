@@ -6,7 +6,7 @@ from gcloud.aio.auth import Token
 
 
 async def get_token(project, creds, scopes):
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         token = Token(project, creds, session=session, scopes=scopes)
         result = await token.get()
 

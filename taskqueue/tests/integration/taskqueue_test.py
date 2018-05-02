@@ -11,7 +11,7 @@ from gcloud.aio.taskqueue import TaskQueue
 
 
 async def do_task_lifecycle(project, creds, task_queue):
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         tq = TaskQueue(project, creds, task_queue, session=session)
 
         payload = {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}}

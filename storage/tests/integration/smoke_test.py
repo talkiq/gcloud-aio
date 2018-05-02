@@ -6,7 +6,7 @@ from gcloud.aio.storage import make_download
 
 
 async def download_object(project, creds, bucket_name, object_name):
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         download = make_download(project, creds, bucket_name, session=session)
         result = await download(object_name)
 
