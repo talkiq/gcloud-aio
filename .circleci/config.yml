@@ -9,13 +9,6 @@ jobs:
       - run: pip install pre-commit
       - run: pre-commit run --all-files
 
-  test-base:
-    docker:
-      - image: googleapis/nox:0.17.0
-    steps:
-      - checkout
-      - run: nox -s lint_setup_py
-
   test-auth:
     docker:
       - image: googleapis/nox:0.17.0
@@ -117,10 +110,6 @@ workflows:
             tags:
               only: /.*/
 
-      - test-base:
-          filters:
-            tags:
-              only: /.*/
       - test-auth:
           filters:
             tags:
@@ -159,7 +148,6 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - lint
-            - test-base
             - test-auth
             - test-bigquery
             - test-core
@@ -176,7 +164,6 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - lint
-            - test-base
             - test-auth
             - test-bigquery
             - test-core

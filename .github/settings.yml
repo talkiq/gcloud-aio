@@ -1,7 +1,7 @@
 repository:
   name: gcloud-aio
   description: Asyncio Google Cloud Client Library for Python
-  homepage: https://pypi.org/project/gcloud-aio/
+  homepage: https://github.com/TalkIQ/gcloud-aio/
   private: false
 
   has_issues: true
