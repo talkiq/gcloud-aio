@@ -60,6 +60,6 @@ Installation
     :alt: Code Coverage
     :target: https://codecov.io/gh/talkiq/gcloud-aio
 
-.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-core.svg?style=flat-square
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square
     :alt: Python Version Support
-    :target: https://pypi.org/project/gcloud-aio-core/
+    :target: https://pypi.org/project/gcloud-aio-auth/
