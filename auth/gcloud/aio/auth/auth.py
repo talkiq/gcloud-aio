@@ -33,10 +33,9 @@ async def acquire_token(session: aiohttp.ClientSession, service_data: dict,
         'grant_type': JWT_GRANT_TYPE,
     }, quote_via=quote_plus)
 
-    async with session as s:
-        response = await s.post(url, data=payload, headers=headers,
-                                params=None, timeout=60)
-        content = await response.json()
+    response = await session.post(url, data=payload, headers=headers,
+                                  params=None, timeout=60)
+    content = await response.json()
 
     if 'error' in content:
         raise Exception('{}'.format(content))
