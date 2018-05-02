@@ -26,34 +26,30 @@ class Storage:
                                     scopes=[READ_WRITE_SCOPE])
 
     async def download(self, bucket, object_name, params=None, session=None):
-        session = session or self.session
-
         token = await self.token.get()
         url = '{}/{}/o/{}'.format(STORAGE_API_ROOT, bucket, object_name)
         headers = {
             'Authorization': 'Bearer {}'.format(token),
         }
 
-        async with session as s:
-            response = await s.get(url, headers=headers, params=params or {},
-                                   timeout=60)
-            content = await response.text()
+        session = session or self.session
+        response = await session.get(url, headers=headers, params=params or {},
+                                     timeout=60)
+        content = await response.text()
 
         return response.status, content
 
     async def list_objects(self, bucket, params=None, session=None):
-        session = session or self.session
-
         token = await self.token.get()
         url = '{}/{}/o'.format(STORAGE_API_ROOT, bucket)
         headers = {
             'Authorization': 'Bearer {}'.format(token),
         }
 
-        async with session as s:
-            response = await s.get(url, headers=headers, params=params or {},
-                                   timeout=60)
-            content = await response.json()
+        session = session or self.session
+        response = await session.get(url, headers=headers, params=params or {},
+                                     timeout=60)
+        content = await response.json()
 
         return response.status, content
 
@@ -61,8 +57,6 @@ class Storage:
                      session=None):
         # pylint: disable=too-many-arguments
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
-        session = session or self.session
-
         token = await self.token.get()
         url = '{}/{}/o'.format(STORAGE_UPLOAD_API_ROOT, bucket)
         headers = headers or {}
@@ -88,10 +82,10 @@ class Storage:
             'Content-Type': 'application/json',
         })
 
-        async with session as s:
-            response = await s.post(url, data=file_data, headers=headers,
-                                    params=params, timeout=120)
-            content = await response.json()
+        session = session or self.session
+        response = await session.post(url, data=file_data, headers=headers,
+                                      params=params, timeout=120)
+        content = await response.json()
 
         return response.status, content
 
