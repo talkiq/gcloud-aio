@@ -28,7 +28,7 @@ async def do_task_lifecycle(mocker, project, creds, task_queue):
 
     worker = get_mock_coro('ok')
 
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         tm = TaskManager(project, creds, task_queue, worker,
                          batch_size=len(tasks), session=session)
 
@@ -68,7 +68,7 @@ async def do_task_multiple_leases(caplog, mocker, project, creds, task_queue):
 
     worker = get_mock_coro('ok')
 
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         tm = TaskManager(project, creds, task_queue, worker,
                          batch_size=len(tasks), lease_seconds=4,
                          session=session)

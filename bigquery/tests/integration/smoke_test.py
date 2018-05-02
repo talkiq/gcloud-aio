@@ -7,7 +7,7 @@ from gcloud.aio.bigquery import make_stream_insert
 
 
 async def insert_data(project, creds, dataset_name, table_name, rows):
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         stream_insert = make_stream_insert(project, creds, dataset_name,
                                            table_name, session=session)
         result = await stream_insert(rows)
