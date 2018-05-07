@@ -26,8 +26,7 @@ async def do_task_lifecycle(project, creds, task_queue):
         assert inserted
 
         # GET
-        got = await tq.get(inserted['name'], full=True)
-        assert got == inserted
+        assert inserted == await tq.get(inserted['name'], full=True)
 
         # LIST
         listed = await tq.list(full=True)
@@ -40,10 +39,8 @@ async def do_task_lifecycle(project, creds, task_queue):
         assert leased.get('tasks') and len(leased['tasks']) == 1
 
         leased_message = leased['tasks'][0]['pullMessage']
-        leased_payload = json.loads(decode(leased_message['payload']))
-        leased_tag = decode(leased_message['tag'])
-        assert leased_payload == payload
-        assert leased_tag == tag
+        assert payload == json.loads(decode(leased_message['payload']))
+        assert tag == decode(leased_message['tag'])
 
         # RENEW
         renewed = await tq.renew(leased['tasks'][0], lease_seconds=10)
@@ -57,8 +54,7 @@ async def do_task_lifecycle(project, creds, task_queue):
         # cancel?
 
         # DELETE
-        result = await tq.delete(renewed['name'])
-        assert not result
+        assert not await tq.delete(renewed['name'])
 
 
 def test_task_lifecycle():
