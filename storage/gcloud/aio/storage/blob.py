@@ -27,7 +27,7 @@ class Blob:
                                                            session=session)
 
         if status < 200 or status >= 300:
-            raise Exception('{}: {}'.format(status, json.dumps(content)))
+            raise Exception(f'{status}: {json.dumps(content)}')
 
         self.__dict__.update(content)
         return content

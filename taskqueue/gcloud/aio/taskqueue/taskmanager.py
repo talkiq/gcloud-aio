@@ -59,9 +59,9 @@ class LeaseManager:
 
     @staticmethod
     def autorenew(event, headers, task, lease_seconds):
-        url = '{}/{}:renewLease'.format(API_ROOT, task['name'])
+        url = f'{API_ROOT}/{task["name"]}:renewLease'
         body = {
-            'leaseDuration': '{}s'.format(lease_seconds),
+            'leaseDuration': f'{lease_seconds}s',
             'responseView': 'FULL',
         }
 

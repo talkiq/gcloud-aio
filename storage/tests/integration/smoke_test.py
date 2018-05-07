@@ -21,7 +21,7 @@ def test_object_is_downloaded():
     call_id = '07fbe0cc-7f87-1235-06b0-0cc47a392728'
     side = 'callee'
     link = 0
-    object_name = '{}/{}/{}/rtp.pcap.wav.ctm'.format(call_id, side, link)
+    object_name = f'{call_id}/{side}/{link}/rtp.pcap.wav.ctm'
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(

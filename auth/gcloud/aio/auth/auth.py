@@ -38,7 +38,7 @@ async def acquire_token(session: aiohttp.ClientSession, service_data: dict,
     content = await response.json()
 
     if 'error' in content:
-        raise Exception('{}'.format(content))
+        raise Exception(f'got error acquiring token: {content}')
 
     return {
         'access_token': str(content['access_token']),

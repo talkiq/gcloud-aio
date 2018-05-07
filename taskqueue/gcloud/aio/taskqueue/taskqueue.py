@@ -28,21 +28,22 @@ class TaskQueue:
         self.session = session or aiohttp.ClientSession(conn_timeout=10,
                                                         read_timeout=10)
 
-        self.api_root = '{}/projects/{}/locations/{}/queues/{}'.format(
-            API_ROOT, project, location, taskqueue)
+        self.api_root = (f'{API_ROOT}/projects/{project}/'
+                         f'locations/{location}/queues/{taskqueue}')
 
         self.token = token or Token(project, service_file, scopes=SCOPES,
                                     session=self.session)
 
     async def headers(self):
+        token = await self.token.get()
         return {
-            'Authorization': 'Bearer {}'.format(await self.token.get()),
+            'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/acknowledge
     async def ack(self, task, session=None):
-        url = '{}/{}:acknowledge'.format(API_ROOT, task['name'])
+        url = f'{API_ROOT}/{task["name"]}:acknowledge'
         body = {
             'scheduleTime': task['scheduleTime'],
         }
@@ -55,7 +56,7 @@ class TaskQueue:
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/cancelLease
     async def cancel(self, task, session=None):
-        url = '{}/{}:cancelLease'.format(API_ROOT, task['name'])
+        url = f'{API_ROOT}/{task["name"]}:cancelLease'
         body = {
             'scheduleTime': task['scheduleTime'],
             'responseView': 'BASIC',
@@ -69,7 +70,7 @@ class TaskQueue:
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/delete
     async def delete(self, tname, session=None):
-        url = '{}/{}'.format(API_ROOT, tname)
+        url = f'{API_ROOT}/{tname}'
 
         s = session or self.session
         resp = await retry(s.delete(url, headers=await self.headers()))
@@ -84,7 +85,7 @@ class TaskQueue:
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/get
     async def get(self, tname, full=False, session=None):
-        url = '{}/{}'.format(API_ROOT, tname)
+        url = f'{API_ROOT}/{tname}'
         params = {
             'responseView': 'FULL' if full else 'BASIC',
         }
@@ -97,7 +98,7 @@ class TaskQueue:
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
     async def insert(self, payload, tag=None, session=None):
-        url = '{}/tasks'.format(self.api_root)
+        url = f'{self.api_root}/tasks'
         body = {
             'task': {
                 'pullMessage': {
@@ -117,10 +118,10 @@ class TaskQueue:
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/lease
     async def lease(self, num_tasks=1, lease_seconds=60, task_filter=None,
                     session=None):
-        url = '{}/tasks:lease'.format(self.api_root)
+        url = f'{self.api_root}/tasks:lease'
         body = {
             'maxTasks': min(num_tasks, 1000),
-            'leaseDuration': '{}s'.format(lease_seconds),
+            'leaseDuration': f'{lease_seconds}s',
             'responseView': 'FULL',
         }
         if task_filter:
@@ -135,7 +136,7 @@ class TaskQueue:
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/list
     async def list(self, full=False, page_size=1000, page_token='',
                    session=None):
-        url = '{}/tasks'.format(self.api_root)
+        url = f'{self.api_root}/tasks'
         params = {
             'responseView': 'FULL' if full else 'BASIC',
             'pageSize': page_size,
@@ -150,10 +151,10 @@ class TaskQueue:
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/renewLease
     async def renew(self, task, lease_seconds=60, session=None):
-        url = '{}/{}:renewLease'.format(API_ROOT, task['name'])
+        url = f'{API_ROOT}/{task["name"]}:renewLease'
         body = {
             'scheduleTime': task['scheduleTime'],
-            'leaseDuration': '{}s'.format(lease_seconds),
+            'leaseDuration': f'{lease_seconds}s',
             'responseView': 'FULL',
         }
 

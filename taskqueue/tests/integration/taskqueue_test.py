@@ -36,7 +36,7 @@ async def do_task_lifecycle(project, creds, task_queue):
 
         # LEASE
         leased = await tq.lease(num_tasks=1, lease_seconds=10,
-                                task_filter='tag={}'.format(encode(tag)))
+                                task_filter=f'tag={encode(tag)}')
         assert leased.get('tasks') and len(leased['tasks']) == 1
 
         leased_message = leased['tasks'][0]['pullMessage']
