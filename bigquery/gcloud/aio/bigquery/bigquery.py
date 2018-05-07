@@ -66,16 +66,17 @@ class Table(object):
         token = await self.token.get()
 
         return {
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': f'Bearer {token}',
         }
 
     async def insert(self, rows, skip_invalid=False, ignore_unknown=True,
                      session=None):
         session = session or self.session
 
-        url = '{}/{}'.format(API_ROOT, INSERT_TEMPLATE.format(
-            proj=self.project, dataset=self.dataset_name,
-            table=self.table_name))
+        insert_url = INSERT_TEMPLATE.format(proj=self.project,
+                                            dataset=self.dataset_name,
+                                            table=self.table_name)
+        url = f'{API_ROOT}/{insert_url}'
         log.info('Inserting %d rows to %s', len(rows), url)
 
         body = make_insert_body(rows, skip_invalid=skip_invalid,
@@ -100,8 +101,8 @@ class Table(object):
         log.debug('url: %s', url)
         log.debug('body:\n%s\n', payload)
 
-        raise Exception('Could not insert: {}'.format(
-            json.dumps(content, sort_keys=True)))
+        content_blob = json.dumps(content, sort_keys=True)
+        raise Exception(f'could not insert: {content_blob}')
 
 
 async def stream_insert(table, rows):

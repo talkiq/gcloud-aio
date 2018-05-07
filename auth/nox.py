@@ -7,8 +7,8 @@ import nox
 @nox.session
 @nox.parametrize('python_version', ['3.6'])
 def unit_tests(session, python_version):
-    session.interpreter = 'python{}'.format(python_version)
-    session.virtualenv_dirname = 'unit-' + python_version
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = f'unit-{python_version}'
 
     session.install('pytest', 'pytest-cov')
     session.install('-e', '.')
@@ -31,8 +31,8 @@ def integration_tests(session, python_version):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')
 
-    session.interpreter = 'python{}'.format(python_version)
-    session.virtualenv_dirname = 'integration-' + python_version
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = f'integration-{python_version}'
 
     session.install('aiohttp', 'pytest')
     session.install('.')
@@ -43,7 +43,7 @@ def integration_tests(session, python_version):
 @nox.session
 @nox.parametrize('python_version', ['3.6'])
 def lint_setup_py(session, python_version):
-    session.interpreter = 'python{}'.format(python_version)
+    session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = 'setup'
 
     session.install('docutils', 'Pygments')
@@ -58,7 +58,7 @@ def lint_setup_py(session, python_version):
 @nox.session
 @nox.parametrize('python_version', ['3.6'])
 def cover(session, python_version):
-    session.interpreter = 'python{}'.format(python_version)
+    session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = 'cover'
 
     session.install('codecov', 'coverage', 'pytest-cov')

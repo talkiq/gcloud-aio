@@ -34,9 +34,7 @@ def infer_type(value):
     }.get(type(value))
 
     if not type_name:
-        raise Exception('Type {} not supported for DS insert. :('.format(
-            type(value)
-        ))
+        raise Exception(f'type {type(value)} not supported for DS insert')
 
     return type_name
 
@@ -113,11 +111,11 @@ class Datastore(object):
         token = await self.token.get()
 
         return {
-            'Authorization': 'Bearer {}'.format(token),
+            'Authorization': f'Bearer {token}',
         }
 
     async def transact(self):
-        url = '{}/{}:beginTransaction'.format(API_ROOT, self.project)
+        url = f'{API_ROOT}/{self.project}:beginTransaction'
         headers = await self.headers()
         headers.update({
             'Content-Length': '0',
@@ -137,10 +135,10 @@ class Datastore(object):
         log.debug('response code: %d', response.status)
         log.debug('url: %s', url)
 
-        raise Exception('Could not transact: {}'.format(content))
+        raise Exception(f'could not transact: {content}')
 
     async def commit(self, transaction, mutations, mode=Mode.TRANSACTIONAL):
-        url = '{}/{}:commit'.format(API_ROOT, self.project)
+        url = f'{API_ROOT}/{self.project}:commit'
 
         body = make_commit_body(transaction, mode, mutations)
         payload = json.dumps(body).encode('utf-8')
@@ -160,7 +158,7 @@ class Datastore(object):
         if 299 >= response.status >= 200 and 'insertErrors' not in content:
             return True
 
-        raise Exception('{}: {} > {}'.format(response.status, url, content))
+        raise Exception(f'{response.status}: {url} > {content}')
 
     # TODO: look into deletion payload format
 

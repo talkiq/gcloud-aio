@@ -10,8 +10,7 @@ READ_ONLY_SCOPE = 'https://www.googleapis.com/auth/devstorage.read_only'
 async def download(bucket, object_name):
     blob = await bucket.get_blob(object_name)
     if not blob:
-        raise Exception('No such object "{}/{}"'.format(bucket.name,
-                                                        object_name))
+        raise Exception(f'No such object "{bucket.name}/{object_name}"')
 
     return await blob.download_as_string()
 

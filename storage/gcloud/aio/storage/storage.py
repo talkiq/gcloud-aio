@@ -27,9 +27,9 @@ class Storage:
 
     async def download(self, bucket, object_name, params=None, session=None):
         token = await self.token.get()
-        url = '{}/{}/o/{}'.format(STORAGE_API_ROOT, bucket, object_name)
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
         headers = {
-            'Authorization': 'Bearer {}'.format(token),
+            'Authorization': f'Bearer {token}',
         }
 
         session = session or self.session
@@ -41,9 +41,9 @@ class Storage:
 
     async def list_objects(self, bucket, params=None, session=None):
         token = await self.token.get()
-        url = '{}/{}/o'.format(STORAGE_API_ROOT, bucket)
+        url = f'{STORAGE_API_ROOT}/{bucket}/o'
         headers = {
-            'Authorization': 'Bearer {}'.format(token),
+            'Authorization': f'Bearer {token}',
         }
 
         session = session or self.session
@@ -58,7 +58,7 @@ class Storage:
         # pylint: disable=too-many-arguments
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         token = await self.token.get()
-        url = '{}/{}/o'.format(STORAGE_UPLOAD_API_ROOT, bucket)
+        url = f'{STORAGE_UPLOAD_API_ROOT}/{bucket}/o'
         headers = headers or {}
 
         params = {
@@ -77,7 +77,7 @@ class Storage:
 
         headers.update({
             'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(token),
+            'Authorization': f'Bearer {token}',
             'Content-Length': content_length,
             'Content-Type': 'application/json',
         })
