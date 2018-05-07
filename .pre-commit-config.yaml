@@ -1,6 +1,6 @@
 repos:
 -   repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v1.2.0
+    sha: v1.2.3
     hooks:
     -   id: check-ast
     -   id: check-case-conflict
@@ -8,8 +8,10 @@ repos:
     -   id: check-json
     -   id: check-merge-conflict
     -   id: check-symlinks
+    -   id: check-vcs-permalinks
     -   id: check-xml
     -   id: check-yaml
+        args: [--allow-multiple-documents]
     -   id: debug-statements
     -   id: detect-private-key
     -   id: double-quote-string-fixer
@@ -17,11 +19,12 @@ repos:
     -   id: file-contents-sorter
         files: .gitignore
     -   id: mixed-line-ending
+        args: [--fix=lf]
     -   id: name-tests-test
     -   id: requirements-txt-fixer
     -   id: trailing-whitespace
 -   repo: git://github.com/pre-commit/mirrors-pylint
-    sha: v1.8.1
+    sha: v1.8.4
     hooks:
     -   id: pylint
         args:
@@ -32,15 +35,17 @@ repos:
         - -d locally-disabled
         - -d missing-docstring
 -   repo: git://github.com/Lucas-C/pre-commit-hooks
-    sha: v1.1.4
+    sha: v1.1.5
     hooks:
+    -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports.git
+-   repo: git://github.com/asottile/reorder_python_imports
     sha: v1.0.1
     hooks:
     -   id: reorder-python-imports
-        language_version: python3
--   repo: https://github.com/asottile/pyupgrade
+        language_version: python3.6
+        args: [--py3-plus]
+-   repo: git://github.com/asottile/pyupgrade
     sha: v1.2.0
     hooks:
     -   id: pyupgrade
