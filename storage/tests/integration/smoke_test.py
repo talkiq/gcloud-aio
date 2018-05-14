@@ -1,19 +1,12 @@
-import asyncio
 import os
 
 import aiohttp
+import pytest
 from gcloud.aio.storage import make_download
 
 
-async def download_object(project, creds, bucket_name, object_name):
-    async with aiohttp.ClientSession() as session:
-        download = make_download(project, creds, bucket_name, session=session)
-        result = await download(object_name)
-
-    assert result
-
-
-def test_object_is_downloaded():
+@pytest.mark.asyncio
+async def test_object_is_downloaded():
     project = os.environ['GCLOUD_PROJECT']
     creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
@@ -23,6 +16,8 @@ def test_object_is_downloaded():
     link = 0
     object_name = f'{call_id}/{side}/{link}/rtp.pcap.wav.ctm'
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        download_object(project, creds, bucket_name, object_name))
+    async with aiohttp.ClientSession() as session:
+        download = make_download(project, creds, bucket_name, session=session)
+        result = await download(object_name)
+
+    assert result

@@ -36,7 +36,7 @@ def integration_tests(session, python_version):
     session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = f'integration-{python_version}'
 
-    session.install('aiohttp', 'pytest', *LOCAL_DEPS)
+    session.install('aiohttp', 'pytest', 'pytest-asyncio', *LOCAL_DEPS)
     session.install('.')
 
     session.run('py.test', '--quiet', 'tests/integration')
