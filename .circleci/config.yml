@@ -158,3 +158,9 @@ workflows:
             - test-pubsub
             - test-storage
             - test-taskqueue
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master
