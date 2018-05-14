@@ -1,20 +1,26 @@
-import asyncio
 import json
 import os
 import uuid
 
 import gcloud.aio.pubsub as pubsub
+import pytest
 
 
-async def do_lifecycle(project, topic, subscription):
+@pytest.mark.asyncio
+async def test_pubsub_lifecycle():
+    project = os.environ['GCLOUD_PROJECT']
+
+    topic_name = 'test-topic'
+    subscription_name = 'test-subscription'
+
     subscriber = pubsub.Client(project)
 
     # create an empty topic
-    topic = subscriber.topic(topic)
+    topic = subscriber.topic(topic_name)
     topic.create_if_missing()
 
     # create an empty subscription
-    subscription = topic.subscription(subscription)
+    subscription = topic.subscription(subscription_name)
     subscription.create_if_missing()
     subscription.pull(return_immediately=True, max_messages=1_000_000)
 
@@ -39,13 +45,3 @@ async def do_lifecycle(project, topic, subscription):
 
     subscription.delete()
     topic.delete()
-
-
-def test_pubsub_lifecycle():
-    project = os.environ['GCLOUD_PROJECT']
-
-    topic = 'test-topic'
-    subscription = 'test-subscription'
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(do_lifecycle(project, topic, subscription))
