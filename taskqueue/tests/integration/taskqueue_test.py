@@ -1,16 +1,22 @@
 # pylint: disable=too-many-locals
-import asyncio
 import json
 import os
 import uuid
 
 import aiohttp
+import pytest
 from gcloud.aio.taskqueue import decode
 from gcloud.aio.taskqueue import encode
 from gcloud.aio.taskqueue import TaskQueue
 
 
-async def do_task_lifecycle(project, creds, task_queue):
+@pytest.mark.asyncio
+async def test_task_lifecycle():
+    project = os.environ['GCLOUD_PROJECT']
+    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+
+    task_queue = 'test-pull'
+
     async with aiohttp.ClientSession() as session:
         tq = TaskQueue(project, creds, task_queue, session=session)
 
@@ -55,14 +61,3 @@ async def do_task_lifecycle(project, creds, task_queue):
 
         # DELETE
         assert not await tq.delete(renewed['name'])
-
-
-def test_task_lifecycle():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
-    task_queue = 'test-pull'
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        do_task_lifecycle(project, creds, task_queue))
