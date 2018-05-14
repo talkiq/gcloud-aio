@@ -9,7 +9,13 @@ from gcloud.aio.taskqueue import encode
 from gcloud.aio.taskqueue import TaskManager
 
 
-async def do_task_lifecycle(mocker, project, creds, task_queue):
+@pytest.mark.asyncio
+async def test_task_lifecycle(mocker):
+    project = os.environ['GCLOUD_PROJECT']
+    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+
+    task_queue = 'test-pull'
+
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -49,8 +55,14 @@ async def do_task_lifecycle(mocker, project, creds, task_queue):
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
 
 
+@pytest.mark.asyncio
 @pytest.mark.slow
-async def do_task_multiple_leases(caplog, mocker, project, creds, task_queue):
+async def test_task_multiple_leases(caplog, mocker):
+    project = os.environ['GCLOUD_PROJECT']
+    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+
+    task_queue = 'test-pull'
+
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -88,25 +100,3 @@ async def do_task_multiple_leases(caplog, mocker, project, creds, task_queue):
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
     for record in caplog.records:
         assert record.levelname != 'ERROR'
-
-
-def test_task_lifecycle(mocker):
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
-    task_queue = 'test-pull'
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        do_task_lifecycle(mocker, project, creds, task_queue))
-
-
-def test_task_multiple_leases(caplog, mocker):
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
-    task_queue = 'test-pull'
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        do_task_multiple_leases(caplog, mocker, project, creds, task_queue))
