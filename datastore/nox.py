@@ -8,7 +8,7 @@ LOCAL_DEPS = ('../auth/', )
 
 
 @nox.session
-@nox.parametrize('python_version', ['3.6'])
+@nox.parametrize('python_version', ['3.6', '3.7'])
 def unit_tests(session, python_version):
     session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = f'unit-{python_version}'
@@ -28,7 +28,7 @@ def unit_tests(session, python_version):
 
 
 @nox.session
-@nox.parametrize('python_version', ['3.6'])
+@nox.parametrize('python_version', ['3.6', '3.7'])
 def integration_tests(session, python_version):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')
@@ -43,7 +43,7 @@ def integration_tests(session, python_version):
 
 
 @nox.session
-@nox.parametrize('python_version', ['3.6'])
+@nox.parametrize('python_version', ['3.7'])
 def lint_setup_py(session, python_version):
     session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = 'setup'
@@ -58,7 +58,7 @@ def lint_setup_py(session, python_version):
 
 
 @nox.session
-@nox.parametrize('python_version', ['3.6'])
+@nox.parametrize('python_version', ['3.7'])
 def cover(session, python_version):
     session.interpreter = f'python{python_version}'
     session.virtualenv_dirname = 'cover'
