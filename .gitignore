@@ -1,5 +1,5 @@
 **/*.egg-info/*
-**/.cache/*
+**/.pytest_cache/*
 **/__pycache__/*
 **/dist/*
 *.pyc
