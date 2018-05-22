@@ -7,7 +7,14 @@ jobs:
     steps:
       - checkout
       - run: pip install pre-commit
+      - restore_cache:
+          keys:
+            - cache-pre-commit-{{ checksum ".pre-commit-config.yaml" }}
       - run: pre-commit run --all-files
+      - save_cache:
+          key: cache-pre-commit-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
 
   test-auth:
     docker:
