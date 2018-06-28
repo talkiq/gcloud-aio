@@ -55,6 +55,19 @@ jobs:
       - checkout
       - run: nox -f datastore/nox.py
 
+  test-kms:
+    docker:
+      - image: googleapis/nox:0.18.2
+    steps:
+      - run:
+          name: install dependencies
+          command: |
+            apt-get update
+            apt-get install -y ca-certificates
+      - run: echo ${GOOGLE_SERVICE_JSON} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - checkout
+      - run: nox -f kms/nox.py
+
   test-pubsub:
     docker:
       - image: googleapis/nox:0.18.2
@@ -152,6 +165,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - test-kms:
+          filters:
+            tags:
+              only: /.*/
       - test-pubsub:
           filters:
             tags:
@@ -177,6 +194,7 @@ workflows:
             - test-auth
             - test-bigquery
             - test-datastore
+            - test-kms
             - test-pubsub
             - test-storage
             - test-taskqueue
@@ -192,6 +210,7 @@ workflows:
             - test-auth
             - test-bigquery
             - test-datastore
+            - test-kms
             - test-pubsub
             - test-storage
             - test-taskqueue
