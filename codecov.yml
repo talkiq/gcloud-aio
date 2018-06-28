@@ -2,6 +2,7 @@ fixes:
   - gcloud/aio/auth/::auth/gcloud/aio/auth/
   - gcloud/aio/bigquery/::bigquery/gcloud/aio/bigquery/
   - gcloud/aio/datastore/::datastore/gcloud/aio/datastore/
+  - gcloud/aio/kms/::kms/gcloud/aio/kms/
   - gcloud/aio/pubsub/::pubsub/gcloud/aio/pubsub/
   - gcloud/aio/storage/::storage/gcloud/aio/storage/
   - gcloud/aio/taskqueue/::taskqueue/gcloud/aio/taskqueue/
