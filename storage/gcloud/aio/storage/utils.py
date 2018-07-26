@@ -17,7 +17,7 @@ async def download(bucket, object_name):
 
 def make_download(project, service_file, bucket_name, session=None,
                   token=None):
-    token = token or Token(project, service_file, scopes=[READ_ONLY_SCOPE])
+    token = token or Token(project, service_file, session=session, scopes=[READ_ONLY_SCOPE])
 
     storage = Storage(project, service_file, session=session, token=token)
     bucket = storage.get_bucket(bucket_name)
