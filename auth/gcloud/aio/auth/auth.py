@@ -13,77 +13,16 @@ import aiohttp
 import jwt
 
 
-ScopeList = typing.List[str]
-
-JWT_GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
 GCLOUD_TOKEN_DURATION = 3600
 MISMATCH = "Project name passed to Token does not match service_file's " \
            'project_id.'
 
 
-async def acquire_token(session: aiohttp.ClientSession, service_data: dict,
-                        scopes: ScopeList = None):
-    url, assertion = generate_assertion(service_data, scopes)
-
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    payload = urlencode({
-        'assertion': assertion,
-        'grant_type': JWT_GRANT_TYPE,
-    }, quote_via=quote_plus)
-
-    response = await session.post(url, data=payload, headers=headers,
-                                  params=None, timeout=60)
-    content = await response.json()
-
-    if 'error' in content:
-        raise Exception(f'got error acquiring token: {content}')
-
-    return {
-        'access_token': str(content['access_token']),
-        'expires_in': int(content['expires_in']),
-    }
-
-
-def generate_assertion(service_data: dict, scopes: ScopeList = None):
-
-    payload = make_gcloud_oauth_body(
-        service_data['token_uri'],
-        service_data['client_email'],
-        scopes
-    )
-
-    jwt_token = jwt.encode(
-        payload,
-        service_data['private_key'],
-        algorithm='RS256'  # <-- this means we need 240MB in additional
-                           # dependencies...
-    )
-
-    return service_data['token_uri'], jwt_token
-
-
-def make_gcloud_oauth_body(uri: str, client_email: str, scopes: ScopeList):
-
-    now = int(time.time())
-
-    return {
-        'aud': uri,
-        'exp': now + GCLOUD_TOKEN_DURATION,
-        'iat': now,
-        'iss': client_email,
-        'scope': ' '.join(scopes),
-    }
-
-
 class Token(object):
     # pylint: disable=too-many-instance-attributes
-
     def __init__(self, project: str, service_file: str,
                  session: aiohttp.ClientSession = None,
-                 scopes: ScopeList = None):
-
+                 scopes: typing.List[str] = None):
         self.project = project
 
         with open(service_file, 'r') as f:
@@ -94,9 +33,9 @@ class Token(object):
         # sanity check
         assert self.project == self.service_data['project_id'], MISMATCH
 
+        self.session = session or aiohttp.ClientSession()
         self.scopes = scopes or []
 
-        self.session = session or aiohttp.ClientSession()
         self.access_token = None
         self.access_token_duration = None
         self.access_token_acquired_at = None
@@ -104,49 +43,61 @@ class Token(object):
         self.acquiring = None
 
     async def get(self):
-
         await self.ensure_token()
-
         return self.access_token
 
     async def ensure_token(self):
-
         if self.acquiring:
-
             await self.acquiring
+            return
 
-        elif not self.access_token:
-
+        if not self.access_token:
             self.acquiring = asyncio.ensure_future(self.acquire_access_token())
-
             await self.acquiring
+            return
 
-        else:
+        now = datetime.datetime.now()
+        delta = (now - self.access_token_acquired_at).total_seconds()
+        if delta <= self.access_token_duration / 2:
+            return
 
-            now = datetime.datetime.now()
-            delta = (now - self.access_token_acquired_at).total_seconds()
+        self.acquiring = asyncio.ensure_future(self.acquire_access_token())
+        await self.acquiring
 
-            if delta > self.access_token_duration / 2:
+    def _generate_assertion(self):
+        now = int(time.time())
+        payload = {
+            'aud': self.service_data['token_uri'],
+            'exp': now + GCLOUD_TOKEN_DURATION,
+            'iat': now,
+            'iss': self.service_data['client_email'],
+            'scope': ' '.join(self.scopes),
+        }
 
-                self.acquiring = asyncio.ensure_future(
-                    self.acquire_access_token())
-
-                await self.acquiring
+        # N.B. algorithm='RS256' requires an extra 240MB in dependencies...
+        return jwt.encode(payload, self.service_data['private_key'],
+                          algorithm='RS256')
 
     async def acquire_access_token(self):
+        assertion = self._generate_assertion()
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        payload = urlencode({
+            'assertion': assertion,
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        }, quote_via=quote_plus)
 
-        data = await acquire_token(
-            self.session,
-            self.service_data,
-            self.scopes
-        )
+        response = await self.session.post(self.service_data['token_uri'],
+                                           data=payload, headers=headers,
+                                           params=None, timeout=60)
+        content = await response.json()
 
-        access_token = data['access_token']
-        expires_in = data['expires_in']
+        if 'error' in content:
+            raise Exception(f'got error acquiring token: {content}')
 
-        self.access_token = access_token
-        self.access_token_duration = expires_in
+        self.access_token = str(content['access_token'])
+        self.access_token_duration = int(content['expires_in'])
         self.access_token_acquired_at = datetime.datetime.now()
         self.acquiring = None
-
         return True
