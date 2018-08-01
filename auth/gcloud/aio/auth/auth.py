@@ -14,8 +14,6 @@ import jwt
 
 
 GCLOUD_TOKEN_DURATION = 3600
-MISMATCH = "Project name passed to Token does not match service_file's " \
-           'project_id.'
 
 
 class Token(object):
@@ -29,9 +27,6 @@ class Token(object):
             service_data_str = f.read()
 
         self.service_data = json.loads(service_data_str)
-
-        # sanity check
-        assert self.project == self.service_data['project_id'], MISMATCH
 
         self.session = session or aiohttp.ClientSession()
         self.scopes = scopes or []
