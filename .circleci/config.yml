@@ -197,7 +197,7 @@ workflows:
             - test-kms
             - test-pubsub
             - test-storage
-            - test-taskqueue
+            # - test-taskqueue  # TODO: flaky
       - github:
           context: org-global
           filters:
@@ -213,7 +213,7 @@ workflows:
             - test-kms
             - test-pubsub
             - test-storage
-            - test-taskqueue
+            # - test-taskqueue  # TODO: flaky
 
 experimental:
   notify:
