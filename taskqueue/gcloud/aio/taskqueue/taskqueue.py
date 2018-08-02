@@ -16,8 +16,6 @@ SCOPES = [
     'https://www.googleapis.com/auth/cloud-tasks',
 ]
 
-aiohttp.ClientResponse.async_log_and_raise_for_status = raise_for_status
-
 log = logging.getLogger(__name__)
 
 
@@ -51,7 +49,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/cancelLease
@@ -65,7 +63,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/delete
@@ -74,7 +72,7 @@ class TaskQueue:
 
         s = session or self.session
         resp = await retry(s.delete(url, headers=await self.headers()))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     async def drain(self):
@@ -93,7 +91,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.get(url, headers=await self.headers(),
                                  params=params))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
@@ -112,7 +110,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/lease
@@ -130,7 +128,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/list
@@ -146,7 +144,7 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.get(url, headers=await self.headers(),
                                  params=params))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/renewLease
@@ -161,5 +159,5 @@ class TaskQueue:
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
-        await resp.async_log_and_raise_for_status()
+        await raise_for_status(resp)
         return await resp.json()
