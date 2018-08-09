@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 def log_future_exception(fut):
     e = fut.exception()
     if e:
-        log.exception(e)
+        log.error('got unhandled exception in future', exc_info=e)
 
 
 class LeaseManager:
@@ -78,16 +78,16 @@ class LeaseManager:
                 resp.raise_for_status()
                 task = resp.json()
             except requests.exceptions.HTTPError as e:
-                log.error('failed to autorenew task: %s', task['name'])
                 try:
-                    log.error(resp.json())
+                    data = resp.json()
                 except ValueError:
-                    log.error(resp.text())
-                log.exception(e)
+                    data = resp.text()
+                log.error('failed to autorenew task %s: ', task['name'], data,
+                          exc_info=e)
                 event.set()
             except Exception as e:  # pylint: disable=broad-except
-                log.error('failed to autorenew task: %s', task['name'])
-                log.exception(e)
+                log.error('failed to autorenew task: %s', task['name'],
+                          exc_info=e)
                 event.set()
 
         return task
@@ -156,8 +156,15 @@ class TaskManager:
                     return
                 except concurrent.futures.TimeoutError:
                     pass
+                except aiohttp.client_exceptions.ClientResponseError as e:
+                    if e.code != 429:
+                        log.error('got error attempting to lease tasks'
+                                  ', retrying', exc_info=e)
+                        continue
+                    # otherwise, churn with backoff
                 except Exception as e:  # pylint: disable=broad-except
-                    log.exception(e)
+                    log.error('got error attempting to lease tasks, retrying',
+                              exc_info=e)
 
             if not task_lease:
                 await asyncio.sleep(next(self.backoff))
@@ -188,8 +195,7 @@ class TaskManager:
         # get an exception while creating a LeaseManager, that's enough for me
         # to be reasonably sure the pool is broken without needing proof.
         except Exception as e:  # pylint: disable=broad-except
-            log.error('process pool broke, quitting TaskManager')
-            log.exception(e)
+            log.error('process pool broke, quitting TaskManager', exc_info=e)
             self.running = False
             return
 
@@ -201,8 +207,7 @@ class TaskManager:
                     await self.worker(payload)
                 except FailFastError as e:
                     log.error('[FailFastError] failed to process task: %s',
-                              name)
-                    log.exception(e)
+                              name, exc_info=e)
 
                     if autorenew is not None:
                         task = await autorenew.stop()
@@ -210,8 +215,7 @@ class TaskManager:
                     await self.fail(task, payload, e)
                     return
                 except Exception as e:  # pylint: disable=broad-except
-                    log.error('failed to process task: %s', name)
-                    log.exception(e)
+                    log.error('failed to process task: %s', name, exc_info=e)
 
                     if autorenew is not None:
                         task = await autorenew.stop()
@@ -231,7 +235,8 @@ class TaskManager:
                     task = await autorenew.stop()
                 await self.tq.ack(task, session=session)
         except Exception as e:  # pylint: disable=broad-except
-            log.exception(e)
+            log.error('got unhandled error attempting to process task %s',
+                      name, exc_info=e)
         finally:
             if autorenew is not None:
                 await autorenew.stop()
