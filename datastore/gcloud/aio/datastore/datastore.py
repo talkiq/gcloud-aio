@@ -103,6 +103,7 @@ def make_value(value):
 class Datastore(object):
     def __init__(self, project, service_file, session=None, token=None):
         self.project = project
+
         self.session = session
         self.token = token or Token(project, service_file, session=session,
                                     scopes=SCOPES)
@@ -114,7 +115,7 @@ class Datastore(object):
             'Authorization': f'Bearer {token}',
         }
 
-    async def transact(self):
+    async def transact(self, session=None):
         url = f'{API_ROOT}/{self.project}:beginTransaction'
         headers = await self.headers()
         headers.update({
@@ -122,10 +123,13 @@ class Datastore(object):
             'Content-Type': 'application/json'
         })
 
-        async with aiohttp.ClientSession() as s:
-            response = await s.post(url, data={}, headers=headers, params=None,
-                                    timeout=60)
-            content = await response.json()
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        response = await session.post(url, data={}, headers=headers,
+                                      params=None, timeout=60)
+        content = await response.json()
 
         # TODO: make this raise_for_status-able.
         if 299 >= response.status >= 200:
@@ -137,7 +141,8 @@ class Datastore(object):
 
         raise Exception(f'could not transact: {content}')
 
-    async def commit(self, transaction, mutations, mode=Mode.TRANSACTIONAL):
+    async def commit(self, transaction, mutations, mode=Mode.TRANSACTIONAL,
+                     session=None):
         url = f'{API_ROOT}/{self.project}:commit'
 
         body = make_commit_body(transaction, mode, mutations)
@@ -149,10 +154,13 @@ class Datastore(object):
             'Content-Type': 'application/json'
         })
 
-        async with aiohttp.ClientSession() as s:
-            response = await s.post(url, data=payload, headers=headers,
-                                    params=None, timeout=60)
-            content = await response.json()
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        response = await session.post(url, data=payload, headers=headers,
+                                      params=None, timeout=60)
+        content = await response.json()
 
         # TODO: make this raise_for_status-able.
         if 299 >= response.status >= 200 and 'insertErrors' not in content:
@@ -177,11 +185,11 @@ class Datastore(object):
     async def operate(self, operation, kind, name, properties, session=None):
         # pylint: disable=too-many-arguments
         # TODO: tune pylint argument limits
-        transaction = await self.transact()
-
         session = session or self.session
+        transaction = await self.transact(session=session)
 
         mutation = make_mutation_record(operation, kind, name, properties,
                                         self.project)
 
-        return await self.commit(transaction, mutations=[mutation])
+        return await self.commit(transaction, mutations=[mutation],
+                                 session=session)
