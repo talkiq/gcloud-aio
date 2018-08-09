@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import uuid
 
 import gcloud.aio.pubsub as pubsub
@@ -10,8 +11,8 @@ import pytest
 async def test_pubsub_lifecycle():
     project = os.environ['GCLOUD_PROJECT']
 
-    topic_name = 'test-topic'
-    subscription_name = 'test-subscription'
+    topic_name = 'test-topic-{}'.format(uuid.uuid4().hex)
+    subscription_name = 'test-subscription-'.format(uuid.uuid4().hex)
 
     subscriber = pubsub.Client(project)
 
@@ -31,6 +32,9 @@ async def test_pubsub_lifecycle():
     for i in range(num_jobs):
         data = {'this': {'is': {'a': {'test': uuids[i]}}}}
         topic.publish(json.dumps(data).encode('utf-8'))
+
+    # try to avoid some flakiness
+    time.sleep(1)
 
     num_processed = 0
     async for job_id, message in subscription.poll():
