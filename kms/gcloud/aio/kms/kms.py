@@ -16,13 +16,11 @@ class KMS:
     def __init__(self, project, service_file, keyproject, keyring, keyname,
                  location=LOCATION, session=None, token=None):
         # pylint: disable=too-many-arguments
-        self.session = session or aiohttp.ClientSession(conn_timeout=10,
-                                                        read_timeout=10)
-
         self.api_root = (f'{API_ROOT}/projects/{keyproject}/'
                          f'locations/{location}/keyRings/{keyring}/'
                          f'cryptoKeys/{keyname}')
 
+        self.session = session
         self.token = token or Token(project, service_file, scopes=SCOPES,
                                     session=self.session)
 
@@ -40,6 +38,9 @@ class KMS:
             'ciphertext': ciphertext,
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
         resp.raise_for_status()
@@ -52,6 +53,9 @@ class KMS:
             'plaintext': plaintext,
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
         resp.raise_for_status()
