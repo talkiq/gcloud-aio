@@ -20,7 +20,7 @@ class Storage:
     def __init__(self, project, service_file, token=None, session=None):
         self.service_file = service_file
 
-        self.session = session or aiohttp.ClientSession()
+        self.session = session
         self.token = token or Token(project, self.service_file,
                                     session=self.session,
                                     scopes=[READ_WRITE_SCOPE])
@@ -32,6 +32,9 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         session = session or self.session
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=60)
@@ -46,6 +49,9 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         session = session or self.session
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=60)
@@ -82,6 +88,9 @@ class Storage:
             'Content-Type': 'application/json',
         })
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         session = session or self.session
         response = await session.post(url, data=file_data, headers=headers,
                                       params=params, timeout=120)
