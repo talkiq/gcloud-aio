@@ -123,14 +123,8 @@ class TaskManager:
         self.tq = TaskQueue(project, service_file, taskqueue,
                             location=location, token=token)
 
+        self.session = None
         self.running = False
-
-    @staticmethod
-    def get_session():
-        connector = aiohttp.TCPConnector(enable_cleanup_closed=True,
-                                         force_close=True, limit_per_host=1)
-        return aiohttp.ClientSession(connector=connector, conn_timeout=10,
-                                     read_timeout=10)
 
     async def fail(self, task, payload, exception):
         if not self.deadletter_insert_function:
@@ -149,15 +143,22 @@ class TaskManager:
         await self.deadletter_insert_function(task['name'], properties)
 
     async def poll(self):
+        if not self.session:
+            connector = aiohttp.TCPConnector(enable_cleanup_closed=True,
+                                             force_close=True,
+                                             limit_per_host=1)
+            self.session = aiohttp.ClientSession(connector=connector,
+                                                 conn_timeout=10,
+                                                 read_timeout=10)
+
         while self.running:
             # only lease new tasks when we have room
             async with self.semaphore:
                 task_lease = None
                 try:
-                    async with self.get_session() as session:
-                        task_lease = await self.tq.lease(
-                            lease_seconds=self.lease_seconds,
-                            num_tasks=self.batch_size, session=session)
+                    task_lease = await self.tq.lease(
+                        lease_seconds=self.lease_seconds,
+                        num_tasks=self.batch_size, session=self.session)
                 except concurrent.futures.CancelledError:
                     return
                 except concurrent.futures.TimeoutError:
@@ -206,7 +207,7 @@ class TaskManager:
             return
 
         try:
-            async with self.semaphore, self.get_session() as session:
+            async with self.semaphore:
                 log.info('processing task: %s', name)
 
                 try:
@@ -217,7 +218,7 @@ class TaskManager:
 
                     if autorenew is not None:
                         task = await autorenew.stop()
-                    await self.tq.delete(name, session=session)
+                    await self.tq.delete(name, session=self.session)
                     await self.fail(task, payload, e)
                     return
                 except Exception as e:  # pylint: disable=broad-except
@@ -228,18 +229,18 @@ class TaskManager:
 
                     tries = task['status']['attemptDispatchCount']
                     if self.retry_limit is None or tries < self.retry_limit:
-                        await self.tq.cancel(task, session=session)
+                        await self.tq.cancel(task, session=self.session)
                         return
 
                     log.warning('exceeded retry_limit, failing task')
-                    await self.tq.delete(name, session=session)
+                    await self.tq.delete(name, session=self.session)
                     await self.fail(task, payload, e)
                     return
 
                 log.info('successfully processed task: %s', name)
                 if autorenew is not None:
                     task = await autorenew.stop()
-                await self.tq.ack(task, session=session)
+                await self.tq.ack(task, session=self.session)
         except Exception as e:  # pylint: disable=broad-except
             log.error('got unhandled error attempting to process task %s',
                       name, exc_info=e)
