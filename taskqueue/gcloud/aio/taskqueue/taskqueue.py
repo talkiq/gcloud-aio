@@ -22,12 +22,10 @@ class TaskQueue:
     def __init__(self, project, service_file, taskqueue, location=LOCATION,
                  session=None, token=None):
         # pylint: disable=too-many-arguments
-        self.session = session or aiohttp.ClientSession(conn_timeout=10,
-                                                        read_timeout=10)
-
         self.api_root = (f'{API_ROOT}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
 
+        self.session = session
         self.token = token or Token(project, service_file, scopes=SCOPES,
                                     session=self.session)
 
@@ -45,6 +43,9 @@ class TaskQueue:
             'scheduleTime': task['scheduleTime'],
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
@@ -59,6 +60,9 @@ class TaskQueue:
             'responseView': 'BASIC',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
@@ -69,6 +73,9 @@ class TaskQueue:
     async def delete(self, tname, session=None):
         url = f'{API_ROOT}/{tname}'
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.delete(url, headers=await self.headers()))
         resp.raise_for_status()
@@ -87,6 +94,9 @@ class TaskQueue:
             'responseView': 'FULL' if full else 'BASIC',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.get(url, headers=await self.headers(),
                                  params=params))
@@ -106,6 +116,9 @@ class TaskQueue:
             'responseView': 'FULL',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
@@ -124,6 +137,9 @@ class TaskQueue:
         if task_filter:
             body['filter'] = task_filter
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
@@ -140,6 +156,9 @@ class TaskQueue:
             'pageToken': page_token,
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.get(url, headers=await self.headers(),
                                  params=params))
@@ -155,6 +174,9 @@ class TaskQueue:
             'responseView': 'FULL',
         }
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         s = session or self.session
         resp = await retry(s.post(url, headers=await self.headers(),
                                   json=body))
