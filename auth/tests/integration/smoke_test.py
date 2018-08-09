@@ -16,3 +16,15 @@ async def test_token_is_created():
         result = await token.get()
 
     assert result is not None
+
+
+@pytest.mark.asyncio
+async def test_token_does_not_require_session():
+    project = os.environ['GCLOUD_PROJECT']
+    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+    scopes = ['https://www.googleapis.com/auth/taskqueue']
+
+    token = Token(project, creds, scopes=scopes)
+    result = await token.get()
+
+    assert result is not None

@@ -28,7 +28,7 @@ class Token(object):
 
         self.service_data = json.loads(service_data_str)
 
-        self.session = session or aiohttp.ClientSession()
+        self.session = session
         self.scopes = scopes or []
 
         self.access_token = None
@@ -83,6 +83,9 @@ class Token(object):
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         }, quote_via=quote_plus)
 
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         response = await self.session.post(self.service_data['token_uri'],
                                            data=payload, headers=headers,
                                            params=None, timeout=60)
