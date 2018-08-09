@@ -82,8 +82,8 @@ class LeaseManager:
                     data = resp.json()
                 except ValueError:
                     data = resp.text()
-                log.error('failed to autorenew task %s: ', task['name'], data,
-                          exc_info=e)
+                log.error('failed to autorenew task %s: %s', task['name'],
+                          data, exc_info=e)
                 event.set()
             except Exception as e:  # pylint: disable=broad-except
                 log.error('failed to autorenew task: %s', task['name'],
