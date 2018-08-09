@@ -8,6 +8,7 @@ import logging
 import multiprocessing
 import time
 import traceback
+import warnings
 
 import aiohttp
 import requests
@@ -102,6 +103,11 @@ class TaskManager:
                  max_concurrency=100, retry_limit=None, session=None,
                  token=None):
         # pylint: disable=too-many-arguments,too-many-locals
+        if session:
+            warnings.warn('passing in a session is deprecated and will be '
+                          'removed in gcloud-aio-taskqueue==2.0.0',
+                          DeprecationWarning)
+
         self.worker = worker
 
         self.backoff = backoff(base=backoff_base, factor=backoff_factor,
@@ -115,7 +121,7 @@ class TaskManager:
         self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
         self.tq = TaskQueue(project, service_file, taskqueue,
-                            location=location, session=session, token=token)
+                            location=location, token=token)
 
         self.running = False
 
