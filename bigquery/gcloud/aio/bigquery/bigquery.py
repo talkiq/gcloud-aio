@@ -45,21 +45,16 @@ def make_rows(rows):
 
 
 class Table(object):
-
     def __init__(self, project, service_file, dataset_name, table_name,
                  session=None, token=None):
         # pylint: disable=too-many-arguments
-
         self.project = project
         self.table_name = table_name
         self.dataset_name = dataset_name
+
         self.session = session
-        self.token = token or Token(
-            project,
-            service_file,
-            session=session,
-            scopes=SCOPES
-        )
+        self.token = token or Token(project, service_file, session=session,
+                                    scopes=SCOPES)
 
     async def headers(self):
 
@@ -71,8 +66,6 @@ class Table(object):
 
     async def insert(self, rows, skip_invalid=False, ignore_unknown=True,
                      session=None):
-        session = session or self.session
-
         insert_url = INSERT_TEMPLATE.format(proj=self.project,
                                             dataset=self.dataset_name,
                                             table=self.table_name)
@@ -89,10 +82,13 @@ class Table(object):
             'Content-Type': 'application/json'
         })
 
-        async with aiohttp.ClientSession() as s:
-            response = await s.post(url, data=payload, headers=headers,
-                                    params=None, timeout=60)
-            content = await response.json()
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        response = await session.post(url, data=payload, headers=headers,
+                                      params=None, timeout=60)
+        content = await response.json()
 
         if 299 >= response.status >= 200 and 'insertErrors' not in content:
             return True
