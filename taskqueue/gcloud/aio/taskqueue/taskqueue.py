@@ -38,6 +38,7 @@ class TaskQueue:
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def _request(self, meth, url, json=None, params=None, session=None):
+        # pylint: disable=too-many-arguments
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
@@ -92,7 +93,7 @@ class TaskQueue:
             'responseView': 'FULL' if full else 'BASIC',
         }
 
-        return await self._request('GET', params=params, session=session)
+        return await self._request('GET', url, params=params, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
     async def insert(self, payload, tag=None, session=None):

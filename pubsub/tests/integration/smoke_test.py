@@ -12,7 +12,7 @@ async def test_pubsub_lifecycle():
     project = os.environ['GCLOUD_PROJECT']
 
     topic_name = 'test-topic-{}'.format(uuid.uuid4().hex)
-    subscription_name = 'test-subscription-'.format(uuid.uuid4().hex)
+    subscription_name = 'test-subscription-{}'.format(uuid.uuid4().hex)
 
     subscriber = pubsub.Client(project)
 
