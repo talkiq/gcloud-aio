@@ -5,8 +5,8 @@ import asyncio
 import logging
 
 import aiohttp
+import backoff
 from gcloud.aio.auth import Token
-from gcloud.aio.taskqueue.utils import retry
 
 
 API_ROOT = 'https://cloudtasks.googleapis.com/v2beta2'
@@ -36,6 +36,19 @@ class TaskQueue:
             'Content-Type': 'application/json',
         }
 
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
+    async def _request(self, method, url, session=None, **kwargs):
+        # pylint: disable=too-many-arguments
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        s = session or self.session
+        headers = await self.headers()
+
+        resp = await s.request(method, url, headers=headers, **kwargs)
+        resp.raise_for_status()
+        return await resp.json()
+
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/acknowledge
     async def ack(self, task, session=None):
         url = f'{API_ROOT}/{task["name"]}:acknowledge'
@@ -43,14 +56,7 @@ class TaskQueue:
             'scheduleTime': task['scheduleTime'],
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.post(url, headers=await self.headers(),
-                                  json=body))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('POST', url, json=body, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/cancelLease
     async def cancel(self, task, session=None):
@@ -60,26 +66,13 @@ class TaskQueue:
             'responseView': 'BASIC',
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.post(url, headers=await self.headers(),
-                                  json=body))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('POST', url, json=body, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/delete
     async def delete(self, tname, session=None):
         url = f'{API_ROOT}/{tname}'
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.delete(url, headers=await self.headers()))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('DELETE', url, session=session)
 
     async def drain(self):
         resp = await self.lease(num_tasks=1000)
@@ -94,14 +87,7 @@ class TaskQueue:
             'responseView': 'FULL' if full else 'BASIC',
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.get(url, headers=await self.headers(),
-                                 params=params))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('GET', url, params=params, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/create
     async def insert(self, payload, tag=None, session=None):
@@ -116,14 +102,7 @@ class TaskQueue:
             'responseView': 'FULL',
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.post(url, headers=await self.headers(),
-                                  json=body))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('POST', url, json=body, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/lease
     async def lease(self, num_tasks=1, lease_seconds=60, task_filter=None,
@@ -137,14 +116,7 @@ class TaskQueue:
         if task_filter:
             body['filter'] = task_filter
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.post(url, headers=await self.headers(),
-                                  json=body))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('POST', url, json=body, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/list
     async def list(self, full=False, page_size=1000, page_token='',
@@ -156,14 +128,7 @@ class TaskQueue:
             'pageToken': page_token,
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.get(url, headers=await self.headers(),
-                                 params=params))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('GET', url, params=params, session=session)
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/renewLease
     async def renew(self, task, lease_seconds=60, session=None):
@@ -174,11 +139,4 @@ class TaskQueue:
             'responseView': 'FULL',
         }
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        s = session or self.session
-        resp = await retry(s.post(url, headers=await self.headers(),
-                                  json=body))
-        resp.raise_for_status()
-        return await resp.json()
+        return await self._request('POST', url, json=body, session=session)

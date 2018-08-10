@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import logging
 import random
@@ -90,22 +89,3 @@ async def raise_for_status(resp):
         raise aiohttp.client_exceptions.ClientResponseError(
             resp.request_info, resp.history, code=resp.status,
             headers=resp.headers, message=resp.reason)
-
-
-async def retry(coro, exceptions=None, retries=3):
-    attempt = 0
-    while True:
-        attempt += 1
-
-        try:
-            return await coro
-        except Exception as e:  # pylint: disable=broad-except
-            if exceptions is not None and e not in exceptions:
-                raise
-
-            if attempt >= retries:
-                raise
-
-            log.warning('retrying with attempt %d of %d', attempt, retries,
-                        exc_info=e)
-            await asyncio.sleep(0.5)
