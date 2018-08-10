@@ -37,7 +37,7 @@ class TaskQueue:
         }
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def _request(self, meth, url, session=None, **kwargs):
+    async def _request(self, method, url, session=None, **kwargs):
         # pylint: disable=too-many-arguments
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
@@ -45,7 +45,7 @@ class TaskQueue:
         s = session or self.session
         headers = await self.headers()
 
-        resp = await s.request(meth, url, headers=headers, **kwargs)
+        resp = await s.request(method, url, headers=headers, **kwargs)
         resp.raise_for_status()
         return await resp.json()
 
