@@ -46,8 +46,12 @@ class TaskQueue:
         headers = await self.headers()
 
         resp = await s.request(method, url, headers=headers, **kwargs)
+        # N.B. This is awaited early to give an extra helping hand to various
+        # debug tools, which tend to be able to capture assigned variables but
+        # not un-awaited data.
+        data = await resp.json()
         resp.raise_for_status()
-        return await resp.json()
+        return data
 
     # https://cloud.google.com/cloud-tasks/docs/reference/rest/v2beta2/projects.locations.queues.tasks/acknowledge
     async def ack(self, task, session=None):
