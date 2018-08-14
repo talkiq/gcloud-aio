@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-auth',
-    version='1.1.1',
+    version='1.1.2',
     description='Auth Helpers for Asyncio Google Cloud Library',
     long_description=README,
     namespace_packages=[

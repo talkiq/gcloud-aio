@@ -86,13 +86,11 @@ class Token(object):
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
-        response = await self.session.post(self.service_data['token_uri'],
-                                           data=payload, headers=headers,
-                                           params=None, timeout=60)
-        content = await response.json()
-
-        if 'error' in content:
-            raise Exception(f'got error acquiring token: {content}')
+        resp = await self.session.post(self.service_data['token_uri'],
+                                       data=payload, headers=headers,
+                                       params=None, timeout=10)
+        resp.raise_for_status()
+        content = await resp.json()
 
         self.access_token = str(content['access_token'])
         self.access_token_duration = int(content['expires_in'])
