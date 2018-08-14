@@ -10,6 +10,7 @@ from urllib.parse import quote_plus
 from urllib.parse import urlencode
 
 import aiohttp
+import backoff
 import jwt
 
 
@@ -73,6 +74,7 @@ class Token(object):
         return jwt.encode(payload, self.service_data['private_key'],
                           algorithm='RS256')
 
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self):
         assertion = self._generate_assertion()
         headers = {
