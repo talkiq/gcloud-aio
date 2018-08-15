@@ -36,11 +36,10 @@ class Storage:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        response = await session.get(url, headers=headers, params=params or {},
-                                     timeout=60)
-        content = await response.text()
-
-        return response.status, content
+        resp = await session.get(url, headers=headers, params=params or {},
+                                 timeout=60)
+        resp.raise_for_status()
+        return await resp.text()
 
     async def list_objects(self, bucket, params=None, session=None):
         token = await self.token.get()
@@ -53,11 +52,10 @@ class Storage:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        response = await session.get(url, headers=headers, params=params or {},
-                                     timeout=60)
-        content = await response.json()
-
-        return response.status, content
+        resp = await session.get(url, headers=headers, params=params or {},
+                                 timeout=60)
+        resp.raise_for_status()
+        return await resp.json()
 
     async def upload(self, bucket, object_name, file_data, headers=None,
                      session=None):
@@ -92,20 +90,15 @@ class Storage:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        response = await session.post(url, data=file_data, headers=headers,
-                                      params=params, timeout=120)
-        content = await response.json()
-
-        return response.status, content
+        resp = await session.post(url, data=file_data, headers=headers,
+                                  params=params, timeout=120)
+        resp.raise_for_status()
+        return await resp.json()
 
     async def download_as_string(self, bucket, object_name, session=None):
         object_name = object_name.replace('/', '%2F')
-
-        _status, content = await self.download(bucket, object_name,
-                                               params={'alt': 'media'},
-                                               session=session)
-
-        return content
+        return await self.download(bucket, object_name,
+                                   params={'alt': 'media'}, session=session)
 
     def get_bucket(self, bucket_name):
         return Bucket(self, bucket_name)

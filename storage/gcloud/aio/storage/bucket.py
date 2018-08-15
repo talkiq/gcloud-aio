@@ -17,29 +17,15 @@ class Bucket:
 
     async def get_blob(self, blob_name, session=None):
         blob_name = blob_name.replace('/', '%2F')
+        content = await self.storage.download(self.name, blob_name,
+                                              session=session)
 
-        status, content = await self.storage.download(self.name, blob_name,
-                                                      session=session)
-
-        if status < 200 or status >= 300:
-            log.error('Could not download %s/%s: %s', self.name, blob_name,
-                      content)
-            return
-
-        content = json.loads(content)
-
-        return Blob(self, blob_name, content)
+        return Blob(self, blob_name, json.loads(content))
 
     async def list_blobs(self, prefix='', session=None):
         params = {'prefix': prefix}
-
-        status, content = await self.storage.list_objects(self.name,
-                                                          params=params,
-                                                          session=session)
-
-        if status < 200 or status >= 300:
-            log.error('Could not list %s/%s: %s', self.name, prefix, content)
-            return
+        content = await self.storage.list_objects(self.name, params=params,
+                                                  session=session)
 
         return [x['name'] for x in content.get('items', list())]
 

@@ -2,7 +2,7 @@ import os
 
 import aiohttp
 import pytest
-from gcloud.aio.storage import make_download
+from gcloud.aio.storage import Storage
 
 
 @pytest.mark.asyncio
@@ -17,7 +17,17 @@ async def test_object_is_downloaded():
     object_name = f'{call_id}/{side}/{link}/rtp.pcap.wav.ctm'
 
     async with aiohttp.ClientSession() as session:
-        download = make_download(project, creds, bucket_name, session=session)
-        result = await download(object_name)
+        storage = Storage(project, creds, session=session)
+        bucket = storage.get_bucket(bucket_name)
+        blob = await bucket.get_blob(object_name)
+        contructed_result = await blob.download_as_string()
 
-    assert result
+    assert contructed_result
+
+    async with aiohttp.ClientSession() as session:
+        storage = Storage(project, creds, session=session)
+        direct_result = await storage.download_as_string(bucket_name,
+                                                         object_name)
+
+    assert direct_result
+    assert contructed_result == direct_result
