@@ -1,9 +1,3 @@
-try:
-    import ujson as json
-except ModuleNotFoundError:
-    import json
-
-
 class Blob:
     def __init__(self, bucket, name, data):
         self.__dict__.update(**data)
@@ -22,12 +16,8 @@ class Blob:
                                                             session=session)
 
     async def upload_from_string(self, data, session=None):
-        status, content = await self.bucket.storage.upload(self.bucket.name,
-                                                           self.name, data,
-                                                           session=session)
-
-        if status < 200 or status >= 300:
-            raise Exception(f'{status}: {json.dumps(content)}')
+        content = await self.bucket.storage.upload(self.bucket.name, self.name,
+                                                   data, session=session)
 
         self.__dict__.update(content)
         return content
