@@ -52,7 +52,8 @@ class Storage:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        resp = await session.delete(url, headers=headers, timeout=60)
+        resp = await session.delete(url, headers=headers, params=params or {},
+                                    timeout=60)
         resp.raise_for_status()
         return await resp.text()
 
