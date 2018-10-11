@@ -26,10 +26,9 @@ class Storage:
                                     scopes=[READ_WRITE_SCOPE])
 
     async def download(self, bucket, object_name, params=None, session=None):
-        token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
         headers = {
-            'Authorization': f'Bearer {token}',
+            'Authorization': f'Bearer {await self.token.get()}',
         }
 
         if not self.session:
@@ -41,11 +40,24 @@ class Storage:
         resp.raise_for_status()
         return await resp.text()
 
+    async def delete(self, bucket, object_name, params=None, session=None):
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
+        headers = {
+            'Authorization': f'Bearer {await self.token.get()}',
+        }
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.delete(url, headers=headers, timeout=60)
+        resp.raise_for_status()
+        return await resp.text()
+
     async def list_objects(self, bucket, params=None, session=None):
-        token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o'
         headers = {
-            'Authorization': f'Bearer {token}',
+            'Authorization': f'Bearer {await self.token.get()}',
         }
 
         if not self.session:
@@ -61,7 +73,6 @@ class Storage:
                      session=None):
         # pylint: disable=too-many-arguments
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
-        token = await self.token.get()
         url = f'{STORAGE_UPLOAD_API_ROOT}/{bucket}/o'
         headers = headers or {}
 
@@ -81,7 +92,7 @@ class Storage:
 
         headers.update({
             'Accept': 'application/json',
-            'Authorization': f'Bearer {token}',
+            'Authorization': f'Bearer {await self.token.get()}',
             'Content-Length': content_length,
             'Content-Type': 'application/json',
         })
