@@ -1,9 +1,9 @@
+import json
 import os
+import uuid
 
 import aiohttp
-import json
 import pytest
-import uuid
 from gcloud.aio.storage import Storage
 
 PROJECT = os.environ['GCLOUD_PROJECT']
@@ -11,7 +11,7 @@ CREDS = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("uploaded_data,expected_data", [
+@pytest.mark.parametrize('uploaded_data,expected_data', [
     ('test', 'test'),
     ({'data': 1}, json.dumps({'data': 1})),
 ])
@@ -32,9 +32,9 @@ async def test_object_life_cycle(uploaded_data, expected_data):
         direct_result = await storage.download_as_string(bucket_name,
                                                          object_name)
 
-        assert contructed_result == expected_data
+        assert direct_result == expected_data
 
         await storage.delete(bucket_name, object_name)
 
-        with pytest.raises(aiohttp.client_exceptions.ClientResponseError) as e:
+        with pytest.raises(aiohttp.client_exceptions.ClientResponseError):
             await storage.download_as_string(bucket_name, object_name)
