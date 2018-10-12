@@ -86,11 +86,12 @@ class Storage:
             'uploadType': 'media',
         }
 
-        if not isinstance(file_data, bytes):
-            file_data = file_data.encode('utf-8')
+        if isinstance(file_data, bytes):
+            file_data = file_data.decode('utf-8')
+        if not isinstance(file_data, str):
+            file_data = json.dumps(file_data)
 
         if file_data:
-            file_data = json.dumps(file_data).encode('utf-8')
             content_length = str(len(file_data))
         else:
             content_length = '0'
