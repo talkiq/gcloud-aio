@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import quote
 
 import aiohttp
 from gcloud.aio.auth import Token
@@ -27,7 +28,9 @@ class Storage:
 
     async def download(self, bucket, object_name, params=None, session=None):
         token = await self.token.get()
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -43,7 +46,9 @@ class Storage:
 
     async def delete(self, bucket, object_name, params=None, session=None):
         token = await self.token.get()
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -111,7 +116,6 @@ class Storage:
         return await resp.json()
 
     async def download_as_string(self, bucket, object_name, session=None):
-        object_name = object_name.replace('/', '%2F')
         return await self.download(bucket, object_name,
                                    params={'alt': 'media'}, session=session)
 
