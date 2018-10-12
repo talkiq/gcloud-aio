@@ -59,8 +59,6 @@ class Storage:
         session = session or self.session
         resp = await session.delete(url, headers=headers, params=params or {},
                                     timeout=60)
-        log.warning(url)
-        log.warning(await resp.json())
         resp.raise_for_status()
         return await resp.text()
 
