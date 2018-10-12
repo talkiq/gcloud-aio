@@ -17,7 +17,7 @@ CREDS = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 ])
 async def test_object_life_cycle(uploaded_data, expected_data):
     bucket_name = 'talkiq-integration-test'
-    object_name = uuid.uuid4().hex
+    object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
 
     async with aiohttp.ClientSession() as session:
         storage = Storage(PROJECT, CREDS, session=session)

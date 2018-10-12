@@ -16,7 +16,6 @@ class Bucket:
         self.name = name
 
     async def get_blob(self, blob_name, session=None):
-        blob_name = blob_name.replace('/', '%2F')
         content = await self.storage.download(self.name, blob_name,
                                               session=session)
 
