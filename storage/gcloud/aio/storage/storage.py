@@ -41,6 +41,22 @@ class Storage:
         resp.raise_for_status()
         return await resp.text()
 
+    async def delete(self, bucket, object_name, params=None, session=None):
+        token = await self.token.get()
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{object_name}'
+        headers = {
+            'Authorization': f'Bearer {token}',
+        }
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.delete(url, headers=headers, params=params or {},
+                                    timeout=60)
+        resp.raise_for_status()
+        return await resp.text()
+
     async def list_objects(self, bucket, params=None, session=None):
         token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o'
@@ -70,11 +86,12 @@ class Storage:
             'uploadType': 'media',
         }
 
-        if not isinstance(file_data, bytes):
-            file_data = file_data.encode('utf-8')
+        if isinstance(file_data, bytes):
+            file_data = file_data.decode('utf-8')
+        if not isinstance(file_data, str):
+            file_data = json.dumps(file_data)
 
         if file_data:
-            file_data = json.dumps(file_data).encode('utf-8')
             content_length = str(len(file_data))
         else:
             content_length = '0'
