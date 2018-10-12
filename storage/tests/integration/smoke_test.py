@@ -1,33 +1,40 @@
 import os
 
 import aiohttp
+import json
 import pytest
+import uuid
 from gcloud.aio.storage import Storage
+
+PROJECT = os.environ['GCLOUD_PROJECT']
+CREDS = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
 
 @pytest.mark.asyncio
-async def test_object_is_downloaded():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
-    bucket_name = 'talkiq-integration-transcripts'
-    call_id = '07fbe0cc-7f87-1235-06b0-0cc47a392728'
-    side = 'callee'
-    link = 0
-    object_name = f'{call_id}/{side}/{link}/rtp.pcap.wav.ctm'
+@pytest.mark.parametrize("uploaded_data,expected_data", [
+    ('test', 'test'),
+    ({'data': 1}, json.dumps({'data': 1})),
+])
+async def test_object_life_cycle(uploaded_data, expected_data):
+    bucket_name = 'talkiq-integration-test'
+    object_name = uuid.uuid4().hex
 
     async with aiohttp.ClientSession() as session:
-        storage = Storage(project, creds, session=session)
+        storage = Storage(PROJECT, CREDS, session=session)
+        await storage.upload(bucket_name, object_name, uploaded_data)
+
         bucket = storage.get_bucket(bucket_name)
         blob = await bucket.get_blob(object_name)
         contructed_result = await blob.download_as_string()
 
-    assert contructed_result
+        assert contructed_result == expected_data
 
-    async with aiohttp.ClientSession() as session:
-        storage = Storage(project, creds, session=session)
         direct_result = await storage.download_as_string(bucket_name,
                                                          object_name)
 
-    assert direct_result
-    assert contructed_result == direct_result
+        assert contructed_result == expected_data
+
+        await storage.delete(bucket_name, object_name)
+
+        with pytest.raises(aiohttp.client_exceptions.ClientResponseError) as e:
+            await storage.download_as_string(bucket_name, object_name)
