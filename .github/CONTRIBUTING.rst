@@ -15,6 +15,19 @@ folders for the actual test code.
 You can get nox with ``pip install nox-automation`` and run a specific
 project's tests with ``nox -f auth/nox.py``.
 
+Local Development
+~~~~~~~~~~~~~~~~~
+
+For more convenient local development, or if you don't want to use ``nox``, you
+can work on just a single library subfolders, e.g. ``./storage``:
+
+- run the below in a subfolder, ie. ``cd ./storage``
+- create and activate a virtual environemnt: ``python3 -m venv venv && source venv/bin/activate``
+- install dependencies: ``pip install -r requirements.txt``
+- install library from local path: ``pip install -e .``
+- test that you are up and running by running one of the tests e.g.: ``python -m pytest -s tests/unit/<your favourite test>``
+    - the ``-s`` switch allows you to see standard output
+
 Submitting Changes
 ------------------
 
