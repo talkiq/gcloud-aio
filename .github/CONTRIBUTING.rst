@@ -57,6 +57,16 @@ in CI against all changesets.
 Other than the above enforced standards, we like code that is easy-to-read for
 any new or returning contributors with relevant comments where appropriate.
 
+Local Development
+-----------------
+
+For more convenient local development in one of the library subfolders, e.g. ``/storage``:
+
+- create and activate venv: ``python3 -m venv venv && source venv/bin/activate``
+- install dependencies: ``pip install -r requirements.txt``
+- install library from local path: ``pip install -e .``
+- test that you are up and running by running one of the tests e.g.: ``python -m pytest -s tests/unit/<your favourite test>``. the ``-s`` switch allows you to see standard output.
+
 Releases
 --------
 
