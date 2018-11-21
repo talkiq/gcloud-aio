@@ -5,5 +5,5 @@
 *.pyc
 */.coverage
 */build/*
-.nox/*
-venv/*
+**/.nox/*
+**/venv/*
