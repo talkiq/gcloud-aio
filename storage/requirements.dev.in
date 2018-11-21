@@ -1,0 +1,7 @@
+pip-tools
+nox
+pytest-asyncio
+flake8 
+autopep8
+
+-r requirements.txt
