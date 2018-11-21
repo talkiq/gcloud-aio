@@ -10,10 +10,10 @@ class Blob:
     def chunk_size(self):
         return self.size + (262144 - (self.size % 262144))
 
-    async def download_as_string(self, session=None):
-        return await self.bucket.storage.download_as_string(self.bucket.name,
-                                                            self.name,
-                                                            session=session)
+    async def download(self, session=None):
+        return await self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  session=session)
 
     async def upload_from_string(self, data, session=None):
         content = await self.bucket.storage.upload(self.bucket.name, self.name,

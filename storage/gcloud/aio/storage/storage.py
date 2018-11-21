@@ -1,6 +1,5 @@
 import logging
 from urllib.parse import quote
-
 import aiohttp
 import asyncio
 
@@ -31,23 +30,12 @@ class Storage:
                                     session=self.session,
                                     scopes=[READ_WRITE_SCOPE])
 
-    async def download(self, bucket, object_name, params=None, session=None):
-        token = await self.token.get()
-        # https://cloud.google.com/storage/docs/json_api/#encoding
-        encoded_object_name = quote(object_name, safe='')
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
+    async def download(self, bucket, object_name, session=None):
+        return await self._download(bucket, object_name,
+                                    params={'alt': 'media'}, session=session)
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
-        resp = await session.get(url, headers=headers, params=params or {},
-                                 timeout=60)
-        resp.raise_for_status()
-        return await resp.text()
+    async def download_metadata(self, bucket, object_name, session=None):
+        return await self._download(bucket, object_name, session=session)
 
     async def delete(self, bucket, object_name, params=None, session=None):
         token = await self.token.get()
@@ -194,6 +182,48 @@ class Storage:
         upload_response = await do_upload(session_URI, data, timeout, headers, session)
 
         return upload_response
+
+    async def _download(self, bucket, object_name, params=None, session=None):
+
+        def get_content_type_and_encoding(response_header: dict):
+            content_type_and_encoding = response_header.get('Content-Type')
+            content_type_and_encoding_split = content_type_and_encoding.split(';')
+            content_type = content_type_and_encoding_split[0].lower().strip()
+
+            encoding = None
+            if len(content_type_and_encoding_split) > 1:
+                encoding_str = content_type_and_encoding_split[1].lower().strip()
+                encoding = encoding_str.split('=')[-1]
+
+            return (content_type, encoding)
+
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
+        headers = {
+            'Authorization': f'Bearer {token}',
+        }
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        response = await session.get(url, headers=headers, params=params or {},
+                                     timeout=60)
+        response.raise_for_status()
+        response_header = dict(response.headers)
+
+        content_type, encoding = get_content_type_and_encoding(response_header)
+
+        if content_type == 'application/octet-stream':
+            result = await response.read()
+        elif content_type in ('text/plain', 'text/html', 'application/json'):
+            result = await response.text(encoding)
+        else:
+            result = await response.read()
+
+        return result
 
     def preprocess_data_(self, in_data):
         if in_data is None:
