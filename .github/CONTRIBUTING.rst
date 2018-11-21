@@ -73,6 +73,9 @@ install it with ``pip install pre-commit`` and set it to run pre-commit hooks
 for ``gcloud-aio`` by running ``pre-commit install``. The same linters get run
 in CI against all changesets.
 
+You can also run ``pre-commit`` in an ad-hoc fashion by calling
+``pre-commit run --all-files``.
+
 Other than the above enforced standards, we like code that is easy-to-read for
 any new or returning contributors with relevant comments where appropriate.
 
