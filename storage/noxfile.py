@@ -1,18 +1,13 @@
 # pylint: disable=import-self,no-member
 import os
-
 import nox
 
 
 LOCAL_DEPS = ('../auth/', )
 
 
-@nox.session
-@nox.parametrize('python_version', ['3.6', '3.7'])
-def unit_tests(session, python_version):
-    session.interpreter = f'python{python_version}'
-    session.virtualenv_dirname = f'unit-{python_version}'
-
+@nox.session(python=['3.6', '3.7'])
+def unit_tests(session):
     session.install('pytest', 'pytest-cov', *LOCAL_DEPS)
     session.install('-e', '.')
 
@@ -27,27 +22,20 @@ def unit_tests(session, python_version):
         *session.posargs)
 
 
-@nox.session
-@nox.parametrize('python_version', ['3.6', '3.7'])
-def integration_tests(session, python_version):
+@nox.session(python=['3.7'])
+def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')
-
-    session.interpreter = f'python{python_version}'
-    session.virtualenv_dirname = f'integration-{python_version}'
 
     session.install('aiohttp', 'pytest', 'pytest-asyncio', *LOCAL_DEPS)
     session.install('.')
 
     session.run('py.test', '--quiet', 'tests/integration')
+    session.run('py.test', 'tests/integration/test_upload_resumable.py')
 
 
-@nox.session
-@nox.parametrize('python_version', ['3.7'])
-def lint_setup_py(session, python_version):
-    session.interpreter = f'python{python_version}'
-    session.virtualenv_dirname = 'setup'
-
+@nox.session(python=['3.6', '3.7'])
+def lint_setup_py(session):
     session.install('docutils', 'Pygments')
     session.run(
         'python',
@@ -57,12 +45,8 @@ def lint_setup_py(session, python_version):
         '--strict')
 
 
-@nox.session
-@nox.parametrize('python_version', ['3.7'])
-def cover(session, python_version):
-    session.interpreter = f'python{python_version}'
-    session.virtualenv_dirname = 'cover'
-
+@nox.session(python=['3.7'])
+def cover(session):
     session.install('codecov', 'coverage', 'pytest-cov')
 
     session.run('coverage', 'report', '--show-missing')
