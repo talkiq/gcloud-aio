@@ -25,7 +25,11 @@ def unit_tests(session):
 @nox.session(python=['3.7'])
 def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
-        session.skip('Credentials must be set via environment variable.')
+        session.skip('Credentials must be set via the environment variable "GOOGLE_APPLICATION_CREDENTIALS".')
+    if not os.environ.get('BUCKET_NAME', ''):
+        session.skip('Gcloud bucket name must be set via the environment variable: "BUCKET_NAME".')
+    if not os.environ.get('GCLOUD_PROJECT', ''):
+        session.skip('Gcloud project id must be set via the environment variable: "GCLOUD_PROJECT".')
 
     session.install('aiohttp', 'pytest', 'pytest-asyncio', *LOCAL_DEPS)
     session.install('.')
