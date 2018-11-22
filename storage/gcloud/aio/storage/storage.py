@@ -234,9 +234,8 @@ class Storage:
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=60)
         response.raise_for_status()
-        response_header = dict(response.headers)
 
-        content_type, encoding = get_content_type_and_encoding(response_header)
+        content_type, encoding = get_content_type_and_encoding(response.headers)
 
         if content_type == 'application/octet-stream':
             result = await response.read()
