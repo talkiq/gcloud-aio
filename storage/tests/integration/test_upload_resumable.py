@@ -24,7 +24,7 @@ async def test_given_dict_when_upload_resumable_then_check_upload(data_to_upload
     async with aiohttp.ClientSession() as session:
         storage = Storage(PROJECT, CREDS, session=session)
         res = await storage.upload(BUCKET_NAME, object_name, data_to_upload, content_type,
-                                   upload_type_resumable_always=True)
+                                   force_resumable_upload=True)
 
         downloaded_data = await storage.download(BUCKET_NAME, res['name'])
 
