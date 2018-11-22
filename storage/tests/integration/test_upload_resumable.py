@@ -18,7 +18,7 @@ BUCKET_NAME = os.environ['BUCKET_NAME']
     (json.dumps([1, 2, 3]), json.dumps([1, 2, 3]), 'application/json'),
     ('test'.encode('utf-8'), 'test'.encode('utf-8'), 'application/octet-stream'),
 ])
-async def test_given_dict_when_upload_resumable_then_check_upload(data_to_upload, expected_data, content_type):
+async def test_upload_resumable(data_to_upload, expected_data, content_type):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
 
     async with aiohttp.ClientSession() as session:
