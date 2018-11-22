@@ -1,9 +1,9 @@
 import logging
 from urllib.parse import quote
-import aiohttp
-import asyncio
 import mimetypes
+import asyncio
 from enum import Enum
+import aiohttp
 
 from gcloud.aio.auth import Token
 from gcloud.aio.storage.bucket import Bucket
@@ -68,7 +68,8 @@ class Storage:
         resp.raise_for_status()
         return await resp.text()
 
-    async def list_objects(self, bucket: str, params: dict = None, session: aiohttp.ClientSession = None):
+    async def list_objects(self, bucket: str, params: dict = None,
+                           session: aiohttp.ClientSession = None):
         token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o'
         headers = {
@@ -85,16 +86,28 @@ class Storage:
         return await resp.json()
 
     async def upload(self, bucket: str, object_name: str,
-                     file_data, headers=None, session: aiohttp.ClientSession = None,
+                     file_data, headers=None,
+                     session: aiohttp.ClientSession = None,
                      content_type: str = None,
                      timeout: int = 120, force_resumable_upload: bool = None):
+
+        def _preprocess_data(in_data):
+            if in_data is None:
+                return ''
+            elif isinstance(in_data, (str, bytes)):
+                return in_data
+            else:
+                raise TypeError(
+                    f'The type: "{type(in_data)}" of your input data is not supported.')
+
         def decide_upload_type(force_resumable_upload: bool, data_size: int) -> GcloudUploadType:
 
             if force_resumable_upload:
                 upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
             elif not force_resumable_upload:
                 upload_type: GcloudUploadType = GcloudUploadType.SIMPLE
-            elif (force_resumable_upload is None) and (data_size > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD):
+            elif (force_resumable_upload is None) and \
+                    (data_size > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD):
                 upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
 
             return upload_type
@@ -124,7 +137,7 @@ class Storage:
         upload_type = decide_upload_type(force_resumable_upload, len(data))
         log.debug(f'using {upload_type} gcloud storage upload method')
         if upload_type == GcloudUploadType.SIMPLE:
-            return await self._upload_simple(url, bucket, object_name, data,
+            return await self._upload_simple(url, object_name, data,
                                              headers=headers, session=session,
                                              timeout=timeout)
         elif upload_type == GcloudUploadType.RESUMABLE:
@@ -134,7 +147,7 @@ class Storage:
         else:
             raise TypeError(f'upload type {upload_type} not supported')
 
-    async def _upload_simple(self, url: str, bucket: str, object_name: str,
+    async def _upload_simple(self, url: str, object_name: str,
                              file_data, headers: dict = None,
                              session: aiohttp.ClientSession = None,
                              timeout: int = 120):
@@ -153,16 +166,17 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=file_data, headers=headers,
-                                  params=params, timeout=120)
+                                  params=params, timeout=timeout)
         resp.raise_for_status()
         return await resp.json()
 
-    async def _upload_resumable(self, url: str, bucket: str, object_name: str,
+    async def _upload_resumable(self, url: str, object_name: str,
                                 data, headers: dict = None,
-                                session: aiohttp.ClientSession = None, timeout: int = 120,
-                                upload_type_resumable_always: bool = False):
+                                session: aiohttp.ClientSession = None,
+                                timeout: int = 120):
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
-        async def initiate_upload_session(object_name: str, headers: dict, session: aiohttp.ClientSession):
+        async def initiate_upload_session(object_name: str, headers: dict,
+                                          session: aiohttp.ClientSession):
             params = {
                 'uploadType': 'resumable',
             }
@@ -255,15 +269,6 @@ class Storage:
             result = await response.read()
 
         return result
-
-    def _preprocess_data(self, in_data):
-        if in_data is None:
-            return ''
-        elif isinstance(in_data, (str, bytes)):
-            return in_data
-        else:
-            raise TypeError(
-                f'The type: "{type(in_data)}" of your input data is not supported.')
 
     def get_bucket(self, bucket_name: str):
         return Bucket(self, bucket_name)
