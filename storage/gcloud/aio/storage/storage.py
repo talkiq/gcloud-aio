@@ -15,7 +15,7 @@ STORAGE_API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 STORAGE_UPLOAD_API_ROOT = 'https://www.googleapis.com/upload/storage/v1/b'
 READ_WRITE_SCOPE = 'https://www.googleapis.com/auth/devstorage.read_write'
 
-MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5242880  # 5 MB
+MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
 
 log = logging.getLogger(__name__)
