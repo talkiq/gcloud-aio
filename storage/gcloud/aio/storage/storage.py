@@ -75,6 +75,7 @@ class Storage:
                      file_data, content_type: str,
                      headers=None, session: aiohttp.ClientSession = None,
                      timeout: int = 120, upload_type_resumable_always: bool = False):
+
         token = await self.token.get()
         url = f'{STORAGE_UPLOAD_API_ROOT}/{bucket}/o'
 
@@ -83,7 +84,7 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
 
-        data = self.preprocess_data_(file_data)
+        data = self._preprocess_data(file_data)
         content_length = len(data)
 
         headers = headers or {}
@@ -225,7 +226,7 @@ class Storage:
 
         return result
 
-    def preprocess_data_(self, in_data):
+    def _preprocess_data(self, in_data):
         if in_data is None:
             out_data = ''
         elif isinstance(in_data, str) or isinstance(in_data, bytes):
