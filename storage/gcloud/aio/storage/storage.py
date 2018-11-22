@@ -228,12 +228,11 @@ class Storage:
 
     def _preprocess_data(self, in_data):
         if in_data is None:
-            out_data = ''
-        elif isinstance(in_data, str) or isinstance(in_data, bytes):
-            out_data = in_data
+            return ''
+        elif isinstance(in_data, (str, bytes)):
+            return in_data
         else:
-            raise RuntimeError('Currently, str and bytes -- exiting')
-        return out_data
+            raise TypeError(f'The type: "{type(in_data)}" of your input data is not supported.')
 
     def get_bucket(self, bucket_name):
         return Bucket(self, bucket_name)
