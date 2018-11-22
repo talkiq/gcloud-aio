@@ -22,25 +22,28 @@ log = logging.getLogger(__name__)
 
 
 class Storage:
-    def __init__(self, project, service_file, token=None, session=None):
+    def __init__(self, project: str, service_file: str, token: str = None,
+                 session: aiohttp.ClientSession = None):
         self.service_file = service_file
-
         self.session = session
         self.token = token or Token(project, self.service_file,
                                     session=self.session,
                                     scopes=[READ_WRITE_SCOPE])
 
-    async def download(self, bucket, object_name, session=None):
+    async def download(self, bucket: str, object_name: str,
+                       session: aiohttp.ClientSession = None):
         return await self._download(bucket, object_name,
                                     params={'alt': 'media'}, session=session)
 
-    async def download_metadata(self, bucket: str, object_name: str, session: aiohttp.ClientSession = None):
+    async def download_metadata(self, bucket: str, object_name: str,
+                                session: aiohttp.ClientSession = None):
         metadata_response = await self._download(bucket, object_name, session=session)
         metadata = json.loads(metadata_response)
 
         return metadata
 
-    async def delete(self, bucket, object_name, params=None, session=None):
+    async def delete(self, bucket: str, object_name: str, params: dict = None,
+                     session: aiohttp.ClientSession = None):
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -58,7 +61,7 @@ class Storage:
         resp.raise_for_status()
         return await resp.text()
 
-    async def list_objects(self, bucket, params=None, session=None):
+    async def list_objects(self, bucket: str, params: dict = None, session: aiohttp.ClientSession = None):
         token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o'
         headers = {
@@ -152,7 +155,8 @@ class Storage:
                 'X-Upload-Content-Length': headers['Content-Length']
             })
 
-            resp = await session.post(url, headers=post_headers, params=params, data=metadata_str, timeout=5)
+            resp = await session.post(url, headers=post_headers,
+                                      params=params, data=metadata_str, timeout=5)
             resp.raise_for_status()
 
             header_with_session_URI = dict(resp.headers)
@@ -164,7 +168,7 @@ class Storage:
 
         async def do_upload(session_URI: str, data, timeout: int,
                             headers: dict, session: aiohttp.ClientSession,
-                            retries=5, retry_sleep=1.):
+                            retries: int = 5, retry_sleep: float = 1.):
             tries = 0
             while True:
                 resp = await session.put(session_URI, headers=headers, data=data, timeout=timeout)
@@ -187,7 +191,8 @@ class Storage:
 
         return upload_response
 
-    async def _download(self, bucket, object_name, params=None, session=None):
+    async def _download(self, bucket: str, object_name: str, params: dict = None,
+                        session: aiohttp.ClientSession = None):
 
         def get_content_type_and_encoding(response_header: dict):
             content_type_and_encoding = response_header.get('Content-Type')
@@ -237,5 +242,5 @@ class Storage:
         else:
             raise TypeError(f'The type: "{type(in_data)}" of your input data is not supported.')
 
-    def get_bucket(self, bucket_name):
+    def get_bucket(self, bucket_name: str):
         return Bucket(self, bucket_name)
