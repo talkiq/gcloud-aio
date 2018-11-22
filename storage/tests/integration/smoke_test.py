@@ -12,16 +12,16 @@ BUCKET_NAME = os.environ['BUCKET_NAME']
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('uploaded_data,expected_data,content_type', [
-    ('test', 'test', 'text/plain'),
-    (json.dumps({'data': 1}), json.dumps({'data': 1}), 'application/json'),
+@pytest.mark.parametrize('uploaded_data,expected_data,file_extension', [
+    ('test', 'test', 'txt'),
+    (json.dumps({'data': 1}), json.dumps({'data': 1}), 'json'),
 ])
-async def test_object_life_cycle(uploaded_data, expected_data, content_type):
-    object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
+async def test_object_life_cycle(uploaded_data, expected_data, file_extension):
+    object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
     async with aiohttp.ClientSession() as session:
         storage = Storage(PROJECT, CREDS, session=session)
-        await storage.upload(BUCKET_NAME, object_name, uploaded_data, content_type)
+        await storage.upload(BUCKET_NAME, object_name, uploaded_data)
 
         bucket = storage.get_bucket(BUCKET_NAME)
         blob = await bucket.get_blob(object_name)

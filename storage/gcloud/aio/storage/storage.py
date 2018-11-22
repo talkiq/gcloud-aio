@@ -2,6 +2,7 @@ import logging
 from urllib.parse import quote
 import aiohttp
 import asyncio
+import mimetypes
 from enum import Enum
 
 from gcloud.aio.auth import Token
@@ -84,8 +85,8 @@ class Storage:
         return await resp.json()
 
     async def upload(self, bucket: str, object_name: str,
-                     file_data, content_type: str,
-                     headers=None, session: aiohttp.ClientSession = None,
+                     file_data, headers=None, session: aiohttp.ClientSession = None,
+                     content_type: str = None,
                      timeout: int = 120, force_resumable_upload: bool = None):
         def decide_upload_type(force_resumable_upload: bool, data_size: int) -> GcloudUploadType:
 
@@ -93,7 +94,7 @@ class Storage:
                 upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
             elif not force_resumable_upload:
                 upload_type: GcloudUploadType = GcloudUploadType.SIMPLE
-            elif (force_resumable_upload is None) and data_size > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+            elif (force_resumable_upload is None) and (data_size > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD):
                 upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
 
             return upload_type
@@ -109,6 +110,10 @@ class Storage:
         data = self._preprocess_data(file_data)
         content_length = len(data)
 
+        # mime detection method same as in aiohttp 3.4.4
+        if content_type is None:
+            content_type = mimetypes.guess_type(object_name)[0]
+
         headers = headers or {}
         headers.update({
             'Authorization': f'Bearer {token}',
@@ -117,19 +122,21 @@ class Storage:
         })
 
         upload_type = decide_upload_type(force_resumable_upload, len(data))
+        log.debug(f'using {upload_type} gcloud storage upload method')
         if upload_type == GcloudUploadType.SIMPLE:
             return await self._upload_simple(url, bucket, object_name, data,
-                                             content_type, headers=headers, session=session,
+                                             headers=headers, session=session,
                                              timeout=timeout)
         elif upload_type == GcloudUploadType.RESUMABLE:
             return await self._upload_resumable(url, bucket, object_name, data,
-                                                headers=headers, session=session, timeout=timeout)
+                                                headers=headers, session=session,
+                                                timeout=timeout)
         else:
             raise TypeError(f'upload type {upload_type} not supported')
 
     async def _upload_simple(self, url: str, bucket: str, object_name: str,
-                             file_data, content_type: str,
-                             headers: dict = None, session: aiohttp.ClientSession = None,
+                             file_data, headers: dict = None,
+                             session: aiohttp.ClientSession = None,
                              timeout: int = 120):
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params = {
@@ -209,12 +216,14 @@ class Storage:
 
         def get_content_type_and_encoding(response_header: dict):
             content_type_and_encoding = response_header.get('Content-Type')
-            content_type_and_encoding_split = content_type_and_encoding.split(';')
+            content_type_and_encoding_split = content_type_and_encoding.split(
+                ';')
             content_type = content_type_and_encoding_split[0].lower().strip()
 
             encoding = None
             if len(content_type_and_encoding_split) > 1:
-                encoding_str = content_type_and_encoding_split[1].lower().strip()
+                encoding_str = content_type_and_encoding_split[1].lower(
+                ).strip()
                 encoding = encoding_str.split('=')[-1]
 
             return (content_type, encoding)
@@ -235,7 +244,8 @@ class Storage:
                                      timeout=60)
         response.raise_for_status()
 
-        content_type, encoding = get_content_type_and_encoding(response.headers)
+        content_type, encoding = get_content_type_and_encoding(
+            response.headers)
 
         if content_type == 'application/octet-stream':
             result = await response.read()
@@ -252,7 +262,8 @@ class Storage:
         elif isinstance(in_data, (str, bytes)):
             return in_data
         else:
-            raise TypeError(f'The type: "{type(in_data)}" of your input data is not supported.')
+            raise TypeError(
+                f'The type: "{type(in_data)}" of your input data is not supported.')
 
     def get_bucket(self, bucket_name: str):
         return Bucket(self, bucket_name)
