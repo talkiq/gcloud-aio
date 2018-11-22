@@ -34,8 +34,11 @@ class Storage:
         return await self._download(bucket, object_name,
                                     params={'alt': 'media'}, session=session)
 
-    async def download_metadata(self, bucket, object_name, session=None):
-        return await self._download(bucket, object_name, session=session)
+    async def download_metadata(self, bucket: str, object_name: str, session: aiohttp.ClientSession = None):
+        metadata_response = await self._download(bucket, object_name, session=session)
+        metadata = json.loads(metadata_response)
+
+        return metadata
 
     async def delete(self, bucket, object_name, params=None, session=None):
         token = await self.token.get()
