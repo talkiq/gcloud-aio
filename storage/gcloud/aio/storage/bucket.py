@@ -16,10 +16,10 @@ class Bucket:
         self.name = name
 
     async def get_blob(self, blob_name, session=None):
-        content = await self.storage.download_metadata(self.name, blob_name,
-                                                       session=session)
+        metadata = await self.storage.download_metadata(self.name, blob_name,
+                                                        session=session)
 
-        return Blob(self, blob_name, json.loads(content))
+        return Blob(self, blob_name, json.loads(metadata))
 
     async def list_blobs(self, prefix='', session=None):
         params = {'prefix': prefix}
