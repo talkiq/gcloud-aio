@@ -158,11 +158,7 @@ class Storage:
             resp = await session.post(url, headers=post_headers,
                                       params=params, data=metadata_str, timeout=5)
             resp.raise_for_status()
-
-            header_with_session_URI = dict(resp.headers)
-            session_URI = header_with_session_URI.get('Location')
-            if not session_URI:
-                raise RuntimeError('Not able to initiate resumable upload session -- no URI in response header')
+            session_URI = resp.headers['Location']
 
             return session_URI
 
