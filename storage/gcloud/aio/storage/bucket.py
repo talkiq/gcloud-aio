@@ -1,10 +1,5 @@
 import logging
-
 from gcloud.aio.storage.blob import Blob
-try:
-    import ujson as json
-except ModuleNotFoundError:
-    import json
 
 
 log = logging.getLogger(__name__)
@@ -19,7 +14,7 @@ class Bucket:
         metadata = await self.storage.download_metadata(self.name, blob_name,
                                                         session=session)
 
-        return Blob(self, blob_name, json.loads(metadata))
+        return Blob(self, blob_name, metadata)
 
     async def list_blobs(self, prefix='', session=None):
         params = {'prefix': prefix}
