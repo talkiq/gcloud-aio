@@ -207,17 +207,18 @@ class Storage:
 
         async def do_upload(session_URI: str, data, timeout: int,
                             headers: dict, session: aiohttp.ClientSession,
-                            retries: int = 5, retry_sleep: float = 1.):
+                            retries: int = 5, retry_sleep_start: float = 1.):
             tries = 0
             while True:
                 resp = await session.put(session_URI, headers=headers,
                                          data=data, timeout=timeout)
-                tries += 1
                 if resp.status == 200:
                     break
                 else:
                     headers.update({'Content-Range': '*/*'})
-                    asyncio.sleep(retry_sleep)
+                    asyncio.sleep(retry_sleep_start * 2.**tries)
+
+                tries += 1
                 if tries > retries:
                     resp.raise_for_status()
                     break
