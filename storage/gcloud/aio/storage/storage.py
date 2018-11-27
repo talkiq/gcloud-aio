@@ -179,58 +179,59 @@ class Storage:
                                 session: aiohttp.ClientSession = None,
                                 timeout: int = 120):
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
-        async def initiate_upload_session(object_name: str, headers: dict,
-                                          session: aiohttp.ClientSession):
-            params = {
-                'uploadType': 'resumable',
-            }
 
-            metadata = {'name': object_name}
-            metadata_str = json.dumps(metadata)
-            metadata_len = len(metadata_str)
+        session_URI = await self._initiate_upload_session(url, object_name, headers,
+                                                          session)
+        upload_response = await self._do_upload(session_URI, data, timeout,
+                                                headers, session)
 
-            post_headers = {**headers}
-            post_headers.update({
-                'Content-Length': str(metadata_len),
-                'Content-Type': 'application/json; charset=UTF-8',
-                'X-Upload-Content-Type': headers['Content-Type'],
-                'X-Upload-Content-Length': headers['Content-Length']
-            })
+        return upload_response
 
-            resp = await session.post(url, headers=post_headers,
-                                      params=params, data=metadata_str,
-                                      timeout=5)
-            resp.raise_for_status()
-            session_URI = resp.headers['Location']
+    async def _initiate_upload_session(self, url: str, object_name: str, headers: dict,
+                                       session: aiohttp.ClientSession):
+        params = {
+            'uploadType': 'resumable',
+        }
 
-            return session_URI
+        metadata = {'name': object_name}
+        metadata_str = json.dumps(metadata)
+        metadata_len = len(metadata_str)
 
-        async def do_upload(session_URI: str, data, timeout: int,
-                            headers: dict, session: aiohttp.ClientSession,
-                            retries: int = 5, retry_sleep_start: float = 1.):
-            tries = 0
-            while True:
-                resp = await session.put(session_URI, headers=headers,
-                                         data=data, timeout=timeout)
-                if resp.status == 200:
-                    break
-                else:
-                    headers.update({'Content-Range': '*/*'})
-                    asyncio.sleep(retry_sleep_start * 2.**tries)
+        post_headers = {**headers}
+        post_headers.update({
+            'Content-Length': str(metadata_len),
+            'Content-Type': 'application/json; charset=UTF-8',
+            'X-Upload-Content-Type': headers['Content-Type'],
+            'X-Upload-Content-Length': headers['Content-Length']
+        })
 
-                tries += 1
-                if tries > retries:
-                    resp.raise_for_status()
-                    break
+        resp = await session.post(url, headers=post_headers,
+                                  params=params, data=metadata_str,
+                                  timeout=5)
+        resp.raise_for_status()
+        session_URI = resp.headers['Location']
 
-            upload_response = await resp.json()
+        return session_URI
 
-            return upload_response
+    async def _do_upload(self, session_URI: str, data, timeout: int,
+                         headers: dict, session: aiohttp.ClientSession,
+                         retries: int = 5, retry_sleep_start: float = 1.):
+        tries = 0
+        while True:
+            resp = await session.put(session_URI, headers=headers,
+                                     data=data, timeout=timeout)
+            if resp.status == 200:
+                break
+            else:
+                headers.update({'Content-Range': '*/*'})
+                asyncio.sleep(retry_sleep_start * 2.**tries)
 
-        session_URI = await initiate_upload_session(object_name, headers,
-                                                    session)
-        upload_response = await do_upload(session_URI, data, timeout,
-                                          headers, session)
+            tries += 1
+            if tries > retries:
+                resp.raise_for_status()
+                break
+
+        upload_response = await resp.json()
 
         return upload_response
 
