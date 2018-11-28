@@ -62,6 +62,13 @@ A couple additional features you might want to play with:
     async for job_id, message in subscription.poll(max_errors=3):
         ...
 
+Contributing
+------------
+
+Please see our `contributing guide`_.
+
+.. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-pubsub.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-pubsub/

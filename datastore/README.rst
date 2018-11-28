@@ -26,6 +26,13 @@ started:
     await datastore.update('Kind', 'name', {'prop0': 42, 'prop1': True})
     await datastore.upsert('Kind', 'name', {'prop2': 'aardvark'})
 
+Contributing
+------------
+
+Please see our `contributing guide`_.
+
+.. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-datastore.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-datastore/

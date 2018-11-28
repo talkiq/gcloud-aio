@@ -25,6 +25,12 @@ Google Cloud API -- this project implements a Pull Task Queue Manager, which:
 - deletes tasks when they are completed successfully
 - dead-letters and deletes tasks when they have failed too many times
 
+Contributing
+------------
+
+Please see our `contributing guide`_.
+
+.. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _smoke tests: https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square

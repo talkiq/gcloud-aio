@@ -31,6 +31,13 @@ We're still working on more complete documentation, but roughly you can do:
     # decrypt
     assert (await kms.decrypt(encode(ciphertext))) == plaintext
 
+Contributing
+------------
+
+Please see our `contributing guide`_.
+
+.. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-kms.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-kms/
