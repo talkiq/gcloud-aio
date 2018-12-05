@@ -9,7 +9,8 @@ from gcloud.aio.storage import Storage
 @pytest.mark.asyncio
 @pytest.mark.parametrize('uploaded_data,expected_data,file_extension', [
     ('test', 'test', 'txt'),
-    (json.dumps({'data': 1}), {'data': 1}, 'json'),
+    (b'test', b'test', 'bin'),
+    (json.dumps({'data': 1}), json.dumps({'data': 1}), 'json'),
 ])
 async def test_object_life_cycle(bucket_name, creds, project, uploaded_data,
                                  expected_data, file_extension):
