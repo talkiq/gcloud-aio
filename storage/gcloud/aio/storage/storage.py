@@ -66,14 +66,14 @@ class Storage:
         return data
 
     async def download(self, bucket: str, object_name: str, *,
-                       session: aiohttp.ClientSession = None) -> Any:
+                       session: aiohttp.ClientSession = None) -> bytes:
         return await self._download(bucket, object_name,
                                     params={'alt': 'media'}, session=session)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 session: aiohttp.ClientSession = None) -> dict:
         data = await self._download(bucket, object_name, session=session)
-        metadata: dict = json.loads(data)
+        metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
@@ -176,7 +176,7 @@ class Storage:
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
-                        session: aiohttp.ClientSession = None) -> Any:
+                        session: aiohttp.ClientSession = None) -> bytes:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -192,15 +192,9 @@ class Storage:
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=timeout)
         response.raise_for_status()
-
-        print(response.headers['Content-Type'])
-        kind, enc = self._split_content_type(response.headers['Content-Type'])
-        print(kind, enc)
-        if kind == 'application/octet-stream':
-            return await response.read()
-        if kind in {'application/json', 'text/plain', 'text/html'}:
-            return await response.text(enc)
-
+        # N.B. the GCS API sometimes returns 'application/octet-stream' when a
+        # string was uploaded. To avoid potential weirdness, always return a
+        # bytes object.
         return await response.read()
 
     async def _upload_simple(self, url: str, object_name: str,

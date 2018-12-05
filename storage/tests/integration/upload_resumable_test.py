@@ -8,9 +8,9 @@ from gcloud.aio.storage import Storage
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('uploaded_data,expected_data,file_extension', [
-    ('test', 'test', 'txt'),
-    (json.dumps({'data': 1}), json.dumps({'data': 1}), 'json'),
-    (json.dumps([1, 2, 3]), json.dumps([1, 2, 3]), 'json'),
+    ('test', b'test', 'txt'),
+    (json.dumps({'data': 1}), json.dumps({'data': 1}).encode('utf-8'), 'json'),
+    (json.dumps([1, 2, 3]), json.dumps([1, 2, 3]).encode('utf-8'), 'json'),
     ('test'.encode('utf-8'), 'test'.encode('utf-8'), 'bin'),
 ])
 async def test_upload_resumable(bucket_name, creds, project, uploaded_data,
