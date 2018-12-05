@@ -15,6 +15,25 @@ folders for the actual test code.
 You can get nox with ``pip install nox-automation`` and run a specific
 project's tests with ``nox -f auth/nox.py``.
 
+Local Development
+~~~~~~~~~~~~~~~~~
+
+We recommend using ``nox``, as described above, but this library supports using
+more standard workflows as well. For more convenient local development, or if
+you don't want to use ``nox``, you can work on just a single library's
+subfolder, e.g. ``./storage``:
+
+- run the below in a subfolder, ie. ``cd ./storage``
+- create and activate a virtual environment: ``python3 -m venv venv && source venv/bin/activate``
+- install test dependencies: ``pip install pytest pytest-asyncio``
+- install library from local path: ``pip install -e .``
+
+Then, you can run any tests manually with:
+
+.. code-block:: console
+
+    python -m pytest tests/unit/<your favourite test>
+
 Submitting Changes
 ------------------
 
@@ -53,6 +72,9 @@ We use `pre-commit`_ to manage our coding conventions and linting. You can
 install it with ``pip install pre-commit`` and set it to run pre-commit hooks
 for ``gcloud-aio`` by running ``pre-commit install``. The same linters get run
 in CI against all changesets.
+
+You can also run ``pre-commit`` in an ad-hoc fashion by calling
+``pre-commit run --all-files``.
 
 Other than the above enforced standards, we like code that is easy-to-read for
 any new or returning contributors with relevant comments where appropriate.

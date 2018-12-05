@@ -35,6 +35,12 @@ Usage
 We're still working on documentation -- for now, you can use the `smoke test`_
 as an example. 
 
+Contributing
+------------
+
+Please see our `contributing guide`_.
+
+.. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py
 
 .. _contributing: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
