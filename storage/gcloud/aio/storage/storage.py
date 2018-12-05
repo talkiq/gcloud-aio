@@ -193,7 +193,6 @@ class Storage:
                                      timeout=timeout)
         response.raise_for_status()
 
-        print(response.headers['Content-Type'])
         kind, enc = self._split_content_type(response.headers['Content-Type'])
         if kind == 'application/octet-stream':
             return await response.read()
