@@ -1,6 +1,5 @@
 # pylint: disable=too-many-locals
 import json
-import os
 import uuid
 
 import aiohttp

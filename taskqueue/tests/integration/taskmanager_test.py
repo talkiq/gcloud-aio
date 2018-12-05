@@ -1,6 +1,5 @@
 # pylint: disable=too-many-locals
 import asyncio
-import os
 import time
 
 import aiohttp
