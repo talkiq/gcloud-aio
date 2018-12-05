@@ -25,6 +25,7 @@ async def test_object_life_cycle(bucket_name, creds, project, uploaded_data,
         blob = await bucket.get_blob(object_name)
         constructed_result = await blob.download()
         assert constructed_result == expected_data
+        assert False
 
         direct_result = await storage.download(bucket_name, object_name)
         assert direct_result == expected_data
