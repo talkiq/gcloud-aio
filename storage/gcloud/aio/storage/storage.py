@@ -1,10 +1,14 @@
-import logging
-from urllib.parse import quote
-import mimetypes
 import asyncio
-from enum import Enum
-import aiohttp
+import enum
+import logging
+import mimetypes
+from typing import Any
+from typing import Optional
+from typing import Tuple
+from typing import Union
+from urllib.parse import quote
 
+import aiohttp
 from gcloud.aio.auth import Token
 from gcloud.aio.storage.bucket import Bucket
 try:
@@ -23,35 +27,26 @@ MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 log = logging.getLogger(__name__)
 
 
-class GcloudUploadType(Enum):
+class UploadType(enum.Enum):
     SIMPLE = 1
     RESUMABLE = 2
 
 
 class Storage:
-    def __init__(self, project: str, service_file: str, token: str = None,
-                 session: aiohttp.ClientSession = None):
+    def __init__(self, project: str, service_file: str, *, token: Token = None,
+                 session: aiohttp.ClientSession = None) -> None:
         self.service_file = service_file
         self.session = session
         self.token = token or Token(project, self.service_file,
                                     session=self.session,
                                     scopes=[READ_WRITE_SCOPE])
 
-    async def download(self, bucket: str, object_name: str,
-                       session: aiohttp.ClientSession = None):
-        return await self._download(bucket, object_name,
-                                    params={'alt': 'media'}, session=session)
+    def get_bucket(self, bucket_name: str) -> Bucket:
+        return Bucket(self, bucket_name)
 
-    async def download_metadata(self, bucket: str, object_name: str,
-                                session: aiohttp.ClientSession = None):
-        metadata_response = await self._download(bucket, object_name,
-                                                 session=session)
-        metadata = json.loads(metadata_response)
-
-        return metadata
-
-    async def delete(self, bucket: str, object_name: str, params: dict = None,
-                     session: aiohttp.ClientSession = None):
+    async def delete(self, bucket: str, object_name: str, *,
+                     params: dict = None, timeout: int = 10,
+                     session: aiohttp.ClientSession = None) -> str:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -65,12 +60,25 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
         resp = await session.delete(url, headers=headers, params=params or {},
-                                    timeout=60)
+                                    timeout=timeout)
         resp.raise_for_status()
-        return await resp.text()
+        data: str = await resp.text()
+        return data
 
-    async def list_objects(self, bucket: str, params: dict = None,
-                           session: aiohttp.ClientSession = None):
+    async def download(self, bucket: str, object_name: str, *,
+                       session: aiohttp.ClientSession = None) -> Any:
+        return await self._download(bucket, object_name,
+                                    params={'alt': 'media'}, session=session)
+
+    async def download_metadata(self, bucket: str, object_name: str, *,
+                                session: aiohttp.ClientSession = None) -> dict:
+        metadata: dict = await self._download(bucket, object_name,
+                                              session=session)
+        return metadata
+
+    async def list_objects(self, bucket: str, *, params: dict = None,
+                           session: aiohttp.ClientSession = None,
+                           timeout: int = 10) -> dict:
         token = await self.token.get()
         url = f'{STORAGE_API_ROOT}/{bucket}/o'
         headers = {
@@ -82,38 +90,15 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
         resp = await session.get(url, headers=headers, params=params or {},
-                                 timeout=60)
+                                 timeout=timeout)
         resp.raise_for_status()
-        return await resp.json()
+        data: dict = await resp.json()
+        return data
 
-    async def upload(self, bucket: str, object_name: str,
-                     file_data, headers=None,
-                     session: aiohttp.ClientSession = None,
-                     content_type: str = None,
-                     timeout: int = 120, force_resumable_upload: bool = None):
-
-        def _preprocess_data(in_data):
-            if in_data is None:
-                return ''
-            elif isinstance(in_data, (str, bytes)):
-                return in_data
-            else:
-                raise TypeError(
-                    f'Unsupported upload type: "{type(in_data)}"')
-
-        def decide_upload_type(force_resumable_upload: bool,
-                               data_size: int) -> GcloudUploadType:
-
-            if force_resumable_upload:
-                upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
-            elif not force_resumable_upload:
-                upload_type: GcloudUploadType = GcloudUploadType.SIMPLE
-            elif (force_resumable_upload is None) and \
-                    (data_size > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD):
-                upload_type: GcloudUploadType = GcloudUploadType.RESUMABLE
-
-            return upload_type
-
+    async def upload(self, bucket: str, object_name: str, file_data: Any,
+                     *, content_type: str = None, headers: dict = None,
+                     session: aiohttp.ClientSession = None, timeout: int = 30,
+                     force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
         url = f'{STORAGE_UPLOAD_API_ROOT}/{bucket}/o'
 
@@ -122,12 +107,11 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
 
-        data = _preprocess_data(file_data)
+        data = self._preprocess_data(file_data)
         content_length = len(data)
 
         # mime detection method same as in aiohttp 3.4.4
-        if content_type is None:
-            content_type = mimetypes.guess_type(object_name)[0]
+        content_type = content_type or mimetypes.guess_type(object_name)[0]
 
         headers = headers or {}
         headers.update({
@@ -136,25 +120,93 @@ class Storage:
             'Content-Type': content_type
         })
 
-        upload_type = decide_upload_type(force_resumable_upload, len(data))
+        upload_type = self._decide_upload_type(force_resumable_upload,
+                                               content_length)
         log.debug(f'using {upload_type} gcloud storage upload method')
-        if upload_type == GcloudUploadType.SIMPLE:
-            return await self._upload_simple(url, object_name, data,
-                                             headers=headers,
-                                             session=session,
-                                             timeout=timeout)
-        elif upload_type == GcloudUploadType.RESUMABLE:
+
+        if upload_type == UploadType.SIMPLE:
+            return await self._upload_simple(url, object_name, data, headers,
+                                             session=session, timeout=timeout)
+
+        if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(url, object_name, data,
-                                                headers=headers,
-                                                session=session,
+                                                headers, session=session,
                                                 timeout=timeout)
-        else:
-            raise TypeError(f'upload type {upload_type} not supported')
+
+        raise TypeError(f'upload type {upload_type} not supported')
+
+    @staticmethod
+    def _preprocess_data(data: Any) -> Union[str, bytes]:
+        if data is None:
+            return ''
+
+        if isinstance(data, (str, bytes)):
+            return data
+
+        raise TypeError(f'unsupported upload type: "{type(data)}"')
+
+    @staticmethod
+    def _decide_upload_type(force_resumable_upload: Optional[bool],
+                            content_length: int) -> UploadType:
+        # force resumable
+        if force_resumable_upload is True:
+            return UploadType.RESUMABLE
+
+        # force simple
+        if force_resumable_upload is False:
+            return UploadType.SIMPLE
+
+        # decide based on Content-Length
+        if content_length > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+            return UploadType.RESUMABLE
+
+        return UploadType.SIMPLE
+
+    @staticmethod
+    def _split_content_type(content_type: str) -> Tuple[str, str]:
+        content_type_and_encoding_split = content_type.split(';')
+        content_type = content_type_and_encoding_split[0].lower().strip()
+
+        encoding = None
+        if len(content_type_and_encoding_split) > 1:
+            encoding_str = content_type_and_encoding_split[1].lower().strip()
+            encoding = encoding_str.split('=')[-1]
+
+        return content_type, encoding
+
+    async def _download(self, bucket: str, object_name: str, *,
+                        params: dict = None, timeout: int = 10,
+                        session: aiohttp.ClientSession = None) -> Any:
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
+        headers = {
+            'Authorization': f'Bearer {token}',
+        }
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        response = await session.get(url, headers=headers, params=params or {},
+                                     timeout=timeout)
+        response.raise_for_status()
+
+        kind, enc = self._split_content_type(response.headers['Content-Type'])
+        if kind == 'application/json':
+            return await response.json()
+        if kind == 'application/octet-stream':
+            return await response.read()
+        if kind in {'text/plain', 'text/html'}:
+            return await response.text(enc)
+
+        return await response.read()
 
     async def _upload_simple(self, url: str, object_name: str,
-                             file_data, headers: dict = None,
+                             file_data: Union[str, bytes], headers: dict, *,
                              session: aiohttp.ClientSession = None,
-                             timeout: int = 120):
+                             timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params = {
             'name': object_name,
@@ -172,114 +224,72 @@ class Storage:
         resp = await session.post(url, data=file_data, headers=headers,
                                   params=params, timeout=timeout)
         resp.raise_for_status()
-        return await resp.json()
+        data: dict = await resp.json()
+        return data
 
     async def _upload_resumable(self, url: str, object_name: str,
-                                data, headers: dict = None,
+                                file_data: Union[str, bytes], headers: dict, *,
                                 session: aiohttp.ClientSession = None,
-                                timeout: int = 120):
+                                timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
+        session_uri = await self._initiate_upload(url, object_name, headers,
+                                                  session=session)
+        data: dict = await self._do_upload(session_uri, file_data,
+                                           headers=headers, session=session,
+                                           timeout=timeout)
+        return data
 
-        session_URI = await self._initiate_upload_session(url, object_name, headers,
-                                                          session)
-        upload_response = await self._do_upload(session_URI, data, timeout,
-                                                headers, session)
-
-        return upload_response
-
-    async def _initiate_upload_session(self, url: str, object_name: str, headers: dict,
-                                       session: aiohttp.ClientSession):
+    async def _initiate_upload(self, url: str, object_name: str, headers: dict,
+                               *,
+                               session: aiohttp.ClientSession = None) -> str:
         params = {
             'uploadType': 'resumable',
         }
 
-        metadata = {'name': object_name}
-        metadata_str = json.dumps(metadata)
-        metadata_len = len(metadata_str)
+        metadata = json.dumps({'name': object_name})
 
         post_headers = {**headers}
         post_headers.update({
-            'Content-Length': str(metadata_len),
+            'Content-Length': str(len(metadata)),
             'Content-Type': 'application/json; charset=UTF-8',
             'X-Upload-Content-Type': headers['Content-Type'],
             'X-Upload-Content-Length': headers['Content-Length']
         })
 
-        resp = await session.post(url, headers=post_headers,
-                                  params=params, data=metadata_str,
-                                  timeout=5)
-        resp.raise_for_status()
-        session_URI = resp.headers['Location']
-
-        return session_URI
-
-    async def _do_upload(self, session_URI: str, data, timeout: int,
-                         headers: dict, session: aiohttp.ClientSession,
-                         retries: int = 5, retry_sleep_start: float = 1.):
-        tries = 0
-        while True:
-            resp = await session.put(session_URI, headers=headers,
-                                     data=data, timeout=timeout)
-            if resp.status == 200:
-                break
-            else:
-                headers.update({'Content-Range': '*/*'})
-                asyncio.sleep(retry_sleep_start * 2.**tries)
-
-            tries += 1
-            if tries > retries:
-                resp.raise_for_status()
-                break
-
-        upload_response = await resp.json()
-
-        return upload_response
-
-    async def _download(self, bucket: str, object_name: str,
-                        params: dict = None,
-                        session: aiohttp.ClientSession = None):
-
-        def get_content_type_and_encoding(response_header: dict):
-            content_type_and_encoding = response_header.get('Content-Type')
-            content_type_and_encoding_split = content_type_and_encoding.split(
-                ';')
-            content_type = content_type_and_encoding_split[0].lower().strip()
-
-            encoding = None
-            if len(content_type_and_encoding_split) > 1:
-                encoding_str = content_type_and_encoding_split[1].lower(
-                ).strip()
-                encoding = encoding_str.split('=')[-1]
-
-            return (content_type, encoding)
-
-        token = await self.token.get()
-        # https://cloud.google.com/storage/docs/json_api/#encoding
-        encoded_object_name = quote(object_name, safe='')
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
-
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        response = await session.get(url, headers=headers, params=params or {},
-                                     timeout=60)
-        response.raise_for_status()
+        resp = await session.post(url, headers=post_headers, params=params,
+                                  data=metadata, timeout=10)
+        resp.raise_for_status()
+        session_uri: str = resp.headers['Location']
+        return session_uri
 
-        content_type, encoding = get_content_type_and_encoding(
-            response.headers)
+    async def _do_upload(self, session_uri: str, file_data: Union[str, bytes],
+                         headers: dict, *, retries: int = 5,
+                         session: aiohttp.ClientSession = None,
+                         timeout: int = 30) -> dict:
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
 
-        if content_type == 'application/octet-stream':
-            result = await response.read()
-        elif content_type in ('text/plain', 'text/html', 'application/json'):
-            result = await response.text(encoding)
-        else:
-            result = await response.read()
+        resp = await session.put(session_uri, headers=headers, data=file_data,
+                                 timeout=timeout)
+        for tries in range(retries):
+            try:
+                resp.raise_for_status()
+            except Exception:
+                headers.update({'Content-Range': '*/*'})
+                await asyncio.sleep(2. ** tries)
 
-        return result
+                resp = await session.put(session_uri, headers=headers,
+                                         data=file_data, timeout=timeout)
+                continue
 
-    def get_bucket(self, bucket_name: str):
-        return Bucket(self, bucket_name)
+            break
+
+        resp.raise_for_status()
+        data: dict = await resp.json()
+        return data

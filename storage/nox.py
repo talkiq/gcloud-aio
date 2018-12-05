@@ -1,13 +1,18 @@
 # pylint: disable=import-self,no-member
 import os
+
 import nox
 
 
 LOCAL_DEPS = ('../auth/', )
 
 
-@nox.session(python=['3.6', '3.7'])
-def unit_tests(session):
+@nox.session
+@nox.parametrize('python_version', ['3.6', '3.7'])
+def unit_tests(session, python_version):
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = f'unit-{python_version}'
+
     session.install('pytest', 'pytest-cov', *LOCAL_DEPS)
     session.install('-e', '.')
 
@@ -22,20 +27,14 @@ def unit_tests(session):
         *session.posargs)
 
 
-@nox.session(python=['3.7'])
-def integration_tests(session):
+@nox.session
+@nox.parametrize('python_version', ['3.6', '3.7'])
+def integration_tests(session, python_version):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
-        session.skip(
-            'Credentials must be set via the environment variable\
-            "GOOGLE_APPLICATION_CREDENTIALS".')
-    if not os.environ.get('BUCKET_NAME', ''):
-        session.skip(
-            'Gcloud bucket name must be set via the environment variable:\
-             "BUCKET_NAME".')
-    if not os.environ.get('GCLOUD_PROJECT', ''):
-        session.skip(
-            'Gcloud project id must be set via the environment variable:\
-            "GCLOUD_PROJECT".')
+        session.skip('Credentials must be set via environment variable.')
+
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = f'integration-{python_version}'
 
     session.install('aiohttp', 'pytest', 'pytest-asyncio', *LOCAL_DEPS)
     session.install('.')
@@ -43,8 +42,12 @@ def integration_tests(session):
     session.run('py.test', '--quiet', 'tests/integration')
 
 
-@nox.session(python=['3.6', '3.7'])
-def lint_setup_py(session):
+@nox.session
+@nox.parametrize('python_version', ['3.7'])
+def lint_setup_py(session, python_version):
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = 'setup'
+
     session.install('docutils', 'Pygments')
     session.run(
         'python',
@@ -54,8 +57,12 @@ def lint_setup_py(session):
         '--strict')
 
 
-@nox.session(python=['3.7'])
-def cover(session):
+@nox.session
+@nox.parametrize('python_version', ['3.7'])
+def cover(session, python_version):
+    session.interpreter = f'python{python_version}'
+    session.virtualenv_dirname = 'cover'
+
     session.install('codecov', 'coverage', 'pytest-cov')
 
     session.run('coverage', 'report', '--show-missing')

@@ -10,30 +10,11 @@ Installation
 
     $ pip install --upgrade gcloud-aio-storage
 
-Local development
------------------
-
-- follow instructions in `contributing`_
-- install pip tools:
-.. code-block:: console
-    
-    $ pip install pip-tools
-
-- get dependencies
-.. code-block:: console
- 
-    $ pip-compile requirements.dev.in 
-
-- install dependencies 
-.. code-block:: console
- 
-    $ pip install -r requirements.dev.txt 
-    
 Usage
 -----
 
 We're still working on documentation -- for now, you can use the `smoke test`_
-as an example. 
+as an example.
 
 Contributing
 ------------
@@ -43,7 +24,6 @@ Please see our `contributing guide`_.
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py
 
-.. _contributing: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-storage.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-storage/

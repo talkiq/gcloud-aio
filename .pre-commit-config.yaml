@@ -43,7 +43,6 @@ repos:
     sha: v1.0.1
     hooks:
     -   id: reorder-python-imports
-        language_version: python3.6
         args: [--py3-plus]
 -   repo: git://github.com/asottile/pyupgrade
     sha: v1.2.0
