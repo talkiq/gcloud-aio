@@ -9,11 +9,11 @@ Testing
 -------
 
 Tests are run with `nox`_ on a per sub-project basis. See each project's
-``nox.py`` for the scaffolding and the ``tests/unit`` and ``tests/integration``
-folders for the actual test code.
+``noxfile.py`` for the scaffolding and the ``tests/unit`` and
+``tests/integration`` folders for the actual test code.
 
-You can get nox with ``pip install nox-automation`` and run a specific
-project's tests with ``nox -f auth/nox.py``.
+You can get nox with ``pip install nox`` and run a specific
+project's tests with ``nox -f auth/noxfile.py``.
 
 Local Development
 ~~~~~~~~~~~~~~~~~
