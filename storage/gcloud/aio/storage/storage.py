@@ -72,8 +72,8 @@ class Storage:
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 session: aiohttp.ClientSession = None) -> dict:
-        metadata: dict = await self._download(bucket, object_name,
-                                              session=session)
+        data = await self._download(bucket, object_name, session=session)
+        metadata: dict = json.loads(data)
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
@@ -195,11 +195,9 @@ class Storage:
 
         print(response.headers['Content-Type'])
         kind, enc = self._split_content_type(response.headers['Content-Type'])
-        if kind == 'application/json':
-            return await response.json()
         if kind == 'application/octet-stream':
             return await response.read()
-        if kind in {'text/plain', 'text/html'}:
+        if kind in {'application/json', 'text/plain', 'text/html'}:
             return await response.text(enc)
 
         return await response.read()
