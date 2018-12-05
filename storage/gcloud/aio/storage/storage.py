@@ -124,6 +124,9 @@ class Storage:
                                                content_length)
         log.debug(f'using {upload_type} gcloud storage upload method')
 
+        print(data)
+        print(type(data))
+        print(headers)
         if upload_type == UploadType.SIMPLE:
             return await self._upload_simple(url, object_name, data, headers,
                                              session=session, timeout=timeout)
