@@ -111,22 +111,19 @@ class Storage:
         content_length = len(data)
 
         # mime detection method same as in aiohttp 3.4.4
-        kind = content_type or mimetypes.guess_type(object_name)[0] or ''
+        content_type = content_type or mimetypes.guess_type(object_name)[0]
 
         headers = headers or {}
         headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Length': str(content_length),
-            'Content-Type': kind,
+            'Content-Type': content_type or '',
         })
 
         upload_type = self._decide_upload_type(force_resumable_upload,
                                                content_length)
         log.debug(f'using {upload_type} gcloud storage upload method')
 
-        print(data)
-        print(type(data))
-        print(headers)
         if upload_type == UploadType.SIMPLE:
             return await self._upload_simple(url, object_name, data, headers,
                                              session=session, timeout=timeout)
@@ -196,6 +193,7 @@ class Storage:
                                      timeout=timeout)
         response.raise_for_status()
 
+        print(response.headers['Content-Type'])
         kind, enc = self._split_content_type(response.headers['Content-Type'])
         if kind == 'application/json':
             return await response.json()
