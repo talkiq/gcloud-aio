@@ -12,3 +12,13 @@ def creds() -> str:
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
     return 'voiceai-staging'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def subscription() -> str:
+    return 'public_test'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def topic() -> str:
+    return 'public_test'

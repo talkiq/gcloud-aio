@@ -10,5 +10,15 @@ def creds() -> str:
 
 
 @pytest.fixture(scope='module')  # type: ignore
+def dataset() -> str:
+    return 'public_test'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def table() -> str:
+    return 'public_test'
+
+
+@pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
     return 'voiceai-staging'

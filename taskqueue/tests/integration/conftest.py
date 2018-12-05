@@ -12,3 +12,8 @@ def creds() -> str:
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
     return 'voiceai-staging'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def task_queue() -> str:
+    return 'public_test'
