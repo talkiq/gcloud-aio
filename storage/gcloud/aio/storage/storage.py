@@ -280,7 +280,7 @@ class Storage:
         for tries in range(retries):
             try:
                 resp.raise_for_status()
-            except Exception:
+            except aiohttp.ClientResponseError:
                 headers.update({'Content-Range': '*/*'})
                 await asyncio.sleep(2. ** tries)
 

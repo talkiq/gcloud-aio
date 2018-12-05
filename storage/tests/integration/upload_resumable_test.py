@@ -1,14 +1,9 @@
 import json
-import os
 import uuid
 
 import aiohttp
 import pytest
 from gcloud.aio.storage import Storage
-
-PROJECT = os.environ['GCLOUD_PROJECT']
-CREDS = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-BUCKET_NAME = os.environ['BUCKET_NAME']
 
 
 @pytest.mark.asyncio
@@ -20,14 +15,15 @@ BUCKET_NAME = os.environ['BUCKET_NAME']
 ])
 async def test_upload_resumable(bucket_name, creds, project, uploaded_data,
                                 expected_data, file_extension):
+    # pylint: disable=too-many-arguments
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
     async with aiohttp.ClientSession() as session:
-        storage = Storage(PROJECT, CREDS, session=session)
-        res = await storage.upload(BUCKET_NAME, object_name, uploaded_data,
+        storage = Storage(project, creds, session=session)
+        res = await storage.upload(bucket_name, object_name, uploaded_data,
                                    force_resumable_upload=True)
 
-        downloaded_data = await storage.download(BUCKET_NAME, res['name'])
+        downloaded_data = await storage.download(bucket_name, res['name'])
         assert expected_data == downloaded_data
 
-        await storage.delete(BUCKET_NAME, res['name'])
+        await storage.delete(bucket_name, res['name'])
