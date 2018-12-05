@@ -1,4 +1,3 @@
-import os
 import uuid
 
 import pytest
@@ -6,10 +5,7 @@ from gcloud.aio.datastore import Datastore
 
 
 @pytest.mark.asyncio
-async def test_item_lifecycle():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
+async def test_item_lifecycle(creds, project):
     kind_name = 'gcloud-aio-test'
     object_name = f'test_record_{uuid.uuid4()}'
 

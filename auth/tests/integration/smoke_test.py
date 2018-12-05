@@ -1,14 +1,10 @@
-import os
-
 import aiohttp
 import pytest
 from gcloud.aio.auth import Token
 
 
 @pytest.mark.asyncio
-async def test_token_is_created():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+async def test_token_is_created(creds, project):
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
     async with aiohttp.ClientSession() as session:
@@ -19,9 +15,7 @@ async def test_token_is_created():
 
 
 @pytest.mark.asyncio
-async def test_token_does_not_require_session():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+async def test_token_does_not_require_session(creds, project):
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
     token = Token(project, creds, scopes=scopes)

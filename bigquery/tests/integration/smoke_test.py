@@ -1,4 +1,3 @@
-import os
 import uuid
 
 import aiohttp
@@ -7,9 +6,7 @@ from gcloud.aio.bigquery import make_stream_insert
 
 
 @pytest.mark.asyncio
-async def test_data_is_inserted():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+async def test_data_is_inserted(creds, project):
     dataset_name = 'test'
     table_name = 'test'
     rows = [{'key': uuid.uuid4().hex, 'value': uuid.uuid4().hex}

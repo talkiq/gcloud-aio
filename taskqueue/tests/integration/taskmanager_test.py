@@ -10,10 +10,7 @@ from gcloud.aio.taskqueue import TaskManager
 
 
 @pytest.mark.asyncio
-async def test_task_lifecycle(mocker):
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
+async def test_task_lifecycle(mocker, creds, project):
     task_queue = 'test-pull'
 
     def get_mock_coro(return_value):
@@ -57,10 +54,7 @@ async def test_task_lifecycle(mocker):
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_task_multiple_leases(caplog, mocker):
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
+async def test_task_multiple_leases(caplog, mocker, creds, project):
     task_queue = 'test-pull'
 
     def get_mock_coro(return_value):

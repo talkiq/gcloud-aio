@@ -11,10 +11,7 @@ from gcloud.aio.taskqueue import TaskQueue
 
 
 @pytest.mark.asyncio
-async def test_task_lifecycle():
-    project = os.environ['GCLOUD_PROJECT']
-    creds = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
+async def test_task_lifecycle(creds, project):
     task_queue = 'test-pull'
 
     async with aiohttp.ClientSession() as session:

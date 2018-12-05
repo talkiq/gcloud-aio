@@ -1,5 +1,4 @@
 import json
-import os
 import time
 import uuid
 
@@ -8,9 +7,7 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_pubsub_lifecycle():
-    project = os.environ['GCLOUD_PROJECT']
-
+async def test_pubsub_lifecycle(project):
     topic_name = 'test-topic-{}'.format(uuid.uuid4().hex)
     subscription_name = 'test-subscription-{}'.format(uuid.uuid4().hex)
 
