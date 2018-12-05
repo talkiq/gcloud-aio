@@ -18,108 +18,73 @@ jobs:
 
   test-auth:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f auth/nox.py
+      - run: nox -f auth/noxfile.py
 
   test-bigquery:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f bigquery/nox.py
+      - run: nox -f bigquery/noxfile.py
 
   test-datastore:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f datastore/nox.py
+      - run: nox -f datastore/noxfile.py
 
   test-kms:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f kms/nox.py
+      - run: nox -f kms/noxfile.py
 
   test-pubsub:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f pubsub/nox.py
+      - run: nox -f pubsub/noxfile.py
 
   test-storage:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f storage/nox.py
+      - run: nox -f storage/noxfile.py
 
   test-taskqueue:
     docker:
-      - image: googleapis/nox:0.18.2
+      - image: thekevjames/nox:2018.10.17
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - run:
-          name: install dependencies
-          command: |
-            apt-get update
-            apt-get install -y ca-certificates
       - checkout
-      - run: nox -f taskqueue/nox.py
+      - run: nox -f taskqueue/noxfile.py
 
   pypi:
     docker:
