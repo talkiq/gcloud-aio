@@ -1,9 +1,9 @@
 **/*.egg-info/*
+**/.nox/*
 **/.pytest_cache/*
 **/__pycache__/*
 **/dist/*
+**/venv/*
 *.pyc
 */.coverage
 */build/*
-.nox/*
-venv/*
