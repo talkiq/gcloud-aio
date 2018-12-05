@@ -111,13 +111,13 @@ class Storage:
         content_length = len(data)
 
         # mime detection method same as in aiohttp 3.4.4
-        content_type = content_type or mimetypes.guess_type(object_name)[0]
+        kind = content_type or mimetypes.guess_type(object_name)[0] or ''
 
         headers = headers or {}
         headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Length': str(content_length),
-            'Content-Type': content_type
+            'Content-Type': kind,
         })
 
         upload_type = self._decide_upload_type(force_resumable_upload,
