@@ -6,7 +6,7 @@ import nox
 LOCAL_DEPS = ('../auth/', )
 
 
-@nox.session(python=['3.6', '3.7'])
+@nox.session(python=['3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
     session.install('pytest', 'pytest-cov', *LOCAL_DEPS)
     session.install('-e', '.')
@@ -16,14 +16,14 @@ def unit_tests(session):
                 os.path.join('tests', 'unit'), *session.posargs)
 
 
-@nox.session(python=['3.7'])
+@nox.session(python=['3.7'], reuse_venv=True)
 def lint_setup_py(session):
     session.install('docutils', 'Pygments')
     session.run('python', 'setup.py', 'check', '--restructuredtext',
                 '--strict')
 
 
-@nox.session(python=['3.7'])
+@nox.session(python=['3.7'], reuse_venv=True)
 def cover(session):
     session.install('coverage', 'pytest-cov')
 
