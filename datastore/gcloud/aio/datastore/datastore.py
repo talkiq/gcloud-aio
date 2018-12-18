@@ -91,6 +91,31 @@ class Datastore:
             }
         }
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
+    async def allocateIds(self, keys: List[Key],
+                          session: aiohttp.ClientSession = None,
+                          timeout: int = 10) -> List[Key]:
+        url = f'{API_ROOT}/{self.project}:allocateIds'
+
+        payload = json.dumps([k.to_repr() for k in keys]).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
+        data = await resp.json()
+
+        return [Key.from_repr(k) for k in data['keys']]
+
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(self, session: aiohttp.ClientSession = None,
@@ -108,9 +133,9 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, headers=headers, timeout=timeout)
         resp.raise_for_status()
-        content = await resp.json()
+        data = await resp.json()
 
-        transaction: str = content['transaction']
+        transaction: str = data['transaction']
         return transaction
 
     async def commit(self, transaction: str, mutations: List[Dict[str, Any]],

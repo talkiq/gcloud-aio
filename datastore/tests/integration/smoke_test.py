@@ -14,6 +14,10 @@ async def test_item_lifecycle(creds, kind, project):
     ds = Datastore(project, creds)
     key = Key(project, [PathElement(kind, object_name)])
 
+    allocatedKeys = await ds.allocateIds([key])
+    assert len(allocatedKeys) == 1
+    assert key == allocatedKeys[0]
+
     props = {'is_this_bad_data': True}
     await ds.insert(key, props)
 
