@@ -66,7 +66,6 @@ class Datastore:
     def _make_value(cls, value: Any) -> Dict[str, Any]:
         type_name = cls._infer_type(value)
         return {
-            'excludeFromIndexes': False,
             type_name.value: cls._format_value(type_name, value),
         }
 
