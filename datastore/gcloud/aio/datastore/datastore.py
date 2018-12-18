@@ -1,6 +1,4 @@
-import datetime
 import logging
-import warnings
 from typing import Any
 from typing import Dict
 from typing import List
@@ -12,6 +10,8 @@ from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
+from gcloud.aio.datastore.key import Key
+from gcloud.aio.datastore.key import PathElement
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -78,34 +78,22 @@ class Datastore:
         }
 
     @classmethod
-    def make_mutation(cls, operation: Operation, kind: str, name: str,
-                      project: str,
+    def make_mutation(cls, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
         # pylint: disable=too-many-arguments
-        key = {
-            'partitionId': {
-                'projectId': project,
-                'namespaceId': '',
-            },
-            'path': [
-                {
-                    'kind': kind,
-                    'name': name,
-                },
-            ],
-        }
-
         if operation == Operation.DELETE:
-            return {operation.value: key}
+            return {operation.value: key.to_repr()}
 
         return {
             operation.value: {
-                'key': key,
+                'key': key.to_repr(),
                 'properties': {k: cls._make_value(v)
                                for k, v in properties.items()},
             }
         }
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
+    # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(self, session: aiohttp.ClientSession = None,
                                timeout: int = 10) -> str:
         url = f'{API_ROOT}/{self.project}:beginTransaction'
@@ -175,77 +163,7 @@ class Datastore:
                       session: aiohttp.ClientSession = None) -> None:
         # pylint: disable=too-many-arguments
         transaction = await self.beginTransaction(session=session)
-        mutation = self.make_mutation(operation, kind, name, self.project,
-                                      properties=properties)
+        key = Key(self.project, path=[PathElement(kind, name)])
+        mutation = self.make_mutation(operation, key, properties=properties)
         return await self.commit(transaction, mutations=[mutation],
                                  session=session)
-
-    async def transact(self, session: aiohttp.ClientSession = None,
-                       timeout: int = 10) -> str:
-        warnings.warn('transact has been renamed to beginTransaction to '
-                      'better match the Google API spec. Please update to '
-                      'calling Datastore().beginTransaction() directly. '
-                      'transact will be removed in '
-                      'gcloud-aio-datastore==2.0.0',
-                      DeprecationWarning)
-        return await self.beginTransaction(session=session, timeout=timeout)
-
-
-def format_timestamp(dt: datetime.datetime) -> str:
-    warnings.warn('calling format_timestamp directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    # pylint: disable=protected-access
-    value: str = Datastore._format_value(TypeName.TIMESTAMP, dt)
-    return value
-
-
-def format_value(type_name: TypeName, value: Any) -> Any:
-    warnings.warn('calling format_value directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    # pylint: disable=protected-access
-    return Datastore._format_value(type_name, value)
-
-
-def infer_type(value: Any) -> TypeName:
-    warnings.warn('calling infer_type directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    # pylint: disable=protected-access
-    return Datastore._infer_type(value)
-
-
-def make_commit_body(transaction: str, mode: Mode = Mode.TRANSACTIONAL,
-                     mutations: List[Dict[str, Any]] = None) -> Dict[str, Any]:
-    warnings.warn('calling make_commit_body directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    # pylint: disable=protected-access
-    return Datastore._make_commit_body(transaction, mode, mutations)
-
-
-def make_mutation_record(operation: Operation, kind: str, name: str,
-                         properties: Dict[str, Any],
-                         project: str) -> Dict[str, Any]:
-    warnings.warn('calling make_mutation_record directly is deprecated and '
-                  'has been replaced with Datastore.make_mutation(). It will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    return Datastore.make_mutation(operation, kind, name, project,
-                                   properties=properties)
-
-
-def make_properties(properties: Dict[str, Any]) -> Dict[str, Any]:
-    warnings.warn('calling make_properties directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    return {k: make_value(v) for k, v in properties.items()}
-
-
-def make_value(value: Any) -> Dict[str, Any]:
-    warnings.warn('calling make_value directly is deprecated and will '
-                  'be removed in gcloud-aio-datastore==2.0.0',
-                  DeprecationWarning)
-    # pylint: disable=protected-access
-    return Datastore._make_value(value)
