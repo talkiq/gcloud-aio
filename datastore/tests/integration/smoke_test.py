@@ -2,7 +2,6 @@ import uuid
 
 import aiohttp
 import pytest
-from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
@@ -84,8 +83,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
                          named_bindings={'value': 42})
 
-        before = await ds.runQuery(query, consistency=Consistency.STRONG,
-                                   session=s)
+        before = await ds.runQuery(query, session=s)
         num_results = len(before.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
@@ -102,6 +100,5 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         ]
         await ds.commit(transaction, mutations=mutations, session=s)
 
-        after = await ds.runQuery(query, consistency=Consistency.STRONG,
-                                  session=s)
+        after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3
