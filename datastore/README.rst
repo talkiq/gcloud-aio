@@ -25,6 +25,7 @@ started:
     await datastore.insert('Kind', 'name', {'prop0': 41, 'prop1': True})
     await datastore.update('Kind', 'name', {'prop0': 42, 'prop1': True})
     await datastore.upsert('Kind', 'name', {'prop2': 'aardvark'})
+    await datastore.delete('Kind', 'name')
 
 Contributing
 ------------

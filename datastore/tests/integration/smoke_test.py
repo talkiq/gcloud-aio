@@ -19,3 +19,5 @@ async def test_item_lifecycle(creds, kind, project):
 
     props = {'meaning_of_life': 42}
     await ds.upsert(kind, object_name, props)
+
+    await ds.delete(kind, object_name)
