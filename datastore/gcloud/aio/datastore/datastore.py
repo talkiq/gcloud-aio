@@ -161,9 +161,9 @@ class Datastore:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        response = await session.post(url, data=payload, headers=headers,
-                                      timeout=timeout)
-        response.raise_for_status()
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(self, keys: List[Key], database_id: str = '',
@@ -190,6 +190,31 @@ class Datastore:
                                   timeout=timeout)
         resp.raise_for_status()
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
+    async def rollback(self, transaction: str,
+                       session: aiohttp.ClientSession = None,
+                       timeout: int = 10) -> None:
+        url = f'{API_ROOT}/{self.project}:rollback'
+
+        payload = json.dumps({
+            'transaction': transaction,
+        }).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
+        print(await resp.json())
+        resp.raise_for_status()
+
     async def delete(self, key: Key,
                      session: aiohttp.ClientSession = None) -> None:
         return await self.operate(Operation.DELETE, key, session=session)
@@ -214,5 +239,4 @@ class Datastore:
                       session: aiohttp.ClientSession = None) -> None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        return await self.commit(transaction, mutations=[mutation],
-                                 session=session)
+        await self.commit(transaction, mutations=[mutation], session=session)
