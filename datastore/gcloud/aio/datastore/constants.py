@@ -1,5 +1,11 @@
-import datetime
 import enum
+from datetime import datetime as dt
+
+
+class Consistency(enum.Enum):
+    EVENTUAL = 'EVENTUAL'
+    READ_CONSISTENCY_UNSPECIFIED = 'READ_CONSISTENCY_UNSPECIFIED'
+    STRONG = 'STRONG'
 
 
 class Mode(enum.Enum):
@@ -28,7 +34,7 @@ class TypeName(enum.Enum):
 # TODO: support more than just scalars
 TYPES = {
     bytes: TypeName.BLOB,
-    datetime.datetime: TypeName.TIMESTAMP,
+    dt: TypeName.TIMESTAMP,
     float: TypeName.DOUBLE,
     int: TypeName.INTEGER,
     str: TypeName.STRING,
@@ -38,4 +44,10 @@ TYPES = {
 
 FORMATTERS = {
     TypeName.TIMESTAMP: lambda d: d.strftime('%Y-%m-%dT%H:%S:%M.%f000Z'),
+}
+
+UNFORMATTERS = {
+    TypeName.DOUBLE: lambda s: float(s),
+    TypeName.INTEGER: lambda s: int(s),
+    TypeName.TIMESTAMP: lambda s: dt.strptime(s, '%Y-%m-%dT%H:%S:%M.%f000Z'),
 }

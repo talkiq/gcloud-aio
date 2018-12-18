@@ -5,12 +5,12 @@ from typing import List
 
 import aiohttp
 from gcloud.aio.auth import Token
-from gcloud.aio.datastore.constants import FORMATTERS
+from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
-from gcloud.aio.datastore.constants import TypeName
-from gcloud.aio.datastore.constants import TYPES
+from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
+from gcloud.aio.datastore.utils import make_value
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -37,19 +37,6 @@ class Datastore:
                                     scopes=SCOPES)
 
     @staticmethod
-    def _infer_type(value: Any) -> TypeName:
-        kind = type(value)
-
-        try:
-            return TYPES[kind]
-        except KeyError:
-            raise Exception(f'unsupported value type {kind}')
-
-    @staticmethod
-    def _format_value(type_name: TypeName, value: Any) -> Any:
-        return FORMATTERS.get(type_name, lambda v: v)(value)
-
-    @staticmethod
     def _make_commit_body(
             transaction: str, mode: Mode = Mode.TRANSACTIONAL,
             mutations: List[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -62,21 +49,14 @@ class Datastore:
             'transaction': transaction,
         }
 
-    @classmethod
-    def _make_value(cls, value: Any) -> Dict[str, Any]:
-        type_name = cls._infer_type(value)
-        return {
-            type_name.value: cls._format_value(type_name, value),
-        }
-
     async def headers(self) -> Dict[str, str]:
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',
         }
 
-    @classmethod
-    def make_mutation(cls, operation: Operation, key: Key,
+    @staticmethod
+    def make_mutation(operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
         # pylint: disable=too-many-arguments
         if operation == Operation.DELETE:
@@ -85,7 +65,7 @@ class Datastore:
         return {
             operation.value: {
                 'key': key.to_repr(),
-                'properties': {k: cls._make_value(v)
+                'properties': {k: make_value(v)
                                for k, v in properties.items()},
             }
         }
@@ -163,6 +143,45 @@ class Datastore:
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
         resp.raise_for_status()
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
+    async def lookup(self, keys: List[Key], transaction: str = None,
+                     consistency: Consistency = Consistency.STRONG,
+                     session: aiohttp.ClientSession = None,
+                     timeout: int = 10) -> dict:
+        url = f'{API_ROOT}/{self.project}:lookup'
+
+        if transaction:
+            options = {'transaction': transaction}
+        else:
+            options = {'readConsistency': consistency.value}
+        payload = json.dumps({
+            'keys': [k.to_repr() for k in keys],
+            'readOptions': options,
+        }).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
+        data: dict = await resp.json()
+
+        return {
+            'found': [EntityResult.from_repr(e)
+                      for e in data.get('found', [])],
+            'missing': [EntityResult.from_repr(e)
+                        for e in data.get('missing', [])],
+            'deferred': [Key.from_repr(k) for k in data.get('deferred', [])],
+        }
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(self, keys: List[Key], database_id: str = '',
