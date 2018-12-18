@@ -106,8 +106,8 @@ class Datastore:
             }
         }
 
-    async def transact(self, session: aiohttp.ClientSession = None,
-                       timeout: int = 10) -> str:
+    async def beginTransaction(self, session: aiohttp.ClientSession = None,
+                               timeout: int = 10) -> str:
         url = f'{API_ROOT}/{self.project}:beginTransaction'
         headers = await self.headers()
         headers.update({
@@ -174,11 +174,21 @@ class Datastore:
                       properties: Dict[str, Any] = None,
                       session: aiohttp.ClientSession = None) -> None:
         # pylint: disable=too-many-arguments
-        transaction = await self.transact(session=session)
+        transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, kind, name, self.project,
                                       properties=properties)
         return await self.commit(transaction, mutations=[mutation],
                                  session=session)
+
+    async def transact(self, session: aiohttp.ClientSession = None,
+                       timeout: int = 10) -> str:
+        warnings.warn('transact has been renamed to beginTransaction to '
+                      'better match the Google API spec. Please update to '
+                      'calling Datastore().beginTransaction() directly. '
+                      'transact will be removed in '
+                      'gcloud-aio-datastore==2.0.0',
+                      DeprecationWarning)
+        return await self.beginTransaction(session=session, timeout=timeout)
 
 
 def format_timestamp(dt: datetime.datetime) -> str:
