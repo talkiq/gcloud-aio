@@ -2,7 +2,9 @@ import uuid
 
 import aiohttp
 import pytest
+from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
+from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
@@ -72,3 +74,33 @@ async def test_rollback(creds: str, project: str) -> None:
 
         transaction = await ds.beginTransaction(session=s)
         await ds.rollback(transaction, session=s)
+
+
+@pytest.mark.asyncio  # type: ignore
+async def test_query(creds: str, kind: str, project: str) -> None:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project, creds, session=s)
+
+        query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
+                         named_bindings={'value': 42})
+
+        transaction = await ds.beginTransaction(session=s)
+        initial = await ds.runQuery(query, transaction=transaction, session=s)
+        num_results = len(initial.entity_results)
+
+        mutations = [
+            ds.make_mutation(Operation.INSERT,
+                             Key(project, [PathElement(kind)]),
+                             properties={'value': 42}),
+            ds.make_mutation(Operation.INSERT,
+                             Key(project, [PathElement(kind)]),
+                             properties={'value': 42}),
+            ds.make_mutation(Operation.INSERT,
+                             Key(project, [PathElement(kind)]),
+                             properties={'value': 42}),
+        ]
+        await ds.commit(transaction, mutations=mutations, session=s)
+
+        after = await ds.runQuery(query, consistency=Consistency.STRONG,
+                                  session=s)
+        assert len(after.entity_results) == num_results + 3

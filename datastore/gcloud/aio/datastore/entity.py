@@ -33,8 +33,8 @@ class Entity:
 
 
 class EntityResult:
-    def __init__(self, entity: Entity, version: int,
-                 cursor: bytes = None) -> None:
+    def __init__(self, entity: Entity, version: str,
+                 cursor: str = '') -> None:
         self.entity = entity
         self.version = version
         self.cursor = cursor
@@ -53,7 +53,7 @@ class EntityResult:
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'EntityResult':
         return cls(Entity.from_repr(data['entity']), data['version'],
-                   data.get('cursor'))
+                   data.get('cursor', ''))
 
     def to_repr(self) -> Dict[str, Any]:
         data = {

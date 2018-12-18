@@ -10,6 +10,8 @@ from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
+from gcloud.aio.datastore.query import GQLQuery
+from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.utils import make_value
 try:
     import ujson as json
@@ -27,10 +29,11 @@ log = logging.getLogger(__name__)
 
 
 class Datastore:
-    def __init__(self, project: str, service_file: str,
+    def __init__(self, project: str, service_file: str, namespace: str = '',
                  session: aiohttp.ClientSession = None,
                  token: Token = None) -> None:
         self.project = project
+        self.namespace = namespace
 
         self.session = session
         self.token = token or Token(project, service_file, session=session,
@@ -230,8 +233,41 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
+        resp.raise_for_status()
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
+    # TODO: support non-GQL queries
+    async def runQuery(self, query: GQLQuery, transaction: str = None,
+                       consistency: Consistency = Consistency.EVENTUAL,
+                       session: aiohttp.ClientSession = None,
+                       timeout: int = 10) -> QueryResultBatch:
+        url = f'{API_ROOT}/{self.project}:runQuery'
+
+        payload = json.dumps({
+            'partitionId': {
+                'projectId': self.project,
+                'namespaceId': self.namespace,
+            },
+            'gqlQuery': query.to_repr(),
+        }).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
         print(await resp.json())
         resp.raise_for_status()
+
+        data: dict = await resp.json()
+        return QueryResultBatch.from_repr(data['batch'])
 
     async def delete(self, key: Key,
                      session: aiohttp.ClientSession = None) -> None:

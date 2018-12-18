@@ -1,0 +1,104 @@
+from typing import Any
+from typing import Dict
+from typing import List
+
+from gcloud.aio.datastore.constants import MoreResultsType
+from gcloud.aio.datastore.constants import ResultType
+from gcloud.aio.datastore.entity import EntityResult
+from gcloud.aio.datastore.utils import make_value
+
+
+class GQLQuery:
+    def __init__(self, query_string: str, allow_literals: bool = True,
+                 named_bindings: Dict[str, Any] = None,
+                 posititional_bindings: List[Any] = None) -> None:
+        self.query_string = query_string
+        self.allow_literals = allow_literals
+        self.named_bindings = named_bindings or {}
+        self.posititional_bindings = posititional_bindings or []
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, GQLQuery):
+            return False
+
+        return bool(
+            self.query_string == other.query_string
+            and self.allow_literals == other.allow_literals
+            and self.named_bindings == other.named_bindings
+            and self.posititional_bindings == other.posititional_bindings)
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def to_repr(self) -> Dict[str, Any]:
+        return {
+            'allowLiterals': self.allow_literals,
+            'queryString': self.query_string,
+            'namedBindings': {k: {'value': make_value(v)}
+                              for k, v in self.named_bindings.items()},
+            'positionalBindings': [{'value': make_value(v)}
+                                   for v in self.posititional_bindings],
+        }
+
+
+class QueryResultBatch:
+    def __init__(self, end_cursor: str,
+                 entity_result_type: ResultType = ResultType.UNSPECIFIED,
+                 entity_results: List[EntityResult] = None,
+                 more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
+                 skipped_cursor: str = '', skipped_results: int = 0,
+                 snapshot_version: str = '') -> None:
+        self.end_cursor = end_cursor
+
+        self.entity_result_type = entity_result_type
+        self.entity_results = entity_results or []
+        self.more_results = more_results
+        self.skipped_cursor = skipped_cursor
+        self.skipped_results = skipped_results
+        self.snapshot_version = snapshot_version
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, QueryResultBatch):
+            return False
+
+        return bool(self.end_cursor == other.end_cursor
+                    and self.entity_result_type == other.entity_result_type
+                    and self.entity_results == other.entity_results
+                    and self.more_results == other.more_results
+                    and self.skipped_cursor == other.skipped_cursor
+                    and self.skipped_results == other.skipped_results
+                    and self.snapshot_version == other.snapshot_version)
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResultBatch':
+        end_cursor = data['endCursor']
+        entity_result_type = ResultType(data['entityResultType'])
+        entity_results = [EntityResult.from_repr(er)
+                          for er in data.get('entityResults', [])]
+        more_results = MoreResultsType(data['moreResults'])
+        skipped_cursor = data.get('skippedCursor', '')
+        skipped_results = data.get('skippedResults', 0)
+        snapshot_version = data.get('snapshotVersion', '')
+        return cls(end_cursor, entity_result_type=entity_result_type,
+                   entity_results=entity_results, more_results=more_results,
+                   skipped_cursor=skipped_cursor,
+                   skipped_results=skipped_results,
+                   snapshot_version=snapshot_version)
+
+    def to_repr(self) -> Dict[str, Any]:
+        data = {
+            'endCursor': self.end_cursor,
+            'entityResults': [er.to_repr() for er in self.entity_results],
+            'entityResultType': self.entity_result_type.value,
+            'moreResults': self.more_results.value,
+            'skippedResults': self.skipped_results,
+        }
+        if self.skipped_cursor:
+            data['skippedCursor'] = self.skipped_cursor
+        if self.snapshot_version:
+            data['snapshotVersion'] = self.snapshot_version
+
+        return data

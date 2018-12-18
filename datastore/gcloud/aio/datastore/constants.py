@@ -4,8 +4,8 @@ from datetime import datetime as dt
 
 class Consistency(enum.Enum):
     EVENTUAL = 'EVENTUAL'
-    READ_CONSISTENCY_UNSPECIFIED = 'READ_CONSISTENCY_UNSPECIFIED'
     STRONG = 'STRONG'
+    UNSPECIFIED = 'READ_CONSISTENCY_UNSPECIFIED'
 
 
 class Mode(enum.Enum):
@@ -14,11 +14,26 @@ class Mode(enum.Enum):
     UNSPECIFIED = 'MODE_UNSPECIFIED'
 
 
+class MoreResultsType(enum.Enum):
+    MORE_RESULTS_AFTER_CURSOR = 'MORE_RESULTS_AFTER_CURSOR'
+    MORE_RESULTS_AFTER_LIMIT = 'MORE_RESULTS_AFTER_LIMIT'
+    NO_MORE_RESULTS = 'NO_MORE_RESULTS'
+    NOT_FINISHED = 'NOT_FINISHED'
+    UNSPECIFIED = 'MORE_RESULTS_TYPE_UNSPECIFIED'
+
+
 class Operation(enum.Enum):
     DELETE = 'delete'
     INSERT = 'insert'
     UPDATE = 'update'
     UPSERT = 'upsert'
+
+
+class ResultType(enum.Enum):
+    FULL = 'FULL'
+    KEY_ONLY = 'KEY_ONLY'
+    PROJECTION = 'PROJECTION'
+    UNSPECIFIED = 'RESULT_TYPE_UNSPECIFIED'
 
 
 class TypeName(enum.Enum):
