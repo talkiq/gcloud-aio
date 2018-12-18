@@ -28,10 +28,11 @@ log = logging.getLogger(__name__)
 
 
 class Datastore:
-    def __init__(self, project: str, service_file: str,
+    def __init__(self, project: str, service_file: str, namespace: str = '',
                  session: aiohttp.ClientSession = None,
                  token: Token = None) -> None:
         self.project = project
+        self.namespace = namespace
 
         self.session = session
         self.token = token or Token(project, service_file, session=session,
@@ -163,7 +164,8 @@ class Datastore:
                       session: aiohttp.ClientSession = None) -> None:
         # pylint: disable=too-many-arguments
         transaction = await self.beginTransaction(session=session)
-        key = Key(self.project, path=[PathElement(kind, name)])
+        key = Key(self.project, path=[PathElement(kind, name)],
+                  namespace=self.namespace)
         mutation = self.make_mutation(operation, key, properties=properties)
         return await self.commit(transaction, mutations=[mutation],
                                  session=session)
