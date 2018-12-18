@@ -47,7 +47,6 @@ def make_rows(rows):
 class Table(object):
     def __init__(self, project, service_file, dataset_name, table_name,
                  session=None, token=None):
-        # pylint: disable=too-many-arguments
         self.project = project
         self.table_name = table_name
         self.dataset_name = dataset_name

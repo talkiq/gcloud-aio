@@ -15,7 +15,6 @@ SCOPES = [
 class KMS:
     def __init__(self, project, service_file, keyproject, keyring, keyname,
                  location=LOCATION, session=None, token=None):
-        # pylint: disable=too-many-arguments
         self.api_root = (f'{API_ROOT}/projects/{keyproject}/'
                          f'locations/{location}/keyRings/{keyring}/'
                          f'cryptoKeys/{keyname}')

@@ -14,7 +14,6 @@ from gcloud.aio.storage import Storage
 ])
 async def test_object_life_cycle(bucket_name, creds, project, uploaded_data,
                                  expected_data, file_extension):
-    # pylint: disable=too-many-arguments
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
     async with aiohttp.ClientSession() as session:

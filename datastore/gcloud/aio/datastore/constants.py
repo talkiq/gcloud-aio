@@ -62,7 +62,7 @@ FORMATTERS = {
 }
 
 UNFORMATTERS = {
-    TypeName.DOUBLE: lambda s: float(s),
-    TypeName.INTEGER: lambda s: int(s),
+    TypeName.DOUBLE: float,
+    TypeName.INTEGER: int,
     TypeName.TIMESTAMP: lambda s: dt.strptime(s, '%Y-%m-%dT%H:%S:%M.%f000Z'),
 }

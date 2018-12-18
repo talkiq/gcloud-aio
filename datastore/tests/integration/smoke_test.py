@@ -84,10 +84,11 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
                          named_bindings={'value': 42})
 
-        transaction = await ds.beginTransaction(session=s)
-        initial = await ds.runQuery(query, transaction=transaction, session=s)
-        num_results = len(initial.entity_results)
+        before = await ds.runQuery(query, consistency=Consistency.STRONG,
+                                   session=s)
+        num_results = len(before.entity_results)
 
+        transaction = await ds.beginTransaction(session=s)
         mutations = [
             ds.make_mutation(Operation.INSERT,
                              Key(project, [PathElement(kind)]),

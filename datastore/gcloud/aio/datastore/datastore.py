@@ -61,7 +61,6 @@ class Datastore:
     @staticmethod
     def make_mutation(operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
-        # pylint: disable=too-many-arguments
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -127,7 +126,6 @@ class Datastore:
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> None:
-        # pylint: disable=too-many-arguments
         url = f'{API_ROOT}/{self.project}:commit'
 
         body = self._make_commit_body(transaction, mode, mutations)
@@ -243,12 +241,17 @@ class Datastore:
                        timeout: int = 10) -> QueryResultBatch:
         url = f'{API_ROOT}/{self.project}:runQuery'
 
+        if transaction:
+            options = {'transaction': transaction}
+        else:
+            options = {'readConsistency': consistency.value}
         payload = json.dumps({
             'partitionId': {
                 'projectId': self.project,
                 'namespaceId': self.namespace,
             },
             'gqlQuery': query.to_repr(),
+            'readOptions': options,
         }).encode('utf-8')
 
         headers = await self.headers()
@@ -263,7 +266,6 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        print(await resp.json())
         resp.raise_for_status()
 
         data: dict = await resp.json()

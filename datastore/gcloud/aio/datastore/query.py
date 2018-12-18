@@ -6,16 +6,17 @@ from gcloud.aio.datastore.constants import MoreResultsType
 from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.utils import make_value
+from gcloud.aio.datastore.utils import parse_value
 
 
 class GQLQuery:
     def __init__(self, query_string: str, allow_literals: bool = True,
                  named_bindings: Dict[str, Any] = None,
-                 posititional_bindings: List[Any] = None) -> None:
+                 positional_bindings: List[Any] = None) -> None:
         self.query_string = query_string
         self.allow_literals = allow_literals
         self.named_bindings = named_bindings or {}
-        self.posititional_bindings = posititional_bindings or []
+        self.positional_bindings = positional_bindings or []
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, GQLQuery):
@@ -25,10 +26,22 @@ class GQLQuery:
             self.query_string == other.query_string
             and self.allow_literals == other.allow_literals
             and self.named_bindings == other.named_bindings
-            and self.posititional_bindings == other.posititional_bindings)
+            and self.positional_bindings == other.positional_bindings)
 
     def __repr__(self) -> str:
         return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
+        allow_literals = data['allowLiteralls']
+        query_string = data['queryString']
+        named_bindings = {k: parse_value(v['value'])
+                          for k, v in data.get('namedBindings', {}).items()}
+        positional_bindings = [parse_value(v['value'])
+                               for v in data.get('positionalBindings', [])]
+        return cls(query_string, allow_literals=allow_literals,
+                   named_bindings=named_bindings,
+                   positional_bindings=positional_bindings)
 
     def to_repr(self) -> Dict[str, Any]:
         return {
@@ -37,7 +50,7 @@ class GQLQuery:
             'namedBindings': {k: {'value': make_value(v)}
                               for k, v in self.named_bindings.items()},
             'positionalBindings': [{'value': make_value(v)}
-                                   for v in self.posititional_bindings],
+                                   for v in self.positional_bindings],
         }
 
 

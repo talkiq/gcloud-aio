@@ -31,7 +31,6 @@ def log_future_exception(fut):
 
 class LeaseManager:
     def __init__(self, event, executor, headers, task, lease_seconds):
-        # pylint: disable=too-many-arguments
         self.event = event
         self.executor = executor
         self.future = None
@@ -102,7 +101,7 @@ class TaskManager:
                  lease_seconds=10, location=LOCATION,
                  max_concurrency=100, retry_limit=None, session=None,
                  token=None):
-        # pylint: disable=too-many-arguments,too-many-locals
+        # pylint: disable=too-many-locals
         if session:
             warnings.warn('passing in a session is deprecated and will be '
                           'removed in gcloud-aio-taskqueue==2.0.0',

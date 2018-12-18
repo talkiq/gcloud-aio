@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 class TaskQueue:
     def __init__(self, project, service_file, taskqueue, location=LOCATION,
                  session=None, token=None):
-        # pylint: disable=too-many-arguments
         self.api_root = (f'{API_ROOT}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
 
@@ -38,7 +37,6 @@ class TaskQueue:
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def _request(self, method, url, session=None, **kwargs):
-        # pylint: disable=too-many-arguments
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
