@@ -4,6 +4,7 @@ from typing import List
 
 
 class PathElement:
+    # pylint: disable=too-few-public-methods
     def __init__(self, kind: str, name: str) -> None:
         self.kind = kind
         self.name = name
@@ -13,6 +14,7 @@ class PathElement:
 
 
 class Key:
+    # pylint: disable=too-few-public-methods
     def __init__(self, project: str, path: List[PathElement],
                  namespace: str = '') -> None:
         self.project = project

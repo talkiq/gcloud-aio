@@ -11,7 +11,6 @@ from gcloud.aio.datastore.constants import Operation
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.key import PathElement
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -28,11 +27,10 @@ log = logging.getLogger(__name__)
 
 
 class Datastore:
-    def __init__(self, project: str, service_file: str, namespace: str = '',
+    def __init__(self, project: str, service_file: str,
                  session: aiohttp.ClientSession = None,
                  token: Token = None) -> None:
         self.project = project
-        self.namespace = namespace
 
         self.session = session
         self.token = token or Token(project, service_file, session=session,
@@ -139,33 +137,29 @@ class Datastore:
                                       timeout=timeout)
         response.raise_for_status()
 
-    async def delete(self, kind: str, name: str,
+    async def delete(self, key: Key,
                      session: aiohttp.ClientSession = None) -> None:
-        return await self.operate(Operation.DELETE, kind, name,
+        return await self.operate(Operation.DELETE, key, session=session)
+
+    async def insert(self, key: Key, properties: Dict[str, Any],
+                     session: aiohttp.ClientSession = None) -> None:
+        return await self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
-    async def insert(self, kind: str, name: str, properties: Dict[str, Any],
+    async def update(self, key: Key, properties: Dict[str, Any],
                      session: aiohttp.ClientSession = None) -> None:
-        return await self.operate(Operation.INSERT, kind, name, properties,
+        return await self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
-    async def update(self, kind: str, name: str, properties: Dict[str, Any],
+    async def upsert(self, key: Key, properties: Dict[str, Any],
                      session: aiohttp.ClientSession = None) -> None:
-        return await self.operate(Operation.UPDATE, kind, name, properties,
+        return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
-    async def upsert(self, kind: str, name: str, properties: Dict[str, Any],
-                     session: aiohttp.ClientSession = None) -> None:
-        return await self.operate(Operation.UPSERT, kind, name, properties,
-                                  session=session)
-
-    async def operate(self, operation: Operation, kind: str, name: str,
+    async def operate(self, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None,
                       session: aiohttp.ClientSession = None) -> None:
-        # pylint: disable=too-many-arguments
         transaction = await self.beginTransaction(session=session)
-        key = Key(self.project, path=[PathElement(kind, name)],
-                  namespace=self.namespace)
         mutation = self.make_mutation(operation, key, properties=properties)
         return await self.commit(transaction, mutations=[mutation],
                                  session=session)

@@ -2,6 +2,8 @@ import uuid
 
 import pytest
 from gcloud.aio.datastore import Datastore
+from gcloud.aio.datastore import Key
+from gcloud.aio.datastore import PathElement
 
 
 @pytest.mark.asyncio
@@ -10,14 +12,15 @@ async def test_item_lifecycle(creds, kind, project):
 
     # TODO: need a `ds.get` to test these properly
     ds = Datastore(project, creds)
+    key = Key(project, [PathElement(kind, object_name)])
 
     props = {'is_this_bad_data': True}
-    await ds.insert(kind, object_name, props)
+    await ds.insert(key, props)
 
     props = {'animal': 'aardvark', 'overwrote_bad_data': True}
-    await ds.update(kind, object_name, props)
+    await ds.update(key, props)
 
     props = {'meaning_of_life': 42}
-    await ds.upsert(kind, object_name, props)
+    await ds.upsert(key, props)
 
-    await ds.delete(kind, object_name)
+    await ds.delete(key)
