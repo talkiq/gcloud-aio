@@ -19,13 +19,45 @@ started:
 .. code-block:: python
 
     from gcloud.aio.datastore import Datastore
+    from gcloud.aio.datastore import Key
+    from gcloud.aio.datastore import PathElement
+    from gcloud.aio.datastore import GQLQuery
 
-    datastore = Datastore('my-gcloud-project', '/path/to/creds.json')
+    ds = Datastore('my-gcloud-project', '/path/to/creds.json')
+    key1 = Key('my-gcloud-project', [PathElement('Kind', 'entityname')])
+    key2 = Key('my-gcloud-project', [PathElement('Kind', 'entityname2')])
 
-    await datastore.insert('Kind', 'name', {'prop0': 41, 'prop1': True})
-    await datastore.update('Kind', 'name', {'prop0': 42, 'prop1': True})
-    await datastore.upsert('Kind', 'name', {'prop2': 'aardvark'})
-    await datastore.delete('Kind', 'name')
+    # batched lookups
+    entities = await ds.lookup([key1, key2])
+
+    # convenience functions for any datastore mutations
+    await ds.insert(key1, {'a_boolean': True, 'meaning_of_life': 41})
+    await ds.update(key1, {'a_boolean': True, 'meaning_of_life': 42})
+    await ds.upsert(key1, {'animal': 'aardvark'})
+    await ds.delete(key1)
+
+    # or build your own mutation sequences with full transaction support
+    transaction = await ds.beginTransaction()
+    try:
+        mutations = [
+            ds.make_mutation(Operation.INSERT, key1, properties={'animal': 'sloth'}),
+            ds.make_mutation(Operation.UPSERT, key1, properties={'animal': 'aardvark'}),
+            ds.make_mutation(Operation.INSERT, key2, properties={'animal': 'aardvark'}),
+        ]
+        await ds.commit(transaction, mutations=[mutation])
+    except Exception:
+        await ds.rollback(transaction)
+
+    # support for partial keys
+    partial_key = Key('my-gcloud-project', [PathElement('Kind')])
+    # and ID allocation or reservation
+    allocated_keys = await ds.allocateIds([partial_key])
+    await ds.reserveIds(allocated_keys)
+
+    # query support
+    query = GQLQuery('SELECT * FROM the_meaning_of_life WHERE answer = @answer',
+                     named_bindings={'answer': 42})
+    results = await ds.runQuery(query, session=s)
 
 Contributing
 ------------
