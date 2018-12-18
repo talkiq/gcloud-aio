@@ -21,6 +21,7 @@ setuptools.setup(
         'gcloud.aio',
     ],
     packages=setuptools.find_packages(exclude=('tests',)),
+    python_requires='>= 3.6',
     install_requires=REQUIREMENTS,
     author='TalkIQ',
     author_email='engineering@talkiq.com',
