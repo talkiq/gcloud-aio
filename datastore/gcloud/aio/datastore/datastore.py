@@ -140,6 +140,7 @@ class Datastore:
         transaction: str = data['transaction']
         return transaction
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     async def commit(self, transaction: str, mutations: List[Dict[str, Any]],
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: aiohttp.ClientSession = None,
@@ -163,6 +164,31 @@ class Datastore:
         response = await session.post(url, data=payload, headers=headers,
                                       timeout=timeout)
         response.raise_for_status()
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
+    async def reserveIds(self, keys: List[Key], database_id: str = '',
+                         session: aiohttp.ClientSession = None,
+                         timeout: int = 10) -> None:
+        url = f'{API_ROOT}/{self.project}:reserveIds'
+
+        payload = json.dumps({
+            'databaseId': database_id,
+            'keys': [k.to_repr() for k in keys],
+        }).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
 
     async def delete(self, key: Key,
                      session: aiohttp.ClientSession = None) -> None:

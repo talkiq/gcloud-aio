@@ -15,6 +15,8 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
     key.path[-1].id = allocatedKeys[0].path[-1].id
     assert key == allocatedKeys[0]
 
+    await ds.reserveIds(allocatedKeys)
+
     props: dict = {'is_this_bad_data': True}
     await ds.insert(allocatedKeys[0], props)
 
