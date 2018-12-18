@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-datastore',
-    version='1.1.0',
+    version='1.1.1',
     description='Asyncio Python Client for Google Cloud Datastore',
     long_description=README,
     namespace_packages=[
