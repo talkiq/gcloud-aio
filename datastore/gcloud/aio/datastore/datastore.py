@@ -97,7 +97,9 @@ class Datastore:
                           timeout: int = 10) -> List[Key]:
         url = f'{API_ROOT}/{self.project}:allocateIds'
 
-        payload = json.dumps([k.to_repr() for k in keys]).encode('utf-8')
+        payload = json.dumps({
+            'keys': [k.to_repr() for k in keys],
+        }).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
