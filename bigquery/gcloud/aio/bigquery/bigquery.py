@@ -3,7 +3,7 @@ import logging
 import uuid
 
 import aiohttp
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 try:
     import ujson as json
 except ModuleNotFoundError:

@@ -4,7 +4,7 @@ from typing import Dict
 from typing import List
 
 import aiohttp
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation

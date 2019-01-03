@@ -9,7 +9,7 @@ from typing import Union
 from urllib.parse import quote
 
 import aiohttp
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
 try:
     import ujson as json

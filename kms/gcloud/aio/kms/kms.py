@@ -2,7 +2,7 @@
 An asynchronous client for Google Cloud KMS
 """
 import aiohttp
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 
 API_ROOT = 'https://cloudkms.googleapis.com/v1'

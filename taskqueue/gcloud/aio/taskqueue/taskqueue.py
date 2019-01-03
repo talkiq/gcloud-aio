@@ -6,7 +6,7 @@ import logging
 
 import aiohttp
 import backoff
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 
 API_ROOT = 'https://cloudtasks.googleapis.com/v2beta2'
