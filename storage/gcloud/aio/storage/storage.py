@@ -66,13 +66,16 @@ class Storage:
         return data
 
     async def download(self, bucket: str, object_name: str, *,
+                       timeout: int = 10,
                        session: aiohttp.ClientSession = None) -> bytes:
-        return await self._download(bucket, object_name,
+        return await self._download(bucket, object_name, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
+                                timeout: int = 10,
                                 session: aiohttp.ClientSession = None) -> dict:
-        data = await self._download(bucket, object_name, session=session)
+        data = await self._download(bucket, object_name, timeout=timeout,
+                                    session=session)
         metadata: dict = json.loads(data.decode())
         return metadata
 
