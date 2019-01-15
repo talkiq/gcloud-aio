@@ -16,4 +16,4 @@ def project() -> str:
 
 @pytest.fixture(scope='module')  # type: ignore
 def task_queue() -> str:
-    return 'public_test'
+    return 'public-test'

@@ -2,7 +2,6 @@
 import asyncio
 import time
 
-import aiohttp
 import pytest
 from gcloud.aio.taskqueue import encode
 from gcloud.aio.taskqueue import TaskManager
@@ -28,23 +27,22 @@ async def test_task_lifecycle(mocker, creds, project, task_queue):
 
     worker = get_mock_coro('ok')
 
-    async with aiohttp.ClientSession() as session:
-        tm = TaskManager(project, creds, task_queue, worker,
-                         batch_size=len(tasks), session=session)
+    tm = TaskManager(project, creds, task_queue, worker,
+                     batch_size=len(tasks))
 
-        # DRAIN
-        await tm.tq.drain()
+    # DRAIN
+    await tm.tq.drain()
 
-        # START
-        tm.start()
+    # START
+    tm.start()
 
-        # INSERT
-        for task in tasks:
-            await tm.tq.insert(
-                encode(task), tag=encode('gcloud-aio-manager-test-lifecycle'))
+    # INSERT
+    for task in tasks:
+        await tm.tq.insert(
+            encode(task), tag=encode('gcloud-aio-manager-test-lifecycle'))
 
-        await asyncio.sleep(3)
-        tm.stop()
+    await asyncio.sleep(3)
+    tm.stop()
 
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
 
@@ -69,22 +67,20 @@ async def test_task_multiple_leases(caplog, mocker, creds, project, task_queue):
 
     worker = get_mock_coro('ok')
 
-    async with aiohttp.ClientSession() as session:
-        tm = TaskManager(project, creds, task_queue, worker,
-                         batch_size=len(tasks), lease_seconds=4,
-                         session=session)
+    tm = TaskManager(project, creds, task_queue, worker,
+                     batch_size=len(tasks), lease_seconds=4)
 
-        # drain old tasks
-        await tm.tq.drain()
+    # drain old tasks
+    await tm.tq.drain()
 
-        # insert new ones
-        for task in tasks:
-            await tm.tq.insert(
-                encode(task), tag=encode('gcloud-aio-manager-test-multilease'))
+    # insert new ones
+    for task in tasks:
+        await tm.tq.insert(
+            encode(task), tag=encode('gcloud-aio-manager-test-multilease'))
 
-        tm.start()
-        await asyncio.sleep(10)
-        tm.stop()
+    tm.start()
+    await asyncio.sleep(10)
+    tm.stop()
 
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
     for record in caplog.records:
