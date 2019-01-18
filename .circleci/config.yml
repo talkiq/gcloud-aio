@@ -156,11 +156,10 @@ workflows:
           filters:
             tags:
               only: /.*/
-      # TODO: fix these
-      # - test-taskqueue:
-      #     filters:
-      #       tags:
-      #         only: /.*/
+      - test-taskqueue:
+          filters:
+            tags:
+              only: /.*/
 
       - pypi:
           context: org-global
@@ -177,7 +176,7 @@ workflows:
             - test-kms
             - test-pubsub
             - test-storage
-            # - test-taskqueue  # TODO: flaky
+            - test-taskqueue
       - github:
           context: org-global
           filters:
@@ -193,7 +192,7 @@ workflows:
             - test-kms
             - test-pubsub
             - test-storage
-            # - test-taskqueue  # TODO: flaky
+            - test-taskqueue
 
 experimental:
   notify:
