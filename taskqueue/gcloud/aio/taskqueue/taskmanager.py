@@ -13,9 +13,9 @@ import warnings
 import aiohttp
 import requests
 from gcloud.aio.taskqueue.error import FailFastError
-from gcloud.aio.taskqueue.pullqueue import API_ROOT
-from gcloud.aio.taskqueue.pullqueue import LOCATION
-from gcloud.aio.taskqueue.pullqueue import PullQueue
+from gcloud.aio.taskqueue.taskqueue import ALPHA_API_ROOT
+from gcloud.aio.taskqueue.taskqueue import LOCATION
+from gcloud.aio.taskqueue.taskqueue import PullQueue
 from gcloud.aio.taskqueue.utils import backoff
 from gcloud.aio.taskqueue.utils import decode
 
@@ -59,7 +59,7 @@ class LeaseManager:
 
     @staticmethod
     def autorenew(event, headers, task, lease_seconds):
-        url = f'{API_ROOT}/{task["name"]}:renewLease'
+        url = f'{ALPHA_API_ROOT}/{task["name"]}:renewLease'
         body = {
             'leaseDuration': f'{lease_seconds}s',
             'responseView': 'FULL',
