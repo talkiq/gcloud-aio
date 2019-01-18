@@ -8,7 +8,7 @@ from gcloud.aio.taskqueue import TaskManager
 
 
 @pytest.mark.asyncio
-async def test_task_lifecycle(mocker, creds, project, task_queue):
+async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -27,7 +27,7 @@ async def test_task_lifecycle(mocker, creds, project, task_queue):
 
     worker = get_mock_coro('ok')
 
-    tm = TaskManager(project, creds, task_queue, worker,
+    tm = TaskManager(project, creds, pull_queue_name, worker,
                      batch_size=len(tasks))
 
     # DRAIN
@@ -49,7 +49,7 @@ async def test_task_lifecycle(mocker, creds, project, task_queue):
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_task_multiple_leases(caplog, mocker, creds, project, task_queue):
+async def test_task_multiple_leases(caplog, mocker, creds, project, pull_queue_name):
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -67,7 +67,7 @@ async def test_task_multiple_leases(caplog, mocker, creds, project, task_queue):
 
     worker = get_mock_coro('ok')
 
-    tm = TaskManager(project, creds, task_queue, worker,
+    tm = TaskManager(project, creds, pull_queue_name, worker,
                      batch_size=len(tasks), lease_seconds=4)
 
     # drain old tasks
