@@ -6,13 +6,13 @@ import aiohttp
 import pytest
 from gcloud.aio.taskqueue import decode
 from gcloud.aio.taskqueue import encode
-from gcloud.aio.taskqueue import PushQueue
+from gcloud.aio.taskqueue import PullQueue
 
 
 @pytest.mark.asyncio
 async def test_task_lifecycle(creds, project, task_queue):
     async with aiohttp.ClientSession() as session:
-        tq = PushQueue(project, creds, task_queue, session=session)
+        tq = PullQueue(project, creds, task_queue, session=session)
 
         payload = {'this': {'is': {'a': {'test': uuid.uuid4().hex}}}}
         tag = 'smoke-test'

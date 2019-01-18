@@ -13,9 +13,9 @@ import warnings
 import aiohttp
 import requests
 from gcloud.aio.taskqueue.error import FailFastError
-from gcloud.aio.taskqueue.pushqueue import API_ROOT
-from gcloud.aio.taskqueue.pushqueue import LOCATION
-from gcloud.aio.taskqueue.pushqueue import PushQueue
+from gcloud.aio.taskqueue.pullqueue import API_ROOT
+from gcloud.aio.taskqueue.pullqueue import LOCATION
+from gcloud.aio.taskqueue.pullqueue import PullQueue
 from gcloud.aio.taskqueue.utils import backoff
 from gcloud.aio.taskqueue.utils import decode
 
@@ -119,7 +119,7 @@ class TaskManager:
         self.executor = concurrent.futures.ProcessPoolExecutor(max_concurrency)
         self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
-        self.tq = PushQueue(project, service_file, taskqueue,
+        self.tq = PullQueue(project, service_file, taskqueue,
                             location=location, token=token)
 
         self.session = None

@@ -18,7 +18,7 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-class PushQueue:
+class PullQueue:
     def __init__(self, project, service_file, taskqueue, location=LOCATION,
                  session=None, token=None):
         self.api_root = (f'{API_ROOT}/projects/{project}/'
