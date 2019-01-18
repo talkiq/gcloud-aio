@@ -1,9 +1,9 @@
 import os
 
-import pytest
 import aiohttp
-
-from gcloud.aio.taskqueue import PullQueue, PushQueue
+import pytest
+from gcloud.aio.taskqueue import PullQueue
+from gcloud.aio.taskqueue import PushQueue
 
 
 PROJECT = 'voiceai-staging'
@@ -33,11 +33,11 @@ async def pull_queue_context():
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
         tq = PullQueue(PROJECT, CREDS, PULL_QUEUE_NAME, session=session)
-        pull_queue_context = {'queue': tq, 'tasks_to_cleanup': []}
-        yield pull_queue_context
+        context = {'queue': tq, 'tasks_to_cleanup': []}
+        yield context
 
         # try deleting the task created by tests
-        for task in pull_queue_context['tasks_to_cleanup']:
+        for task in context['tasks_to_cleanup']:
             await tq.delete(task['name'])
 
 
@@ -46,9 +46,9 @@ async def push_queue_context():
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
         tq = PushQueue(PROJECT, CREDS, PUSH_QUEUE_NAME, session=session)
-        push_queue_context = {'queue': tq, 'tasks_to_cleanup': []}
-        yield push_queue_context
+        context = {'queue': tq, 'tasks_to_cleanup': []}
+        yield context
 
         # try deleting the task created by tests
-        for task in push_queue_context['tasks_to_cleanup']:
+        for task in context['tasks_to_cleanup']:
             await tq.delete(task['name'])

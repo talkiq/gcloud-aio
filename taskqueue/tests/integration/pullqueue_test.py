@@ -1,7 +1,8 @@
 # pylint: disable=too-many-locals
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 import pytest
 from gcloud.aio.taskqueue import decode
@@ -119,7 +120,7 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     # set to run in the future, giving us enough time to test all functionalities
     # before the task gets dispatched automatically.
     schedule_time = datetime.utcnow() + timedelta(days=1)
-    schedule_time = schedule_time.isoformat('T') + "Z"
+    schedule_time = schedule_time.isoformat('T') + 'Z'
 
     task = {
         'scheduleTime': schedule_time,
