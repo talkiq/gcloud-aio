@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 import os
 
 import aiohttp
@@ -6,33 +7,32 @@ from gcloud.aio.taskqueue import PullQueue
 from gcloud.aio.taskqueue import PushQueue
 
 
-PROJECT = 'voiceai-staging'
-CREDS = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-PULL_QUEUE_NAME = 'public-test'
-PUSH_QUEUE_NAME = 'public-test-push'
-
-
 @pytest.fixture(scope='module')  # type: ignore
 def creds() -> str:
     # TODO: bundle public creds into this repo
-    return CREDS
+    return os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
 
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
-    return PROJECT
+    return 'voiceai-staging'
 
 
 @pytest.fixture(scope='module')  # type: ignore
 def pull_queue_name() -> str:
-    return PULL_QUEUE_NAME
+    return 'public-test'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def push_queue_name() -> str:
+    return 'public-test-push'
 
 
 @pytest.yield_fixture(scope='function')  # type: ignore
-async def pull_queue_context():
+async def pull_queue_context(project, creds, pull_queue_name):
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
-        tq = PullQueue(PROJECT, CREDS, PULL_QUEUE_NAME, session=session)
+        tq = PullQueue(project, creds, pull_queue_name, session=session)
         context = {'queue': tq, 'tasks_to_cleanup': []}
         yield context
 
@@ -42,10 +42,10 @@ async def pull_queue_context():
 
 
 @pytest.yield_fixture(scope='function')  # type: ignore
-async def push_queue_context():
+async def push_queue_context(project, creds, push_queue_name):
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
-        tq = PushQueue(PROJECT, CREDS, PUSH_QUEUE_NAME, session=session)
+        tq = PushQueue(project, creds, push_queue_name, session=session)
         context = {'queue': tq, 'tasks_to_cleanup': []}
         yield context
 
