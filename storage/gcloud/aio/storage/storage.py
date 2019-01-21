@@ -125,7 +125,7 @@ class Storage:
 
         upload_type = self._decide_upload_type(force_resumable_upload,
                                                content_length)
-        log.debug(f'using {upload_type} gcloud storage upload method')
+        log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
             return await self._upload_simple(url, object_name, data, headers,

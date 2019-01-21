@@ -21,8 +21,6 @@ class Subscription(pubsub.subscription.Subscription):
                 raise
 
             await asyncio.sleep(1)
-        except Exception:
-            raise
 
         return await self.acknowledge(ack_ids, client=client,
                                       retries=retries-1)

@@ -17,7 +17,7 @@ import jwt
 GCLOUD_TOKEN_DURATION = 3600
 
 
-class Token(object):
+class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, project: str, service_file: str,
                  session: aiohttp.ClientSession = None,

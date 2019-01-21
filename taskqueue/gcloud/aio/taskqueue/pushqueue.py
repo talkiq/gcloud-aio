@@ -40,7 +40,8 @@ class PushQueue(BaseQueue):
         return await self._request('GET', url, params=params, session=session)
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    async def list(self, full=False, page_size=1000, page_token='', session=None):
+    async def list(self, full=False, page_size=1000, page_token='',
+                   session=None):
         url = f'{self.api_root}/tasks'
         params = {
             'responseView': 'FULL' if full else 'BASIC',

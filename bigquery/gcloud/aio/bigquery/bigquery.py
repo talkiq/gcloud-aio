@@ -44,7 +44,7 @@ def make_rows(rows):
     return bq_rows
 
 
-class Table(object):
+class Table:
     def __init__(self, project, service_file, dataset_name, table_name,
                  session=None, token=None):
         self.project = project

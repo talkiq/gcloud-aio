@@ -49,7 +49,8 @@ async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_task_multiple_leases(caplog, mocker, creds, project, pull_queue_name):
+async def test_task_multiple_leases(caplog, mocker, creds, project,
+                                    pull_queue_name):
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
