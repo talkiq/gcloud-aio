@@ -1,15 +1,17 @@
 """
 An asynchronous push queue for Google Appengine Task Queues
 """
+from gcloud.aio.taskqueue.basequeue import API_ROOT
 from gcloud.aio.taskqueue.basequeue import BaseQueue
 from gcloud.aio.taskqueue.basequeue import LOCATION
 
 
 class PushQueue(BaseQueue):
+    base_api_root = f'{API_ROOT}/v2beta3'
+
     def __init__(self, project, service_file, taskqueue, location=LOCATION,
                  session=None, token=None):
-        api_version = 'v2beta3'
-        super().__init__(api_version, project, service_file,
+        super().__init__(self.base_api_root, project, service_file,
                          taskqueue, location, session, token)
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
