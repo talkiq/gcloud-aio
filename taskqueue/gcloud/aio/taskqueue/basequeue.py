@@ -18,10 +18,9 @@ log = logging.getLogger(__name__)
 
 
 class BaseQueue:  # pylint: disable=too-few-public-methods
-    def __init__(self, api_version, project, service_file, taskqueue,
+    def __init__(self, base_api_root, project, service_file, taskqueue,
                  location=LOCATION, session=None, token=None):
-        self.base_api_root = f'{API_ROOT}/{api_version}'
-        self.api_root = (f'{self.base_api_root}/projects/{project}/'
+        self.api_root = (f'{base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
         self.session = session
         self.token = token or Token(project, service_file, scopes=SCOPES,
