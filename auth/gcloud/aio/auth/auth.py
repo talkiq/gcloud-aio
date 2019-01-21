@@ -15,6 +15,8 @@ import jwt
 
 
 GCLOUD_TOKEN_DURATION = 3600
+SERVICE_ACCOUNT = 'service_account'
+DEFAULT_ACCOUNT = 'authorized_user'
 
 
 class Token(object):
@@ -28,6 +30,9 @@ class Token(object):
             service_data_str = f.read()
 
         self.service_data = json.loads(service_data_str)
+        self.account_type = self.service_data['type']
+        self.token_uri = self.service_data.get(
+            'token_uri', 'https://oauth2.googleapis.com/token')
 
         self.session = session
         self.scopes = scopes or []
@@ -60,9 +65,9 @@ class Token(object):
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
 
-    def _generate_assertion(self):
+    def _service_account_payload(self):
         now = int(time.time())
-        payload = {
+        assertion_payload = {
             'aud': self.service_data['token_uri'],
             'exp': now + GCLOUD_TOKEN_DURATION,
             'iat': now,
@@ -71,24 +76,41 @@ class Token(object):
         }
 
         # N.B. algorithm='RS256' requires an extra 240MB in dependencies...
-        return jwt.encode(payload, self.service_data['private_key'],
-                          algorithm='RS256')
+        assertion = jwt.encode(assertion_payload,
+                               self.service_data['private_key'],
+                               algorithm='RS256')
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
-    async def acquire_access_token(self):
-        assertion = self._generate_assertion()
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-        payload = urlencode({
+        return urlencode({
             'assertion': assertion,
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         }, quote_via=quote_plus)
 
+
+    def _default_account_payload(self):
+        return urlencode({
+            'grant_type': 'refresh_token',
+            'client_id': self.service_data['client_id'],
+            'client_secret': self.service_data['client_secret'],
+            'refresh_token': self.service_data['refresh_token'],
+        }, quote_via=quote_plus)
+
+
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
+    async def acquire_access_token(self):
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+
+        if self.account_type == SERVICE_ACCOUNT:
+            payload = self._service_account_payload()
+        elif self.account_type == DEFAULT_ACCOUNT:
+            payload = self._default_account_payload()
+        else:
+            return False
+
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        resp = await self.session.post(self.service_data['token_uri'],
+            self.session = aiohttp.ClientSession(timeout=10)
+        resp = await self.session.post(self.token_uri,
                                        data=payload, headers=headers,
                                        params=None, timeout=10)
         resp.raise_for_status()
