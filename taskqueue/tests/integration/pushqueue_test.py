@@ -8,13 +8,12 @@ import pytest
 async def test_task_lifecycle_in_push_queue(push_queue_context):
     tq = push_queue_context['queue']
 
-    # set to run in the future, giving us enough time to test all functionalities
-    # before the task gets dispatched automatically.
+    # Set to run in the future, giving us enough time to test all
+    # functionalities before the task gets dispatched automatically.
     schedule_time = datetime.utcnow() + timedelta(days=1)
-    schedule_time = schedule_time.isoformat('T') + 'Z'
 
     task = {
-        'scheduleTime': schedule_time,
+        'scheduleTime': f'{schedule_time.isoformat("T")}Z',
         'appEngineHttpRequest': {
             'httpMethod': 'POST',
             # something that we know won't work,
@@ -27,8 +26,8 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     created = await tq.create(task)
     assert created
 
-    # add created task(and the queue to delete it from) to the tasks list,
-    # so that regardless of what happens, the teardown will clean it up.
+    # Add created task (and the queue to delete it from) to the tasks list
+    # so the teardown will clean it up regardless of what happens.
     push_queue_context['tasks_to_cleanup'].append(created)
 
     # GET
@@ -46,6 +45,6 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     # DELETE
     assert not await tq.delete(created['name'])
 
-    # created task has been deleted successfully,
-    # so remove it from the list to avoid unnecessary delete attempt
+    # Created task has been deleted successfully, so remove it from the list to
+    # avoid unnecessary delete attempt in teardown.
     push_queue_context['tasks_to_cleanup'].remove(created)
