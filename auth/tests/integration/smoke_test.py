@@ -11,7 +11,10 @@ async def test_token_is_created(creds, project):
         token = Token(project, creds, session=session, scopes=scopes)
         result = await token.get()
 
-    assert result is not None
+    assert result
+    assert token.access_token is not None
+    assert token.access_token_duration is not None
+    assert token.access_token_acquired_at is not None
 
 
 @pytest.mark.asyncio
@@ -21,4 +24,7 @@ async def test_token_does_not_require_session(creds, project):
     token = Token(project, creds, scopes=scopes)
     result = await token.get()
 
-    assert result is not None
+    assert result
+    assert token.access_token is not None
+    assert token.access_token_duration is not None
+    assert token.access_token_acquired_at is not None
