@@ -23,7 +23,7 @@ class Token(object):
     # pylint: disable=too-many-instance-attributes
     def __init__(self, project: str, service_file: str,
                  session: aiohttp.ClientSession = None,
-                 scopes: typing.List[str] = None):
+                 scopes: typing.List[str] = None) -> None:
         self.project = project
 
         with open(service_file, 'r') as f:
@@ -37,17 +37,17 @@ class Token(object):
         self.session = session
         self.scopes = scopes or []
 
-        self.access_token = None
-        self.access_token_duration = None
-        self.access_token_acquired_at = None
+        self.access_token: typing.Optional[str] = None
+        self.access_token_duration = 0
+        self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring = None
+        self.acquiring: typing.Optional[asyncio.Future] = None
 
-    async def get(self):
+    async def get(self) -> typing.Optional[str]:
         await self.ensure_token()
         return self.access_token
 
-    async def ensure_token(self):
+    async def ensure_token(self) -> None:
         if self.acquiring:
             await self.acquiring
             return
@@ -65,7 +65,15 @@ class Token(object):
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
 
-    def _service_account_payload(self):
+    def _default_account_payload(self) -> str:
+        return urlencode({
+            'grant_type': 'refresh_token',
+            'client_id': self.service_data['client_id'],
+            'client_secret': self.service_data['client_secret'],
+            'refresh_token': self.service_data['refresh_token'],
+        }, quote_via=quote_plus)
+
+    def _service_account_payload(self) -> str:
         now = int(time.time())
         assertion_payload = {
             'aud': self.service_data['token_uri'],
@@ -85,18 +93,8 @@ class Token(object):
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         }, quote_via=quote_plus)
 
-
-    def _default_account_payload(self):
-        return urlencode({
-            'grant_type': 'refresh_token',
-            'client_id': self.service_data['client_id'],
-            'client_secret': self.service_data['client_secret'],
-            'refresh_token': self.service_data['refresh_token'],
-        }, quote_via=quote_plus)
-
-
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
-    async def acquire_access_token(self):
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    async def acquire_access_token(self) -> bool:
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
         }
@@ -109,7 +107,8 @@ class Token(object):
             return False
 
         if not self.session:
-            self.session = aiohttp.ClientSession(timeout=10)
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
         resp = await self.session.post(self.token_uri,
                                        data=payload, headers=headers,
                                        params=None, timeout=10)
