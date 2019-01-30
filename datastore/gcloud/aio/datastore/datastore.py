@@ -2,6 +2,7 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Union
 
 import aiohttp
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -29,6 +30,10 @@ log = logging.getLogger(__name__)
 
 
 class Datastore:
+    entity_result_kind = EntityResult
+    key_kind = Key
+    query_result_batch_kind = QueryResultBatch
+
     def __init__(self, project: str, service_file: str, namespace: str = '',
                  session: aiohttp.ClientSession = None,
                  token: Token = None) -> None:
@@ -97,7 +102,7 @@ class Datastore:
         resp.raise_for_status()
         data = await resp.json()
 
-        return [Key.from_repr(k) for k in data['keys']]
+        return [self.key_kind.from_repr(k) for k in data['keys']]
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
@@ -149,7 +154,7 @@ class Datastore:
     async def lookup(self, keys: List[Key], transaction: str = None,
                      consistency: Consistency = Consistency.STRONG,
                      session: aiohttp.ClientSession = None,
-                     timeout: int = 10) -> dict:
+                     timeout: int = 10) -> Dict[str, Union[EntityResult, Key]]:
         url = f'{API_ROOT}/{self.project}:lookup'
 
         if transaction:
@@ -177,11 +182,12 @@ class Datastore:
         data: dict = await resp.json()
 
         return {
-            'found': [EntityResult.from_repr(e)
+            'found': [self.entity_result_kind.from_repr(e)
                       for e in data.get('found', [])],
-            'missing': [EntityResult.from_repr(e)
+            'missing': [self.entity_result_kind.from_repr(e)
                         for e in data.get('missing', [])],
-            'deferred': [Key.from_repr(k) for k in data.get('deferred', [])],
+            'deferred': [self.key_kind.from_repr(k)
+                         for k in data.get('deferred', [])],
         }
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
@@ -269,7 +275,7 @@ class Datastore:
         resp.raise_for_status()
 
         data: dict = await resp.json()
-        return QueryResultBatch.from_repr(data['batch'])
+        return self.query_result_batch_kind.from_repr(data['batch'])
 
     async def delete(self, key: Key,
                      session: aiohttp.ClientSession = None) -> None:

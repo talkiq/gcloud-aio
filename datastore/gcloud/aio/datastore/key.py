@@ -42,6 +42,8 @@ class PathElement:
 
 
 class Key:
+    path_element_kind = PathElement
+
     def __init__(self, project: str, path: List[PathElement],
                  namespace: str = '') -> None:
         self.project = project
@@ -62,7 +64,8 @@ class Key:
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Key':
         return cls(data['partitionId']['projectId'],
-                   path=[PathElement.from_repr(p) for p in data['path']],
+                   path=[cls.path_element_kind.from_repr(p)
+                         for p in data['path']],
                    namespace=data['partitionId'].get('namespaceId', ''))
 
     def to_repr(self) -> Dict[str, Any]:

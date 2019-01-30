@@ -59,6 +59,50 @@ started:
                      named_bindings={'answer': 42})
     results = await ds.runQuery(query, session=s)
 
+Custom Subclasses
+~~~~~~~~~~~~~~~~~
+
+``gcloud-aio-datastore`` provides class interfaces mirroring all official
+Google API types, ie. ``Key`` and ``PathElement``, ``Entity`` and
+``EntityResult``, and ``QueryResultBatch``. These types will be returned from
+arbitrary Datastore operations, for example ``Datastore.allocateIds(...)`` will
+return a list of ``Key`` entities.
+
+For advanced usage, all of these datatypes may be overloaded. A common use-case
+may be to deserialize entities into more specific classes. For example, given a
+custom entity class such as:
+
+.. code-block:: python
+
+    class MyEntityKind(gcloud.aio.datastore.Entity):
+        def __init__(self, key, properties = None) -> None:
+            self.key = key
+            self.is_an_aardvark = (properties or {}).get('aardvark', False)
+
+        def __repr__(self):
+            return "I'm an aardvark!" if self.is_an_aardvark else "Sorry, nope"
+
+We can then configure ``gcloud-aio-datastore`` to serialize/deserialize from
+this custom entity class with:
+
+.. code-block:: python
+
+    class MyCustomDatastore(gcloud.aio.datastore.Datastore):
+        entity_result_kind.entity_kind = MyEntityKind
+
+The full list of classes which may be overridden in this way is:
+
+.. code-block:: python
+
+    class MyVeryCustomDatastore(gcloud.aio.datastore.Datastore):
+        entity_result_kind = EntityResult
+        entity_result_kind.entity_kind = Entity
+        entity_result_kind.entity_kind.key_kind = Key
+        key_kind = Key
+        key_kind.path_element_kind = PathElement
+        query_result_batch_kind = QueryResultBatch
+        query_result_batch_kind.entity_result_kind = EntityResult
+
 Contributing
 ------------
 

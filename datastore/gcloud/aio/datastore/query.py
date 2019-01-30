@@ -55,6 +55,8 @@ class GQLQuery:
 
 
 class QueryResultBatch:
+    entity_result_kind = EntityResult
+
     def __init__(self, end_cursor: str,
                  entity_result_type: ResultType = ResultType.UNSPECIFIED,
                  entity_results: List[EntityResult] = None,
@@ -89,7 +91,7 @@ class QueryResultBatch:
     def from_repr(cls, data: Dict[str, Any]) -> 'QueryResultBatch':
         end_cursor = data['endCursor']
         entity_result_type = ResultType(data['entityResultType'])
-        entity_results = [EntityResult.from_repr(er)
+        entity_results = [cls.entity_result_kind.from_repr(er)
                           for er in data.get('entityResults', [])]
         more_results = MoreResultsType(data['moreResults'])
         skipped_cursor = data.get('skippedCursor', '')

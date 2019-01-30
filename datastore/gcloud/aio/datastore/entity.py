@@ -6,6 +6,8 @@ from gcloud.aio.datastore.utils import parse_value
 
 
 class Entity:
+    key_kind = Key
+
     def __init__(self, key: Key, properties: Dict[str, dict] = None) -> None:
         self.key = key
         self.properties = {k: parse_value(v)
@@ -23,7 +25,7 @@ class Entity:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Entity':
-        return cls(Key.from_repr(data['key']), data.get('properties'))
+        return cls(cls.key_kind.from_repr(data['key']), data.get('properties'))
 
     def to_repr(self) -> Dict[str, Any]:
         return {
@@ -33,6 +35,8 @@ class Entity:
 
 
 class EntityResult:
+    entity_kind = Entity
+
     def __init__(self, entity: Entity, version: str,
                  cursor: str = '') -> None:
         self.entity = entity
@@ -52,7 +56,7 @@ class EntityResult:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'EntityResult':
-        return cls(Entity.from_repr(data['entity']), data['version'],
+        return cls(cls.entity_kind.from_repr(data['entity']), data['version'],
                    data.get('cursor', ''))
 
     def to_repr(self) -> Dict[str, Any]:
