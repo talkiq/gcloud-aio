@@ -22,8 +22,22 @@ Installation
 Usage
 -----
 
-We're still working on documentation -- for now, you can use the `smoke test`_
-as an example.
+.. code-block:: python
+
+    from gcloud.aio.auth import Token
+
+    token = Token()
+
+Additionally, the ``Token`` constructor accepts the following optional
+arguments:
+
+* ``service_file``: path to a `service account`_, authorized user file, or any
+  other application credentials. If omitted, will attempt to find one on your
+  path or fallback to generating a token from GCE metadata.
+* ``session``: an ``aiohttp.ClientSession`` instance to be used for all
+  requests. If omitted, a default session will be created.
+* ``scopes``: an optional list of GCP `scopes`_ for which to generate our
+  token. Only valid (and required!) for `service account`_ authentication.
 
 Contributing
 ------------
@@ -32,6 +46,7 @@ Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _scopes: https://developers.google.com/identity/protocols/googlescopes
+.. _service account: https://console.cloud.google.com/iam-admin/serviceaccounts
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/auth/tests/integration/smoke_test.py
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-auth.svg?style=flat-square
