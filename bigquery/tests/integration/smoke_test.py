@@ -11,8 +11,8 @@ async def test_data_is_inserted(creds, dataset, project, table):
             for i in range(3)]
 
     async with aiohttp.ClientSession() as session:
-        stream_insert = make_stream_insert(project, creds, dataset, table,
-                                           session=session)
+        stream_insert = make_stream_insert(dataset, table, project=project,
+                                           service_file=creds, session=session)
         result = await stream_insert(rows)
 
     assert result
