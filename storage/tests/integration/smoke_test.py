@@ -12,12 +12,12 @@ from gcloud.aio.storage import Storage
     (b'test', b'test', 'bin'),
     (json.dumps({'data': 1}), json.dumps({'data': 1}).encode('utf-8'), 'json'),
 ])
-async def test_object_life_cycle(bucket_name, creds, project, uploaded_data,
+async def test_object_life_cycle(bucket_name, creds, uploaded_data,
                                  expected_data, file_extension):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
     async with aiohttp.ClientSession() as session:
-        storage = Storage(project, creds, session=session)
+        storage = Storage(service_file=creds, session=session)
         await storage.upload(bucket_name, object_name, uploaded_data)
 
         bucket = storage.get_bucket(bucket_name)

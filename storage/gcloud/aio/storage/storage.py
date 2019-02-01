@@ -14,12 +14,14 @@ from gcloud.aio.storage.bucket import Bucket
 try:
     import ujson as json
 except ModuleNotFoundError:
-    import json
+    import json  # type: ignore
 
 
-STORAGE_API_ROOT = 'https://www.googleapis.com/storage/v1/b'
-STORAGE_UPLOAD_API_ROOT = 'https://www.googleapis.com/upload/storage/v1/b'
-READ_WRITE_SCOPE = 'https://www.googleapis.com/auth/devstorage.read_write'
+API_ROOT = 'https://www.googleapis.com/storage/v1/b'
+API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
+SCOPES = [
+    'https://www.googleapis.com/auth/devstorage.read_write',
+]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
@@ -33,13 +35,12 @@ class UploadType(enum.Enum):
 
 
 class Storage:
-    def __init__(self, project: str, service_file: str, *, token: Token = None,
-                 session: aiohttp.ClientSession = None) -> None:
-        self.service_file = service_file
+    def __init__(self, *, service_file: Optional[str],
+                 token: Optional[Token] = None,
+                 session: Optional[aiohttp.ClientSession] = None) -> None:
         self.session = session
-        self.token = token or Token(project, self.service_file,
-                                    session=self.session,
-                                    scopes=[READ_WRITE_SCOPE])
+        self.token = token or Token(service_file=service_file,
+                                    session=self.session, scopes=SCOPES)
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
@@ -50,7 +51,7 @@ class Storage:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -83,7 +84,7 @@ class Storage:
                            session: aiohttp.ClientSession = None,
                            timeout: int = 10) -> dict:
         token = await self.token.get()
-        url = f'{STORAGE_API_ROOT}/{bucket}/o'
+        url = f'{API_ROOT}/{bucket}/o'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -103,7 +104,7 @@ class Storage:
                      session: aiohttp.ClientSession = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
-        url = f'{STORAGE_UPLOAD_API_ROOT}/{bucket}/o'
+        url = f'{API_ROOT_UPLOAD}/{bucket}/o'
 
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
@@ -183,7 +184,7 @@ class Storage:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
-        url = f'{STORAGE_API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -198,7 +199,8 @@ class Storage:
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
-        return await response.read()
+        data: bytes = await response.read()
+        return data
 
     async def _upload_simple(self, url: str, object_name: str,
                              file_data: Union[str, bytes], headers: dict, *,
