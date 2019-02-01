@@ -12,8 +12,3 @@ def bucket_name() -> str:
 def creds() -> str:
     # TODO: bundle public creds into this repo
     return os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-
-
-@pytest.fixture(scope='module')  # type: ignore
-def project() -> str:
-    return 'voiceai-staging'
