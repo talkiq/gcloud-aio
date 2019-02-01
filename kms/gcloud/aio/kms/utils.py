@@ -1,8 +1,9 @@
 # TODO: this file is copied from gcloud-aio-taskqueue
 import base64
+from typing import Union
 
 
-def decode(payload):
+def decode(payload: str) -> str:
     """
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -12,7 +13,7 @@ def decode(payload):
     return base64.b64decode(variant).decode()
 
 
-def encode(payload):
+def encode(payload: Union[bytes, str]) -> str:
     """
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard

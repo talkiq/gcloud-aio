@@ -1,2 +1,2 @@
 aiohttp >= 2.0.0, < 4.0.0
-gcloud-aio-auth >= 1.0.0, < 2.0.0
+gcloud-aio-auth >= 2.0.0, < 3.0.0

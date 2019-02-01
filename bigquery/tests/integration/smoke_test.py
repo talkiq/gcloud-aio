@@ -14,6 +14,4 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
     async with aiohttp.ClientSession() as session:
         t = Table(dataset, table, project=project, service_file=creds,
                   session=session)
-        result = await t.insert(rows)
-
-    assert result
+        await t.insert(rows)
