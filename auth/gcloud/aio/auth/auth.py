@@ -21,6 +21,7 @@ import jwt
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
+GCE_ENDPOINT_PROJECT = (f'{GCE_METADATA_BASE}/project/project-id')
 GCE_ENDPOINT_TOKEN = (f'{GCE_METADATA_BASE}/instance/service-accounts'
                       '/default/token?recursive=true')
 GCLOUD_TOKEN_DURATION = 3600
@@ -76,6 +77,21 @@ class Token:
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
         self.acquiring: Optional[asyncio.Future] = None
+
+    async def get_project(self) -> Optional[str]:
+        project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
+                   or os.environ.get('GCLOUD_PROJECT')
+                   or os.environ.get('APPLICATION_ID'))
+
+        if self.token_type == Type.GCE_METADATA:
+            resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
+                                          headers=GCE_METADATA_HEADERS)
+            resp.raise_for_status()
+            project = project or (await resp.text())
+        elif self.token_type == Type.SERVICE_ACCOUNT:
+            project = project or self.service_data.get('project_id')
+
+        return project
 
     async def get(self) -> Optional[str]:
         await self.ensure_token()
