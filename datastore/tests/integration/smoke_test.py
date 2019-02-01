@@ -14,7 +14,7 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        ds = Datastore(project, creds, session=s)
+        ds = Datastore(project=project, service_file=creds, session=s)
 
         allocatedKeys = await ds.allocateIds([key], session=s)
         assert len(allocatedKeys) == 1
@@ -48,7 +48,7 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        ds = Datastore(project, creds, session=s)
+        ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
         actual = await ds.lookup([key], transaction=transaction, session=s)
@@ -69,7 +69,7 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 async def test_rollback(creds: str, project: str) -> None:
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        ds = Datastore(project, creds, session=s)
+        ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
         await ds.rollback(transaction, session=s)
@@ -78,7 +78,7 @@ async def test_rollback(creds: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 async def test_query(creds: str, kind: str, project: str) -> None:
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        ds = Datastore(project, creds, session=s)
+        ds = Datastore(project=project, service_file=creds, session=s)
 
         query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
                          named_bindings={'value': 42})
