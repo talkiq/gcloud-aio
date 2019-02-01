@@ -32,7 +32,8 @@ def push_queue_name() -> str:
 async def pull_queue_context(project, creds, pull_queue_name):
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
-        tq = PullQueue(project, creds, pull_queue_name, session=session)
+        tq = PullQueue(project, pull_queue_name, service_file=creds,
+                       session=session)
         context = {'queue': tq, 'tasks_to_cleanup': []}
         yield context
 
@@ -45,7 +46,8 @@ async def pull_queue_context(project, creds, pull_queue_name):
 async def push_queue_context(project, creds, push_queue_name):
     # main purpose is to be do proper teardown of tasks created by tests
     async with aiohttp.ClientSession() as session:
-        tq = PushQueue(project, creds, push_queue_name, session=session)
+        tq = PushQueue(project, push_queue_name, service_file=creds,
+                       session=session)
         context = {'queue': tq, 'tasks_to_cleanup': []}
         yield context
 

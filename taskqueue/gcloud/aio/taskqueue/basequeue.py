@@ -2,6 +2,9 @@
 An asynchronous queue for Google Appengine Task Queues
 """
 import logging
+from typing import Any
+from typing import Dict
+from typing import Optional
 
 import aiohttp
 import backoff
@@ -18,23 +21,27 @@ log = logging.getLogger(__name__)
 
 
 class BaseQueue:  # pylint: disable=too-few-public-methods
-    def __init__(self, base_api_root, project, service_file, taskqueue,
-                 location=LOCATION, session=None, token=None):
+    def __init__(self, base_api_root: str, project: str, taskqueue: str,
+                 service_file: Optional[str] = None, location: str = LOCATION,
+                 session: Optional[aiohttp.ClientSession] = None,
+                 token: Optional[Token] = None) -> None:
         self.api_root = (f'{base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
         self.session = session
-        self.token = token or Token(project, service_file, scopes=SCOPES,
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session)
 
-    async def headers(self):
+    async def headers(self) -> Dict[str, str]:
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
         }
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def _request(self, method, url, session=None, **kwargs):
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    async def _request(self, method: str, url: str,
+                       session: Optional[aiohttp.ClientSession] = None,
+                       **kwargs: Any) -> Any:
         if not self.session:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)

@@ -94,7 +94,7 @@ class LeaseManager:
 
 class TaskManager:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, project, service_file, taskqueue, worker,
+    def __init__(self, project, taskqueue, worker, service_file=None,
                  backoff_base=2, backoff_factor=1.1, backoff_max_value=60,
                  batch_size=10, deadletter_insert_function=None,
                  lease_seconds=10, location=LOCATION,
@@ -118,7 +118,7 @@ class TaskManager:
         self.executor = concurrent.futures.ProcessPoolExecutor(max_concurrency)
         self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
-        self.tq = PullQueue(project, service_file, taskqueue,
+        self.tq = PullQueue(project, taskqueue, service_file=service_file,
                             location=location, token=token)
 
         self.session = None

@@ -27,7 +27,7 @@ async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
 
     worker = get_mock_coro('ok')
 
-    tm = TaskManager(project, creds, pull_queue_name, worker,
+    tm = TaskManager(project, pull_queue_name, worker, service_file=creds,
                      batch_size=len(tasks))
 
     # DRAIN
@@ -68,7 +68,7 @@ async def test_task_multiple_leases(caplog, mocker, creds, project,
 
     worker = get_mock_coro('ok')
 
-    tm = TaskManager(project, creds, pull_queue_name, worker,
+    tm = TaskManager(project, pull_queue_name, worker, service_file=creds,
                      batch_size=len(tasks), lease_seconds=4)
 
     # drain old tasks
