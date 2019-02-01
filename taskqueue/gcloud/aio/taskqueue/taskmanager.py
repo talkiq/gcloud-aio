@@ -8,7 +8,6 @@ import logging
 import multiprocessing
 import time
 import traceback
-import warnings
 
 import aiohttp
 import requests
@@ -97,15 +96,9 @@ class TaskManager:
     def __init__(self, project, taskqueue, worker, service_file=None,
                  backoff_base=2, backoff_factor=1.1, backoff_max_value=60,
                  batch_size=10, deadletter_insert_function=None,
-                 lease_seconds=10, location=LOCATION,
-                 max_concurrency=100, retry_limit=None, session=None,
-                 token=None):
+                 lease_seconds=10, location=LOCATION, max_concurrency=100,
+                 retry_limit=None, token=None):
         # pylint: disable=too-many-locals
-        if session:
-            warnings.warn('passing in a session is deprecated and will be '
-                          'removed in gcloud-aio-taskqueue==2.0.0',
-                          DeprecationWarning)
-
         self.worker = worker
 
         self.backoff = backoff(base=backoff_base, factor=backoff_factor,
