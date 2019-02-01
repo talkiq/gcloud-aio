@@ -42,12 +42,6 @@ class Table:
 
         raise Exception('could not determine project, please set it manually')
 
-    async def headers(self) -> Dict[str, str]:
-        token = await self.token.get()
-        return {
-            'Authorization': f'Bearer {token}',
-        }
-
     @staticmethod
     def _make_insert_body(rows: List[Dict[str, Any]],
                           skip_invalid: bool = False,
@@ -60,6 +54,12 @@ class Table:
                 'insertId': uuid.uuid4().hex,
                 'json': row
             } for row in rows],
+        }
+
+    async def headers(self) -> Dict[str, str]:
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
         }
 
     async def insert(self, rows: List[Dict[str, Any]],

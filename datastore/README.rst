@@ -103,6 +103,9 @@ The full list of classes which may be overridden in this way is:
         query_result_batch_kind = QueryResultBatch
         query_result_batch_kind.entity_result_kind = EntityResult
 
+You can then drop-in the ``MyVeryCustomDatastore`` class anywhere where you
+previously used ``Datastore``.
+
 Contributing
 ------------
 

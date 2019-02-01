@@ -2,6 +2,7 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Union
 
 import aiohttp
@@ -34,15 +35,26 @@ class Datastore:
     key_kind = Key
     query_result_batch_kind = QueryResultBatch
 
-    def __init__(self, project: str, service_file: str, namespace: str = '',
-                 session: aiohttp.ClientSession = None,
-                 token: Token = None) -> None:
-        self.project = project
+    def __init__(self, project: Optional[str] = None,
+                 service_file: Optional[str] = None, namespace: str = '',
+                 session: Optional[aiohttp.ClientSession] = None,
+                 token: Optional[Token] = None) -> None:
+        self._project = project
         self.namespace = namespace
 
         self.session = session
-        self.token = token or Token(project, service_file, session=session,
+        self.token = token or Token(service_file=service_file, session=session,
                                     scopes=SCOPES)
+
+    async def project(self) -> str:
+        if self._project:
+            return self._project
+
+        self._project = self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception('could not determine project, please set it manually')
 
     @staticmethod
     def _make_commit_body(
@@ -81,7 +93,8 @@ class Datastore:
     async def allocateIds(self, keys: List[Key],
                           session: aiohttp.ClientSession = None,
                           timeout: int = 10) -> List[Key]:
-        url = f'{API_ROOT}/{self.project}:allocateIds'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:allocateIds'
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -108,7 +121,8 @@ class Datastore:
     # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(self, session: aiohttp.ClientSession = None,
                                timeout: int = 10) -> str:
-        url = f'{API_ROOT}/{self.project}:beginTransaction'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:beginTransaction'
         headers = await self.headers()
         headers.update({
             'Content-Length': '0',
@@ -131,7 +145,8 @@ class Datastore:
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> None:
-        url = f'{API_ROOT}/{self.project}:commit'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:commit'
 
         body = self._make_commit_body(transaction, mode, mutations)
         payload = json.dumps(body).encode('utf-8')
@@ -155,7 +170,8 @@ class Datastore:
                      consistency: Consistency = Consistency.STRONG,
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> Dict[str, Union[EntityResult, Key]]:
-        url = f'{API_ROOT}/{self.project}:lookup'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:lookup'
 
         if transaction:
             options = {'transaction': transaction}
@@ -194,7 +210,8 @@ class Datastore:
     async def reserveIds(self, keys: List[Key], database_id: str = '',
                          session: aiohttp.ClientSession = None,
                          timeout: int = 10) -> None:
-        url = f'{API_ROOT}/{self.project}:reserveIds'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:reserveIds'
 
         payload = json.dumps({
             'databaseId': database_id,
@@ -219,7 +236,8 @@ class Datastore:
     async def rollback(self, transaction: str,
                        session: aiohttp.ClientSession = None,
                        timeout: int = 10) -> None:
-        url = f'{API_ROOT}/{self.project}:rollback'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:rollback'
 
         payload = json.dumps({
             'transaction': transaction,
@@ -245,7 +263,8 @@ class Datastore:
                        consistency: Consistency = Consistency.EVENTUAL,
                        session: aiohttp.ClientSession = None,
                        timeout: int = 10) -> QueryResultBatch:
-        url = f'{API_ROOT}/{self.project}:runQuery'
+        project = await self.project()
+        url = f'{API_ROOT}/{project}:runQuery'
 
         if transaction:
             options = {'transaction': transaction}
@@ -253,7 +272,7 @@ class Datastore:
             options = {'readConsistency': consistency.value}
         payload = json.dumps({
             'partitionId': {
-                'projectId': self.project,
+                'projectId': project,
                 'namespaceId': self.namespace,
             },
             'gqlQuery': query.to_repr(),
