@@ -39,6 +39,32 @@ arguments:
 * ``scopes``: an optional list of GCP `scopes`_ for which to generate our
   token. Only valid (and required!) for `service account`_ authentication.
 
+CLI
+~~~
+
+This project can also be used to help you manually authenticate to test GCP
+routes, eg. we can list our project's uptime checks with a tool such as
+``curl``:
+
+.. code-block:: console
+
+    # using default application credentials
+    curl \
+      -H "Authorization: Bearer $(python3 -c 'import asyncio; from gcloud.aio.auth import Token; print(asyncio.run(Token().get()))')" \
+      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+    # using a service account (make sure to provide a scope!)
+    export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service.json
+    curl \
+      -H "Authorization: Bearer $(python3 -c 'import asyncio; from gcloud.aio.auth import Token; print(asyncio.run(Token(scopes=["'"https://www.googleapis.com/auth/cloud-platform"'"]).get()))')" \
+      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+    # using legacy account credentials
+    export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/EMAIL@DOMAIN.TLD/adc.json
+    curl \
+      -H "Authorization: Bearer $(python3 -c 'import asyncio; from gcloud.aio.auth import Token; print(asyncio.run(Token().get()))')" \
+      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
 Contributing
 ------------
 
