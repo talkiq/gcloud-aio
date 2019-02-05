@@ -50,7 +50,7 @@ class Datastore:
         if self._project:
             return self._project
 
-        self._project = self.token.get_project()
+        self._project = await self.token.get_project()
         if self._project:
             return self._project
 
