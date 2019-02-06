@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Any
 from typing import Dict
 from typing import List
@@ -21,7 +22,13 @@ except ModuleNotFoundError:
     import json  # type: ignore
 
 
-API_ROOT = 'https://datastore.googleapis.com/v1/projects'
+try:
+    API_ROOT = f'http://{os.environ["DATASTORE_EMULATOR_HOST"]}/v1/projects'
+    IS_DEV = True
+except KeyError:
+    API_ROOT = 'https://datastore.googleapis.com/v1/projects'
+    IS_DEV = False
+
 SCOPES = [
     'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/datastore',
@@ -39,12 +46,17 @@ class Datastore:
                  service_file: Optional[str] = None, namespace: str = '',
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
-        self._project = project
         self.namespace = namespace
-
         self.session = session
-        self.token = token or Token(service_file=service_file, session=session,
-                                    scopes=SCOPES)
+
+        if IS_DEV:
+            self._project = os.environ.get('DATASTORE_PROJECT_ID', 'dev')
+            # Tokens are not needed when using dev emulator
+            self.token = None
+        else:
+            self._project = project
+            self.token = token or Token(service_file=service_file,
+                                        session=session, scopes=SCOPES)
 
     async def project(self) -> str:
         if self._project:
@@ -70,6 +82,9 @@ class Datastore:
         }
 
     async def headers(self) -> Dict[str, str]:
+        if IS_DEV:
+            return {}
+
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',
