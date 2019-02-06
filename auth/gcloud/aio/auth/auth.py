@@ -55,6 +55,9 @@ class Token:
     def __init__(self, service_file: Optional[str] = None,
                  session: aiohttp.ClientSession = None,
                  scopes: List[str] = None) -> None:
+        if not os.path.isfile(service_file):
+            raise FileNotFoundError(
+                'service file not found at: "{}"'.format(service_file))
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
