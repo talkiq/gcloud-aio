@@ -37,15 +37,25 @@ class Type(enum.Enum):
 def get_service_data(service: Optional[str]) -> Dict[str, Any]:
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
-        sdkpath = (
-            os.environ.get('CLOUDSDK_CONFIG')
-            or os.path.join(os.path.expanduser('~'), '.config', 'gcloud'))
+        cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
+        sdkpath = (cloudsdk_config
+                   or os.path.join(os.path.expanduser('~'), '.config',
+                                   'gcloud'))
         service = os.path.join(sdkpath, 'application_default_credentials.json')
+        set_explicitly = bool(cloudsdk_config)
+    else:
+        set_explicitly = True
 
     try:
         with open(service, 'r') as f:
             data: Dict[str, Any] = json.loads(f.read())
             return data
+    except FileNotFoundError:
+        if set_explicitly:
+            # only warn users if they have explicitly set the service_file path
+            raise
+
+        return {}
     except Exception:  # pylint: disable=broad-except
         return {}
 
