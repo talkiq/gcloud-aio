@@ -35,7 +35,7 @@ class UploadType(enum.Enum):
 
 
 class Storage:
-    def __init__(self, *, service_file: Optional[str],
+    def __init__(self, *, service_file: Optional[str] = None,
                  token: Optional[Token] = None,
                  session: Optional[aiohttp.ClientSession] = None) -> None:
         self.session = session
