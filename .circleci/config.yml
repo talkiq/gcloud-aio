@@ -1,20 +1,14 @@
-version: 2
+version: 2.1
+
+orbs:
+  linter: thekevjames/linter@volatile
 
 jobs:
   lint:
     docker:
       - image: python:3.6.6
     steps:
-      - checkout
-      - run: pip install pre-commit
-      - restore_cache:
-          keys:
-            - cache-pre-commit-{{ checksum ".pre-commit-config.yaml" }}
-      - run: pre-commit run --all-files
-      - save_cache:
-          key: cache-pre-commit-{{ checksum ".pre-commit-config.yaml" }}
-          paths:
-            - ~/.cache/pre-commit
+      - linter/pre-commit
 
   test-auth:
     docker:
