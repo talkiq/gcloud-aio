@@ -1,84 +1,21 @@
 version: 2.1
 
 orbs:
-  linter: thekevjames/linter@volatile
+  linter: thekevjames/linter@0
 
 jobs:
-  lint:
-    docker:
-      - image: python:3.6.6
-    steps:
-      - linter/pre-commit
-
-  test-auth:
+  nox:
     docker:
       - image: thekevjames/nox:2018.10.17
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    parameters:
+      folder:
+        type: string
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - checkout
-      - run: nox -f auth/noxfile.py
-
-  test-bigquery:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f bigquery/noxfile.py
-
-  test-datastore:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f datastore/noxfile.py
-
-  test-kms:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f kms/noxfile.py
-
-  test-pubsub:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f pubsub/noxfile.py
-
-  test-storage:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f storage/noxfile.py
-
-  test-taskqueue:
-    docker:
-      - image: thekevjames/nox:2018.10.17
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /gcloud-service-key.json
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f taskqueue/noxfile.py
+      - run: nox -f <<parameters.folder>>/noxfile.py
 
   pypi:
     docker:
@@ -118,39 +55,53 @@ jobs:
             cat release-description.md | grep ${PROJECT} | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
 
 workflows:
-  version: 2
   run-jobs:
     jobs:
-      - lint:
+      - linter/pre-commit:
+          python_version: 3.6.6
           filters:
             tags:
               only: /.*/
 
-      - test-auth:
+      - nox:
+          name: test-auth
+          folder: auth
           filters:
             tags:
               only: /.*/
-      - test-bigquery:
+      - nox:
+          name: test-bigquery
+          folder: bigquery
           filters:
             tags:
               only: /.*/
-      - test-datastore:
+      - nox:
+          name: test-datastore
+          folder: datastore
           filters:
             tags:
               only: /.*/
-      - test-kms:
+      - nox:
+          name: test-kms
+          folder: kms
           filters:
             tags:
               only: /.*/
-      - test-pubsub:
+      - nox:
+          name: test-pubsub
+          folder: pubsub
           filters:
             tags:
               only: /.*/
-      - test-storage:
+      - nox:
+          name: test-storage
+          folder: storage
           filters:
             tags:
               only: /.*/
-      - test-taskqueue:
+      - nox:
+          name: test-taskqueue
+          folder: taskqueue
           filters:
             tags:
               only: /.*/
@@ -163,7 +114,7 @@ workflows:
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
-            - lint
+            - linter/pre-commit
             - test-auth
             - test-bigquery
             - test-datastore
@@ -179,7 +130,7 @@ workflows:
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
-            - lint
+            - linter/pre-commit
             - test-auth
             - test-bigquery
             - test-datastore
