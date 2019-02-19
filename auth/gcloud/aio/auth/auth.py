@@ -94,6 +94,7 @@ class Token:
                    or os.environ.get('APPLICATION_ID'))
 
         if self.token_type == Type.GCE_METADATA:
+            await self.ensure_token()
             resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
                                           headers=GCE_METADATA_HEADERS)
             resp.raise_for_status()
