@@ -60,7 +60,7 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
             ds.make_mutation(Operation.UPDATE, key,
                              properties={'animal': 'aardvark'}),
         ]
-        await ds.commit(transaction, mutations=mutations, session=s)
+        await ds.commit(mutations, transaction=transaction, session=s)
 
         actual = await ds.lookup([key], session=s)
         assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
@@ -99,7 +99,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
                              Key(project, [PathElement(kind)]),
                              properties={'value': 42}),
         ]
-        await ds.commit(transaction, mutations=mutations, session=s)
+        await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3

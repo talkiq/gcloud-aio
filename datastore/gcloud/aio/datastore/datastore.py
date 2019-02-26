@@ -69,17 +69,23 @@ class Datastore:
         raise Exception('could not determine project, please set it manually')
 
     @staticmethod
-    def _make_commit_body(
-            transaction: str, mode: Mode = Mode.TRANSACTIONAL,
-            mutations: List[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _make_commit_body(mutations: List[Dict[str, Any]],
+                          transaction: Optional[str] = None,
+                          mode: Mode = Mode.TRANSACTIONAL) -> Dict[str, Any]:
         if not mutations:
             raise Exception('at least one mutation record is required')
 
-        return {
+        if transaction is None and mode != Mode.NON_TRANSACTIONAL:
+            raise Exception('a transaction ID must be provided when mode is '
+                            'transactional')
+
+        data = {
             'mode': mode.value,
             'mutations': mutations,
-            'transaction': transaction,
         }
+        if transaction is not None:
+            data['transaction'] = transaction
+        return data
 
     async def headers(self) -> Dict[str, str]:
         if IS_DEV:
@@ -90,6 +96,7 @@ class Datastore:
             'Authorization': f'Bearer {token}',
         }
 
+    # TODO: support mutations w version specifiers, return new version (commit)
     @staticmethod
     def make_mutation(operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -155,15 +162,18 @@ class Datastore:
         transaction: str = data['transaction']
         return transaction
 
+    # TODO: return mutation results
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
-    async def commit(self, transaction: str, mutations: List[Dict[str, Any]],
+    async def commit(self, mutations: List[Dict[str, Any]],
+                     transaction: Optional[str] = None,
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/{project}:commit'
 
-        body = self._make_commit_body(transaction, mode, mutations)
+        body = self._make_commit_body(mutations, transaction=transaction,
+                                      mode=mode)
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -330,9 +340,10 @@ class Datastore:
         return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
+    # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None,
                       session: aiohttp.ClientSession = None) -> None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        await self.commit(transaction, mutations=[mutation], session=session)
+        await self.commit([mutation], transaction=transaction, session=session)
