@@ -1,11 +1,12 @@
 import asyncio
 import enum
+import io
 import logging
 import mimetypes
+import os
 from typing import Any
 from typing import Optional
 from typing import Tuple
-from typing import Union
 from urllib.parse import quote
 
 import aiohttp
@@ -111,8 +112,8 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
 
-        data = self._preprocess_data(file_data)
-        content_length = len(data)
+        stream = self._preprocess_data(file_data)
+        content_length = self._get_stream_len(stream)
 
         # mime detection method same as in aiohttp 3.4.4
         content_type = content_type or mimetypes.guess_type(object_name)[0]
@@ -129,22 +130,34 @@ class Storage:
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
-            return await self._upload_simple(url, object_name, data, headers,
+            return await self._upload_simple(url, object_name, stream, headers,
                                              session=session, timeout=timeout)
 
         if upload_type == UploadType.RESUMABLE:
-            return await self._upload_resumable(url, object_name, data,
+            return await self._upload_resumable(url, object_name, stream,
                                                 headers, session=session,
                                                 timeout=timeout)
 
         raise TypeError(f'upload type {upload_type} not supported')
 
     @staticmethod
-    def _preprocess_data(data: Any) -> Union[str, bytes]:
-        if data is None:
-            return ''
+    def _get_stream_len(stream: io.IOBase) -> int:
+        current = stream.tell()
+        try:
+            return stream.seek(0, os.SEEK_END)
+        finally:
+            stream.seek(current)
 
-        if isinstance(data, (str, bytes)):
+    @staticmethod
+    def _preprocess_data(data: Any) -> io.IOBase:
+        if data is None:
+            return io.StringIO('')
+
+        if isinstance(data, bytes):
+            return io.BytesIO(data)
+        if isinstance(data, str):
+            return io.StringIO(data)
+        if isinstance(data, io.IOBase):
             return data
 
         raise TypeError(f'unsupported upload type: "{type(data)}"')
@@ -203,7 +216,7 @@ class Storage:
         return data
 
     async def _upload_simple(self, url: str, object_name: str,
-                             file_data: Union[str, bytes], headers: dict, *,
+                             stream: io.IOBase, headers: dict, *,
                              session: aiohttp.ClientSession = None,
                              timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
@@ -220,20 +233,20 @@ class Storage:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=file_data, headers=headers,
+        resp = await session.post(url, data=stream, headers=headers,
                                   params=params, timeout=timeout)
         resp.raise_for_status()
         data: dict = await resp.json()
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
-                                file_data: Union[str, bytes], headers: dict, *,
+                                stream: io.IOBase, headers: dict, *,
                                 session: aiohttp.ClientSession = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, headers,
                                                   session=session)
-        data: dict = await self._do_upload(session_uri, file_data,
+        data: dict = await self._do_upload(session_uri, stream,
                                            headers=headers, session=session,
                                            timeout=timeout)
         return data
@@ -265,7 +278,7 @@ class Storage:
         session_uri: str = resp.headers['Location']
         return session_uri
 
-    async def _do_upload(self, session_uri: str, file_data: Union[str, bytes],
+    async def _do_upload(self, session_uri: str, stream: io.IOBase,
                          headers: dict, *, retries: int = 5,
                          session: aiohttp.ClientSession = None,
                          timeout: int = 30) -> dict:
@@ -274,7 +287,7 @@ class Storage:
                                                  read_timeout=10)
         session = session or self.session
 
-        resp = await session.put(session_uri, headers=headers, data=file_data,
+        resp = await session.put(session_uri, headers=headers, data=stream,
                                  timeout=timeout)
         for tries in range(retries):
             try:
@@ -284,7 +297,7 @@ class Storage:
                 await asyncio.sleep(2. ** tries)
 
                 resp = await session.put(session_uri, headers=headers,
-                                         data=file_data, timeout=timeout)
+                                         data=stream, timeout=timeout)
                 continue
 
             break
