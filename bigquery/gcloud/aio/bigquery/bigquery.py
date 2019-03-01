@@ -66,6 +66,9 @@ class Table:
                      skip_invalid: bool = False, ignore_unknown: bool = True,
                      session: Optional[aiohttp.ClientSession] = None,
                      timeout: int = 60) -> None:
+        if not rows:
+            return
+
         project = await self.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
                f'tables/{self.table_name}/insertAll')
