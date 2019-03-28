@@ -2,6 +2,11 @@ import enum
 from datetime import datetime as dt
 
 
+class CompositeFilterOperator(enum.Enum):
+    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
+    AND = 'AND'
+
+
 class Consistency(enum.Enum):
     EVENTUAL = 'EVENTUAL'
     STRONG = 'STRONG'
@@ -29,6 +34,16 @@ class Operation(enum.Enum):
     UPSERT = 'upsert'
 
 
+class PropertyFilterOperator(enum.Enum):
+    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
+    LESS_THAN = 'LESS_THAN'
+    LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
+    GREATER_THAN = 'GREATER_THAN'
+    GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
+    EQUAL = 'EQUAL'
+    HAS_ANCESTOR = 'HAS_ANCESTOR'
+
+
 class ResultType(enum.Enum):
     FULL = 'FULL'
     KEY_ONLY = 'KEY_ONLY'
@@ -53,7 +68,7 @@ TYPES = {
     float: TypeName.DOUBLE,
     int: TypeName.INTEGER,
     str: TypeName.STRING,
-    type(False): TypeName.BOOLEAN,
+    bool: TypeName.BOOLEAN,
     type(None): TypeName.NULL,
 }
 

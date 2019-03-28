@@ -5,11 +5,63 @@ from typing import List
 from gcloud.aio.datastore.constants import MoreResultsType
 from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.entity import EntityResult
+from gcloud.aio.datastore.filter import Filter
 from gcloud.aio.datastore.utils import make_value
 from gcloud.aio.datastore.utils import parse_value
 
 
-class GQLQuery:
+class BaseQuery:
+    json_key = ''
+
+    # pylint: disable=unused-argument
+    def __new__(cls, *args, **kwargs):
+        if cls is BaseQuery:
+            raise TypeError('BaseQuery may not be instantiated')
+        return object.__new__(cls)
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'BaseQuery':
+        raise NotImplementedError
+
+    def to_repr(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+# https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#Query
+class Query(BaseQuery):
+    json_key = 'query'
+
+    def __init__(self, kind: str = '', query_filter: Filter = None):
+        self.kind = kind
+        self.query_filter = query_filter
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Query):
+            return False
+        return bool(
+            self.kind == other.kind
+            and self.query_filter == other.query_filter)
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'Query':
+        kind = data['kind'] or ''
+        query_filter = Filter.from_repr(data['filter'])
+        return cls(kind=kind, query_filter=query_filter)
+
+    def to_repr(self) -> Dict[str, Any]:
+        data = {'kind': [{'name': self.kind}] if self.kind else []}
+        if self.query_filter:
+            data['filter'] = self.query_filter.to_repr()
+        return data
+
+
+# https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#gqlquery
+class GQLQuery(BaseQuery):
+    json_key = 'gqlQuery'
+
     def __init__(self, query_string: str, allow_literals: bool = True,
                  named_bindings: Dict[str, Any] = None,
                  positional_bindings: List[Any] = None) -> None:
@@ -28,12 +80,9 @@ class GQLQuery:
             and self.named_bindings == other.named_bindings
             and self.positional_bindings == other.positional_bindings)
 
-    def __repr__(self) -> str:
-        return str(self.to_repr())
-
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
-        allow_literals = data['allowLiteralls']
+        allow_literals = data['allowLiterals']
         query_string = data['queryString']
         named_bindings = {k: parse_value(v['value'])
                           for k, v in data.get('namedBindings', {}).items()}

@@ -3,10 +3,15 @@ import uuid
 import aiohttp
 import pytest
 from gcloud.aio.datastore import Datastore
+from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
+from gcloud.aio.datastore import PropertyFilter
+from gcloud.aio.datastore import PropertyFilterOperator
+from gcloud.aio.datastore import Query
+from gcloud.aio.datastore import Value
 
 
 @pytest.mark.asyncio  # type: ignore
@@ -78,6 +83,35 @@ async def test_rollback(creds: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_query(creds: str, kind: str, project: str) -> None:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        property_filter = PropertyFilter(
+            prop='value', operator=PropertyFilterOperator.EQUAL,
+            value=Value(42))
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        before = await ds.runQuery(query, session=s)
+        num_results = len(before.entity_results)
+
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [
+            ds.make_mutation(Operation.INSERT,
+                             Key(project, [PathElement(kind)]),
+                             properties={'value': 42}),
+            ds.make_mutation(Operation.INSERT,
+                             Key(project, [PathElement(kind)]),
+                             properties={'value': 42}),
+        ]
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        after = await ds.runQuery(query, session=s)
+        assert len(after.entity_results) == num_results + 2
+
+
+@pytest.mark.asyncio  # type: ignore
+@pytest.mark.xfail(strict=False)  # type: ignore
+async def test_gql_query(creds: str, kind: str, project: str) -> None:
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
