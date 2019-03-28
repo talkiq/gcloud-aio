@@ -78,6 +78,12 @@ async def test_rollback(creds: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_query(creds: str, kind: str, project: str) -> None:
+    assert False  # TODO
+
+
+@pytest.mark.asyncio  # type: ignore
+@pytest.mark.xfail(strict=False)  # type: ignore
+async def test_gql_query(creds: str, kind: str, project: str) -> None:
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 

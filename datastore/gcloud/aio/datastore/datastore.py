@@ -13,7 +13,7 @@ from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.query import GQLQuery
+from gcloud.aio.datastore.query import _BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.utils import make_value
 try:
@@ -283,8 +283,7 @@ class Datastore:
         resp.raise_for_status()
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    # TODO: support non-GQL queries
-    async def runQuery(self, query: GQLQuery, transaction: str = None,
+    async def runQuery(self, query: _BaseQuery, transaction: str = None,
                        consistency: Consistency = Consistency.EVENTUAL,
                        session: aiohttp.ClientSession = None,
                        timeout: int = 10) -> QueryResultBatch:
@@ -300,7 +299,7 @@ class Datastore:
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
-            'gqlQuery': query.to_repr(),
+            query.json_key:  query.to_repr(),
             'readOptions': options,
         }).encode('utf-8')
 
