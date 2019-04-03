@@ -7,7 +7,7 @@ from gcloud.aio.datastore.constants import TYPES
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
 class Value:
-    def __init__(self, value: Any, exclude_from_indexes: bool = False):
+    def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
         self.value = value
         self.excludeFromIndexes = exclude_from_indexes
 

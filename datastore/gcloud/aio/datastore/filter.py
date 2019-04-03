@@ -13,8 +13,8 @@ class BaseFilter:
     # pylint: disable=unused-argument
     def __new__(cls, *args, **kwargs):
         if cls is BaseFilter:
-            raise TypeError('BaseFilter may not be instantiated')
-        return object.__new__(cls)
+            raise NotImplementedError('BaseFilter may not be instantiated')
+        return super().__new__(cls)
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -29,7 +29,7 @@ class BaseFilter:
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#Filter
 class Filter:
-    def __init__(self, inner_filter: BaseFilter):
+    def __init__(self, inner_filter: BaseFilter) -> None:
         self.inner_filter = inner_filter
 
     def __repr__(self) -> str:
@@ -51,15 +51,15 @@ class Filter:
 
     def to_repr(self) -> Dict[str, Any]:
         return {
-            self.inner_filter.json_key: self.inner_filter.to_repr()
+            self.inner_filter.json_key: self.inner_filter.to_repr(),
         }
 
 
 class CompositeFilter(BaseFilter):
     json_key = 'compositeFilter'
 
-    def __init__(
-            self, operator: CompositeFilterOperator, filters: List[Filter]):
+    def __init__(self, operator: CompositeFilterOperator,
+                 filters: List[Filter]) -> None:
         self.operator = operator
         self.filters = filters
 
@@ -86,8 +86,8 @@ class CompositeFilter(BaseFilter):
 class PropertyFilter(BaseFilter):
     json_key = 'propertyFilter'
 
-    def __init__(
-            self, prop: str, operator: PropertyFilterOperator, value: Value):
+    def __init__(self, prop: str, operator: PropertyFilterOperator,
+                 value: Value) -> None:
         self.prop = prop
         self.operator = operator
         self.value = value

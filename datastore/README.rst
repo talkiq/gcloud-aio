@@ -19,9 +19,14 @@ started:
 .. code-block:: python
 
     from gcloud.aio.datastore import Datastore
+    from gcloud.aio.datastore import Filter
+    from gcloud.aio.datastore import GQLQuery
     from gcloud.aio.datastore import Key
     from gcloud.aio.datastore import PathElement
-    from gcloud.aio.datastore import GQLQuery
+    from gcloud.aio.datastore import PropertyFilter
+    from gcloud.aio.datastore import PropertyFilterOperator
+    from gcloud.aio.datastore import Query
+    from gcloud.aio.datastore import Value
 
     ds = Datastore('my-gcloud-project', '/path/to/creds.json')
     key1 = Key('my-gcloud-project', [PathElement('Kind', 'entityname')])

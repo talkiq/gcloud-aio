@@ -11,7 +11,7 @@ from gcloud.aio.datastore.utils import parse_value
 
 
 class BaseQuery:
-    json_key = ''
+    json_key: str
 
     # pylint: disable=unused-argument
     def __new__(cls, *args, **kwargs):
@@ -34,7 +34,7 @@ class BaseQuery:
 class Query(BaseQuery):
     json_key = 'query'
 
-    def __init__(self, kind: str = '', query_filter: Filter = None):
+    def __init__(self, kind: str = '', query_filter: Filter = None) -> None:
         self.kind = kind
         self.query_filter = query_filter
 
