@@ -13,12 +13,6 @@ from gcloud.aio.datastore.utils import parse_value
 class BaseQuery:
     json_key: str
 
-    # pylint: disable=unused-argument
-    def __new__(cls, *args, **kwargs):
-        if cls is BaseQuery:
-            raise TypeError('BaseQuery may not be instantiated')
-        return object.__new__(cls)
-
     def __repr__(self) -> str:
         return str(self.to_repr())
 

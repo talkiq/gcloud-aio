@@ -10,12 +10,6 @@ from gcloud.aio.datastore.value import Value
 class BaseFilter:
     json_key: str
 
-    # pylint: disable=unused-argument
-    def __new__(cls, *args, **kwargs):
-        if cls is BaseFilter:
-            raise NotImplementedError('BaseFilter may not be instantiated')
-        return super().__new__(cls)
-
     def __repr__(self) -> str:
         return str(self.to_repr())
 
