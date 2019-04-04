@@ -35,6 +35,7 @@ class Query(BaseQuery):
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Query):
             return False
+
         return bool(
             self.kind == other.kind
             and self.query_filter == other.query_filter)

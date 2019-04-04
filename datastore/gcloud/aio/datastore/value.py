@@ -14,6 +14,7 @@ class Value:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Value):
             return False
+
         return bool(
             self.excludeFromIndexes == other.excludeFromIndexes
             and self.value == other.value)
@@ -28,7 +29,7 @@ class Value:
             if json_key in data:
                 if json_key == 'nullValue':
                     value = None
-                elif value_type == datetime:  # No parsing needed
+                elif value_type == datetime:  # no parsing needed
                     value = data[json_key]
                 else:
                     value = value_type(data[json_key])
@@ -46,8 +47,8 @@ class Value:
     def to_repr(self) -> Dict[str, Any]:
         value_type = type(self.value)
         if value_type not in TYPES:
-            raise NotImplementedError(
-                f"Type '{value_type}' is not supported by the Value type")
+            raise NotImplementedError(f'type "{value_type}" is not supported '
+                                      'by the Value type')
 
         return {
             'excludeFromIndexes': self.excludeFromIndexes,

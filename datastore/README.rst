@@ -60,12 +60,16 @@ started:
     await ds.reserveIds(allocated_keys)
 
     # query support
-    property_filter = PropertyFilter(prop='answer', operator=PropertyFilterOperator.EQUAL, value=Value(42))
-    query = Query(kind='the_meaning_of_life', query_filter=Filter(property_filter))
+    property_filter = PropertyFilter(prop='answer',
+                                     operator=PropertyFilterOperator.EQUAL,
+                                     value=Value(42))
+    query = Query(kind='the_meaning_of_life',
+                  query_filter=Filter(property_filter))
     results = await ds.runQuery(query, session=s)
 
+    # alternatively, query support using GQL
     gql_query = GQLQuery('SELECT * FROM the_meaning_of_life WHERE answer = @answer',
-                        named_bindings={'answer': 42})
+                         named_bindings={'answer': 42})
     results = await ds.runQuery(gql_query, session=s)
 
 Custom Subclasses

@@ -32,6 +32,7 @@ class Filter:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Filter):
             return False
+
         return self.inner_filter == other.inner_filter
 
     @classmethod
@@ -49,6 +50,7 @@ class Filter:
         }
 
 
+# https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#CompositeFilter
 class CompositeFilter(BaseFilter):
     json_key = 'compositeFilter'
 
@@ -60,6 +62,7 @@ class CompositeFilter(BaseFilter):
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CompositeFilter):
             return False
+
         return bool(
             self.operator == other.operator
             and self.filters == other.filters)
@@ -72,11 +75,12 @@ class CompositeFilter(BaseFilter):
 
     def to_repr(self) -> Dict[str, Any]:
         return {
-            'op': self.operator.value,
             'filters': [f.to_repr() for f in self.filters],
+            'op': self.operator.value,
         }
 
 
+# https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#PropertyFilter
 class PropertyFilter(BaseFilter):
     json_key = 'propertyFilter'
 
@@ -89,6 +93,7 @@ class PropertyFilter(BaseFilter):
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PropertyFilter):
             return False
+
         return bool(
             self.prop == other.prop
             and self.operator == other.operator
@@ -103,7 +108,7 @@ class PropertyFilter(BaseFilter):
 
     def to_repr(self) -> Dict[str, Any]:
         return {
-            'property': {'name': self.prop},
             'op': self.operator.value,
+            'property': {'name': self.prop},
             'value': self.value.to_repr(),
         }

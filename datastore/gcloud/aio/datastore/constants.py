@@ -3,8 +3,8 @@ from datetime import datetime as dt
 
 
 class CompositeFilterOperator(enum.Enum):
-    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
     AND = 'AND'
+    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 
 class Consistency(enum.Enum):
@@ -35,13 +35,13 @@ class Operation(enum.Enum):
 
 
 class PropertyFilterOperator(enum.Enum):
-    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
-    LESS_THAN = 'LESS_THAN'
-    LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
+    EQUAL = 'EQUAL'
     GREATER_THAN = 'GREATER_THAN'
     GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
-    EQUAL = 'EQUAL'
     HAS_ANCESTOR = 'HAS_ANCESTOR'
+    LESS_THAN = 'LESS_THAN'
+    LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
+    UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 
 class ResultType(enum.Enum):
