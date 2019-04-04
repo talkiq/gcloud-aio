@@ -19,9 +19,14 @@ started:
 .. code-block:: python
 
     from gcloud.aio.datastore import Datastore
+    from gcloud.aio.datastore import Filter
+    from gcloud.aio.datastore import GQLQuery
     from gcloud.aio.datastore import Key
     from gcloud.aio.datastore import PathElement
-    from gcloud.aio.datastore import GQLQuery
+    from gcloud.aio.datastore import PropertyFilter
+    from gcloud.aio.datastore import PropertyFilterOperator
+    from gcloud.aio.datastore import Query
+    from gcloud.aio.datastore import Value
 
     ds = Datastore('my-gcloud-project', '/path/to/creds.json')
     key1 = Key('my-gcloud-project', [PathElement('Kind', 'entityname')])
@@ -55,9 +60,13 @@ started:
     await ds.reserveIds(allocated_keys)
 
     # query support
-    query = GQLQuery('SELECT * FROM the_meaning_of_life WHERE answer = @answer',
-                     named_bindings={'answer': 42})
+    property_filter = PropertyFilter(prop='answer', operator=PropertyFilterOperator.EQUAL, value=Value(42))
+    query = Query(kind='the_meaning_of_life', query_filter=Filter(property_filter))
     results = await ds.runQuery(query, session=s)
+
+    gql_query = GQLQuery('SELECT * FROM the_meaning_of_life WHERE answer = @answer',
+                        named_bindings={'answer': 42})
+    results = await ds.runQuery(gql_query, session=s)
 
 Custom Subclasses
 ~~~~~~~~~~~~~~~~~
