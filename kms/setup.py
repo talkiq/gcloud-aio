@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-kms',
-    version='2.0.0',
+    version='2.1.0',
     description='Asyncio Python Client for Google Cloud KMS',
     long_description=README,
     namespace_packages=[
