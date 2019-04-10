@@ -6,6 +6,7 @@ from gcloud.aio.datastore.constants import MoreResultsType
 from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.filter import Filter
+from gcloud.aio.datastore.property_order import PropertyOrder
 from gcloud.aio.datastore.utils import make_value
 from gcloud.aio.datastore.utils import parse_value
 
@@ -28,9 +29,18 @@ class BaseQuery:
 class Query(BaseQuery):
     json_key = 'query'
 
-    def __init__(self, kind: str = '', query_filter: Filter = None) -> None:
+    # TODO support projection and distinctOn
+    def __init__(self, kind: str = '', query_filter: Filter = None,
+                 order: List[PropertyOrder] = None, start_cursor: str = '',
+                 end_cursor: str = '', offset: int = None, limit: int = None
+                 ) -> None:
         self.kind = kind
         self.query_filter = query_filter
+        self.orders = order or []
+        self.start_cursor = start_cursor
+        self.end_cursor = end_cursor
+        self.offset = offset
+        self.limit = limit
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Query):
@@ -42,14 +52,40 @@ class Query(BaseQuery):
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Query':
-        kind = data['kind'] or ''
-        query_filter = Filter.from_repr(data['filter'])
-        return cls(kind=kind, query_filter=query_filter)
+        kind = data['kind'] or ''  # Kind is required
+
+        if 'filter' in data:
+            query_filter = Filter.from_repr(data['filter'])
+        else:
+            query_filter = None
+
+        if 'order' in data:
+            orders = [PropertyOrder.from_repr(o) for o in data['order']]
+        else:
+            orders = []
+
+        start_cursor = data['startCursor'] if 'startCursor' in data else ''
+        end_cursor = data['endCursor'] if 'end' in data else ''
+        offset = int(data['offset']) if 'offset' in data else None
+        limit = int(data['limit']) if 'limit' in data else None
+        return cls(kind=kind, query_filter=query_filter, order=orders,
+                   start_cursor=start_cursor, end_cursor=end_cursor,
+                   offset=offset, limit=limit)
 
     def to_repr(self) -> Dict[str, Any]:
         data = {'kind': [{'name': self.kind}] if self.kind else []}
         if self.query_filter:
             data['filter'] = self.query_filter.to_repr()
+        if self.orders:
+            data['order'] = [o.to_repr() for o in self.orders]
+        if self.start_cursor:
+            data['startCursor'] = self.start_cursor
+        if self.end_cursor:
+            data['endCursor'] = self.end_cursor
+        if self.offset:
+            data['offset'] = self.offset
+        if self.limit:
+            data['limit'] = self.limit
         return data
 
 
