@@ -104,7 +104,7 @@ class PropertyFilter(BaseFilter):
         prop = data['property']['name']
         operator = PropertyFilterOperator(data['op'])
         value = Value.from_repr(data['value'])
-        return cls(prop, operator, value)
+        return cls(prop=prop, operator=operator, value=value)
 
     def to_repr(self) -> Dict[str, Any]:
         return {

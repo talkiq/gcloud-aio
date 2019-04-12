@@ -19,12 +19,14 @@ started:
 .. code-block:: python
 
     from gcloud.aio.datastore import Datastore
+    from gcloud.aio.datastore import Direction
     from gcloud.aio.datastore import Filter
     from gcloud.aio.datastore import GQLQuery
     from gcloud.aio.datastore import Key
     from gcloud.aio.datastore import PathElement
     from gcloud.aio.datastore import PropertyFilter
     from gcloud.aio.datastore import PropertyFilterOperator
+    from gcloud.aio.datastore import PropertyOrder
     from gcloud.aio.datastore import Query
     from gcloud.aio.datastore import Value
 
@@ -63,8 +65,11 @@ started:
     property_filter = PropertyFilter(prop='answer',
                                      operator=PropertyFilterOperator.EQUAL,
                                      value=Value(42))
+    property_order = PropertyOrder(prop='length',
+                                   direction=Direction.DESCENDING)
     query = Query(kind='the_meaning_of_life',
-                  query_filter=Filter(property_filter))
+                  query_filter=Filter(property_filter),
+                  order=property_order)
     results = await ds.runQuery(query, session=s)
 
     # alternatively, query support using GQL
