@@ -6,7 +6,6 @@ from gcloud.aio.datastore.constants import Direction
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#PropertyOrder
 class PropertyOrder:
-
     def __init__(self, prop: str,
                  direction: Direction = Direction.ASCENDING) -> None:
         self.prop = prop

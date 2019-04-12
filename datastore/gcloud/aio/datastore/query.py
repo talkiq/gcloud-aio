@@ -29,11 +29,11 @@ class BaseQuery:
 class Query(BaseQuery):
     json_key = 'query'
 
-    # TODO support projection and distinctOn
+    # TODO: support `projection` and `distinctOn`
     def __init__(self, kind: str = '', query_filter: Filter = None,
                  order: List[PropertyOrder] = None, start_cursor: str = '',
-                 end_cursor: str = '', offset: int = None, limit: int = None
-                 ) -> None:
+                 end_cursor: str = '', offset: int = 0,
+                 limit: int = 0) -> None:
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -53,21 +53,16 @@ class Query(BaseQuery):
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Query':
         kind = data['kind'] or ''  # Kind is required
+        orders = [PropertyOrder.from_repr(o) for o in data.get('order', [])]
+        start_cursor = data.get('startCursor') or ''
+        start_cursor = data.get('startCursor') or ''
+        end_cursor = data.get('endCursor') or ''
+        offset = int(data.get('offset') or 0)
+        limit = int(data.get('limit') or 0)
 
-        if 'filter' in data:
-            query_filter = Filter.from_repr(data['filter'])
-        else:
-            query_filter = None
+        filter_ = data.get('filter')
+        query_filter = Filter.from_repr(filter_) if filter_ else None
 
-        if 'order' in data:
-            orders = [PropertyOrder.from_repr(o) for o in data['order']]
-        else:
-            orders = []
-
-        start_cursor = data['startCursor'] if 'startCursor' in data else ''
-        end_cursor = data['endCursor'] if 'end' in data else ''
-        offset = int(data['offset']) if 'offset' in data else None
-        limit = int(data['limit']) if 'limit' in data else None
         return cls(kind=kind, query_filter=query_filter, order=orders,
                    start_cursor=start_cursor, end_cursor=end_cursor,
                    offset=offset, limit=limit)

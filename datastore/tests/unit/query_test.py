@@ -9,7 +9,6 @@ from gcloud.aio.datastore import Value
 
 
 class TestQuery:
-
     @staticmethod
     def test_from_repr(query):
         original_query = query

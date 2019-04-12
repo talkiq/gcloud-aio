@@ -5,7 +5,6 @@ from gcloud.aio.datastore import Value
 
 
 class TestValue:
-
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
         ('blobValue', bytes('foobar', 'utf-8')),

@@ -12,7 +12,6 @@ from gcloud.aio.datastore import Value
 
 
 class TestFilter:
-
     @staticmethod
     def test_property_filter_from_repr(property_filters):
         original_filter = property_filters[0]

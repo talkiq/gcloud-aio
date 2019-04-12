@@ -4,7 +4,6 @@ from gcloud.aio.datastore import PropertyOrder
 
 
 class TestPropertyOrder:
-
     @staticmethod
     def test_order_defaults_to_ascending():
         assert PropertyOrder('prop_name').direction == Direction.ASCENDING
