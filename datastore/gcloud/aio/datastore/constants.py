@@ -61,22 +61,13 @@ class TypeName(enum.Enum):
     BLOB = 'blobValue'
     BOOLEAN = 'booleanValue'
     DOUBLE = 'doubleValue'
+    ENTITY = 'entityValue'
     INTEGER = 'integerValue'
+    KEY = 'keyValue'
     NULL = 'nullValue'
     STRING = 'stringValue'
     TIMESTAMP = 'timestampValue'
 
-
-# TODO: support more than just scalars
-TYPES = {
-    bytes: TypeName.BLOB,
-    dt: TypeName.TIMESTAMP,
-    float: TypeName.DOUBLE,
-    int: TypeName.INTEGER,
-    str: TypeName.STRING,
-    bool: TypeName.BOOLEAN,
-    type(None): TypeName.NULL,
-}
 
 FORMATTERS = {
     TypeName.TIMESTAMP: lambda d: d.strftime('%Y-%m-%dT%H:%S:%M.%f000Z'),

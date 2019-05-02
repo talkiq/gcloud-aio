@@ -88,7 +88,7 @@ class TestValue:
             pass
         value = Value(NonSupportedType())
 
-        with pytest.raises(NotImplementedError) as ex_info:
+        with pytest.raises(Exception) as ex_info:
             value.to_repr()
 
         assert NonSupportedType.__name__ in ex_info.value.args[0]

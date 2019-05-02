@@ -1,10 +1,23 @@
+from datetime import datetime as dt
 from typing import Any
 from typing import Dict
 
 from gcloud.aio.datastore.constants import FORMATTERS
 from gcloud.aio.datastore.constants import TypeName
-from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.constants import UNFORMATTERS
+
+
+# TODO: add geoPointValue and arrayValue
+# NOTE: TypeName.ENTITY and TypeName.KEY are added dynamically by the datastore
+TYPES = {
+    bool: TypeName.BOOLEAN,
+    bytes: TypeName.BLOB,
+    dt: TypeName.TIMESTAMP,
+    float: TypeName.DOUBLE,
+    int: TypeName.INTEGER,
+    str: TypeName.STRING,
+    type(None): TypeName.NULL,
+}
 
 
 def infer_type(value: Any) -> TypeName:
@@ -13,6 +26,10 @@ def infer_type(value: Any) -> TypeName:
     try:
         return TYPES[kind]
     except KeyError:
+        for supported_type, name in TYPES.items():
+            # Subclasses of supported entity types are also supported
+            if issubclass(kind, supported_type) and name == TypeName.ENTITY:
+                return TYPES[supported_type]
         raise Exception(f'unsupported value type {kind}')
 
 

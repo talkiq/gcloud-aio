@@ -2,7 +2,9 @@ from datetime import datetime
 from typing import Any
 from typing import Dict
 
-from gcloud.aio.datastore.constants import TYPES
+from gcloud.aio.datastore.constants import TypeName
+from gcloud.aio.datastore.utils import infer_type
+from gcloud.aio.datastore.utils import TYPES
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
@@ -45,12 +47,12 @@ class Value:
         return cls(value=value, exclude_from_indexes=exclude_from_indexes)
 
     def to_repr(self) -> Dict[str, Any]:
-        value_type = type(self.value)
-        if value_type not in TYPES:
-            raise NotImplementedError(f'type "{value_type}" is not supported '
-                                      'by the Value type')
-
+        value_type = infer_type(self.value)
+        if value_type in (TypeName.ENTITY, TypeName.KEY):
+            value = self.value.to_repr()
+        else:
+            value = self.value or 'NULL_VALUE'
         return {
             'excludeFromIndexes': self.excludeFromIndexes,
-            TYPES[value_type].value: self.value or 'NULL_VALUE',
+            value_type.value: value,
         }

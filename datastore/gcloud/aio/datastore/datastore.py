@@ -11,11 +11,13 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
+from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.utils import make_value
+from gcloud.aio.datastore.utils import TYPES
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -37,7 +39,36 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-class Datastore:
+class DatastoreMeta(type):
+    _entity_result_kind = None
+    _key_kind = None
+
+    @property
+    def entity_result_kind(cls):
+        return cls._entity_result_kind
+
+    @entity_result_kind.setter
+    def entity_result_kind(cls, value):
+        TYPES[value.entity_kind] = TypeName.ENTITY
+        cls._entity_result_kind = value
+
+    @property
+    def key_kind(cls):
+        return cls._key_kind
+
+    @key_kind.setter
+    def key_kind(cls, value):
+        TYPES[value] = TypeName.KEY
+        cls._key_kind = value
+
+    def __init__(cls, name, bases, attr):
+        super().__init__(name, bases, attr)
+        # Set all class attributes, which will run the property setters
+        for key, val in attr.items():
+            setattr(cls, key, val)
+
+
+class Datastore(metaclass=DatastoreMeta):
     entity_result_kind = EntityResult
     key_kind = Key
     query_result_batch_kind = QueryResultBatch
