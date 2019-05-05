@@ -191,3 +191,61 @@ class Token:
         self.access_token_duration = int(content['expires_in'])
         self.access_token_acquired_at = datetime.datetime.now()
         self.acquiring = None
+
+
+class GoogleCLoudApiBase:
+    def __init__(self, project: Optional[str] = None,
+                 session: Optional[aiohttp.ClientSession] = None,
+                 token: Optional[Token] = None) -> None:
+        self.project = project
+        self.session = session
+        self.token = token
+
+    async def headers(self):
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
+
+    async def post(self, url: str, data: str, headers: dict = None, timeout: int = 10,
+                   session: aiohttp.ClientSession = None):
+        _headers = await self.headers()
+        _headers.update({
+            'Content-Length': '0',
+            'Content-Type': 'application/json',
+        })
+        if headers:
+          _headers.update(headers)
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=data, headers=_headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
+        return resp
+
+    async def post_json(self, url: str, data: Any = None, headers: dict = None, timeout: int = 10,
+                        session: aiohttp.ClientSession = None):
+        resp = await self.post(url, data=json.dumps(data), headers=headers, timeout=timeout,
+                               session=session)
+        return await resp.json()
+
+
+class IamCredentials(GoogleCLoudApiBase):
+    async def sign_blob(self, service_account_email: str, payload: bytes,
+                        delegates: Optional[list] = None,
+                        session: aiohttp.ClientSession = None,
+                        timeout: int = 10) -> None:
+        # TODO(nick): Should we confirm payload is base64 encoded? Or always base64 encode?
+
+        resource_name = f'projects/-/serviceAccounts/{service_account_email}'
+        delegates = delegates or [resource_name]
+
+        url = f'https://iamcredentials.googleapis.com/v1/{resource_name}:signBlob'
+
+        request = json.dumps({'delegates': delegates, 'payload': payload})
+
+        data = self.post_json(url, data=request, timeout=timeout, session=session)
+        return data['signedBlob']
