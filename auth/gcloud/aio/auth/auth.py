@@ -11,12 +11,14 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 from urllib.parse import quote_plus
 from urllib.parse import urlencode
 
 import aiohttp
 import backoff
 import jwt
+from gcloud.aio.auth.utils import encode
 
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -191,3 +193,116 @@ class Token:
         self.access_token_duration = int(content['expires_in'])
         self.access_token_acquired_at = datetime.datetime.now()
         self.acquiring = None
+
+
+SCOPES = ['https://www.googleapis.com/auth/iam']
+
+
+class IamClient:
+    def __init__(self, service_file: Optional[str] = None,
+                 session: Optional[aiohttp.ClientSession] = None,
+                 token: Optional[Token] = None) -> None:
+        self._session = session
+        self.token = token or Token(service_file=service_file,
+                                    session=session, scopes=SCOPES)
+
+        if self.token.token_type != Type.SERVICE_ACCOUNT:
+            raise TypeError('IAM Credentials Client is only valid for use '
+                            'with Service Accounts.')
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session = aiohttp.ClientSession(conn_timeout=10,
+                                                  read_timeout=10)
+        return self._session
+
+    async def headers(self):
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
+
+    def service_account_email(self):
+        return self.token.service_data.get('client_email')
+
+    async def get_public_key(self, key_id: Optional[str] = None,
+                             key: Optional[str] = None,
+                             service_account_email: Optional[str] = None,
+                             project: Optional[str] = None,
+                             session: aiohttp.ClientSession = None,
+                             timeout: int = 10) -> Dict[str, str]:
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
+        project = project or await self.token.get_project()
+
+        if not key_id and not key:
+            raise ValueError('Must have either key_id or key')
+
+        if not key:
+            key = (f'projects/{project}/serviceAccounts/'
+                   f'{service_account_email}/keys/{key_id}')
+
+        url = (f'https://iam.googleapis.com/v1/{key}?'
+               f'publicKeyType=TYPE_X509_PEM_FILE')
+        headers = await self.headers()
+
+        session = session or self.session
+
+        resp = await session.get(url, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+        return await resp.json()
+
+    async def get_public_key_names(self,
+                                   service_account_email: Optional[str] = None,
+                                   project: Optional[str] = None,
+                                   session: aiohttp.ClientSession = None,
+                                   timeout: int = 10) -> List[Dict[str, str]]:
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
+        project = project or await self.token.get_project()
+
+        url = (f'https://iam.googleapis.com/v1/projects/{project}/'
+               f'serviceAccounts/{service_account_email}/keys')
+
+        headers = await self.headers()
+        session = session or self.session
+        resp = await session.get(url, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+        return (await resp.json()).get('keys', [])
+
+    # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
+    async def sign_blob(self, payload: Optional[Union[str, bytes]],
+                        service_account_email: Optional[str] = None,
+                        delegates: Optional[list] = None,
+                        session: aiohttp.ClientSession = None,
+                        timeout: int = 10) -> Dict[str, str]:
+        payload = encode(payload)
+
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
+
+        if not service_account_email:
+            raise TypeError('sign_blob must have a valid '
+                            'service_account_email')
+
+        resource_name = f'projects/-/serviceAccounts/{service_account_email}'
+        delegates = delegates or [resource_name]
+
+        url = (f'https://iamcredentials.googleapis.com/v1/'
+               f'{resource_name}:signBlob')
+
+        json_str = json.dumps({'delegates': delegates,
+                               'payload': payload.decode('utf-8')})
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(json_str)),
+            'Content-Type': 'application/json'
+        })
+
+        session = session or self.session
+        resp = await session.post(url, data=json_str, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
+        return await resp.json()
