@@ -4,6 +4,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 import aiohttp
@@ -48,7 +49,7 @@ class DatastoreMeta(type):
         return cls._entity_result_kind
 
     @entity_result_kind.setter
-    def entity_result_kind(cls, value):
+    def entity_result_kind(cls, value: Any) -> None:
         TYPES[value.entity_kind] = TypeName.ENTITY
         cls._entity_result_kind = value
 
@@ -57,11 +58,12 @@ class DatastoreMeta(type):
         return cls._key_kind
 
     @key_kind.setter
-    def key_kind(cls, value):
+    def key_kind(cls, value: type) -> None:
         TYPES[value] = TypeName.KEY
         cls._key_kind = value
 
-    def __init__(cls, name, bases, attr):
+    def __init__(cls, name: str, bases: Tuple[type], attr: Dict[str, Any]
+                 ) -> None:
         super().__init__(name, bases, attr)
         # Set all class attributes, which will run the property setters
         for key, val in attr.items():
