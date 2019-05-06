@@ -7,8 +7,8 @@ from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import UNFORMATTERS
 
 
-# TODO: add geoPointValue and arrayValue
-# NOTE: TypeName.ENTITY and TypeName.KEY are added dynamically by the datastore
+# TODO: add types for entityValue, geoPointValue and arrayValue
+# NOTE: TypeName.KEY is added dynamically by the datastore
 TYPES = {
     bool: TypeName.BOOLEAN,
     bytes: TypeName.BLOB,
@@ -26,10 +26,6 @@ def infer_type(value: Any) -> TypeName:
     try:
         return TYPES[kind]
     except KeyError:
-        for supported_type, name in TYPES.items():
-            # Subclasses of supported entity types are also supported
-            if issubclass(kind, supported_type) and name == TypeName.ENTITY:
-                return TYPES[supported_type]
         raise Exception(f'unsupported value type {kind}')
 
 

@@ -41,17 +41,7 @@ log = logging.getLogger(__name__)
 
 
 class DatastoreMeta(type):
-    _entity_result_kind = None
     _key_kind = None
-
-    @property
-    def entity_result_kind(cls):
-        return cls._entity_result_kind
-
-    @entity_result_kind.setter
-    def entity_result_kind(cls, value: Any) -> None:
-        TYPES[value.entity_kind] = TypeName.ENTITY
-        cls._entity_result_kind = value
 
     @property
     def key_kind(cls):

@@ -20,4 +20,3 @@ class TestDatastore:
             entity_result_kind = CustomEntityResult
 
         assert TYPES[CustomKey] == TypeName.KEY
-        assert TYPES[CustomEntity] == TypeName.ENTITY

@@ -48,7 +48,7 @@ class Value:
 
     def to_repr(self) -> Dict[str, Any]:
         value_type = infer_type(self.value)
-        if value_type in (TypeName.ENTITY, TypeName.KEY):
+        if value_type == TypeName.KEY:
             value = self.value.to_repr()
         else:
             value = self.value or 'NULL_VALUE'
