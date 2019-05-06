@@ -193,7 +193,7 @@ class Token:
         self.acquiring = None
 
 
-class GoogleCLoudApiBase:
+class IamCredentials:
     def __init__(self, project: Optional[str] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
@@ -207,34 +207,7 @@ class GoogleCLoudApiBase:
             'Authorization': f'Bearer {token}',
         }
 
-    async def post(self, url: str, data: str, headers: dict = None, timeout: int = 10,
-                   session: aiohttp.ClientSession = None):
-        _headers = await self.headers()
-        _headers.update({
-            'Content-Length': '0',
-            'Content-Type': 'application/json',
-        })
-        if headers:
-          _headers.update(headers)
-
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
-        resp = await session.post(url, data=data, headers=_headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
-        return resp
-
-    async def post_json(self, url: str, data: Any = None, headers: dict = None, timeout: int = 10,
-                        session: aiohttp.ClientSession = None):
-        resp = await self.post(url, data=json.dumps(data), headers=headers, timeout=timeout,
-                               session=session)
-        return await resp.json()
-
-
-class IamCredentials(GoogleCLoudApiBase):
-    async def sign_blob(self, service_account_email: str, payload: bytes,
+    async def sign_blob(self, service_account_email: str, payload: str,
                         delegates: Optional[list] = None,
                         session: aiohttp.ClientSession = None,
                         timeout: int = 10) -> None:
@@ -247,5 +220,18 @@ class IamCredentials(GoogleCLoudApiBase):
 
         request = json.dumps({'delegates': delegates, 'payload': payload})
 
-        data = self.post_json(url, data=request, timeout=timeout, session=session)
-        return data['signedBlob']
+        json_str = json.dumps(request)
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(json_str)),
+            'Content-Type': 'application/json'
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=json_str, headers=headers,
+                                  timeout=timeout)
+        resp.raise_for_status()
+        return await resp.json().get('signedBlob')
