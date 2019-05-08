@@ -61,6 +61,7 @@ class TypeName(enum.Enum):
     BLOB = 'blobValue'
     BOOLEAN = 'booleanValue'
     DOUBLE = 'doubleValue'
+    ENTITY = 'entityValue'
     INTEGER = 'integerValue'
     KEY = 'keyValue'
     NULL = 'nullValue'
@@ -68,12 +69,13 @@ class TypeName(enum.Enum):
     TIMESTAMP = 'timestampValue'
 
 
-FORMATTERS = {
-    TypeName.TIMESTAMP: lambda d: d.strftime('%Y-%m-%dT%H:%S:%M.%f000Z'),
-}
-
-UNFORMATTERS = {
-    TypeName.DOUBLE: float,
-    TypeName.INTEGER: int,
-    TypeName.TIMESTAMP: lambda s: dt.strptime(s, '%Y-%m-%dT%H:%S:%M.%f000Z'),
+# TODO: add types for geoPointValue and arrayValue
+TYPES = {
+    bool: TypeName.BOOLEAN,
+    bytes: TypeName.BLOB,
+    dt: TypeName.TIMESTAMP,
+    float: TypeName.DOUBLE,
+    int: TypeName.INTEGER,
+    str: TypeName.STRING,
+    type(None): TypeName.NULL,
 }

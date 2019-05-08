@@ -12,13 +12,11 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
-from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
-from gcloud.aio.datastore.utils import make_value
-from gcloud.aio.datastore.utils import TYPES
+from gcloud.aio.datastore.value import Value
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -48,9 +46,9 @@ class DatastoreMeta(type):
         return cls._key_kind
 
     @key_kind.setter
-    def key_kind(cls, value: type) -> None:
-        TYPES[value] = TypeName.KEY
-        cls._key_kind = value
+    def key_kind(cls, new_key_kind: type) -> None:
+        Value.key_kind = new_key_kind
+        cls._key_kind = new_key_kind
 
     def __init__(cls, name: str, bases: Tuple[type], attr: Dict[str, Any]
                  ) -> None:
@@ -129,7 +127,7 @@ class Datastore(metaclass=DatastoreMeta):
         return {
             operation.value: {
                 'key': key.to_repr(),
-                'properties': {k: make_value(v)
+                'properties': {k: Value(v).to_repr()
                                for k, v in properties.items()},
             }
         }

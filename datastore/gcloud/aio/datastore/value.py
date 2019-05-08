@@ -3,12 +3,14 @@ from typing import Any
 from typing import Dict
 
 from gcloud.aio.datastore.constants import TypeName
-from gcloud.aio.datastore.utils import infer_type
-from gcloud.aio.datastore.utils import TYPES
+from gcloud.aio.datastore.constants import TYPES
+from gcloud.aio.datastore.key import Key
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
 class Value:
+    key_kind = Key
+
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
         self.value = value
         self.excludeFromIndexes = exclude_from_indexes
@@ -26,33 +28,58 @@ class Value:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Value':
-        for value_type, type_name in TYPES.items():
+        supported_types = cls._get_supported_types()
+
+        for value_type, type_name in supported_types.items():
             json_key = type_name.value
             if json_key in data:
                 if json_key == 'nullValue':
                     value = None
-                elif value_type == datetime:  # no parsing needed
-                    value = data[json_key]
+                elif value_type == datetime:
+                    value = datetime.strptime(data[json_key],
+                                              '%Y-%m-%dT%H:%M:%S.%f000Z')
+                elif value_type == cls.key_kind:
+                    value = cls.key_kind.from_repr(data[json_key])
                 else:
                     value = value_type(data[json_key])
                 break
         else:
-            supported_types = [type_name.value for type_name in TYPES.values()]
+            supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
                 f'{data.keys()} does not contain a supported value type'
-                f' (any of: {supported_types})')
+                f' (any of: {supported})')
 
         exclude_from_indexes = bool(data['excludeFromIndexes'])
 
         return cls(value=value, exclude_from_indexes=exclude_from_indexes)
 
     def to_repr(self) -> Dict[str, Any]:
-        value_type = infer_type(self.value)
+        value_type = self._infer_type(self.value)
         if value_type == TypeName.KEY:
             value = self.value.to_repr()
+        elif value_type == TypeName.TIMESTAMP:
+            value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
         else:
             value = self.value or 'NULL_VALUE'
         return {
             'excludeFromIndexes': self.excludeFromIndexes,
             value_type.value: value,
         }
+
+    @classmethod
+    def _infer_type(cls, value: Any) -> TypeName:
+        kind = type(value)
+        supported_types = cls._get_supported_types()
+
+        try:
+            return supported_types[kind]
+        except KeyError:
+            raise Exception(f'unsupported value type {kind}')
+
+    @classmethod
+    def _get_supported_types(cls):
+        key_type = {
+            # cls.entity_kind: TypeName.ENTITY, TODO and rename the dict
+            cls.key_kind: TypeName.KEY,
+        }
+        return {**TYPES, **key_type}
