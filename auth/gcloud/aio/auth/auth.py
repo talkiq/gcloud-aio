@@ -194,17 +194,18 @@ class Token:
         self.acquiring = None
 
 
-SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
+SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamCredentialsClient:
-    def __init__(self, project: Optional[str] = None,
-                 service_file: Optional[str] = None,
+    def __init__(self, service_file: Optional[str] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
-        self.project = project
         self.session = session
         self.token = token or Token(service_file=service_file, session=session, scopes=SCOPES)
+
+        if self.token.token_type != Type.SERVICE_ACCOUNT:
+            raise TypeError('IAM Credentials Client is only valid for use with Service Accounts.')
 
     async def headers(self):
         token = await self.token.get()
@@ -215,7 +216,7 @@ class IamCredentialsClient:
     def service_account_email(self):
         return self.token.service_data.get('client_email')
 
-    async def sign_blob(self, payload: str, service_account_email: Optional[str],
+    async def sign_blob(self, payload: str, service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
                         session: aiohttp.ClientSession = None,
                         timeout: int = 10) -> None:
@@ -232,9 +233,7 @@ class IamCredentialsClient:
 
         url = f'https://iamcredentials.googleapis.com/v1/{resource_name}:signBlob'
 
-        request = json.dumps({'delegates': delegates, 'payload': payload})
-
-        json_str = json.dumps(request)
+        json_str = json.dumps({'delegates': delegates, 'payload': payload})
         headers = await self.headers()
         headers.update({
             'Content-Length': str(len(json_str)),
