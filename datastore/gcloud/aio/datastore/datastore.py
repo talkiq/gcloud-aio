@@ -4,7 +4,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 import aiohttp
@@ -38,30 +37,11 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-class DatastoreMeta(type):
-    _key_kind = None
-
-    @property
-    def key_kind(cls):
-        return cls._key_kind
-
-    @key_kind.setter
-    def key_kind(cls, new_key_kind: type) -> None:
-        Value.key_kind = new_key_kind
-        cls._key_kind = new_key_kind
-
-    def __init__(cls, name: str, bases: Tuple[type], attr: Dict[str, Any]
-                 ) -> None:
-        super().__init__(name, bases, attr)
-        # Set all class attributes, which will run the property setters
-        for key, val in attr.items():
-            setattr(cls, key, val)
-
-
-class Datastore(metaclass=DatastoreMeta):
+class Datastore:
     entity_result_kind = EntityResult
     key_kind = Key
     query_result_batch_kind = QueryResultBatch
+    value_kind = Value
 
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[str] = None, namespace: str = '',
@@ -118,8 +98,8 @@ class Datastore(metaclass=DatastoreMeta):
         }
 
     # TODO: support mutations w version specifiers, return new version (commit)
-    @staticmethod
-    def make_mutation(operation: Operation, key: Key,
+    @classmethod
+    def make_mutation(cls, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
@@ -127,7 +107,7 @@ class Datastore(metaclass=DatastoreMeta):
         return {
             operation.value: {
                 'key': key.to_repr(),
-                'properties': {k: Value(v).to_repr()
+                'properties': {k: cls.value_kind(v).to_repr()
                                for k, v in properties.items()},
             }
         }

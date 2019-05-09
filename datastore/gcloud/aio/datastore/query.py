@@ -12,6 +12,7 @@ from gcloud.aio.datastore.value import Value
 
 class BaseQuery:
     json_key: str
+    value_kind = Value
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -108,9 +109,9 @@ class GQLQuery(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
         allow_literals = data['allowLiterals']
         query_string = data['queryString']
-        named_bindings = {k: Value.from_repr(v['value'].value)
+        named_bindings = {k: cls.value_kind.from_repr(v['value'].value)
                           for k, v in data.get('namedBindings', {}).items()}
-        positional_bindings = [Value.from_repr(v['value'].value)
+        positional_bindings = [cls.value_kind.from_repr(v['value'].value)
                                for v in data.get('positionalBindings', [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
@@ -120,9 +121,9 @@ class GQLQuery(BaseQuery):
         return {
             'allowLiterals': self.allow_literals,
             'queryString': self.query_string,
-            'namedBindings': {k: {'value': Value(v).to_repr()}
+            'namedBindings': {k: {'value': self.value_kind(v).to_repr()}
                               for k, v in self.named_bindings.items()},
-            'positionalBindings': [{'value': Value(v).to_repr()}
+            'positionalBindings': [{'value': self.value_kind(v).to_repr()}
                                    for v in self.positional_bindings],
         }
 

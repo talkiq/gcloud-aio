@@ -61,7 +61,6 @@ class TypeName(enum.Enum):
     BLOB = 'blobValue'
     BOOLEAN = 'booleanValue'
     DOUBLE = 'doubleValue'
-    ENTITY = 'entityValue'
     INTEGER = 'integerValue'
     KEY = 'keyValue'
     NULL = 'nullValue'
