@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 import aiohttp
 import backoff
 import jwt
+from gcloud.aio.auth.utils import valid_base64
 
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -193,13 +194,17 @@ class Token:
         self.acquiring = None
 
 
-class IamCredentials:
+SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
+
+
+class IamCredentialsClient:
     def __init__(self, project: Optional[str] = None,
+                 service_file: Optional[str] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.project = project
         self.session = session
-        self.token = token
+        self.token = token or Token(service_file=service_file, session=session, scopes=SCOPES)
 
     async def headers(self):
         token = await self.token.get()
@@ -207,11 +212,20 @@ class IamCredentials:
             'Authorization': f'Bearer {token}',
         }
 
-    async def sign_blob(self, service_account_email: str, payload: str,
+    def service_account_email(self):
+        return self.token.service_data.get('client_email')
+
+    async def sign_blob(self, payload: str, service_account_email: Optional[str],
                         delegates: Optional[list] = None,
                         session: aiohttp.ClientSession = None,
                         timeout: int = 10) -> None:
-        # TODO(nick): Should we confirm payload is base64 encoded? Or always base64 encode?
+        if not valid_base64(payload):
+            raise TypeError('payload must be base64 encoded.')
+
+        service_account_email = service_account_email or self.service_account_email()
+
+        if not service_account_email:
+            raise ValueError('sign_blob must have a valid service_account_email')
 
         resource_name = f'projects/-/serviceAccounts/{service_account_email}'
         delegates = delegates or [resource_name]
