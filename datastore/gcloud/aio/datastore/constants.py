@@ -62,28 +62,19 @@ class TypeName(enum.Enum):
     BOOLEAN = 'booleanValue'
     DOUBLE = 'doubleValue'
     INTEGER = 'integerValue'
+    KEY = 'keyValue'
     NULL = 'nullValue'
     STRING = 'stringValue'
     TIMESTAMP = 'timestampValue'
 
 
-# TODO: support more than just scalars
+# TODO: add types for geoPointValue and arrayValue
 TYPES = {
+    bool: TypeName.BOOLEAN,
     bytes: TypeName.BLOB,
     dt: TypeName.TIMESTAMP,
     float: TypeName.DOUBLE,
     int: TypeName.INTEGER,
     str: TypeName.STRING,
-    bool: TypeName.BOOLEAN,
     type(None): TypeName.NULL,
-}
-
-FORMATTERS = {
-    TypeName.TIMESTAMP: lambda d: d.strftime('%Y-%m-%dT%H:%S:%M.%f000Z'),
-}
-
-UNFORMATTERS = {
-    TypeName.DOUBLE: float,
-    TypeName.INTEGER: int,
-    TypeName.TIMESTAMP: lambda s: dt.strptime(s, '%Y-%m-%dT%H:%S:%M.%f000Z'),
 }

@@ -15,7 +15,7 @@ from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
-from gcloud.aio.datastore.utils import make_value
+from gcloud.aio.datastore.value import Value
 try:
     import ujson as json
 except ModuleNotFoundError:
@@ -41,6 +41,7 @@ class Datastore:
     entity_result_kind = EntityResult
     key_kind = Key
     query_result_batch_kind = QueryResultBatch
+    value_kind = Value
 
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[str] = None, namespace: str = '',
@@ -97,8 +98,8 @@ class Datastore:
         }
 
     # TODO: support mutations w version specifiers, return new version (commit)
-    @staticmethod
-    def make_mutation(operation: Operation, key: Key,
+    @classmethod
+    def make_mutation(cls, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None) -> Dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
@@ -106,7 +107,7 @@ class Datastore:
         return {
             operation.value: {
                 'key': key.to_repr(),
-                'properties': {k: make_value(v)
+                'properties': {k: cls.value_kind(v).to_repr()
                                for k, v in properties.items()},
             }
         }

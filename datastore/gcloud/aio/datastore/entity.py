@@ -2,15 +2,16 @@ from typing import Any
 from typing import Dict
 
 from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.utils import parse_value
+from gcloud.aio.datastore.value import Value
 
 
 class Entity:
     key_kind = Key
+    value_kind = Value
 
     def __init__(self, key: Key, properties: Dict[str, dict] = None) -> None:
         self.key = key
-        self.properties = {k: parse_value(v)
+        self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
 
     def __eq__(self, other: Any) -> bool:

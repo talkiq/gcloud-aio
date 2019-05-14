@@ -7,12 +7,12 @@ from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.filter import Filter
 from gcloud.aio.datastore.property_order import PropertyOrder
-from gcloud.aio.datastore.utils import make_value
-from gcloud.aio.datastore.utils import parse_value
+from gcloud.aio.datastore.value import Value
 
 
 class BaseQuery:
     json_key: str
+    value_kind = Value
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -54,7 +54,6 @@ class Query(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -> 'Query':
         kind = data['kind'] or ''  # Kind is required
         orders = [PropertyOrder.from_repr(o) for o in data.get('order', [])]
-        start_cursor = data.get('startCursor') or ''
         start_cursor = data.get('startCursor') or ''
         end_cursor = data.get('endCursor') or ''
         offset = int(data.get('offset') or 0)
@@ -110,9 +109,9 @@ class GQLQuery(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
         allow_literals = data['allowLiterals']
         query_string = data['queryString']
-        named_bindings = {k: parse_value(v['value'])
+        named_bindings = {k: cls.value_kind.from_repr(v['value'].value)
                           for k, v in data.get('namedBindings', {}).items()}
-        positional_bindings = [parse_value(v['value'])
+        positional_bindings = [cls.value_kind.from_repr(v['value'].value)
                                for v in data.get('positionalBindings', [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
@@ -122,9 +121,9 @@ class GQLQuery(BaseQuery):
         return {
             'allowLiterals': self.allow_literals,
             'queryString': self.query_string,
-            'namedBindings': {k: {'value': make_value(v)}
+            'namedBindings': {k: {'value': self.value_kind(v).to_repr()}
                               for k, v in self.named_bindings.items()},
-            'positionalBindings': [{'value': make_value(v)}
+            'positionalBindings': [{'value': self.value_kind(v).to_repr()}
                                    for v in self.positional_bindings],
         }
 
