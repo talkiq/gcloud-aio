@@ -51,7 +51,7 @@ class Value:
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
-        exclude_from_indexes = data.get('excludeFromIndexes', False)
+        exclude_from_indexes = bool(data.get('excludeFromIndexes', False))
 
         return cls(value=value, exclude_from_indexes=exclude_from_indexes)
 
