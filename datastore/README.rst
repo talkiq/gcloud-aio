@@ -123,16 +123,23 @@ The full list of classes which may be overridden in this way is:
         value_kind = Value
         value_kind.key_kind = Key
 
-You can then drop-in the ``MyVeryCustomDatastore`` class anywhere where you
-previously used ``Datastore``.
+    class MyVeryCustomQuery(gcloud.aio.datastore.Query):
+        value_kind = Value
 
-If you want to use a custom Key kind and be able to use queries with it, you
-will need to implement your own ``Value``, ``Query`` and ``GQLQuery`` classes
-and wire them up to the rest of the custom classes:
+    class MyVeryCustomGQLQuery(gcloud.aio.datastore.GQLQuery):
+        value_kind = Value
+
+You can then drop-in the ``MyVeryCustomDatastore`` class anywhere where you
+previously used ``Datastore`` and do the same for ``Query`` and ``GQLQuery``.
+
+To override any sub-key, you'll need to override any parents which use it. For
+example, if you want to use a custom Key kind and be able to use queries with
+it, you will need to implement your own ``Value``, ``Query``, and ``GQLQuery``
+classes and wire them up to the rest of the custom classes:
 
 .. code-block:: python
 
-    class MyKey:
+    class MyKey(gcloud.aio.datastore.Key):
         pass
 
     class MyValue(gcloud.aio.datastore.Value):

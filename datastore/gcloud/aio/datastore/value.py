@@ -11,6 +11,11 @@ from gcloud.aio.datastore.key import Key
 class Value:
     key_kind = Key
 
+    supported_types = {
+        **TYPES,
+        key_kind: TypeName.KEY,
+    }
+
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
         self.value = value
         self.excludeFromIndexes = exclude_from_indexes
@@ -28,9 +33,7 @@ class Value:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Value':
-        supported_types = cls._get_supported_types()
-
-        for value_type, type_name in supported_types.items():
+        for value_type, type_name in cls.supported_types.items():
             json_key = type_name.value
             if json_key in data:
                 if json_key == 'nullValue':
@@ -44,7 +47,7 @@ class Value:
                     value = value_type(data[json_key])
                 break
         else:
-            supported = [name.value for name in supported_types.values()]
+            supported = [name.value for name in cls.supported_types.values()]
             raise NotImplementedError(
                 f'{data.keys()} does not contain a supported value type'
                 f' (any of: {supported})')
@@ -68,20 +71,12 @@ class Value:
             value_type.value: value,
         }
 
-    @classmethod
-    def _infer_type(cls, value: Any) -> TypeName:
+    def _infer_type(self, value: Any) -> TypeName:
         kind = type(value)
-        supported_types = cls._get_supported_types()
 
         try:
-            return supported_types[kind]
+            return self.supported_types[kind]
         except KeyError:
-            raise Exception(f'unsupported value type {kind}')
-
-    @classmethod
-    def _get_supported_types(cls):
-        key_type = {
-            # cls.entity_kind: TypeName.ENTITY, TODO and rename the dict
-            cls.key_kind: TypeName.KEY,
-        }
-        return {**TYPES, **key_type}
+            raise NotImplementedError(
+                f'{kind} is not a supported value type (any of: '
+                f'{self.supported_types})')
