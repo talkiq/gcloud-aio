@@ -49,7 +49,9 @@ class Value:
                 f'{data.keys()} does not contain a supported value type'
                 f' (any of: {supported})')
 
-        exclude_from_indexes = bool(data['excludeFromIndexes'])
+        # Google may not populate that field. This can happen with both
+        # indexed and non-indexed fields.
+        exclude_from_indexes = data.get('excludeFromIndexes', False)
 
         return cls(value=value, exclude_from_indexes=exclude_from_indexes)
 
