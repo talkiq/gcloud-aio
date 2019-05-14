@@ -117,6 +117,23 @@ class TestValue:
         assert r['keyValue'] == key.to_repr()
 
     @staticmethod
+    def test_to_repr_with_custom_key_value():
+        class CustomKey:
+            @staticmethod
+            def to_repr():
+                return {'some': 'JSON'}
+
+        class CustomValue(Value):
+            key_kind = CustomKey
+
+        key = CustomKey()
+        value = CustomValue(key)
+
+        r = value.to_repr()
+
+        assert r['keyValue'] == key.to_repr()
+
+    @staticmethod
     def test_to_repr_exclude_from_indexes():
         value = Value(123, exclude_from_indexes=True)
 
