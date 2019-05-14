@@ -247,4 +247,4 @@ class IamCredentialsClient:
         resp = await session.post(url, data=json_str, headers=headers,
                                   timeout=timeout)
         resp.raise_for_status()
-        return await resp.json().get('signedBlob')
+        return (await resp.json()).get('signedBlob')

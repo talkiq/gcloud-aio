@@ -55,6 +55,6 @@ async def test_sign_blob(creds: str) -> None:
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
 
         iam_credentials = IamCredentialsClient(service_file=creds, session=s)
-        signed_data = iam_credentials.sign_blob(payload)
+        signed_data = await iam_credentials.sign_blob(payload)
         assert signed_data  # TODO(nick): How do we verify data is signed?
 
