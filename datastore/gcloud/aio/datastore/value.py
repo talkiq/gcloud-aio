@@ -11,11 +11,6 @@ from gcloud.aio.datastore.key import Key
 class Value:
     key_kind = Key
 
-    supported_types = {
-        **TYPES,
-        key_kind: TypeName.KEY,
-    }
-
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
         self.value = value
         self.excludeFromIndexes = exclude_from_indexes
@@ -33,7 +28,8 @@ class Value:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Value':
-        for value_type, type_name in cls.supported_types.items():
+        supported_types = cls._get_supported_types()
+        for value_type, type_name in supported_types.items():
             json_key = type_name.value
             if json_key in data:
                 if json_key == 'nullValue':
@@ -47,7 +43,7 @@ class Value:
                     value = value_type(data[json_key])
                 break
         else:
-            supported = [name.value for name in cls.supported_types.values()]
+            supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
                 f'{data.keys()} does not contain a supported value type'
                 f' (any of: {supported})')
@@ -73,10 +69,18 @@ class Value:
 
     def _infer_type(self, value: Any) -> TypeName:
         kind = type(value)
+        supported_types = self._get_supported_types()
 
         try:
-            return self.supported_types[kind]
+            return supported_types[kind]
         except KeyError:
             raise NotImplementedError(
                 f'{kind} is not a supported value type (any of: '
-                f'{self.supported_types})')
+                f'{supported_types})')
+
+    @classmethod
+    def _get_supported_types(cls):
+        return {
+            **TYPES,
+            cls.key_kind: TypeName.KEY,
+        }
