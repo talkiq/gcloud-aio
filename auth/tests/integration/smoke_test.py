@@ -100,4 +100,3 @@ async def test_get_service_account_public_key(creds: str) -> None:
         key_id = resp[0]['name'].split('/')[-1]
         pub_key_by_key_id_data = await iam_client.get_public_key(key_id=key_id, session=s)
         assert pub_key_data == pub_key_by_key_id_data
-

@@ -3,7 +3,7 @@ import re
 from typing import Union
 
 
-def decode(payload: str) -> bytes:
+def decode(payload: str) -> Union[bytes, str]:
     """
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
