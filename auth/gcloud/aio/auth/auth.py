@@ -237,7 +237,7 @@ class IamClient:
         if not key:
             key = f'projects/{project}/serviceAccounts/{service_account_email}/keys/{key_id}'
 
-        url = (f'https://iam.googleapis.com/v1/{key}?publicKeyType=TYPE_X509_PEM_FILE')
+        url = f'https://iam.googleapis.com/v1/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
         session = session or self.session
