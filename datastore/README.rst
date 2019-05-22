@@ -113,6 +113,7 @@ The full list of classes which may be overridden in this way is:
 .. code-block:: python
 
     class MyVeryCustomDatastore(gcloud.aio.datastore.Datastore):
+        datastore_operation_kind = DatastoreOperation
         entity_result_kind = EntityResult
         entity_result_kind.entity_kind = Entity
         entity_result_kind.entity_kind.key_kind = Key

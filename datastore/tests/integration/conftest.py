@@ -17,3 +17,8 @@ def kind() -> str:
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
     return 'voiceai-staging'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def export_bucket_name() -> str:
+    return 'voiceai-staging-public-test'

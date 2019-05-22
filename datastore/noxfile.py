@@ -3,7 +3,7 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../auth/', )
+LOCAL_DEPS = ('../auth/', '../storage/', )
 
 
 @nox.session(python=['3.6', '3.7'], reuse_venv=True)

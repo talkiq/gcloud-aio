@@ -11,6 +11,7 @@ from gcloud.aio.datastore.constants import PropertyFilterOperator
 from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.datastore import Datastore
 from gcloud.aio.datastore.datastore import SCOPES
+from gcloud.aio.datastore.datastore_operation import DatastoreOperation
 from gcloud.aio.datastore.entity import Entity
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.filter import CompositeFilter
@@ -26,8 +27,8 @@ from gcloud.aio.datastore.value import Value
 
 
 __all__ = ['__version__', 'CompositeFilter', 'CompositeFilterOperator',
-           'Consistency', 'Datastore', 'Direction', 'Entity', 'EntityResult',
-           'Filter', 'GQLQuery', 'Key', 'Mode', 'MoreResultsType', 'Operation',
-           'PathElement', 'PropertyFilter', 'PropertyFilterOperator',
-           'PropertyOrder', 'Query', 'QueryResultBatch', 'ResultType', 'SCOPES',
-           'Value']
+           'Consistency', 'Datastore', 'DatastoreOperation', 'Direction',
+           'Entity', 'EntityResult', 'Filter', 'GQLQuery', 'Key', 'Mode',
+           'MoreResultsType', 'Operation', 'PathElement', 'PropertyFilter',
+           'PropertyFilterOperator', 'PropertyOrder', 'Query',
+           'QueryResultBatch', 'ResultType', 'SCOPES', 'Value']
