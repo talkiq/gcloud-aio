@@ -146,7 +146,8 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
 @pytest.mark.skipif('DATASTORE_EXPORT_BUCKET_NAME' not in os.environ,
                     reason='DATASTORE_EXPORT_BUCKET_NAME not set')
 @pytest.mark.asyncio  # type: ignore
-async def test_datastore_export(creds: str, project: str, export_bucket_name: str):
+async def test_datastore_export(creds: str, project: str,
+                                export_bucket_name: str):
   kind = 'DatastoreExportTestModel'
   key = Key(project, [PathElement(kind)])
 
@@ -155,23 +156,26 @@ async def test_datastore_export(creds: str, project: str, export_bucket_name: st
   async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
     ds = Datastore(project=project, service_file=creds, session=s)
 
-    mutations = [ds.make_mutation(Operation.INSERT, key, properties={'rand_str': rand_uuid})]
+    mutations = [ds.make_mutation(Operation.INSERT, key,
+                                  properties={'rand_str': rand_uuid})]
     await ds.commit(mutations, session=s, mode=Mode.NON_TRANSACTIONAL)
 
     operation = await ds.export(export_bucket_name, kinds=[kind])
 
     count = 0
-    while count < 10 and operation and operation['metadata']['common']['state'] == 'PROCESSING':
+    while (count < 10 and operation and
+           operation.metadata['common']['state'] == 'PROCESSING'):
       await asyncio.sleep(10)
-      operation = await ds.get_operation(operation['name'])
+      operation = await ds.get_datastore_operation(operation.name)
       count += 1
 
-    assert operation['metadata']['common']['state'] == 'SUCCESSFUL'
+    assert operation.metadata['common']['state'] == 'SUCCESSFUL'
 
     prefix_len = len(f'gs://{export_bucket_name}/')
-    export_path = operation['metadata']['outputUrlPrefix'][prefix_len:]
+    export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
 
     storage = Storage(service_file=creds, session=s)
-    exported_files = await storage.list_objects(export_bucket_name, params={'prefix': export_path})
+    exported_files = await storage.list_objects(export_bucket_name,
+                                                params={'prefix': export_path})
     for file in exported_files['items']:
       await storage.delete(export_bucket_name, file['name'])

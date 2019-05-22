@@ -11,6 +11,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
 from gcloud.aio.datastore.constants import Operation
+from gcloud.aio.datastore.datastore_operation import DatastoreOperation
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.query import BaseQuery
@@ -348,18 +349,20 @@ class Datastore:
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)
 
-    async def export(self, output_bucket_name: str,
-                     kinds: Optional[List[str]] = None, namespaces: Optional[List[str]] = None,
+    async def export(self, output_bucket_prefix: str,
+                     kinds: Optional[List[str]] = None,
+                     namespaces: Optional[List[str]] = None,
                      labels: Optional[Dict[str, str]]= None,
-                     session: aiohttp.ClientSession = None, timeout: int = 10) -> Dict[str, str]:
+                     session: aiohttp.ClientSession = None,
+                     timeout: int = 10) -> DatastoreOperation:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:export'
 
         export_request = {
-            'entityFilter': {'kinds': kinds or [], 'namespaceIds': namespaces or []},
-            'outputUrlPrefix': f'gs://{output_bucket_name}'}
-        if labels:
-            export_request['labels'] = labels
+            'entityFilter': {'kinds': kinds or [],
+                             'namespaceIds': namespaces or []},
+            'outputUrlPrefix': f'gs://{output_bucket_prefix}',
+            'labels': labels or {}}
 
         payload = json.dumps(export_request).encode('utf-8')
 
@@ -373,13 +376,15 @@ class Datastore:
             self.session = aiohttp.ClientSession(conn_timeout=10,
                                                  read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await session.post(url, data=payload, headers=headers,
+                                  timeout=timeout)
         resp.raise_for_status()
 
-        return await resp.json()
+        return DatastoreOperation.from_repr(await resp.json())
 
-    async def get_operation(self, name: str, session: aiohttp.ClientSession = None,
-                            timeout: int = 10) -> Dict[str, str]:
+    async def get_datastore_operation(self, name: str,
+                                      session: aiohttp.ClientSession = None,
+                                      timeout: int = 10) -> DatastoreOperation:
         url = f'{API_ROOT}/{name}'
 
         headers = await self.headers()
@@ -394,4 +399,4 @@ class Datastore:
         resp = await session.get(url, headers=headers, timeout=timeout)
         resp.raise_for_status()
 
-        return await resp.json()
+        return DatastoreOperation.from_repr(await resp.json())
