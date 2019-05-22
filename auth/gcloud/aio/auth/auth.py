@@ -203,15 +203,18 @@ class IamClient:
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self._session = session
-        self.token = token or Token(service_file=service_file, session=session, scopes=SCOPES)
+        self.token = token or Token(service_file=service_file,
+                                    session=session, scopes=SCOPES)
 
         if self.token.token_type != Type.SERVICE_ACCOUNT:
-            raise TypeError('IAM Credentials Client is only valid for use with Service Accounts.')
+            raise TypeError('IAM Credentials Client is only valid for use '
+                            'with Service Accounts.')
 
     @property
     def session(self):
         if not self._session:
-            self._session = aiohttp.ClientSession(conn_timeout=10, read_timeout=10)
+            self._session = aiohttp.ClientSession(conn_timeout=10,
+                                                  read_timeout=10)
         return self._session
 
     async def headers(self):
@@ -223,21 +226,25 @@ class IamClient:
     def service_account_email(self):
         return self.token.service_data.get('client_email')
 
-    async def get_public_key(self, key_id: Optional[str] = None, key: Optional[str] = None,
+    async def get_public_key(self, key_id: Optional[str] = None,
+                             key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
                              session: aiohttp.ClientSession = None,
                              timeout: int = 10) -> Dict[str, str]:
-        service_account_email = service_account_email or self.service_account_email()
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
         project = project or await self.token.get_project()
 
         if not key_id and not key:
             raise ValueError('Must have either key_id or key')
 
         if not key:
-            key = f'projects/{project}/serviceAccounts/{service_account_email}/keys/{key_id}'
+            key = (f'projects/{project}/serviceAccounts/'
+                   f'{service_account_email}/keys/{key_id}')
 
-        url = f'https://iam.googleapis.com/v1/{key}?publicKeyType=TYPE_X509_PEM_FILE'
+        url = (f'https://iam.googleapis.com/v1/{key}?'
+               f'publicKeyType=TYPE_X509_PEM_FILE')
         headers = await self.headers()
 
         session = session or self.session
@@ -246,11 +253,13 @@ class IamClient:
         resp.raise_for_status()
         return await resp.json()
 
-    async def get_public_key_names(self, service_account_email: Optional[str] = None,
+    async def get_public_key_names(self,
+                                   service_account_email: Optional[str] = None,
                                    project: Optional[str] = None,
                                    session: aiohttp.ClientSession = None,
                                    timeout: int = 10) -> List[Dict[str, str]]:
-        service_account_email = service_account_email or self.service_account_email()
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
         project = project or await self.token.get_project()
 
         url = (f'https://iam.googleapis.com/v1/projects/{project}/'
@@ -270,17 +279,21 @@ class IamClient:
                         timeout: int = 10) -> Dict[str, str]:
         payload = encode(payload)
 
-        service_account_email = service_account_email or self.service_account_email()
+        service_account_email = (service_account_email or
+                                 self.service_account_email())
 
         if not service_account_email:
-            raise TypeError('sign_blob must have a valid service_account_email')
+            raise TypeError('sign_blob must have a valid '
+                            'service_account_email')
 
         resource_name = f'projects/-/serviceAccounts/{service_account_email}'
         delegates = delegates or [resource_name]
 
-        url = f'https://iamcredentials.googleapis.com/v1/{resource_name}:signBlob'
+        url = (f'https://iamcredentials.googleapis.com/v1/'
+               f'{resource_name}:signBlob')
 
-        json_str = json.dumps({'delegates': delegates, 'payload': payload.decode('utf-8')})
+        json_str = json.dumps({'delegates': delegates,
+                               'payload': payload.decode('utf-8')})
 
         headers = await self.headers()
         headers.update({
@@ -289,6 +302,7 @@ class IamClient:
         })
 
         session = session or self.session
-        resp = await session.post(url, data=json_str, headers=headers, timeout=timeout)
+        resp = await session.post(url, data=json_str, headers=headers,
+                                  timeout=timeout)
         resp.raise_for_status()
         return await resp.json()
