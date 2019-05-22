@@ -54,6 +54,10 @@ class Blob:
         https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
         """
 
+        if expiration > 604800:
+            raise ValueError('Expiration Time can\'t be longer than '
+                             '604800 seconds (7 days).')
+
         iam_client = iam_client or IamClient(project=project,
                                              service_file=service_file,
                                              token=token, session=session)
