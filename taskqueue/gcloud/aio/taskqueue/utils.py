@@ -56,7 +56,7 @@ def backoff(base=2, factor=1.1, max_value=None):
             n = init() - 1
 
 
-# TODO(nick): remove in favor of auth utils. Requires updatig auth lib first.
+# TODO(nick): remove in favor of auth utils. Requires updating auth lib first.
 def decode(payload):
     """
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64

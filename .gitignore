@@ -1,4 +1,5 @@
 **/*.egg-info/*
+**/.idea/*
 **/.nox/*
 **/.pytest_cache/*
 **/__pycache__/*
@@ -7,4 +8,3 @@
 *.pyc
 */.coverage
 */build/*
-**/.idea/*
