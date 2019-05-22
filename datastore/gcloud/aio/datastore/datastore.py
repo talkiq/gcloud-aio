@@ -23,10 +23,10 @@ except ModuleNotFoundError:
 
 
 try:
-    API_ROOT = f'http://{os.environ["DATASTORE_EMULATOR_HOST"]}/v1/projects'
+    API_ROOT = f'http://{os.environ["DATASTORE_EMULATOR_HOST"]}/v1'
     IS_DEV = True
 except KeyError:
-    API_ROOT = 'https://datastore.googleapis.com/v1/projects'
+    API_ROOT = 'https://datastore.googleapis.com/v1'
     IS_DEV = False
 
 SCOPES = [
@@ -117,7 +117,7 @@ class Datastore:
                           session: aiohttp.ClientSession = None,
                           timeout: int = 10) -> List[Key]:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:allocateIds'
+        url = f'{API_ROOT}/projects/{project}:allocateIds'
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -145,7 +145,7 @@ class Datastore:
     async def beginTransaction(self, session: aiohttp.ClientSession = None,
                                timeout: int = 10) -> str:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:beginTransaction'
+        url = f'{API_ROOT}/projects/{project}:beginTransaction'
         headers = await self.headers()
         headers.update({
             'Content-Length': '0',
@@ -171,7 +171,7 @@ class Datastore:
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> None:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:commit'
+        url = f'{API_ROOT}/projects/{project}:commit'
 
         body = self._make_commit_body(mutations, transaction=transaction,
                                       mode=mode)
@@ -197,7 +197,7 @@ class Datastore:
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> Dict[str, Union[EntityResult, Key]]:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:lookup'
+        url = f'{API_ROOT}/projects/{project}:lookup'
 
         if transaction:
             options = {'transaction': transaction}
@@ -237,7 +237,7 @@ class Datastore:
                          session: aiohttp.ClientSession = None,
                          timeout: int = 10) -> None:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:reserveIds'
+        url = f'{API_ROOT}/projects/{project}:reserveIds'
 
         payload = json.dumps({
             'databaseId': database_id,
@@ -263,7 +263,7 @@ class Datastore:
                        session: aiohttp.ClientSession = None,
                        timeout: int = 10) -> None:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:rollback'
+        url = f'{API_ROOT}/projects/{project}:rollback'
 
         payload = json.dumps({
             'transaction': transaction,
@@ -289,7 +289,7 @@ class Datastore:
                        session: aiohttp.ClientSession = None,
                        timeout: int = 10) -> QueryResultBatch:
         project = await self.project()
-        url = f'{API_ROOT}/{project}:runQuery'
+        url = f'{API_ROOT}/projects/{project}:runQuery'
 
         if transaction:
             options = {'transaction': transaction}
@@ -347,3 +347,51 @@ class Datastore:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)
+
+    async def export(self, output_bucket_name: str,
+                     kinds: Optional[List[str]] = None, namespaces: Optional[List[str]] = None,
+                     labels: Optional[Dict[str, str]]= None,
+                     session: aiohttp.ClientSession = None, timeout: int = 10) -> Dict[str, str]:
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}:export'
+
+        export_request = {
+            'entityFilter': {'kinds': kinds or [], 'namespaceIds': namespaces or []},
+            'outputUrlPrefix': f'gs://{output_bucket_name}'}
+        if labels:
+            export_request['labels'] = labels
+
+        payload = json.dumps(export_request).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.post(url, data=payload, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+
+        return await resp.json()
+
+    async def get_operation(self, name: str, session: aiohttp.ClientSession = None,
+                            timeout: int = 10) -> Dict[str, str]:
+        url = f'{API_ROOT}/{name}'
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Type': 'application/json',
+        })
+
+        if not self.session:
+            self.session = aiohttp.ClientSession(conn_timeout=10,
+                                                 read_timeout=10)
+        session = session or self.session
+        resp = await session.get(url, headers=headers, timeout=timeout)
+        resp.raise_for_status()
+
+        return await resp.json()

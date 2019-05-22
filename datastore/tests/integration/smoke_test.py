@@ -1,3 +1,5 @@
+import asyncio
+import os
 import uuid
 
 import aiohttp
@@ -6,12 +8,14 @@ from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
+from gcloud.aio.datastore import Mode
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
 from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
 from gcloud.aio.datastore import Value
+from gcloud.aio.storage import Storage
 
 
 @pytest.mark.asyncio  # type: ignore
@@ -137,3 +141,37 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3
+
+
+@pytest.mark.skipif('DATASTORE_EXPORT_BUCKET_NAME' not in os.environ,
+                    reason='DATASTORE_EXPORT_BUCKET_NAME not set')
+@pytest.mark.asyncio  # type: ignore
+async def test_datastore_export(creds: str, project: str, export_bucket_name: str):
+  kind = 'DatastoreExportTestModel'
+  key = Key(project, [PathElement(kind)])
+
+  rand_uuid = str(uuid.uuid4())
+
+  async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    ds = Datastore(project=project, service_file=creds, session=s)
+
+    mutations = [ds.make_mutation(Operation.INSERT, key, properties={'rand_str': rand_uuid})]
+    await ds.commit(mutations, session=s, mode=Mode.NON_TRANSACTIONAL)
+
+    operation = await ds.export(export_bucket_name, kinds=[kind])
+
+    count = 0
+    while count < 10 and operation and operation['metadata']['common']['state'] == 'PROCESSING':
+      await asyncio.sleep(10)
+      operation = await ds.get_operation(operation['name'])
+      count += 1
+
+    assert operation['metadata']['common']['state'] == 'SUCCESSFUL'
+
+    prefix_len = len(f'gs://{export_bucket_name}/')
+    export_path = operation['metadata']['outputUrlPrefix'][prefix_len:]
+
+    storage = Storage(service_file=creds, session=s)
+    exported_files = await storage.list_objects(export_bucket_name, params={'prefix': export_path})
+    for file in exported_files['items']:
+      await storage.delete(export_bucket_name, file['name'])
