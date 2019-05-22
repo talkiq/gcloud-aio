@@ -21,9 +21,11 @@ class Bucket:
 
         return Blob(self, blob_name, metadata)
 
-    async def blob_exists(self, blob_name: str, session: aiohttp.ClientSession = None) -> bool:
+    async def blob_exists(self, blob_name: str,
+                          session: aiohttp.ClientSession = None) -> bool:
         try:
-            await self.storage.download_metadata(self.name, blob_name, session=session)
+            await self.storage.download_metadata(self.name, blob_name,
+                                                 session=session)
             return True
         except aiohttp.ClientResponseError:
             return False
