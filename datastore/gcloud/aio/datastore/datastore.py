@@ -352,7 +352,7 @@ class Datastore:
     async def export(self, output_bucket_prefix: str,
                      kinds: Optional[List[str]] = None,
                      namespaces: Optional[List[str]] = None,
-                     labels: Optional[Dict[str, str]]= None,
+                     labels: Optional[Dict[str, str]] = None,
                      session: aiohttp.ClientSession = None,
                      timeout: int = 10) -> DatastoreOperation:
         project = await self.project()

@@ -148,34 +148,34 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 async def test_datastore_export(creds: str, project: str,
                                 export_bucket_name: str):
-  kind = 'DatastoreExportTestModel'
-  key = Key(project, [PathElement(kind)])
+    kind = 'DatastoreExportTestModel'
 
-  rand_uuid = str(uuid.uuid4())
+    rand_uuid = str(uuid.uuid4())
 
-  async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-    ds = Datastore(project=project, service_file=creds, session=s)
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
 
-    mutations = [ds.make_mutation(Operation.INSERT, key,
-                                  properties={'rand_str': rand_uuid})]
-    await ds.commit(mutations, session=s, mode=Mode.NON_TRANSACTIONAL)
+        mutations = [ds.make_mutation(Operation.INSERT,
+                                      Key(project, [PathElement(kind)]),
+                                      properties={'rand_str': rand_uuid})]
+        await ds.commit(mutations, session=s, mode=Mode.NON_TRANSACTIONAL)
 
-    operation = await ds.export(export_bucket_name, kinds=[kind])
+        operation = await ds.export(export_bucket_name, kinds=[kind])
 
-    count = 0
-    while (count < 10 and operation and
-           operation.metadata['common']['state'] == 'PROCESSING'):
-      await asyncio.sleep(10)
-      operation = await ds.get_datastore_operation(operation.name)
-      count += 1
+        count = 0
+        while (count < 10 and operation and
+               operation.metadata['common']['state'] == 'PROCESSING'):
+            await asyncio.sleep(10)
+            operation = await ds.get_datastore_operation(operation.name)
+            count += 1
 
-    assert operation.metadata['common']['state'] == 'SUCCESSFUL'
+        assert operation.metadata['common']['state'] == 'SUCCESSFUL'
 
-    prefix_len = len(f'gs://{export_bucket_name}/')
-    export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
+        prefix_len = len(f'gs://{export_bucket_name}/')
+        export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
 
-    storage = Storage(service_file=creds, session=s)
-    exported_files = await storage.list_objects(export_bucket_name,
-                                                params={'prefix': export_path})
-    for file in exported_files['items']:
-      await storage.delete(export_bucket_name, file['name'])
+        storage = Storage(service_file=creds, session=s)
+        files = await storage.list_objects(export_bucket_name,
+                                           params={'prefix': export_path})
+        for file in files['items']:
+            await storage.delete(export_bucket_name, file['name'])
