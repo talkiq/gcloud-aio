@@ -61,7 +61,7 @@ class Value:
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
         else:
-            value = self.value or 'NULL_VALUE'
+            value = 'NULL_VALUE' if self.value is None else self.value
         return {
             'excludeFromIndexes': self.excludeFromIndexes,
             value_type.value: value,

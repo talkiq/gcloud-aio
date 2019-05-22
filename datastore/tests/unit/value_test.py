@@ -14,6 +14,11 @@ class TestValue:
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
+        ('blobValue', b''),
+        ('booleanValue', False),
+        ('doubleValue', 0.0),
+        ('integerValue', 0),
+        ('stringValue', ''),
     ])
     def test_from_repr(json_key, json_value):
         data = {
@@ -80,6 +85,11 @@ class TestValue:
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
+        (b'', 'blobValue'),
+        (False, 'booleanValue'),
+        (0.0, 'doubleValue'),
+        (0, 'integerValue'),
+        ('', 'stringValue'),
     ])
     def test_to_repr(v, expected_json_key):
         value = Value(v)
