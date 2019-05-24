@@ -24,11 +24,12 @@ class Bucket:
     async def blob_exists(self, blob_name: str,
                           session: aiohttp.ClientSession = None) -> bool:
         try:
-            await self.storage.download_metadata(self.name, blob_name,
-                                                 session=session)
+            await self.get_blob(blob_name, session=session)
             return True
-        except aiohttp.ClientResponseError:
-            return False
+        except aiohttp.ClientResponseError as e:
+            if e.status in (404, 410):
+                return False
+            raise e
 
     async def list_blobs(self, prefix: str = '',
                          session: aiohttp.ClientSession = None) -> List[str]:
