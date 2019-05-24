@@ -27,7 +27,7 @@ class Bucket:
             await self.get_blob(blob_name, session=session)
             return True
         except aiohttp.ClientResponseError as e:
-            if e.status in (404, 410):
+            if e.status in {404, 410}:
                 return False
             raise e
 

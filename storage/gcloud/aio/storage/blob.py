@@ -47,16 +47,16 @@ class Blob:
             project: Optional[str] = None, service_file: Optional[str] = None,
             token: Optional[Token] = None,
             session: Optional[aiohttp.ClientSession] = None) -> str:
-        """ Create a temporary access URL for Storage Blob accessible by
-        anyone with the link.
+        """
+        Create a temporary access URL for Storage Blob accessible by anyone
+        with the link.
 
-        # Adapted from Google Documentation:
+        Adapted from Google Documentation:
         https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
         """
-
         if expiration > 604800:
-            raise ValueError('Expiration Time can\'t be longer than '
-                             '604800 seconds (7 days).')
+            raise ValueError("expiration time can't be longer than 604800 "
+                             'seconds (7 days)')
 
         iam_client = iam_client or IamClient(project=project,
                                              service_file=service_file,
@@ -110,7 +110,8 @@ class Blob:
             str_to_sign, service_account_email=service_account_email,
             session=session)
 
-        signature = binascii.hexlify(decode(signed_resp['signedBlob'])).decode()
+        signature = binascii.hexlify(
+            decode(signed_resp['signedBlob'])).decode()
 
         return (f'https://{HOST}{canonical_uri}?{canonical_query_str}'
                 f'&X-Goog-Signature={signature}')
