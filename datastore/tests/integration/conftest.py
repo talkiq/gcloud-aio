@@ -18,6 +18,7 @@ def kind() -> str:
 def project() -> str:
     return 'fststaging'
 
+
 @pytest.fixture(scope='module')  # type: ignore
 def export_bucket_name() -> str:
-    return os.environ['DATASTORE_EXPORT_BUCKET_NAME']
+    return 'voiceai-staging-public-test'

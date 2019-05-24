@@ -6,7 +6,8 @@ from typing import Optional
 class DatastoreOperation:
     def __init__(self, name: str, done: bool,
                  metadata: Optional[Dict[str, Any]] = None,
-                 error=None, response: Optional[Dict[str, Any]] = None):
+                 error: Dict[str, str] = None,
+                 response: Optional[Dict[str, Any]] = None) -> None:
         self.name = name
         self.metadata = metadata
         self.done = done
@@ -15,7 +16,7 @@ class DatastoreOperation:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'DatastoreOperation':
-        return cls(data.get('name'), data.get('done'), data.get('metadata'),
+        return cls(data['name'], data['done'], data.get('metadata'),
                    data.get('error'), data.get('response'))
 
     def to_repr(self) -> Dict[str, Any]:

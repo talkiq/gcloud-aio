@@ -143,22 +143,19 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         assert len(after.entity_results) == num_results + 3
 
 
-@pytest.mark.skipif('DATASTORE_EXPORT_BUCKET_NAME' not in os.environ,
-                    reason='DATASTORE_EXPORT_BUCKET_NAME not set')
+@pytest.mark.skip
 @pytest.mark.asyncio  # type: ignore
 async def test_datastore_export(creds: str, project: str,
                                 export_bucket_name: str):
-    kind = 'DatastoreExportTestModel'
+    kind = 'PublicTestDatastoreExportModel'
 
     rand_uuid = str(uuid.uuid4())
 
     async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        mutations = [ds.make_mutation(Operation.INSERT,
-                                      Key(project, [PathElement(kind)]),
-                                      properties={'rand_str': rand_uuid})]
-        await ds.commit(mutations, session=s, mode=Mode.NON_TRANSACTIONAL)
+        await ds.insert(Key(project, [PathElement(kind)]),
+                        properties={'rand_str': rand_uuid})
 
         operation = await ds.export(export_bucket_name, kinds=[kind])
 
