@@ -13,7 +13,7 @@ from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
 from gcloud.aio.datastore import Value
-from gcloud.aio.storage import Storage
+from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 
 @pytest.mark.asyncio  # type: ignore
