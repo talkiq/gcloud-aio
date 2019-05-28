@@ -1,5 +1,4 @@
 import asyncio
-import os
 import uuid
 
 import aiohttp
@@ -8,7 +7,6 @@ from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
-from gcloud.aio.datastore import Mode
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
 from gcloud.aio.datastore import PropertyFilter

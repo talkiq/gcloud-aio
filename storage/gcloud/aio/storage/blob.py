@@ -44,8 +44,7 @@ class Blob:
             query_params: Optional[dict] = None, http_method: str = 'GET',
             iam_client: Optional[IamClient] = None,
             service_account_email: Optional[str] = None,
-            project: Optional[str] = None, service_file: Optional[str] = None,
-            token: Optional[Token] = None,
+            service_file: Optional[str] = None, token: Optional[Token] = None,
             session: Optional[aiohttp.ClientSession] = None) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
@@ -58,8 +57,7 @@ class Blob:
             raise ValueError("expiration time can't be longer than 604800 "
                              'seconds (7 days)')
 
-        iam_client = iam_client or IamClient(project=project,
-                                             service_file=service_file,
+        iam_client = iam_client or IamClient(service_file=service_file,
                                              token=token, session=session)
 
         quoted_name = quote(self.name, safe='')
