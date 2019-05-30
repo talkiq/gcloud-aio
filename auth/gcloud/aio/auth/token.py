@@ -118,7 +118,7 @@ class Token:
             await self.acquiring
             return
 
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         delta = (now - self.access_token_acquired_at).total_seconds()
         if delta <= self.access_token_duration / 2:
             return
@@ -189,5 +189,5 @@ class Token:
 
         self.access_token = str(content['access_token'])
         self.access_token_duration = int(content['expires_in'])
-        self.access_token_acquired_at = datetime.datetime.now()
+        self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
