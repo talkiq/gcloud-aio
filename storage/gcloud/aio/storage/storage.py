@@ -102,9 +102,9 @@ class Storage:
 
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, headers: dict = None,
+                     metadata: dict = None,
                      session: aiohttp.ClientSession = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
-        token = await self.token.get()
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
 
         if not self.session:
@@ -120,7 +120,7 @@ class Storage:
 
         headers = headers or {}
         headers.update({
-            'Authorization': f'Bearer {token}',
+            'Authorization': 'Bearer {}'.format(await self.token.get()),
             'Content-Length': str(content_length),
             'Content-Type': content_type or '',
         })
@@ -134,9 +134,9 @@ class Storage:
                                              session=session, timeout=timeout)
 
         if upload_type == UploadType.RESUMABLE:
-            return await self._upload_resumable(url, object_name, stream,
-                                                headers, session=session,
-                                                timeout=timeout)
+            return await self._upload_resumable(
+                url, object_name, stream, headers, metadata=metadata,
+                session=session, timeout=timeout)
 
         raise TypeError(f'upload type {upload_type} not supported')
 
@@ -241,24 +241,26 @@ class Storage:
 
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, headers: dict, *,
+                                metadata: dict = None,
                                 session: aiohttp.ClientSession = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, headers,
-                                                  session=session)
+                                                  metadata, session=session, )
         data: dict = await self._do_upload(session_uri, stream,
                                            headers=headers, session=session,
                                            timeout=timeout)
         return data
 
     async def _initiate_upload(self, url: str, object_name: str, headers: dict,
-                               *,
+                               metadata: dict, *,
                                session: aiohttp.ClientSession = None) -> str:
         params = {
             'uploadType': 'resumable',
         }
 
-        metadata = json.dumps({'name': object_name})
+        metadata = json.dumps(
+            {**(metadata if metadata else {}), **{'name': object_name}})
 
         post_headers = {**headers}
         post_headers.update({
