@@ -1,8 +1,8 @@
-from gcloud.aio.pubsub import Subscription
+from gcloud.aio.pubsub import SubscriberClient
 
 def test_importable():
     assert True
 
-def test_constructor(subscription_name):
-    subscription = Subscription(subscription_name)
+def test_constructor():
+    subscription = SubscriberClient()
     assert subscription

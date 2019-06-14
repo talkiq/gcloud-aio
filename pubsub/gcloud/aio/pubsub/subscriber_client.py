@@ -1,62 +1,60 @@
 import asyncio
 import concurrent.futures
 import signal
-from asyncio import Future  # pylint: disable=ungrouped-imports
-from typing import Any
 from typing import Callable
 from typing import Optional
 
 from google.api_core import exceptions
 from google.cloud import pubsub
 from google.cloud.pubsub_v1.subscriber.message import Message
+from google.cloud.pubsub_v1.subscriber.scheduler import Scheduler
 from google.cloud.pubsub_v1.types import FlowControl
-from google.cloud.pubsub_v1.types import Scheduler
 
 from .utils import convert_google_future_to_concurrent_future
 
 
-class Subscription:
+class SubscriberClient:
 
     def __init__(self,
-                 subscription: str,
                  *,
                  loop: Optional[asyncio.AbstractEventLoop] = None
                  ) -> None:
-        self.subscription = subscription
         self._subscriber = pubsub.SubscriberClient()
-
-        if not loop:
-            loop = asyncio.get_event_loop()
-        self.loop = loop
+        self.loop = loop or asyncio.get_event_loop()
 
     def create_subscription(self,
+                            subscription: str,
                             topic: str,
-                            *,
-                            ack_deadline_seconds: int = 5
+                            **kwargs
                             ) -> None:
-        """Create subscription if it does not exist"""
+        """
+        Create subscription if it does not exist. Check out the official
+        [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
+        for more details
+        """
         try:
             self._subscriber.create_subscription(
-                self.subscription,
+                subscription,
                 topic,
-                ack_deadline_seconds=ack_deadline_seconds
+                *kwargs
             )
         except exceptions.AlreadyExists:
             pass
 
     def subscribe(self,
+                  subscription: str,
                   callback: Callable[[Message], None],
                   *,
                   flow_control: FlowControl = (),
                   scheduler: Optional[Scheduler] = None
-                  ) -> Future[Any]:
+                  ) -> asyncio.Future:
         """
         Create subscription through pubsub client, hijack the returned
         "non-concurrent Future" and coerce it into being a "concurrent Future",
         wrap it into a asyncio Future and return it.
         """
-        sub_keepalive: Future[Any] = self._subscriber.subscribe(
-            self.subscription,
+        sub_keepalive: asyncio.Future = self._subscriber.subscribe(
+            subscription,
             self._wrap_callback(callback),
             flow_control=flow_control,
             scheduler=scheduler
@@ -70,7 +68,7 @@ class Subscription:
 
         return sub_keepalive
 
-    def run_forever(self, sub_keepalive: Future[Any]) -> None:
+    def run_forever(self, sub_keepalive: asyncio.Future) -> None:
         """
         Start the asyncio loop, running until it is either SIGTERM-ed or killed
         by keyboard interrupt. The Future parameter is used to cancel
