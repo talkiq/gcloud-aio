@@ -21,15 +21,14 @@ We're still working on more complete documentation, but roughly you can do:
     from gcloud.aio.kms import decode
     from gcloud.aio.kms import encode
 
-    kms = KMS('my-cred-project', '/path/to/creds.json', 'my-kms-project',
-              'my-keyring', 'my-key-name')
+    kms = KMS('my-kms-project', 'my-keyring', 'my-key-name')
 
     # encrypt
     plaintext = 'the-best-animal-is-the-aardvark'
     ciphertext = await kms.encrypt(encode(plaintext))
 
     # decrypt
-    assert (await kms.decrypt(encode(ciphertext))) == plaintext
+    assert decode(await kms.decrypt(ciphertext)) == plaintext
 
 Contributing
 ------------
