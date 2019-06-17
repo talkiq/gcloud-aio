@@ -15,10 +15,10 @@ def project() -> str:
 
 
 @pytest.fixture(scope='module')  # type: ignore
-def subscription() -> str:
+def subscription_name() -> str:
     return 'public_test'
 
 
 @pytest.fixture(scope='module')  # type: ignore
-def topic() -> str:
+def topic_name() -> str:
     return 'public_test'
