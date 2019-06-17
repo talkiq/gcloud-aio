@@ -13,7 +13,7 @@ Installation
 Usage
 -----
 
-This Pub/Sub implementation is based on ``google-cloud-pubsub==0.41.0``
+This Pub/Sub implementation is based on ``google-cloud-pubsub >= 0.29.4``
 
 Currently we have only implemented an asyncio version of SubscriberClient as
 the subscription pattern seems to have a greater benefit from the introduction
@@ -74,8 +74,8 @@ When subscribing to a subscription you can optionally pass in a FlowControl and/
         flow_control=example_flow_control
     )
 
-Understand how modifying FlowControl affects how your pubsub runtime will operate can
-confusing so here's a handy dandy guide!
+Understanding how modifying FlowControl affects how your pubsub runtime will
+operate can be confusing so here's a handy dandy guide!
 
 Welcome to @TheKevJames's guide to configuring Google Pubsub Subscription
 policies! Settle in, grab a drink, and stay a while.
