@@ -65,36 +65,35 @@ async def verify_signature(data, signature, key_name, iam_client):
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_sign_blob(creds: str) -> None:
+async def test_sign_blob(creds: str, session: aiohttp.ClientSession) -> None:
     data = 'Testing Can be confidential!'
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        iam_client = IamClient(service_file=creds, session=s)
-        resp = await iam_client.sign_blob(data)
-        signed_data = resp['signedBlob']
-        await verify_signature(data, signed_data, resp['keyId'], iam_client)
+    iam_client = IamClient(service_file=creds, session=session)
+    resp = await iam_client.sign_blob(data)
+    signed_data = resp['signedBlob']
+    await verify_signature(data, signed_data, resp['keyId'], iam_client)
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_get_service_account_public_key_names(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        iam_client = IamClient(service_file=creds, session=s)
-        resp = await iam_client.list_public_keys()
-        assert len(resp) >= 1, '0 public keys found.'
+async def test_get_service_account_public_key_names(
+        creds: str, session: aiohttp.ClientSession) -> None:
+    iam_client = IamClient(service_file=creds, session=session)
+    resp = await iam_client.list_public_keys()
+    assert len(resp) >= 1, '0 public keys found.'
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_get_service_account_public_key(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
-        iam_client = IamClient(service_file=creds, session=s)
-        resp = await iam_client.list_public_keys(session=s)
-        pub_key_data = await iam_client.get_public_key(key=resp[0]['name'],
-                                                       session=s)
+async def test_get_service_account_public_key(
+        creds: str, session: aiohttp.ClientSession) -> None:
+    iam_client = IamClient(service_file=creds, session=session)
+    resp = await iam_client.list_public_keys(session=session)
+    pub_key_data = await iam_client.get_public_key(key=resp[0]['name'],
+                                                   session=session)
 
-        assert pub_key_data['name'] == resp[0]['name']
-        assert 'publicKeyData' in pub_key_data
+    assert pub_key_data['name'] == resp[0]['name']
+    assert 'publicKeyData' in pub_key_data
 
-        key_id = resp[0]['name'].split('/')[-1]
-        pub_key_by_key_id_data = await iam_client.get_public_key(key_id=key_id,
-                                                                 session=s)
-        assert pub_key_data == pub_key_by_key_id_data
+    key_id = resp[0]['name'].split('/')[-1]
+    pub_key_by_key_id_data = await iam_client.get_public_key(key_id=key_id,
+                                                             session=session)
+    assert pub_key_data == pub_key_by_key_id_data

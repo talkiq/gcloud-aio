@@ -18,6 +18,8 @@ import aiohttp
 import backoff
 import jwt
 
+from .utils import get_client_session
+
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
@@ -172,8 +174,7 @@ class Token:
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=timeout,
-                                                 read_timeout=timeout)
+            self.session = await get_client_session()
 
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
