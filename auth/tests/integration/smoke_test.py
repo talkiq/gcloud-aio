@@ -12,12 +12,12 @@ from gcloud.aio.auth import Token
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_token_is_created(creds: str) -> None:
+async def test_token_is_created(creds: str,
+                                session: aiohttp.ClientSession) -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
-    async with aiohttp.ClientSession() as session:
-        token = Token(service_file=creds, session=session, scopes=scopes)
-        result = await token.get()
+    token = Token(service_file=creds, session=session, scopes=scopes)
+    result = await token.get()
 
     assert result
     assert token.access_token is not None

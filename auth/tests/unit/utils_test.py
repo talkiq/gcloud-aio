@@ -1,6 +1,6 @@
 import pickle
 
-import gcloud.aio.auth.utils as utils  # pylint: disable=unused-import
+import gcloud.aio.auth.utils as utils
 import pytest
 
 
@@ -15,4 +15,5 @@ def test_encode_decode(str_or_bytes):
             expected = str_or_bytes.encode('utf-8')
         except UnicodeDecodeError:
             pass
+
     assert expected == utils.decode(encoded)

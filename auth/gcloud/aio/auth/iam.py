@@ -6,6 +6,7 @@ from typing import Union
 
 import aiohttp
 
+from .core import BaseClient
 from .token import Token
 from .token import Type
 from .utils import encode
@@ -16,11 +17,11 @@ API_ROOT_IAM_CREDENTIALS = 'https://iamcredentials.googleapis.com/v1'
 SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
-class IamClient:
+class IamClient(BaseClient):
     def __init__(self, service_file: Optional[str] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = session
+        super().__init__(session)
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 
@@ -59,10 +60,7 @@ class IamClient:
         url = f'{API_ROOT_IAM}/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
+        session = await self.get_session(session)
         resp = await session.get(url, headers=headers, timeout=timeout)
         resp.raise_for_status()
         return await resp.json()
@@ -82,10 +80,7 @@ class IamClient:
 
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
+        session = await self.get_session(session)
         resp = await session.get(url, headers=headers, timeout=timeout)
         resp.raise_for_status()
         return (await resp.json()).get('keys', [])
@@ -116,10 +111,7 @@ class IamClient:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
+        session = await self.get_session(session)
         resp = await session.post(url, data=json_str, headers=headers,
                                   timeout=timeout)
         resp.raise_for_status()

@@ -18,7 +18,7 @@ import aiohttp
 import backoff
 import jwt
 
-from .utils import get_client_session
+from .core import BaseClient
 
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -62,11 +62,12 @@ def get_service_data(service: Optional[str]) -> Dict[str, Any]:
         return {}
 
 
-class Token:
+class Token(BaseClient):
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[str] = None,
                  session: aiohttp.ClientSession = None,
                  scopes: List[str] = None) -> None:
+        super().__init__(session)
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
@@ -78,7 +79,6 @@ class Token:
             self.token_type = Type.GCE_METADATA
             self.token_uri = GCE_ENDPOINT_TOKEN
 
-        self.session = session
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
             raise Exception('scopes must be provided when token type is '
@@ -96,9 +96,9 @@ class Token:
                    or os.environ.get('APPLICATION_ID'))
 
         if self.token_type == Type.GCE_METADATA:
-            await self.ensure_token()
-            resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
-                                          headers=GCE_METADATA_HEADERS)
+            session = await self.get_session()
+            resp = await session.get(GCE_ENDPOINT_PROJECT, timeout=10,
+                                     headers=GCE_METADATA_HEADERS)
             resp.raise_for_status()
             project = project or (await resp.text())
         elif self.token_type == Type.SERVICE_ACCOUNT:
@@ -137,15 +137,15 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         }, quote_via=quote_plus)
 
-        return await self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        session = await self.get_session()
+        return await session.post(self.token_uri, data=payload,
+                                  headers=REFRESH_HEADERS, timeout=timeout)
 
     async def _refresh_gce_metadata(self,
                                     timeout: int) -> aiohttp.ClientResponse:
-        return await self.session.get(self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+        session = await self.get_session()
+        return await session.get(self.token_uri, headers=GCE_METADATA_HEADERS,
+                                 timeout=timeout)
 
     async def _refresh_service_account(self,
                                        timeout: int) -> aiohttp.ClientResponse:
@@ -167,15 +167,12 @@ class Token:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         }, quote_via=quote_plus)
 
-        return await self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        session = await self.get_session()
+        return await session.post(self.token_uri, data=payload,
+                                  headers=REFRESH_HEADERS, timeout=timeout)
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
-        if not self.session:
-            self.session = await get_client_session()
-
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
