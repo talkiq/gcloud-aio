@@ -97,7 +97,7 @@ class TaskManager:
                  backoff_base=2, backoff_factor=1.1, backoff_max_value=60,
                  batch_size=10, deadletter_insert_function=None,
                  lease_seconds=10, location=LOCATION, max_concurrency=100,
-                 retry_limit=None, token=None):
+                 retry_limit=None, token=None, session=None):
         # pylint: disable=too-many-locals
         self.worker = worker
 
@@ -112,9 +112,9 @@ class TaskManager:
         self.manager = multiprocessing.Manager()
         self.semaphore = asyncio.BoundedSemaphore(max_concurrency)
         self.tq = PullQueue(project, taskqueue, service_file=service_file,
-                            location=location, token=token)
+                            location=location, token=token, session=session)
 
-        self.session = None
+        self.session = session
         self.running = False
 
     async def fail(self, task, payload, exception):

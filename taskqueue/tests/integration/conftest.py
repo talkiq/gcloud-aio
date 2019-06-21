@@ -7,6 +7,12 @@ from gcloud.aio.taskqueue import PullQueue
 from gcloud.aio.taskqueue import PushQueue
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        'markers', 'slow: marks tests as slow (deselect with `-m "not slow"`)'
+    )
+
+
 @pytest.fixture(scope='module')  # type: ignore
 def creds() -> str:
     # TODO: bundle public creds into this repo
@@ -28,29 +34,43 @@ def push_queue_name() -> str:
     return 'public-test-push'
 
 
-@pytest.yield_fixture(scope='function')  # type: ignore
-async def pull_queue_context(project, creds, pull_queue_name):
-    # main purpose is to be do proper teardown of tasks created by tests
+@pytest.fixture(scope='function')  # type: ignore
+async def session() -> str:
     async with aiohttp.ClientSession() as session:
-        tq = PullQueue(project, pull_queue_name, service_file=creds,
-                       session=session)
-        context = {'queue': tq, 'tasks_to_cleanup': []}
-        yield context
-
-        # try deleting the task created by tests
-        for task in context['tasks_to_cleanup']:
-            await tq.delete(task['name'])
+        yield session
 
 
-@pytest.yield_fixture(scope='function')  # type: ignore
-async def push_queue_context(project, creds, push_queue_name):
+@pytest.fixture(scope='function')  # type: ignore
+async def tm_session() -> str:
+    connector = aiohttp.TCPConnector(enable_cleanup_closed=True,
+                                     force_close=True, limit_per_host=1)
+    timeout = aiohttp.ClientTimeout(connect=10, total=10)
+    async with aiohttp.ClientSession(connector=connector,
+                                     timeout=timeout) as session:
+        yield session
+
+
+@pytest.fixture(scope='function')  # type: ignore
+async def pull_queue_context(project, creds, pull_queue_name, session):
     # main purpose is to be do proper teardown of tasks created by tests
-    async with aiohttp.ClientSession() as session:
-        tq = PushQueue(project, push_queue_name, service_file=creds,
-                       session=session)
-        context = {'queue': tq, 'tasks_to_cleanup': []}
-        yield context
+    tq = PullQueue(project, pull_queue_name, service_file=creds,
+                   session=session)
+    context = {'queue': tq, 'tasks_to_cleanup': []}
+    yield context
 
-        # try deleting the task created by tests
-        for task in context['tasks_to_cleanup']:
-            await tq.delete(task['name'])
+    # try deleting the task created by tests
+    for task in context['tasks_to_cleanup']:
+        await tq.delete(task['name'])
+
+
+@pytest.fixture(scope='function')  # type: ignore
+async def push_queue_context(project, creds, push_queue_name, session):
+    # main purpose is to be do proper teardown of tasks created by tests
+    tq = PushQueue(project, push_queue_name, service_file=creds,
+                   session=session)
+    context = {'queue': tq, 'tasks_to_cleanup': []}
+    yield context
+
+    # try deleting the task created by tests
+    for task in context['tasks_to_cleanup']:
+        await tq.delete(task['name'])
