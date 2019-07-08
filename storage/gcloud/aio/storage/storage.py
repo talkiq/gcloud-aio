@@ -100,7 +100,7 @@ class Storage:
         data: dict = await resp.json()
         return data
 
-    # pylint: disable-msg=too-many-locals
+    # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
                      headers: dict = None,
