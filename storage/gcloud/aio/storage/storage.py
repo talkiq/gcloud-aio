@@ -100,8 +100,10 @@ class Storage:
         data: dict = await resp.json()
         return data
 
+    # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
-                     *, content_type: str = None, headers: dict = None,
+                     *, content_type: str = None, parameters: dict = None,
+                     headers: dict = None,
                      session: aiohttp.ClientSession = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
@@ -118,6 +120,8 @@ class Storage:
         # mime detection method same as in aiohttp 3.4.4
         content_type = content_type or mimetypes.guess_type(object_name)[0]
 
+        parameters = parameters or {}
+
         headers = headers or {}
         headers.update({
             'Authorization': f'Bearer {token}',
@@ -130,12 +134,14 @@ class Storage:
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
-            return await self._upload_simple(url, object_name, stream, headers,
+            return await self._upload_simple(url, object_name, stream,
+                                             parameters, headers,
                                              session=session, timeout=timeout)
 
         if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(url, object_name, stream,
-                                                headers, session=session,
+                                                parameters, headers,
+                                                session=session,
                                                 timeout=timeout)
 
         raise TypeError(f'upload type {upload_type} not supported')
@@ -216,14 +222,12 @@ class Storage:
         return data
 
     async def _upload_simple(self, url: str, object_name: str,
-                             stream: io.IOBase, headers: dict, *,
-                             session: aiohttp.ClientSession = None,
+                             stream: io.IOBase, params: dict, headers: dict,
+                             *, session: aiohttp.ClientSession = None,
                              timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
-        params = {
-            'name': object_name,
-            'uploadType': 'media',
-        }
+        params['name'] = object_name
+        params['uploadType'] = 'media'
 
         headers.update({
             'Accept': 'application/json',
@@ -240,23 +244,22 @@ class Storage:
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
-                                stream: io.IOBase, headers: dict, *,
+                                stream: io.IOBase, params: dict,
+                                headers: dict, *,
                                 session: aiohttp.ClientSession = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
-        session_uri = await self._initiate_upload(url, object_name, headers,
-                                                  session=session)
+        session_uri = await self._initiate_upload(url, object_name, params,
+                                                  headers, session=session)
         data: dict = await self._do_upload(session_uri, stream,
                                            headers=headers, session=session,
                                            timeout=timeout)
         return data
 
-    async def _initiate_upload(self, url: str, object_name: str, headers: dict,
-                               *,
+    async def _initiate_upload(self, url: str, object_name: str, params: dict,
+                               headers: dict, *,
                                session: aiohttp.ClientSession = None) -> str:
-        params = {
-            'uploadType': 'resumable',
-        }
+        params['uploadType'] = 'resumable'
 
         metadata = json.dumps({'name': object_name})
 
