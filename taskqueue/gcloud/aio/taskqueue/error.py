@@ -1,2 +1,0 @@
-class FailFastError(Exception):
-    pass
