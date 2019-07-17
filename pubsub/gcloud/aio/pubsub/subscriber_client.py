@@ -36,7 +36,7 @@ class SubscriberClient:
             self._subscriber.create_subscription(
                 subscription,
                 topic,
-                *kwargs
+                **kwargs
             )
         except exceptions.AlreadyExists:
             pass
