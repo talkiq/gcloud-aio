@@ -100,6 +100,8 @@ class Storage:
         data: dict = await resp.json()
         return data
 
+    # TODO: if `metadata` is set, use multipart upload:
+    # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
@@ -134,6 +136,8 @@ class Storage:
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
+            if metadata:
+                log.warning('metadata will be ignored for upload_type=Simple')
             return await self._upload_simple(url, object_name, stream,
                                              parameters, headers,
                                              session=session, timeout=timeout)
