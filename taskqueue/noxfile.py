@@ -16,7 +16,7 @@ def unit_tests(session):
                 os.path.join('tests', 'unit'), *session.posargs)
 
 
-@nox.session(python=['3.6', '3.7'], reuse_venv=True)
+@nox.session(python=['3.7'], reuse_venv=True)
 def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')

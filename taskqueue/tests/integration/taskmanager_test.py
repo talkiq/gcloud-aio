@@ -8,7 +8,8 @@ from gcloud.aio.taskqueue import TaskManager
 
 
 @pytest.mark.asyncio
-async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
+async def test_task_lifecycle(mocker, creds, project, pull_queue_name,
+                              tm_session):
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -28,7 +29,7 @@ async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
     worker = get_mock_coro('ok')
 
     tm = TaskManager(project, pull_queue_name, worker, service_file=creds,
-                     batch_size=len(tasks))
+                     batch_size=len(tasks), session=tm_session)
 
     # DRAIN
     await tm.tq.drain()
@@ -43,6 +44,7 @@ async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
 
     await asyncio.sleep(3)
     tm.stop()
+    await asyncio.sleep(0)  # allow tm.poll() to terminate
 
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
 
@@ -50,7 +52,7 @@ async def test_task_lifecycle(mocker, creds, project, pull_queue_name):
 @pytest.mark.asyncio
 @pytest.mark.slow
 async def test_task_multiple_leases(caplog, mocker, creds, project,
-                                    pull_queue_name):
+                                    pull_queue_name, tm_session):
     def get_mock_coro(return_value):
         @asyncio.coroutine
         def mock_coro(*args, **kwargs):
@@ -69,7 +71,9 @@ async def test_task_multiple_leases(caplog, mocker, creds, project,
     worker = get_mock_coro('ok')
 
     tm = TaskManager(project, pull_queue_name, worker, service_file=creds,
-                     batch_size=len(tasks), lease_seconds=4)
+                     batch_size=len(tasks), lease_seconds=4,
+                     session=tm_session)
+    tm.session = tm_session
 
     # drain old tasks
     await tm.tq.drain()
@@ -82,6 +86,7 @@ async def test_task_multiple_leases(caplog, mocker, creds, project,
     tm.start()
     await asyncio.sleep(10)
     tm.stop()
+    await asyncio.sleep(0)  # allow tm.poll() to terminate
 
     assert worker.mock_calls == [mocker.call(t) for t in tasks]
     for record in caplog.records:
