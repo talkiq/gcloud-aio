@@ -100,10 +100,12 @@ class Storage:
         data: dict = await resp.json()
         return data
 
+    # TODO: if `metadata` is set, use multipart upload:
+    # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
-                     headers: dict = None,
+                     headers: dict = None, metadata: dict = None,
                      session: aiohttp.ClientSession = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
@@ -134,15 +136,16 @@ class Storage:
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
+            if metadata:
+                log.warning('metadata will be ignored for upload_type=Simple')
             return await self._upload_simple(url, object_name, stream,
                                              parameters, headers,
                                              session=session, timeout=timeout)
 
         if upload_type == UploadType.RESUMABLE:
-            return await self._upload_resumable(url, object_name, stream,
-                                                parameters, headers,
-                                                session=session,
-                                                timeout=timeout)
+            return await self._upload_resumable(
+                url, object_name, stream, parameters, headers,
+                metadata=metadata, session=session, timeout=timeout)
 
         raise TypeError(f'upload type {upload_type} not supported')
 
@@ -245,23 +248,24 @@ class Storage:
 
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, params: dict,
-                                headers: dict, *,
+                                headers: dict, *, metadata: dict = None,
                                 session: aiohttp.ClientSession = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, params,
-                                                  headers, session=session)
+                                                  headers, metadata=metadata,
+                                                  session=session)
         data: dict = await self._do_upload(session_uri, stream,
                                            headers=headers, session=session,
                                            timeout=timeout)
         return data
 
     async def _initiate_upload(self, url: str, object_name: str, params: dict,
-                               headers: dict, *,
+                               headers: dict, *, metadata: dict = None,
                                session: aiohttp.ClientSession = None) -> str:
         params['uploadType'] = 'resumable'
 
-        metadata = json.dumps({'name': object_name})
+        metadata = json.dumps({**(metadata or {}), **{'name': object_name}})
 
         post_headers = {**headers}
         post_headers.update({
