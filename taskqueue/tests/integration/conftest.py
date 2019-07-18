@@ -3,7 +3,6 @@ import os
 
 import aiohttp
 import pytest
-from gcloud.aio.taskqueue import PullQueue
 from gcloud.aio.taskqueue import PushQueue
 
 
@@ -48,19 +47,6 @@ async def tm_session() -> str:
     async with aiohttp.ClientSession(connector=connector,
                                      timeout=timeout) as session:
         yield session
-
-
-@pytest.fixture(scope='function')  # type: ignore
-async def pull_queue_context(project, creds, pull_queue_name, session):
-    # main purpose is to be do proper teardown of tasks created by tests
-    tq = PullQueue(project, pull_queue_name, service_file=creds,
-                   session=session)
-    context = {'queue': tq, 'tasks_to_cleanup': []}
-    yield context
-
-    # try deleting the task created by tests
-    for task in context['tasks_to_cleanup']:
-        await tq.delete(task['name'])
 
 
 @pytest.fixture(scope='function')  # type: ignore
