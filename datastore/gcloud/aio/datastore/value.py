@@ -5,6 +5,7 @@ from typing import Dict
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.key import Key
+from gcloud.aio.datastore.lat_lng import LatLng
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
@@ -39,6 +40,8 @@ class Value:
                                               '%Y-%m-%dT%H:%M:%S.%f000Z')
                 elif value_type == cls.key_kind:
                     value = cls.key_kind.from_repr(data[json_key])
+                elif value_type == LatLng:
+                    value = LatLng.from_repr(data[json_key])
                 else:
                     value = value_type(data[json_key])
                 break
@@ -56,7 +59,7 @@ class Value:
 
     def to_repr(self) -> Dict[str, Any]:
         value_type = self._infer_type(self.value)
-        if value_type == TypeName.KEY:
+        if value_type in {TypeName.GEOPOINT, TypeName.KEY}:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')

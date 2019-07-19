@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 from gcloud.aio.datastore import Key
+from gcloud.aio.datastore import LatLng
 from gcloud.aio.datastore import PathElement
 from gcloud.aio.datastore import Value
 
@@ -66,6 +67,17 @@ class TestValue:
         value = Value.from_repr(data)
 
         assert value.value == key
+
+    @staticmethod
+    def test_from_repr_with_geo_point_value(lat_lng):
+        data = {
+            'excludeFromIndexes': False,
+            'geoPointValue': lat_lng.to_repr()
+        }
+
+        value = Value.from_repr(data)
+
+        assert value.value == lat_lng
 
     @staticmethod
     def test_from_repr_could_not_find_supported_value_key():
@@ -144,6 +156,14 @@ class TestValue:
         assert r['keyValue'] == key.to_repr()
 
     @staticmethod
+    def test_to_repr_with_geo_point_value(lat_lng):
+        value = Value(lat_lng)
+
+        r = value.to_repr()
+
+        assert r['geoPointValue'] == lat_lng.to_repr()
+
+    @staticmethod
     def test_to_repr_exclude_from_indexes():
         value = Value(123, exclude_from_indexes=True)
 
@@ -172,6 +192,11 @@ class TestValue:
         path = PathElement(kind='my-kind', name='path-name')
         key = Key(project='my-project', path=[path], namespace='my-namespace')
         return key
+
+    @staticmethod
+    @pytest.fixture()
+    def lat_lng() -> LatLng:
+        return LatLng(49.2827, 123.1207)
 
     @staticmethod
     @pytest.fixture()
