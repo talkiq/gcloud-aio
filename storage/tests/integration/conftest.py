@@ -5,7 +5,7 @@ import pytest
 
 @pytest.fixture(scope='module')  # type: ignore
 def bucket_name() -> str:
-    return 'voiceai-staging-public-test'
+    return 'dialpad-oss-public-test'
 
 
 @pytest.fixture(scope='module')  # type: ignore
