@@ -10,4 +10,4 @@ def creds() -> str:
 
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
-    return 'voiceai-staging'
+    return 'dialpad-oss'

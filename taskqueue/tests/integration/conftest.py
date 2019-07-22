@@ -20,17 +20,17 @@ def creds() -> str:
 
 @pytest.fixture(scope='module')  # type: ignore
 def project() -> str:
-    return 'voiceai-staging'
-
-
-@pytest.fixture(scope='module')  # type: ignore
-def pull_queue_name() -> str:
-    return 'public-test'
+    return 'dialpad-oss'
 
 
 @pytest.fixture(scope='module')  # type: ignore
 def push_queue_name() -> str:
     return 'public-test-push'
+
+
+@pytest.fixture(scope='module')  # type: ignore
+def push_queue_location() -> str:
+    return 'us-west2'
 
 
 @pytest.fixture(scope='function')  # type: ignore
@@ -50,10 +50,11 @@ async def tm_session() -> str:
 
 
 @pytest.fixture(scope='function')  # type: ignore
-async def push_queue_context(project, creds, push_queue_name, session):
+async def push_queue_context(project, creds, push_queue_name,
+                             push_queue_location, session):
     # main purpose is to be do proper teardown of tasks created by tests
     tq = PushQueue(project, push_queue_name, service_file=creds,
-                   session=session)
+                   location=push_queue_location, session=session)
     context = {'queue': tq, 'tasks_to_cleanup': []}
     yield context
 
