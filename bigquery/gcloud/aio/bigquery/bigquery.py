@@ -65,7 +65,11 @@ class Table:
     async def insert(self, rows: List[Dict[str, Any]],
                      skip_invalid: bool = False, ignore_unknown: bool = True,
                      session: Optional[aiohttp.ClientSession] = None,
-                     timeout: int = 60) -> None:
+                     timeout: int = 60) -> List[Dict[str, Any]]:
+        """Streams data into BigQuery
+
+        Returns a list of insertion errors (if any)"""
+
         if not rows:
             return
 
@@ -90,3 +94,4 @@ class Table:
         resp = await session.post(url, data=payload, headers=headers,
                                   params=None, timeout=timeout)
         resp.raise_for_status()
+        return await resp.json()['insertErrors']
