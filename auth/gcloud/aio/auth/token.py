@@ -71,7 +71,7 @@ class Token:
             self.token_type = Type(self.service_data['type'])
             self.token_uri = self.service_data.get(
                 'token_uri', 'https://oauth2.googleapis.com/token')
-        elif service_file is not None:
+        else:
             self.service_data = get_service_data(service_file)
             if self.service_data:
                 self.token_type = Type(self.service_data['type'])
