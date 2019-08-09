@@ -24,9 +24,10 @@ class IamClient:
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 
-        if self.token.token_type != Type.SERVICE_ACCOUNT:
+        if self.token.token_type not in {Type.GCE_METADATA,
+                                         Type.SERVICE_ACCOUNT}:
             raise TypeError('IAM Credentials Client is only valid for use '
-                            'with Service Accounts')
+                            'with Service Accounts or GCE Metadata')
 
     async def headers(self) -> Dict[str, str]:
         token = await self.token.get()
