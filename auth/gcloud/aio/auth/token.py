@@ -63,18 +63,25 @@ def get_service_data(service: Optional[str]) -> Dict[str, Any]:
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
                  session: aiohttp.ClientSession = None,
                  scopes: List[str] = None) -> None:
-        self.service_data = get_service_data(service_file)
-        if self.service_data:
+        if service_data is not None:
+            self.service_data = service_data
             self.token_type = Type(self.service_data['type'])
             self.token_uri = self.service_data.get(
                 'token_uri', 'https://oauth2.googleapis.com/token')
-        else:
-            # At this point, all we can do is assume we're running somewhere
-            # with default credentials, eg. GCE.
-            self.token_type = Type.GCE_METADATA
-            self.token_uri = GCE_ENDPOINT_TOKEN
+        elif service_file is not None:
+            self.service_data = get_service_data(service_file)
+            if self.service_data:
+                self.token_type = Type(self.service_data['type'])
+                self.token_uri = self.service_data.get(
+                    'token_uri', 'https://oauth2.googleapis.com/token')
+            else:
+                # At this point, all we can do is assume we're running
+                # somewhere with default credentials, eg. GCE.
+                self.token_type = Type.GCE_METADATA
+                self.token_uri = GCE_ENDPOINT_TOKEN
 
         self.session = session
         self.scopes = ' '.join(scopes or [])
