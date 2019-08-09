@@ -7,6 +7,7 @@ import os
 from typing import Any
 from typing import Optional
 from typing import Tuple
+from typing import Dict
 from urllib.parse import quote
 
 import aiohttp
@@ -37,10 +38,12 @@ class UploadType(enum.Enum):
 
 class Storage:
     def __init__(self, *, service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
                  token: Optional[Token] = None,
                  session: Optional[aiohttp.ClientSession] = None) -> None:
         self.session = session
         self.token = token or Token(service_file=service_file,
+                                    service_data=service_data,
                                     session=self.session, scopes=SCOPES)
 
     def get_bucket(self, bucket_name: str) -> Bucket:

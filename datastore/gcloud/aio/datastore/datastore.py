@@ -46,7 +46,9 @@ class Datastore:
     value_kind = Value
 
     def __init__(self, project: Optional[str] = None,
-                 service_file: Optional[str] = None, namespace: str = '',
+                 service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
+                 namespace: str = '',
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.namespace = namespace
@@ -59,6 +61,7 @@ class Datastore:
         else:
             self._project = project
             self.token = token or Token(service_file=service_file,
+                                        service_data=service_data,
                                         session=session, scopes=SCOPES)
 
     async def project(self) -> str:

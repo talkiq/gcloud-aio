@@ -22,14 +22,17 @@ log = logging.getLogger(__name__)
 
 class PushQueue:
     def __init__(self, project: str, taskqueue: str,
-                 service_file: Optional[str] = None, location: str = LOCATION,
+                 service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
+                 location: str = LOCATION,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.base_api_root = f'{API_ROOT}/v2beta3'
         self.api_root = (f'{self.base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
         self.session = session
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+        self.token = token or Token(service_file=service_file,
+                                    service_data=service_data, scopes=SCOPES,
                                     session=self.session)
 
     async def headers(self) -> Dict[str, str]:

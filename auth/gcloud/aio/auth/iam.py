@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -18,10 +19,12 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 class IamClient:
     def __init__(self, service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.session = session
         self.token = token or Token(service_file=service_file,
+                                    service_data=service_data,
                                     session=session, scopes=SCOPES)
 
         if self.token.token_type != Type.SERVICE_ACCOUNT:

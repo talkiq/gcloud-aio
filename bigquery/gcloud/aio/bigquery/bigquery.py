@@ -22,6 +22,7 @@ class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
                  service_file: Optional[str] = None,
+                 service_data: Optional[Dict[str, Any]] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self._project = project
@@ -30,7 +31,7 @@ class Table:
 
         self.session = session
         self.token = token or Token(service_file=service_file, session=session,
-                                    scopes=SCOPES)
+                                    service_data=service_data, scopes=SCOPES)
 
     async def project(self) -> str:
         if self._project:
