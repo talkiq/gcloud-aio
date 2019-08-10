@@ -5,7 +5,7 @@ import nox
 
 @nox.session(python=['3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
-    session.install('pytest', 'pytest-cov')
+    session.install('pytest', 'pytest-asyncio', 'pytest-cov')
     session.install('-e', '.')
 
     session.run('py.test', '--quiet', '--cov=gcloud.aio.auth',
