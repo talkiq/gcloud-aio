@@ -1,8 +1,10 @@
 """
 An asynchronous client for Google Cloud KMS
 """
+import io
 from typing import Dict
 from typing import Optional
+from typing import Union
 
 import aiohttp
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -17,7 +19,8 @@ SCOPES = [
 
 class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
-                 service_file: Optional[str] = None, location: str = LOCATION,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 location: str = LOCATION,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.api_root = (f'{API_ROOT}/projects/{keyproject}/'

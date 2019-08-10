@@ -7,6 +7,7 @@ import os
 from typing import Any
 from typing import Optional
 from typing import Tuple
+from typing import Union
 from urllib.parse import quote
 
 import aiohttp
@@ -36,7 +37,7 @@ class UploadType(enum.Enum):
 
 
 class Storage:
-    def __init__(self, *, service_file: Optional[str] = None,
+    def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
                  session: Optional[aiohttp.ClientSession] = None) -> None:
         self.session = session

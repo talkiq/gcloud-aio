@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 from typing import Any
@@ -46,7 +47,8 @@ class Datastore:
     value_kind = Value
 
     def __init__(self, project: Optional[str] = None,
-                 service_file: Optional[str] = None, namespace: str = '',
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 namespace: str = '',
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.namespace = namespace
