@@ -16,6 +16,7 @@ repos:
         args: [--allow-multiple-documents]
     -   id: debug-statements
     -   id: detect-private-key
+        exclude: auth/tests/unit/token_test.py
     -   id: double-quote-string-fixer
     -   id: end-of-file-fixer
     -   id: file-contents-sorter

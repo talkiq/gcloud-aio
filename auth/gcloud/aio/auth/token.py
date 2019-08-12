@@ -11,8 +11,8 @@ import time
 from typing import Any
 from typing import Dict
 from typing import List
-from typing import Union
 from typing import Optional
+from typing import Union
 from urllib.parse import quote_plus
 from urllib.parse import urlencode
 

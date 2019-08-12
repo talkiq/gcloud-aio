@@ -2,7 +2,6 @@ import io
 import json
 
 import gcloud.aio.auth.token as token
-
 import pytest
 
 
