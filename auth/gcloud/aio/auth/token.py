@@ -50,8 +50,12 @@ def get_service_data(
         set_explicitly = True
 
     try:
-        with open(service, 'r') as f:
-            data: Dict[str, Any] = json.loads(f.read())
+        try:
+            with open(service, 'r') as f:
+                data: Dict[str, Any] = json.loads(f.read())
+                return data
+        except TypeError:
+            data: Dict[str, Any] = json.loads(service.read())
             return data
     except FileNotFoundError:
         if set_explicitly:
@@ -59,9 +63,6 @@ def get_service_data(
             raise
 
         return {}
-    except TypeError:
-        data: Dict[str, Any] = json.loads(service.read())
-        return data
     except Exception:  # pylint: disable=broad-except
         return {}
 
