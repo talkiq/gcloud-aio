@@ -1,3 +1,4 @@
+import io
 import json
 from typing import Dict
 from typing import List
@@ -17,7 +18,7 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, service_file: Optional[str] = None,
+    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.session = session

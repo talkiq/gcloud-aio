@@ -1,8 +1,10 @@
+import io
 import uuid
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 import aiohttp
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -21,7 +23,7 @@ SCOPES = [
 class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
-                 service_file: Optional[str] = None,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self._project = project

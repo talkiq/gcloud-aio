@@ -32,7 +32,9 @@ Additionally, the ``Token`` constructor accepts the following optional
 arguments:
 
 * ``service_file``: path to a `service account`_, authorized user file, or any
-  other application credentials. If omitted, will attempt to find one on your
+  other application credentials. Alternatively, you can pass a file-like
+  object, like an ``io.StringIO`` instance, in case your credentials are not
+  stored in a file but in memory. If omitted, will attempt to find one on your
   path or fallback to generating a token from GCE metadata.
 * ``session``: an ``aiohttp.ClientSession`` instance to be used for all
   requests. If omitted, a default session will be created.

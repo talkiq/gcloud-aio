@@ -4,6 +4,7 @@ Google Cloud auth via service account file
 import asyncio
 import datetime
 import enum
+import io
 import json
 import os
 import time
@@ -11,6 +12,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 from urllib.parse import quote_plus
 from urllib.parse import urlencode
 
@@ -34,7 +36,8 @@ class Type(enum.Enum):
     SERVICE_ACCOUNT = 'service_account'
 
 
-def get_service_data(service: Optional[str]) -> Dict[str, Any]:
+def get_service_data(
+        service: Optional[Union[str, io.IOBase]]) -> Dict[str, Any]:
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
@@ -47,8 +50,12 @@ def get_service_data(service: Optional[str]) -> Dict[str, Any]:
         set_explicitly = True
 
     try:
-        with open(service, 'r') as f:
-            data: Dict[str, Any] = json.loads(f.read())
+        try:
+            with open(service, 'r') as f:
+                data: Dict[str, Any] = json.loads(f.read())
+                return data
+        except TypeError:
+            data: Dict[str, Any] = json.loads(service.read())
             return data
     except FileNotFoundError:
         if set_explicitly:
@@ -62,7 +69,7 @@ def get_service_data(service: Optional[str]) -> Dict[str, Any]:
 
 class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[str] = None,
+    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
                  session: aiohttp.ClientSession = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)

@@ -1,10 +1,12 @@
 """
 An asynchronous push queue for Google Appengine Task Queues
 """
+import io
 import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Union
 
 import aiohttp
 import backoff
@@ -22,7 +24,8 @@ log = logging.getLogger(__name__)
 
 class PushQueue:
     def __init__(self, project: str, taskqueue: str,
-                 service_file: Optional[str] = None, location: str = LOCATION,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 location: str = LOCATION,
                  session: Optional[aiohttp.ClientSession] = None,
                  token: Optional[Token] = None) -> None:
         self.base_api_root = f'{API_ROOT}/v2beta3'
