@@ -36,7 +36,8 @@ class Type(enum.Enum):
     SERVICE_ACCOUNT = 'service_account'
 
 
-def get_service_data(service: Optional[Union[str, io.IOBase]]) -> Dict[str, Any]:
+def get_service_data(
+        service: Optional[Union[str, io.IOBase]]) -> Dict[str, Any]:
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
