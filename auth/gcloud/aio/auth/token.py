@@ -13,13 +13,27 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
-from urllib.parse import quote_plus
-from urllib.parse import urlencode
 
-import aiohttp
+# Handle library differences in python2 and python3
+try:
+    from urllib.parse import urlencode
+    from urllib.parse import quote_plus
+except ImportError:
+    # from urllib import urlencode
+    # from urllib import pathname2url as quote_plus
+    from six.moves.urllib.parse import urlencode
+    from six.moves.urllib.parse import quote_plus
+
 import backoff
+# N.B. the cryptography library is required when calling jwt.encrypt() with
+# algorithm='RS256'. It does not need to be imported here, but this allows us
+# to throw this error at load time rather than lazily during normal operations,
+# where plumbing this error through will require several changes to otherwise-
+# good error handling.
+import cryptography  # pylint: disable=unused-import
 import jwt
 
+from .session import BaseSession
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
@@ -70,7 +84,7 @@ def get_service_data(
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: aiohttp.ClientSession = None,
+                 session: BaseSession = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -134,7 +148,7 @@ class Token:
         await self.acquiring
 
     async def _refresh_authorized_user(self,
-                                       timeout: int) -> aiohttp.ClientResponse:
+                                       timeout: int) -> Dict[str, str]:
         payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
@@ -142,18 +156,18 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         }, quote_via=quote_plus)
 
-        return await self.session.post(self.token_uri, data=payload,
+        return await self.session.post(url=self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+                                       timeout=timeout).json()
 
     async def _refresh_gce_metadata(self,
-                                    timeout: int) -> aiohttp.ClientResponse:
-        return await self.session.get(self.token_uri,
+                                    timeout: int) -> Dict[str, str]:
+        return await self.session.get(url=self.token_uri,
                                       headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+                                      timeout=timeout).json()
 
     async def _refresh_service_account(self,
-                                       timeout: int) -> aiohttp.ClientResponse:
+                                       timeout: int) -> Dict[str, str]:
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
@@ -174,25 +188,18 @@ class Token:
 
         return await self.session.post(self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+                                       timeout=timeout).json()
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=timeout,
-                                                 read_timeout=timeout)
-
         if self.token_type == Type.AUTHORIZED_USER:
-            resp = await self._refresh_authorized_user(timeout=timeout)
+            content = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
-            resp = await self._refresh_gce_metadata(timeout=timeout)
+            content = await self._refresh_gce_metadata(timeout=timeout)
         elif self.token_type == Type.SERVICE_ACCOUNT:
-            resp = await self._refresh_service_account(timeout=timeout)
+            content = await self._refresh_service_account(timeout=timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
-
-        resp.raise_for_status()
-        content = await resp.json()
 
         self.access_token = str(content['access_token'])
         self.access_token_duration = int(content['expires_in'])

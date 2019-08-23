@@ -2,3 +2,4 @@ aiohttp >= 2.0.0, < 4.0.0
 backoff >= 1.0.0, < 2.0.0
 cryptography >= 2.0.0, < 3.0.0
 pyjwt >= 1.5.3, < 2.0.0
+six==1.12.0

@@ -5,8 +5,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import aiohttp
-
+from .session import BaseSession
 from .token import Token
 from .token import Type
 from .utils import encode
@@ -18,8 +17,8 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[aiohttp.ClientSession] = None,
+    def __init__(self, session: BaseSession,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None) -> None:
         self.session = session
         self.token = token or Token(service_file=service_file,
@@ -45,7 +44,7 @@ class IamClient:
                              key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
-                             session: aiohttp.ClientSession = None,
+                             session: BaseSession = None,
                              timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -61,19 +60,16 @@ class IamClient:
         url = f'{API_ROOT_IAM}/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
         session = session or self.session
-        resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
-        return await resp.json()
+
+        return (await session.post(url=url, headers=headers, timeout=timeout)
+                .json())
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
-            session: aiohttp.ClientSession = None,
+            session: BaseSession = None,
             timeout: int = 10) -> List[Dict[str, str]]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -84,19 +80,16 @@ class IamClient:
 
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
         session = session or self.session
-        resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
-        return (await resp.json()).get('keys', [])
+
+        return (await session.post(url=url, headers=headers, timeout=timeout)
+                .json()).get('keys', [])
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
-                        session: aiohttp.ClientSession = None,
+                        session: BaseSession = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
                                  self.service_account_email)
@@ -118,11 +111,7 @@ class IamClient:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=json_str, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
-        return await resp.json()
+
+        return await session.post(url=url, data=json_str, headers=headers,
+                                  timeout=timeout).json()
