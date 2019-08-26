@@ -82,8 +82,9 @@ class IamClient:
 
         session = session or self.session
 
-        return (await session.post(url=url, headers=headers, timeout=timeout)
-                .json()).get('keys', [])
+        resp = await session.post(url=url, headers=headers, timeout=timeout)
+
+        return resp.json().get('keys', [])
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
