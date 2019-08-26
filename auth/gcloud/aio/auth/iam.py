@@ -62,8 +62,9 @@ class IamClient:
 
         session = session or self.session
 
-        return (await session.post(url=url, headers=headers, timeout=timeout)
-                .json())
+        resp = await session.post(url=url, headers=headers, timeout=timeout)
+
+        return await resp.json()
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
@@ -114,5 +115,6 @@ class IamClient:
 
         session = session or self.session
 
-        return await session.post(url=url, data=json_str, headers=headers,
-                                  timeout=timeout).json()
+        resp = await session.post(url=url, data=json_str, headers=headers,
+                                  timeout=timeout)
+        return await resp.json()
