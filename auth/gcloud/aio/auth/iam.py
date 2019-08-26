@@ -84,7 +84,7 @@ class IamClient:
 
         resp = await session.post(url=url, headers=headers, timeout=timeout)
 
-        return resp.json().get('keys', [])
+        return (await resp.json()).get('keys', [])
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
@@ -114,7 +114,5 @@ class IamClient:
 
         session = session or self.session
 
-        resp = await session.post(url=url, data=json_str, headers=headers,
-                                  timeout=timeout)
-
-        return resp.json()
+        return await session.post(url=url, data=json_str, headers=headers,
+                                  timeout=timeout).json()
