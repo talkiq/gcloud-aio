@@ -97,7 +97,7 @@ class Token:
             self.token_type = Type.GCE_METADATA
             self.token_uri = GCE_ENDPOINT_TOKEN
 
-        self.session = session
+        self.session = session or RestSession()
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
             raise Exception('scopes must be provided when token type is '

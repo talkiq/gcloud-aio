@@ -34,7 +34,7 @@ class BaseSession(ABC):
 if sys.version_info[0] >= 3:
     import aiohttp
     class AioSession(BaseSession):
-        def __init__(self, conn_timeout: int, read_timeout: int):
+        def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
             super().__init__()
             self.conn_timeout = conn_timeout
             self.read_timeout = read_timeout
@@ -47,7 +47,7 @@ if sys.version_info[0] >= 3:
 
         @session.setter
         def session(self, session: aiohttp.ClientSession):
-            super().session = session
+            self._session = session
 
         async def post(self, url: str, headers: Dict[str, str],
                        data: str = None, timeout: int = 10
@@ -55,13 +55,13 @@ if sys.version_info[0] >= 3:
             resp = await self.session.post(url, data=data, headers=headers,
                                            timeout=timeout)
             resp.raise_for_status()
-            return await resp
+            return resp
 
         async def get(self, url: str, headers: Dict[str, str], timeout: int = 10
                       ) -> aiohttp.ClientResponse:
             resp = await self.session.get(url, headers=headers, timeout=timeout)
             resp.raise_for_status()
-            return await resp
+            return resp
 
 
 class SyncSession(BaseSession):
@@ -76,7 +76,7 @@ class SyncSession(BaseSession):
 
     @session.setter
     def session(self, session: requests.Session):
-        super().session = session
+        self._session = session
 
     def post(self, url: str, headers: Dict[str, str], data: str = None,
              timeout: int = 10) -> requests.Response:

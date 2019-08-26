@@ -116,4 +116,4 @@ class IamClient:
         resp = await session.post(url=url, data=json_str, headers=headers,
                                   timeout=timeout)
 
-        return await resp.json()
+        return resp.json()
