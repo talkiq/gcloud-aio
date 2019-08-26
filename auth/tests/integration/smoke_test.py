@@ -74,7 +74,7 @@ async def test_sign_blob(creds: str) -> None:
         s = RestSession()
         s.session = _s
         iam_client = IamClient(service_file=creds, session=s)
-        resp = await iam_client.sign_blob(data)
+        resp = iam_client.sign_blob(data)
         signed_data = resp['signedBlob']
         await verify_signature(data, signed_data, resp['keyId'], iam_client)
 
