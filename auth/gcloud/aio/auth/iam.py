@@ -5,7 +5,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from .session import BaseSession
+from .session import AioSession as RestSession
 from .token import Token
 from .token import Type
 from .utils import encode
@@ -17,7 +17,7 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, session: BaseSession,
+    def __init__(self, session: RestSession,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None) -> None:
         self.session = session
@@ -44,7 +44,7 @@ class IamClient:
                              key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
-                             session: BaseSession = None,
+                             session: RestSession = None,
                              timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -69,7 +69,7 @@ class IamClient:
     async def list_public_keys(
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
-            session: BaseSession = None,
+            session: RestSession = None,
             timeout: int = 10) -> List[Dict[str, str]]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -89,7 +89,7 @@ class IamClient:
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
-                        session: BaseSession = None,
+                        session: RestSession = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
                                  self.service_account_email)

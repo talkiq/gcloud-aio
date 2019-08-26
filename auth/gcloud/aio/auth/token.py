@@ -33,7 +33,7 @@ import backoff
 import cryptography  # pylint: disable=unused-import
 import jwt
 
-from .session import BaseSession
+from .session import AioSession as RestSession
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
@@ -84,7 +84,7 @@ def get_service_data(
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: BaseSession = None,
+                 session: RestSession = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -158,13 +158,13 @@ class Token:
 
         return await self.session.post(url=self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
-                                       timeout=timeout).json()
+                                       timeout=timeout)
 
     async def _refresh_gce_metadata(self,
                                     timeout: int) -> Dict[str, str]:
         return await self.session.get(url=self.token_uri,
                                       headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout).json()
+                                      timeout=timeout)
 
     async def _refresh_service_account(self,
                                        timeout: int) -> Dict[str, str]:
@@ -188,18 +188,20 @@ class Token:
 
         return await self.session.post(self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
-                                       timeout=timeout).json()
+                                       timeout=timeout)
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
         if self.token_type == Type.AUTHORIZED_USER:
-            content = await self._refresh_authorized_user(timeout=timeout)
+            resp = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
-            content = await self._refresh_gce_metadata(timeout=timeout)
+            resp = await self._refresh_gce_metadata(timeout=timeout)
         elif self.token_type == Type.SERVICE_ACCOUNT:
-            content = await self._refresh_service_account(timeout=timeout)
+            resp = await self._refresh_service_account(timeout=timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
+
+        content = await resp.json()
 
         self.access_token = str(content['access_token'])
         self.access_token_duration = int(content['expires_in'])

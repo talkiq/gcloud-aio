@@ -62,6 +62,7 @@ jobs:
       - run: pip install future
       - checkout
       - run: find . -type f | grep "/gcloud/" | grep -v "session.py" | xargs -L1 sed -Ei 's/(async|await)//g'
+      - run: find . -type f | grep "/gcloud/" | grep -v "session.py" | xargs -L1 sed -Ei 's/(AioSession|SyncSession)//g'
       - run: find . -type f | grep "/gcloud/" | xargs -L1 pasteurize --nobackups --write --verbose
 
 workflows:

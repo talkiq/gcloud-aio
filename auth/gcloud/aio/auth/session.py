@@ -14,10 +14,10 @@ class BaseSession(ABC):
     def __init__(self):
         self._session = None
 
-    @abstractmethod
+    # @abstractmethod
     @property
     def session(self):
-        pass
+        return self._session
 
     @session.setter
     def session(self, session):
@@ -64,7 +64,7 @@ if sys.version_info[0] >= 3:
             return await resp
 
 
-class RestSession(BaseSession):
+class SyncSession(BaseSession):
     def __init__(self):
         super().__init__()
         self.google_api_lock = threading.RLock()
