@@ -3,6 +3,7 @@ import uuid
 
 import aiohttp
 import pytest
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLQuery
@@ -20,7 +21,9 @@ from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         allocatedKeys = await ds.allocateIds([key], session=s)
@@ -54,7 +57,9 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
@@ -75,7 +80,9 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_rollback(creds: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
@@ -85,7 +92,9 @@ async def test_rollback(creds: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_query(creds: str, kind: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         property_filter = PropertyFilter(
@@ -114,7 +123,9 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_gql_query(creds: str, kind: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
@@ -149,7 +160,9 @@ async def test_datastore_export(creds: str, project: str,
 
     rand_uuid = str(uuid.uuid4())
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
         ds = Datastore(project=project, service_file=creds, session=s)
 
         await ds.insert(Key(project, [PathElement(kind)]),

@@ -8,7 +8,7 @@ from typing import Optional
 from typing import Union
 from urllib.parse import quote
 
-import aiohttp
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -29,12 +29,12 @@ class Blob:
     def chunk_size(self) -> int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self, session: aiohttp.ClientSession = None) -> Any:
+    async def download(self, session: RestSession = None) -> Any:
         return await self.bucket.storage.download(self.bucket.name, self.name,
                                                   session=session)
 
     async def upload(self, data: Any,
-                     session: aiohttp.ClientSession = None) -> dict:
+                     session: RestSession = None) -> dict:
         metadata: dict = await self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
@@ -48,7 +48,7 @@ class Blob:
             service_account_email: Optional[str] = None,
             service_file: Optional[Union[str, io.IOBase]] = None,
             token: Optional[Token] = None,
-            session: Optional[aiohttp.ClientSession] = None) -> str:
+            session: Optional[RestSession] = None) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
         with the link.
