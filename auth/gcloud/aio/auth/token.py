@@ -118,7 +118,6 @@ class Token:
             await self.ensure_token()
             resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
                                           headers=GCE_METADATA_HEADERS)
-            resp.raise_for_status()
             project = project or (await resp.text())
         elif self.token_type == Type.SERVICE_ACCOUNT:
             project = project or self.service_data.get('project_id')

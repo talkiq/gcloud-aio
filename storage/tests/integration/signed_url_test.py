@@ -28,7 +28,6 @@ async def test_gcs_signed_url(bucket_name, creds, data):
         signed_url = await blob.get_signed_url(60, iam_client=iam_client)
 
         resp = await session.get(signed_url)
-        resp.raise_for_status()
         downloaded_data = await resp.text()
 
         try:

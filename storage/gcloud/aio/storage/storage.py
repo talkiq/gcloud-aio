@@ -3,22 +3,30 @@ import io
 import logging
 import mimetypes
 import os
-from asyncio import sleep
 from typing import Any
 from typing import Optional
 from typing import Tuple
 from typing import Union
 from urllib.parse import quote
 
-from aiohttp import ClientResponseError
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
+
 try:
     import ujson as json
 except ModuleNotFoundError:
     import json  # type: ignore
 
+try:
+    from asyncio import sleep
+except ModuleNotFoundError:
+    from time import sleep
+
+try:
+    from aiohttp import ClientResponseError as ResponseError
+except ModuleNotFoundError:
+    from requests import HTTPError as ResponseError
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -64,7 +72,6 @@ class Storage:
         session = session or self.session
         resp = await session.delete(url, headers=headers, params=params or {},
                                     timeout=timeout)
-        resp.raise_for_status()
         data: str = await resp.text()
         return data
 
@@ -96,7 +103,6 @@ class Storage:
         session = session or self.session
         resp = await session.get(url, headers=headers, params=params or {},
                                  timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data
 
@@ -239,7 +245,6 @@ class Storage:
         session = session or self.session
         resp = await session.post(url, data=stream, headers=headers,
                                   params=params, timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data
 
@@ -277,7 +282,6 @@ class Storage:
         session = session or self.session
         resp = await session.post(url, headers=post_headers, params=params,
                                   data=metadata, timeout=10)
-        resp.raise_for_status()
         session_uri: str = resp.headers['Location']
         return session_uri
 
@@ -293,7 +297,7 @@ class Storage:
             try:
                 resp = await session.put(session_uri, headers=headers,
                                          data=stream, timeout=timeout)
-            except ClientResponseError:
+            except ResponseError:
                 headers.update({'Content-Range': '*/*'})
                 await sleep(2. ** tries)
 
@@ -303,6 +307,5 @@ class Storage:
 
             break
 
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data

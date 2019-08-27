@@ -1,11 +1,14 @@
 import logging
 from typing import List
 
-from aiohttp import ClientResponseError
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 
 from .blob import Blob
 
+try:
+    from aiohttp import ClientResponseError as ResponseError
+except ModuleNotFoundError:
+    from requests import HTTPError as ResponseError
 
 log = logging.getLogger(__name__)
 
@@ -27,8 +30,7 @@ class Bucket:
         try:
             await self.get_blob(blob_name, session=session)
             return True
-        # TODO: Remove - hacked for testing
-        except ClientResponseError as e:
+        except ResponseError as e:
             if e.status in {404, 410}:
                 return False
             raise e

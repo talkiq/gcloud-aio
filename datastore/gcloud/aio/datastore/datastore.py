@@ -138,7 +138,6 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data['keys']]
@@ -159,7 +158,6 @@ class Datastore:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
         data = await resp.json()
 
         transaction: str = data['transaction']
@@ -188,9 +186,7 @@ class Datastore:
         if not self.session:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
@@ -222,7 +218,6 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
@@ -242,7 +237,6 @@ class Datastore:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
@@ -275,7 +269,6 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return {
@@ -308,9 +301,7 @@ class Datastore:
         if not self.session:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(self, transaction: str,
@@ -332,9 +323,7 @@ class Datastore:
         if not self.session:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(self, query: BaseQuery, transaction: str = None,
@@ -368,7 +357,6 @@ class Datastore:
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
 
         data: dict = await resp.json()
         return self.query_result_batch_kind.from_repr(data['batch'])
