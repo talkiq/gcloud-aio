@@ -20,6 +20,7 @@ from gcloud.aio.datastore.filter import PropertyFilter
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.key import PathElement
 from gcloud.aio.datastore.lat_lng import LatLng
+from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
 from gcloud.aio.datastore.query import GQLQuery
 from gcloud.aio.datastore.query import Query
@@ -31,5 +32,6 @@ __all__ = ['__version__', 'CompositeFilter', 'CompositeFilterOperator',
            'Consistency', 'Datastore', 'DatastoreOperation', 'Direction',
            'Entity', 'EntityResult', 'Filter', 'GQLQuery', 'Key', 'LatLng',
            'Mode', 'MoreResultsType', 'Operation', 'PathElement',
-           'PropertyFilter', 'PropertyFilterOperator', 'PropertyOrder',
-           'Query', 'QueryResultBatch', 'ResultType', 'SCOPES', 'Value']
+           'Projection', 'PropertyFilter', 'PropertyFilterOperator',
+           'PropertyOrder', 'Query', 'QueryResultBatch', 'ResultType',
+           'SCOPES', 'Value']
