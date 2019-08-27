@@ -2,6 +2,7 @@ import sys
 import threading
 from abc import ABC
 from abc import abstractmethod
+from io import IOBase
 from typing import Dict  # pylint: disable=unused-import
 from typing import List  # pylint: disable=unused-import
 from typing import Optional  # pylint: disable=unused-import
@@ -31,6 +32,11 @@ class BaseSession(ABC):
     @abstractmethod
     def get(self, url: str, headers: Dict[str, str], timeout: int,
             params: Dict[str, str]):
+        pass
+
+    @abstractmethod
+    def put(self, url: str, headers: Dict[str, str], data: IOBase,
+            timeout: int):
         pass
 
 if sys.version_info[0] >= 3:
@@ -68,6 +74,13 @@ if sys.version_info[0] >= 3:
             resp.raise_for_status()
             return resp
 
+        async def put(self, url: str, headers: Dict[str, str], data: IOBase,
+                      timeout: int = 10) -> aiohttp.ClientResponse:
+            resp = await self.session.put(url, data=data, headers=headers,
+                                          timeout=timeout)
+            resp.raise_for_status()
+            return resp
+
 
 class SyncSession(BaseSession):
     def __init__(self):
@@ -97,5 +110,13 @@ class SyncSession(BaseSession):
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
                                     params=params)
+        resp.raise_for_status()
+        return resp
+
+    def put(self, url: str, headers: Dict[str, str], data: IOBase,
+            timeout: int = 10) -> aiohttp.ClientResponse:
+        with self.google_api_lock:
+            resp = self.session.put(url, data=data, headers=headers,
+                                    timeout=timeout)
         resp.raise_for_status()
         return resp
