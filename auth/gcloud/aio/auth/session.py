@@ -56,14 +56,15 @@ if sys.version_info[0] >= 3:
                        params: Dict[str, str] = None
                        ) -> aiohttp.ClientResponse:
             resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout)
+                                           timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
         async def get(self, url: str, headers: Dict[str, str] = None,
                       timeout: int = 10, params: Dict[str, str] = None
                       ) -> aiohttp.ClientResponse:
-            resp = await self.session.get(url, headers=headers, timeout=timeout)
+            resp = await self.session.get(url, headers=headers, timeout=timeout,
+                                          params=params)
             resp.raise_for_status()
             return resp
 
@@ -87,13 +88,14 @@ class SyncSession(BaseSession):
              ) -> requests.Response:
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
-                                     timeout=timeout)
+                                     timeout=timeout, params=params)
         resp.raise_for_status()
         return resp
 
     def get(self, url: str, headers: Dict[str, str] = None, timeout: int = 10,
             params: Dict[str, str] = None) -> requests.Response:
         with self.google_api_lock:
-            resp = self.session.get(url, headers=headers, timeout=timeout)
+            resp = self.session.get(url, headers=headers, timeout=timeout,
+                                    params=params)
         resp.raise_for_status()
         return resp
