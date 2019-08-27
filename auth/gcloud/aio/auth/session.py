@@ -24,11 +24,13 @@ class BaseSession(ABC):
         self._session = session
 
     @abstractmethod
-    def post(self, url: str, headers: Dict[str, str], data: str, timeout: int):
+    def post(self, url: str, headers: Dict[str, str], data: str, timeout: int,
+             params: Dict[str, str]):
         pass
 
     @abstractmethod
-    def get(self, url: str, headers: Dict[str, str], timeout: int):
+    def get(self, url: str, headers: Dict[str, str], timeout: int,
+            params: Dict[str, str]):
         pass
 
 if sys.version_info[0] >= 3:
@@ -50,7 +52,8 @@ if sys.version_info[0] >= 3:
             self._session = session
 
         async def post(self, url: str, headers: Dict[str, str],
-                       data: str = None, timeout: int = 10
+                       data: str = None, timeout: int = 10,
+                       params: Dict[str, str] = None
                        ) -> aiohttp.ClientResponse:
             resp = await self.session.post(url, data=data, headers=headers,
                                            timeout=timeout)
@@ -58,7 +61,8 @@ if sys.version_info[0] >= 3:
             return resp
 
         async def get(self, url: str, headers: Dict[str, str] = None,
-                      timeout: int = 10) -> aiohttp.ClientResponse:
+                      timeout: int = 10, params: Dict[str, str] = None
+                      ) -> aiohttp.ClientResponse:
             resp = await self.session.get(url, headers=headers, timeout=timeout)
             resp.raise_for_status()
             return resp
@@ -79,15 +83,16 @@ class SyncSession(BaseSession):
         self._session = session
 
     def post(self, url: str, headers: Dict[str, str], data: str = None,
-             timeout: int = 10) -> requests.Response:
+             timeout: int = 10, params: Dict[str, str] = None
+             ) -> requests.Response:
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
                                      timeout=timeout)
         resp.raise_for_status()
         return resp
 
-    def get(self, url: str, headers: Dict[str, str] = None, timeout: int = 10
-            ) -> requests.Response:
+    def get(self, url: str, headers: Dict[str, str] = None, timeout: int = 10,
+            params: Dict[str, str] = None) -> requests.Response:
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout)
         resp.raise_for_status()
