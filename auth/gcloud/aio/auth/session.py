@@ -89,8 +89,8 @@ if sys.version_info[0] >= 3:
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Dict[str, str], timeout: int = 10
                          ) -> aiohttp.ClientResponse:
-            resp = await self.session.put(url, params=params, headers=headers,
-                                          timeout=timeout)
+            resp = await self.session.delete(url, headers=headers,
+                                             params=params, timeout=timeout)
             resp.raise_for_status()
             return resp
 
@@ -137,7 +137,7 @@ class SyncSession(BaseSession):
     def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
                timeout: int = 10) -> requests.Response:
         with self.google_api_lock:
-            resp = self.session.put(url, params=params, headers=headers,
-                                    timeout=timeout)
+            resp = self.session.delete(url, params=params, headers=headers,
+                                       timeout=timeout)
         resp.raise_for_status()
         return resp
