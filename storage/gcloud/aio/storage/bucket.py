@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from aiohttp import ClientResponseError
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 
 from .blob import Blob
@@ -27,12 +28,10 @@ class Bucket:
             await self.get_blob(blob_name, session=session)
             return True
         # TODO: Remove - hacked for testing
-        except Exception:  #pylint: disable=broad-except
-            return False
-        # except aiohttp.ClientResponseError as e:
-        #     if e.status in {404, 410}:
-        #         return False
-        #     raise e
+        except ClientResponseError as e:
+            if e.status in {404, 410}:
+                return False
+            raise e
 
     async def list_blobs(self, prefix: str = '',
                          session: RestSession = None) -> List[str]:

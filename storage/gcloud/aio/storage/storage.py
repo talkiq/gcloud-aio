@@ -3,12 +3,14 @@ import io
 import logging
 import mimetypes
 import os
+from asyncio import sleep
 from typing import Any
 from typing import Optional
 from typing import Tuple
 from typing import Union
 from urllib.parse import quote
 
+from aiohttp import ClientResponseError
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
@@ -287,22 +289,17 @@ class Storage:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
 
-        resp = await session.put(session_uri, headers=headers, data=stream,
-                                 timeout=timeout)
         for tries in range(retries):
             try:
                 resp = await session.put(session_uri, headers=headers,
                                          data=stream, timeout=timeout)
-                resp.raise_for_status()
-            # TODO: Remove - hacked for testing
-            except Exception:  # pylint: disable=broad-except
-                tries += 1
+            except ClientResponseError:
                 headers.update({'Content-Range': '*/*'})
+                await sleep(2. ** tries)
+
+                resp = await session.put(session_uri, headers=headers,
+                                         data=stream, timeout=timeout)
                 continue
-            # except aiohttp.ClientResponseError:
-            #     headers.update({'Content-Range': '*/*'})
-            #     await asyncio.sleep(2. ** tries)
-            #     continue
 
             break
 

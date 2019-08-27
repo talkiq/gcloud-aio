@@ -39,6 +39,11 @@ class BaseSession(ABC):
             timeout: int):
         pass
 
+    @abstractmethod
+    def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
+               timeout: int):
+        pass
+
 if sys.version_info[0] >= 3:
     import aiohttp
     class AioSession(BaseSession):
@@ -81,6 +86,14 @@ if sys.version_info[0] >= 3:
             resp.raise_for_status()
             return resp
 
+        async def delete(self, url: str, headers: Dict[str, str],
+                         params: Dict[str, str], timeout: int = 10
+                         ) -> aiohttp.ClientResponse:
+            resp = await self.session.put(url, params=params, headers=headers,
+                                          timeout=timeout)
+            resp.raise_for_status()
+            return resp
+
 
 class SyncSession(BaseSession):
     def __init__(self):
@@ -114,9 +127,17 @@ class SyncSession(BaseSession):
         return resp
 
     def put(self, url: str, headers: Dict[str, str], data: IOBase,
-            timeout: int = 10) -> aiohttp.ClientResponse:
+            timeout: int = 10) -> requests.Response:
         with self.google_api_lock:
             resp = self.session.put(url, data=data, headers=headers,
+                                    timeout=timeout)
+        resp.raise_for_status()
+        return resp
+
+    def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
+               timeout: int = 10) -> requests.Response:
+        with self.google_api_lock:
+            resp = self.session.put(url, params=params, headers=headers,
                                     timeout=timeout)
         resp.raise_for_status()
         return resp
