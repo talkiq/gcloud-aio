@@ -29,14 +29,14 @@ def unit_tests(session):
 
 @nox.session(python=['2.7', '3.7'], reuse_venv=True)
 def lint_setup_py(session):
-    session.install('docutils', 'Pygments')
+    session.install('docutils', 'Pygments', 'future')
     session.run('python', 'setup.py', 'check', '--restructuredtext',
                 '--strict')
 
 
 @nox.session(python=['3.7'], reuse_venv=True)
 def cover(session):
-    session.install('coverage', 'pytest-cov')
+    session.install('coverage', 'pytest-cov', 'future')
 
     session.run('coverage', 'report', '--show-missing')
     session.run('coverage', 'erase')
