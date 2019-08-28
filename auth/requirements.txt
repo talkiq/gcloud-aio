@@ -1,6 +1,8 @@
 aiohttp >= 2.0.0, < 4.0.0
 backoff >= 1.0.0, < 2.0.0
 cryptography >= 2.0.0, < 3.0.0
+future==0.17.1
+future-fstrings==1.2.0
 pyjwt >= 1.5.3, < 2.0.0
 requests==2.22.0
 six==1.12.0
