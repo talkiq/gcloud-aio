@@ -62,7 +62,7 @@ class IamClient:
 
         session = session or self.session
 
-        resp = await session.post(url=url, headers=headers, timeout=timeout)
+        resp = await session.get(url=url, headers=headers, timeout=timeout)
 
         return await resp.json()
 
