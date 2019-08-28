@@ -98,9 +98,9 @@ jobs:
     steps:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
-          at: py2
+          at: rest
       - run: pip install future
-      - run: nox -f py2/<<parameters.folder>>/noxfile.rest.py
+      - run: nox -f rest/<<parameters.folder>>/noxfile.rest.py
 
 
 workflows:
@@ -162,12 +162,12 @@ workflows:
           requires:
             - linter/pre-commit
             - test-auth
-            # - test-bigquery
-            # - test-datastore
-            # - test-kms
-            # - test-pubsub
+            - test-bigquery
+            - test-datastore
+            - test-kms
+            - test-pubsub
             - test-storage
-            # - test-taskqueue
+            - test-taskqueue
       - nox-rest:
           name: test-rest-auth
           folder: auth
@@ -178,8 +178,53 @@ workflows:
             - linter/pre-commit
             - build-rest
       - nox-rest:
+          name: test-rest-bigquery
+          folder: bigquery
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-datastore
+          folder: datastore
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-kms
+          folder: kms
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-pubsub
+          folder: pubsub
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
           name: test-rest-storage
           folder: storage
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-taskqueue
+          folder: taskqueue
           filters:
             tags:
               only: /.*/
