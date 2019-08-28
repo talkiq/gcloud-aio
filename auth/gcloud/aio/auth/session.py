@@ -1,4 +1,4 @@
-import sys
+import os
 import threading
 from abc import ABCMeta
 from abc import abstractmethod
@@ -46,7 +46,7 @@ class BaseSession():
                timeout: int):
         pass
 
-if sys.version_info[0] >= 3:
+if not os.environ.get('BUILD_GCLOUD_REST'):
     import aiohttp
     class AioSession(BaseSession):
         def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):

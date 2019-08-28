@@ -86,20 +86,12 @@ jobs:
           root: .
           paths:
           - ./*
-  # old_nox1:
-  #   docker:
-  #     - image: thekevjames/nox:2019.5.30
-  #   environment:
-  #     GOOGLE_APPLICATION_CREDENTIALS: /key.json
-  #   steps:
-  #     - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
-  #     - checkout
-  #     - run: nox
-  nox2:
+  nox-rest:
     docker:
       - image: thekevjames/nox:2019.5.30
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
+      BUILD_GCLOUD_REST: 'TRUE'
     parameters:
       folder:
         type: string
@@ -107,6 +99,7 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: py2
+      - run: pip install future
       - run: nox -f py2/<<parameters.folder>>/noxfile.rest.py
 
 
@@ -162,7 +155,7 @@ workflows:
             tags:
               only: /.*/
       - py3to2:
-          name: build-py2
+          name: build-rest
           filters:
             tags:
               only: /.*/
@@ -175,7 +168,7 @@ workflows:
             # - test-pubsub
             - test-storage
             # - test-taskqueue
-      - nox2:
+      - nox-rest:
           name: test-rest-auth
           folder: auth
           filters:
@@ -183,8 +176,8 @@ workflows:
               only: /.*/
           requires:
             - linter/pre-commit
-            - build-py2
-      - nox2:
+            - build-rest
+      - nox-rest:
           name: test-rest-storage
           folder: storage
           filters:

@@ -6,7 +6,6 @@ import enum
 import io
 import json
 import os
-import sys
 import time
 from typing import Any
 from typing import Dict
@@ -36,7 +35,7 @@ except ImportError:
 from .session import AioSession as RestSession
 
 # Only import asyncio if we have a compatible python version
-if sys.version_info[0] >= 3:
+if not os.environ.get('BUILD_GCLOUD_REST'):
     import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -111,7 +110,7 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        if sys.version_info[0] >= 3:
+        if not os.environ.get('BUILD_GCLOUD_REST'):
             self.acquiring: Optional[asyncio.Future] = None
 
     async def get_project(self) -> Optional[str]:
@@ -134,7 +133,7 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if sys.version_info[0] < 3:
+        if os.environ.get('BUILD_GCLOUD_REST'):
             return
 
         if self.acquiring:
