@@ -185,7 +185,7 @@ workflows:
               only: /.*/
           requires:
             - linter/pre-commit
-            - build-py2
+            - build-rest
 
       - pypi:
           context: org-global
