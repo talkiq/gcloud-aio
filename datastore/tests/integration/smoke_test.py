@@ -9,6 +9,7 @@ from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
+from gcloud.aio.datastore import Projection
 from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
@@ -80,6 +81,66 @@ async def test_rollback(creds: str, project: str) -> None:
 
         transaction = await ds.beginTransaction(session=s)
         await ds.rollback(transaction, session=s)
+
+@pytest.mark.asyncio  # type: ignore
+async def test_query_with_key_projection(creds: str, kind: str,
+                                         project: str) -> None:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        # setup test data
+        await ds.insert(Key(project, [PathElement(kind)]), {'value': 30}, s)
+        property_filter = PropertyFilter(
+            prop='value', operator=PropertyFilterOperator.EQUAL,
+            value=Value(30))
+        projection = [Projection.from_repr({'property': {'name': '__key__'}})]
+
+        query = Query(kind=kind, query_filter=Filter(property_filter), limit=1,
+                      projection=projection)
+        result = await ds.runQuery(query, session=s)
+        assert result.entity_results[0].entity.properties == {}
+        assert result.entity_result_type.value == 'KEY_ONLY'
+        # clean up test data
+        await ds.delete(result.entity_results[0].entity.key, s)
+
+@pytest.mark.asyncio  # type: ignore
+async def test_query_with_value_projection(creds: str, kind: str,
+                                           project: str) -> None:
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        # setup test data
+        await ds.insert(Key(project, [PathElement(kind)]), {'value': 30}, s)
+        projection = [Projection.from_repr({'property': {'name': 'value'}})]
+
+        query = Query(kind=kind, limit=1,
+                      projection=projection)
+        result = await ds.runQuery(query, session=s)
+        assert result.entity_result_type.value == 'PROJECTION'
+        # clean up test data
+        await ds.delete(result.entity_results[0].entity.key, s)
+
+@pytest.mark.asyncio  # type: ignore
+async def test_query_with_distinct_on(creds: str, kind: str,
+                                      project: str) -> None:
+    keys1 = [Key(project, [PathElement(kind)]) for i in range(3)]
+    keys2 = [Key(project, [PathElement(kind)]) for i in range(3)]
+    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # setup test data
+        allocatedKeys1 = await ds.allocateIds(keys1, session=s)
+        allocatedKeys2 = await ds.allocateIds(keys2, session=s)
+        for key1 in allocatedKeys1:
+            await ds.insert(key1, {'dist_value': 11}, s)
+        for key2 in allocatedKeys2:
+            await ds.insert(key2, {'dist_value': 22}, s)
+        query = Query(kind=kind, limit=10, distinct_on=['dist_value'])
+        result = await ds.runQuery(query, session=s)
+        assert len(result.entity_results) == 2
+        # clean up test data
+        for key1 in allocatedKeys1:
+            await ds.delete(key1, s)
+        for key2 in allocatedKeys2:
+            await ds.delete(key2, s)
 
 
 @pytest.mark.asyncio  # type: ignore
