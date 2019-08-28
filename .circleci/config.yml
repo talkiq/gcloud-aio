@@ -168,12 +168,12 @@ workflows:
           requires:
             - linter/pre-commit
             - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
+            # - test-bigquery
+            # - test-datastore
+            # - test-kms
+            # - test-pubsub
+            # - test-storage
+            # - test-taskqueue
 
 
       - pypi:
