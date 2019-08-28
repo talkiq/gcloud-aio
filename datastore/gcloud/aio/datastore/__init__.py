@@ -31,7 +31,6 @@ from gcloud.aio.datastore.value import Value
 __all__ = ['__version__', 'CompositeFilter', 'CompositeFilterOperator',
            'Consistency', 'Datastore', 'DatastoreOperation', 'Direction',
            'Entity', 'EntityResult', 'Filter', 'GQLQuery', 'Key', 'LatLng',
-           'Mode', 'MoreResultsType', 'Operation', 'PathElement',
-           'Projection', 'PropertyFilter', 'PropertyFilterOperator',
-           'PropertyOrder', 'Query', 'QueryResultBatch', 'ResultType',
-           'SCOPES', 'Value']
+           'Mode', 'MoreResultsType', 'Operation', 'PathElement', 'Projection',
+           'PropertyFilter', 'PropertyFilterOperator', 'PropertyOrder',
+           'Query', 'QueryResultBatch', 'ResultType', 'SCOPES', 'Value']

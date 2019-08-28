@@ -33,8 +33,8 @@ class Query(BaseQuery):
 
     def __init__(self, kind: str = '', query_filter: Filter = None,
                  order: List[PropertyOrder] = None, start_cursor: str = '',
-                 end_cursor: str = '', offset: int = 0,
-                 limit: int = 0, projection: List[Projection] = None,
+                 end_cursor: str = '', offset: int = 0, limit: int = 0,
+                 projection: List[Projection] = None,
                  distinct_on: List[str] = None) -> None:
         self.kind = kind
         self.query_filter = query_filter

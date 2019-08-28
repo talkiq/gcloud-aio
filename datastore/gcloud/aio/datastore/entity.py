@@ -63,7 +63,7 @@ class EntityResult:
 
     def to_repr(self) -> Dict[str, Any]:
         data = {
-            'entity': self.entity.to_repr()
+            'entity': self.entity.to_repr(),
         }
         if self.version:
             data['version'] = self.version
