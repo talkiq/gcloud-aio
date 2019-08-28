@@ -36,7 +36,7 @@ except ImportError:
 from .session import AioSession as RestSession
 
 # Only import asyncio if we have a compatible python version
-if sys.version_info[0] > 3:
+if sys.version_info[0] >= 3:
     import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -110,7 +110,6 @@ class Token:
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
-
 
         if sys.version_info[0] >= 3:
             self.acquiring: Optional[asyncio.Future] = None
