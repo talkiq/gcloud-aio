@@ -181,12 +181,18 @@ workflows:
           filters:
             tags:
               only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-py2
       - nox2:
           name: test-rest-storage
           folder: storage
           filters:
             tags:
               only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-py2
 
       - pypi:
           context: org-global
