@@ -6,7 +6,7 @@ from typing import Dict
 from typing import Optional
 from typing import Union
 
-import aiohttp
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 
@@ -21,7 +21,7 @@ class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  location: str = LOCATION,
-                 session: Optional[aiohttp.ClientSession] = None,
+                 session: Optional[RestSession] = None,
                  token: Optional[Token] = None) -> None:
         self.api_root = (f'{API_ROOT}/projects/{keyproject}/'
                          f'locations/{location}/keyRings/{keyring}/'
@@ -40,36 +40,32 @@ class KMS:
 
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt
     async def decrypt(self, ciphertext: str,
-                      session: Optional[aiohttp.ClientSession] = None) -> str:
+                      session: Optional[RestSession] = None) -> str:
         url = f'{self.api_root}:decrypt'
         body = {
             'ciphertext': ciphertext,
         }
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         s = session or self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
-        resp.raise_for_status()
 
         plaintext: str = (await resp.json())['plaintext']
         return plaintext
 
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt
     async def encrypt(self, plaintext: str,
-                      session: Optional[aiohttp.ClientSession] = None) -> str:
+                      session: Optional[RestSession] = None) -> str:
         url = f'{self.api_root}:encrypt'
         body = {
             'plaintext': plaintext,
         }
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         s = session or self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
-        resp.raise_for_status()
 
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext

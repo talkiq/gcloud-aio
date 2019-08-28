@@ -118,7 +118,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
     async def allocateIds(self, keys: List[Key],
-                          session: RestSession = None,
+                          session: Optional[RestSession] = None,
                           timeout: int = 10) -> List[Key]:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:allocateIds'
@@ -144,7 +144,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
-    async def beginTransaction(self, session: RestSession = None,
+    async def beginTransaction(self, session: Optional[RestSession] = None,
                                timeout: int = 10) -> str:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:beginTransaction'
@@ -168,7 +168,7 @@ class Datastore:
     async def commit(self, mutations: List[Dict[str, Any]],
                      transaction: Optional[str] = None,
                      mode: Mode = Mode.TRANSACTIONAL,
-                     session: RestSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:commit'
@@ -193,7 +193,7 @@ class Datastore:
                      kinds: Optional[List[str]] = None,
                      namespaces: Optional[List[str]] = None,
                      labels: Optional[Dict[str, str]] = None,
-                     session: RestSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> DatastoreOperation:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:export'
@@ -224,7 +224,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
     async def get_datastore_operation(self, name: str,
-                                      session: RestSession = None,
+                                      session: Optional[RestSession] = None,
                                       timeout: int = 10) -> DatastoreOperation:
         url = f'{API_ROOT}/{name}'
 
@@ -244,7 +244,7 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(self, keys: List[Key], transaction: str = None,
                      consistency: Consistency = Consistency.STRONG,
-                     session: RestSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> Dict[str, Union[EntityResult, Key]]:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:lookup'
@@ -282,7 +282,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(self, keys: List[Key], database_id: str = '',
-                         session: RestSession = None,
+                         session: Optional[RestSession] = None,
                          timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:reserveIds'
@@ -305,7 +305,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(self, transaction: str,
-                       session: RestSession = None,
+                       session: Optional[RestSession] = None,
                        timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:rollback'
@@ -328,7 +328,7 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(self, query: BaseQuery, transaction: str = None,
                        consistency: Consistency = Consistency.EVENTUAL,
-                       session: RestSession = None,
+                       session: Optional[RestSession] = None,
                        timeout: int = 10) -> QueryResultBatch:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:runQuery'
@@ -362,28 +362,28 @@ class Datastore:
         return self.query_result_batch_kind.from_repr(data['batch'])
 
     async def delete(self, key: Key,
-                     session: RestSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.DELETE, key, session=session)
 
     async def insert(self, key: Key, properties: Dict[str, Any],
-                     session: RestSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
     async def update(self, key: Key, properties: Dict[str, Any],
-                     session: RestSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
     async def upsert(self, key: Key, properties: Dict[str, Any],
-                     session: RestSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None,
-                      session: RestSession = None) -> None:
+                      session: Optional[RestSession] = None) -> None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)

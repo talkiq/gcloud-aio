@@ -10,6 +10,7 @@ from typing import Union
 from urllib.parse import quote
 
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
 
@@ -18,21 +19,14 @@ try:
 except ModuleNotFoundError:
     import json  # type: ignore
 
-# TODO: We should explicitly check if the build is for `gloud-rest` and select
-# the correct package accordingly. The current method works but is not clear
-# about its motivation.
-try:
-    from asyncio import sleep
-except ModuleNotFoundError:
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
     from time import sleep
-
-# TODO: We should explicitly check if the build is for `gloud-rest` and select
-# the correct package accordingly. The current method works but is not clear
-# about its motivation.
-try:
-    from aiohttp import ClientResponseError as ResponseError
-except ModuleNotFoundError:
     from requests import HTTPError as ResponseError
+else:
+    from asyncio import sleep
+    from aiohttp import ClientResponseError as ResponseError
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -64,7 +58,7 @@ class Storage:
 
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
-                     session: RestSession = None) -> str:
+                     session: Optional[RestSession] = None) -> str:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -83,20 +77,20 @@ class Storage:
 
     async def download(self, bucket: str, object_name: str, *,
                        timeout: int = 10,
-                       session: RestSession = None) -> bytes:
+                       session: Optional[RestSession] = None) -> bytes:
         return await self._download(bucket, object_name, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 timeout: int = 10,
-                                session: RestSession = None) -> dict:
+                                session: Optional[RestSession] = None) -> dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
         metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
-                           session: RestSession = None,
+                           session: Optional[RestSession] = None,
                            timeout: int = 10) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT}/{bucket}/o'
@@ -118,7 +112,7 @@ class Storage:
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
                      headers: dict = None, metadata: dict = None,
-                     session: RestSession = None, timeout: int = 30,
+                     session: Optional[RestSession] = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
@@ -213,7 +207,7 @@ class Storage:
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
-                        session: RestSession = None) -> bytes:
+                        session: Optional[RestSession] = None) -> bytes:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -227,7 +221,6 @@ class Storage:
         session = session or self.session
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=timeout)
-        response.raise_for_status()
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -236,7 +229,7 @@ class Storage:
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: io.IOBase, params: dict, headers: dict,
-                             *, session: RestSession = None,
+                             *, session: Optional[RestSession] = None,
                              timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params['name'] = object_name
@@ -257,7 +250,7 @@ class Storage:
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, params: dict,
                                 headers: dict, *, metadata: dict = None,
-                                session: RestSession = None,
+                                session: Optional[RestSession] = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, params,
@@ -270,7 +263,7 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str, params: dict,
                                headers: dict, *, metadata: dict = None,
-                               session: RestSession = None) -> str:
+                               session: Optional[RestSession] = None) -> str:
         params['uploadType'] = 'resumable'
 
         metadata = json.dumps({**(metadata or {}), **{'name': object_name}})
@@ -293,7 +286,7 @@ class Storage:
 
     async def _do_upload(self, session_uri: str, stream: io.IOBase,
                          headers: dict, *, retries: int = 5,
-                         session: RestSession = None,
+                         session: Optional[RestSession] = None,
                          timeout: int = 30) -> dict:
         if not self.session:
             self.session = RestSession(conn_timeout=10, read_timeout=10)

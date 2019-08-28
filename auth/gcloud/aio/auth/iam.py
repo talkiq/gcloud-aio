@@ -44,7 +44,7 @@ class IamClient:
                              key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
-                             session: RestSession = None,
+                             session: Optional[RestSession] = None,
                              timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -70,7 +70,7 @@ class IamClient:
     async def list_public_keys(
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
-            session: RestSession = None,
+            session: Optional[RestSession] = None,
             timeout: int = 10) -> List[Dict[str, str]]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -91,7 +91,7 @@ class IamClient:
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
-                        session: RestSession = None,
+                        session: Optional[RestSession] = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
                                  self.service_account_email)

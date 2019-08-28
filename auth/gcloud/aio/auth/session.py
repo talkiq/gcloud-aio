@@ -1,4 +1,3 @@
-import os
 import threading
 from abc import ABCMeta
 from abc import abstractmethod
@@ -11,6 +10,7 @@ from typing import Union  # pylint: disable=unused-import
 
 import requests
 
+from .build_constants import BUILD_GCLOUD_REST
 
 class BaseSession():
     __metaclass__ = ABCMeta
@@ -46,7 +46,7 @@ class BaseSession():
                timeout: int):
         pass
 
-if not os.environ.get('BUILD_GCLOUD_REST'):
+if not BUILD_GCLOUD_REST:
     import aiohttp
     class AioSession(BaseSession):
         def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):

@@ -6,17 +6,17 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from gcloud.aio.auth import AioSession as RestSession
+from gcloud.aio.auth import BUILD_GCLOUD_REST
 from gcloud.aio.auth import decode
 from gcloud.aio.auth import IamClient
 from gcloud.aio.auth import Token
 
-# TODO: We should explicitly check if the build is for `gloud-rest` and select
-# the correct package accordingly. The current method works but is not clear
-# about its motivation.
-try:
-    from aiohttp import ClientSession as Session
-except ModuleNotFoundError:
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
     from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 
 @pytest.mark.asyncio  # type: ignore

@@ -33,9 +33,11 @@ except ImportError:
     from six.moves.urllib.parse import quote_plus
 
 from .session import AioSession as RestSession
+from .build_constants import BUILD_GCLOUD_REST
 
-# Only import asyncio if we have a compatible python version
-if not os.environ.get('BUILD_GCLOUD_REST'):
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if not BUILD_GCLOUD_REST:
     import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -87,7 +89,7 @@ def get_service_data(
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: RestSession = None,
+                 session: Optional[RestSession] = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -133,7 +135,7 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if os.environ.get('BUILD_GCLOUD_REST'):
+        if BUILD_GCLOUD_REST:
             return
 
         if self.acquiring:
