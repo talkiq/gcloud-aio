@@ -83,7 +83,7 @@ jobs:
 
       - run: ls -al
       - persist_to_workspace:
-          root: project
+          root: .
           paths:
           - ./*
   # old_nox1:
@@ -95,18 +95,19 @@ jobs:
   #     - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
   #     - checkout
   #     - run: nox
-  # nox2:
-  #   docker:
-  #     - image: thekevjames/nox:2019.5.30
-  #   environment:
-  #     GOOGLE_APPLICATION_CREDENTIALS: /key.json
-  #   parameters:
-  #     folder:
-  #       type: string
-  #   steps:
-  #     - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
-  #     - checkout
-  #     - run: nox -f <<parameters.folder>>/noxfile.py
+  nox2:
+    docker:
+      - image: thekevjames/nox:2019.5.30
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    parameters:
+      folder:
+        type: string
+    steps:
+      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - attach_workspace:
+          at: py2
+      - run: nox -f py2/<<parameters.folder>>/noxfile.py
 
 
 workflows:
@@ -172,9 +173,20 @@ workflows:
             # - test-datastore
             # - test-kms
             # - test-pubsub
-            # - test-storage
+            - test-storage
             # - test-taskqueue
-
+      - nox2:
+          name: test-rest-auth
+          folder: auth
+          filters:
+            tags:
+              only: /.*/
+      - nox2:
+          name: test-rest-storage
+          folder: storage
+          filters:
+            tags:
+              only: /.*/
 
       - pypi:
           context: org-global
