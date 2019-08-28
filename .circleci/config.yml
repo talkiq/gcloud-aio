@@ -60,28 +60,32 @@ jobs:
       - image: python:3.7.0-slim
     steps:
       - checkout
+      # Install some requirements
       - run: pip install pytest future strip-hints future-fstrings[rewrite]
 
-      - run: find . -type f | grep "venv" | xargs -L1  -I"{}" rm -r  {} || true
-      - run: find . -type f | grep ".pytest" | xargs -L1  -I"{}" rm -r  {} || true
-      - run: find . -type f | grep "__pycache__" | xargs -L1  -I"{}" rm -r  {} || true
+      # TODO: Remove
+      # - run: find . -type f | grep "venv" | xargs -L1  -I"{}" rm -r  {} || true
+      # - run: find . -type f | grep ".pytest" | xargs -L1  -I"{}" rm -r  {} || true
+      # - run: find . -type f | grep "__pycache__" | xargs -L1  -I"{}" rm -r  {} || true
 
+      # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -exec dirname {} \; | grep "aio" | sed 's/aio/rest/g' | xargs -L1 mkdir -p
       - run: for file in $(find . -type f | grep "aio"); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
       - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
       - run: find . -type f | grep "aio" | xargs -L1 rm -r
-
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
 
+      # Backport other things like type hints, exception handling, etc.
       - run: find . -type f | grep '\.py$' | xargs -L1 pasteurize --nobackups --write
 
+      # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
       - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/(async|await) //g'
       - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 
-      - run: ls -al
+      # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
           root: .
           paths:
