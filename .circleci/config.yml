@@ -74,7 +74,7 @@ jobs:
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
 
-      - run: find . -type f | grep '\.py$' | xargs -L1 pasteurize --nobackups --write --verbose {} | tee -a log.txt
+      - run: find . -type f | grep '\.py$' | xargs -L1 pasteurize --nobackups --write
 
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
       - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
@@ -83,7 +83,7 @@ jobs:
 
       - run: ls -al
       - persist_to_workspace:
-          root: projects
+          root: project
           paths:
           - ./*
   # old_nox1:
