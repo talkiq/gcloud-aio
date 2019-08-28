@@ -107,7 +107,6 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: py2
-      - run: pip install future
       - run: nox -f py2/<<parameters.folder>>/noxfile.rest.py
 
 
