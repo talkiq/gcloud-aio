@@ -59,11 +59,55 @@ jobs:
     docker:
       - image: python:3.7.0-slim
     steps:
-      - run: pip install future
       - checkout
-      - run: find . -type f | grep "/gcloud/" | grep -v "session.py" | xargs -L1 sed -Ei 's/(async|await)//g'
-      - run: find . -type f | grep "/gcloud/" | grep -v "session.py" | xargs -L1 sed -Ei 's/(AioSession|SyncSession)//g'
-      - run: find . -type f | grep "/gcloud/" | xargs -L1 pasteurize --nobackups --write --verbose
+      - run: pip install pytest future strip-hints future-fstrings[rewrite]
+
+      - run: find . -type f | grep "venv" | xargs -L1  -I"{}" rm -r  {} || true
+      - run: find . -type f | grep ".pytest" | xargs -L1  -I"{}" rm -r  {} || true
+      - run: find . -type f | grep "__pycache__" | xargs -L1  -I"{}" rm -r  {} || true
+
+      - run: find . -exec dirname {} \; | grep "aio" | sed 's/aio/rest/g' | xargs -L1 mkdir -p
+      - run: for file in $(find . -type f | grep "aio"); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+      - run: find . -type f | grep "aio" | xargs -L1 rm -r
+
+      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
+      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
+
+      - run: find . -type f | grep '\.py$' | xargs -L1 pasteurize --nobackups --write --verbose {} | tee -a log.txt
+
+      - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
+      - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
+      - run: find . -type f | xargs -L1 sed -Ei 's/(async|await) //g'
+      - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
+
+      - run: ls -al
+      - persist_to_workspace:
+          root: projects
+          paths:
+          - ./*
+  # old_nox1:
+  #   docker:
+  #     - image: thekevjames/nox:2019.5.30
+  #   environment:
+  #     GOOGLE_APPLICATION_CREDENTIALS: /key.json
+  #   steps:
+  #     - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+  #     - checkout
+  #     - run: nox
+  # nox2:
+  #   docker:
+  #     - image: thekevjames/nox:2019.5.30
+  #   environment:
+  #     GOOGLE_APPLICATION_CREDENTIALS: /key.json
+  #   parameters:
+  #     folder:
+  #       type: string
+  #   steps:
+  #     - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+  #     - checkout
+  #     - run: nox -f <<parameters.folder>>/noxfile.py
+
 
 workflows:
   run-jobs:

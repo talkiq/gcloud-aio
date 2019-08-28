@@ -5,6 +5,9 @@ from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name
 
 from .blob import Blob
 
+# TODO: We should explicitly check if the build is for `gloud-rest` and select
+# the correct package accordingly. The current method works but is not clear
+# about its motivation.
 try:
     from aiohttp import ClientResponseError as ResponseError
 except ModuleNotFoundError:

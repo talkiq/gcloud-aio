@@ -1,6 +1,5 @@
 import datetime
 
-import aiohttp
 import pytest
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -11,11 +10,20 @@ from gcloud.aio.auth import decode
 from gcloud.aio.auth import IamClient
 from gcloud.aio.auth import Token
 
+# TODO: We should explicitly check if the build is for `gloud-rest` and select
+# the correct package accordingly. The current method works but is not clear
+# about its motivation.
+try:
+    from aiohttp import ClientSession as Session
+except ModuleNotFoundError:
+    from requests import Session
+
+
 @pytest.mark.asyncio  # type: ignore
 async def test_token_is_created(creds: str) -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
-    async with aiohttp.ClientSession() as s:
+    async with Session() as s:
         session = RestSession()
         session.session = s
         token = Token(service_file=creds, session=session, scopes=scopes)
@@ -70,7 +78,7 @@ async def verify_signature(data, signature, key_name, iam_client):
 async def test_sign_blob(creds: str) -> None:
     data = 'Testing Can be confidential!'
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+    async with Session(conn_timeout=10, read_timeout=10) as _s:
         s = RestSession()
         s.session = _s
         iam_client = IamClient(service_file=creds, session=s)
@@ -81,7 +89,7 @@ async def test_sign_blob(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key_names(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+    async with Session(conn_timeout=10, read_timeout=10) as _s:
         s = RestSession()
         s.session = _s
         iam_client = IamClient(service_file=creds, session=s)
@@ -91,7 +99,7 @@ async def test_get_service_account_public_key_names(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
+    async with Session(conn_timeout=10, read_timeout=10) as _s:
         s = RestSession()
         s.session = _s
         iam_client = IamClient(service_file=creds, session=s)

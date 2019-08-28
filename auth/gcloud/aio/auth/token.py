@@ -1,18 +1,27 @@
 """
 Google Cloud auth via service account file
 """
-import asyncio
 import datetime
 import enum
 import io
 import json
 import os
+import sys
 import time
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+
+import backoff
+import cryptography  # pylint: disable=unused-import
+import jwt
+# N.B. the cryptography library is required when calling jwt.encrypt() with
+# algorithm='RS256'. It does not need to be imported here, but this allows us
+# to throw this error at load time rather than lazily during normal operations,
+# where plumbing this error through will require several changes to otherwise-
+# good error handling.
 
 # Handle library differences in python2 and python3
 try:
@@ -24,16 +33,11 @@ except ImportError:
     from six.moves.urllib.parse import urlencode
     from six.moves.urllib.parse import quote_plus
 
-import backoff
-# N.B. the cryptography library is required when calling jwt.encrypt() with
-# algorithm='RS256'. It does not need to be imported here, but this allows us
-# to throw this error at load time rather than lazily during normal operations,
-# where plumbing this error through will require several changes to otherwise-
-# good error handling.
-import cryptography  # pylint: disable=unused-import
-import jwt
-
 from .session import AioSession as RestSession
+
+# Only import asyncio if we have a compatible python version
+if sys.version_info[0] > 3:
+    import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
@@ -107,7 +111,9 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future] = None
+
+        if sys.version_info[0] > 3:
+            self.acquiring: Optional[asyncio.Future] = None
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -129,6 +135,9 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
+        if sys.version_info[0] < 3:
+            return
+
         if self.acquiring:
             await self.acquiring
             return

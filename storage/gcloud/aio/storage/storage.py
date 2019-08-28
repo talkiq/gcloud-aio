@@ -18,11 +18,17 @@ try:
 except ModuleNotFoundError:
     import json  # type: ignore
 
+# TODO: We should explicitly check if the build is for `gloud-rest` and select
+# the correct package accordingly. The current method works but is not clear
+# about its motivation.
 try:
     from asyncio import sleep
 except ModuleNotFoundError:
     from time import sleep
 
+# TODO: We should explicitly check if the build is for `gloud-rest` and select
+# the correct package accordingly. The current method works but is not clear
+# about its motivation.
 try:
     from aiohttp import ClientResponseError as ResponseError
 except ModuleNotFoundError:

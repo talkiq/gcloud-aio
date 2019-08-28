@@ -1,7 +1,8 @@
 import sys
 import threading
-from abc import ABC
+from abc import ABCMeta
 from abc import abstractmethod
+from abc import abstractproperty
 from io import IOBase
 from typing import Dict  # pylint: disable=unused-import
 from typing import List  # pylint: disable=unused-import
@@ -11,12 +12,13 @@ from typing import Union  # pylint: disable=unused-import
 import requests
 
 
-class BaseSession(ABC):
+class BaseSession():
+    __metaclass__ = ABCMeta
+
     def __init__(self):
         self._session = None
 
-    # @abstractmethod
-    @property
+    @abstractproperty
     def session(self):
         return self._session
 
