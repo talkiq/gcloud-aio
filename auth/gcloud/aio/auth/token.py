@@ -112,7 +112,7 @@ class Token:
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
 
-        if sys.version_info[0] > 3:
+        if sys.version_info[0] >= 3:
             self.acquiring: Optional[asyncio.Future] = None
 
     async def get_project(self) -> Optional[str]:

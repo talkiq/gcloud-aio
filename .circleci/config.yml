@@ -160,6 +160,21 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - py3to2:
+          name: build-py2
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - test-auth
+            - test-bigquery
+            - test-datastore
+            - test-kms
+            - test-pubsub
+            - test-storage
+            - test-taskqueue
+
 
       - pypi:
           context: org-global
