@@ -17,6 +17,7 @@ jobs:
       - attach_workspace:
           at: rest
       - run: cd rest/
+      - run: git init && git add -A
       - run: pip install pre-commit
       - run: pre-commit run --all-files -c <<parameters.config_file>>
   nox:
