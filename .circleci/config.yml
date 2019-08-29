@@ -16,10 +16,12 @@ jobs:
     steps:
       - attach_workspace:
           at: rest
-      - run: cd rest/
-      - run: git init && git add -A
-      - run: pip install pre-commit
-      - run: pre-commit run --all-files -c <<parameters.config_file>>
+      - run:
+          command: |
+            cd rest/
+            git init && git add -A
+            pip install pre-commit
+            pre-commit run --all-files -c <<parameters.config_file>>
   nox:
     docker:
       - image: thekevjames/nox:2018.10.17
