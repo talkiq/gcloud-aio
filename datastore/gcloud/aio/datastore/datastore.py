@@ -20,7 +20,9 @@ from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.value import Value
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
 

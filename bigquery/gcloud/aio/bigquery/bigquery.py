@@ -11,7 +11,9 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
 

@@ -16,7 +16,9 @@ from gcloud.aio.storage.bucket import Bucket
 
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
 # Selectively load libraries based on the package
