@@ -75,6 +75,8 @@ class Value:
         supported_types = self._get_supported_types()
 
         try:
+            # Compatibility for python2
+            kind = str if kind.__class__.__name__ == 'unicode' else kind
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(
