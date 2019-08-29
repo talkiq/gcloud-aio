@@ -110,7 +110,7 @@ class TestValue:
 
         assert len(r) == 2  # Value + excludeFromIndexes
         assert r['excludeFromIndexes'] is False
-        assert r[expected_json_key] == v
+        assert r[expected_json_key.encode('utf-16')] == v
 
     @staticmethod
     def test_to_repr_with_null_value():
