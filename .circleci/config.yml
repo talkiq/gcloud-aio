@@ -237,6 +237,7 @@ workflows:
             - linter/pre-commit
             - build-rest
       - linter/pre-commit:
+          name: lint-rest
           python_version: 2.7.15
           config_file: .pre-commit-config.rest.yaml
           filters:
