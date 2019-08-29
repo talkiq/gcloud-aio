@@ -83,7 +83,8 @@ class Value:
 
     @classmethod
     def _get_supported_types(cls):
-        return {
-            **TYPES,
+        supported_types = TYPES
+        supported_types.update({
             cls.key_kind: TypeName.KEY,
-        }
+        })
+        return supported_types

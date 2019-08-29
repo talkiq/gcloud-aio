@@ -268,9 +268,10 @@ class Storage:
                                session: Optional[RestSession] = None) -> str:
         params['uploadType'] = 'resumable'
 
-        metadata = json.dumps({**(metadata or {}), **{'name': object_name}})
+        metadict = (metadata or {}).update({'name': object_name})
+        metadata = json.dumps(metadict)
 
-        post_headers = {**headers}
+        post_headers = headers
         post_headers.update({
             'Content-Length': str(len(metadata)),
             'Content-Type': 'application/json; charset=UTF-8',
