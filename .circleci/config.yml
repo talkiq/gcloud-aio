@@ -75,7 +75,7 @@ jobs:
       - run: find . -type f | grep "aio" | xargs -L1 rm -r
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
-      - run: find . -type f | grep "auth/build_constants.py$" | xargs -L1 -I"{}" echo "BUILD_GCLOUD_REST = True" > {}
+      - run: echo "BUILD_GCLOUD_REST = True" | tee $(find . -type f | grep 'auth/build_constants\.py$')
 
       # Backport other things like type hints, exception handling, etc.
       - run: find . -type f | grep '\.py$' | xargs -L1 pasteurize --nobackups --write
