@@ -33,7 +33,7 @@ repos:
         args:
         - --max-line-length=80
         - --ignore-imports=yes
-        - --disable=C0326
+        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import
         - -d duplicate-code
         - -d fixme
         - -d import-error
