@@ -46,6 +46,7 @@ repos:
         - -d bad-option-value
         - -d multiple-statements
         - -d pointless-statement
+        - -d pointless-string-statement
         # Other refactor issues
         - -d too-many-branches
         - -d too-many-statements

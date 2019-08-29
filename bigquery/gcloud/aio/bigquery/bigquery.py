@@ -1,6 +1,7 @@
 import io
 import uuid
 from typing import Any
+from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -52,15 +53,21 @@ class Table:
         raise Exception('could not determine project, please set it manually')
 
     @staticmethod
-    def _make_insert_body(rows: List[Dict[str, Any]],
-                          skip_invalid: bool = False,
-                          ignore_unknown: bool = True) -> Dict[str, Any]:
+    def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
+        # pylint: disable=unused-argument
+        return uuid.uuid4().hex
+
+    @staticmethod
+    def _make_insert_body(
+            rows: List[Dict[str, Any]], *, skip_invalid: bool,
+            ignore_unknown: bool,
+            insert_id_fn: Callable[[Dict[str, Any]], str]) -> Dict[str, Any]:
         return {
             'kind': 'bigquery#tableDataInsertAllRequest',
             'skipInvalidRows': skip_invalid,
             'ignoreUnknownValues': ignore_unknown,
             'rows': [{
-                'insertId': uuid.uuid4().hex,
+                'insertId': insert_id_fn(row),
                 'json': row
             } for row in rows],
         }
@@ -71,12 +78,18 @@ class Table:
             'Authorization': f'Bearer {token}',
         }
 
-    async def insert(self, rows: List[Dict[str, Any]],
-                     skip_invalid: bool = False, ignore_unknown: bool = True,
-                     session: Optional[Session] = None,
-                     timeout: int = 60) -> Dict[str, Any]:
+    async def insert(
+            self, rows: List[Dict[str, Any]], skip_invalid: bool = False,
+            ignore_unknown: bool = True, session: Optional[Session] = None,
+            timeout: int = 60, *,
+            insert_id_fn: Optional[Callable[[Dict[str, Any]], str]] = None
+    ) -> Dict[str, Any]:
         """
         Streams data into BigQuery
+
+        By default, each row is assigned a unique insertId. This can be
+        customized by supplying an `insert_id_fn` which takes a row and
+        returns an insertId.
 
         The response payload will include an `insertErrors` key if a subset of
         the rows failed to get inserted.
@@ -88,8 +101,9 @@ class Table:
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
                f'tables/{self.table_name}/insertAll')
 
-        body = self._make_insert_body(rows, skip_invalid=skip_invalid,
-                                      ignore_unknown=ignore_unknown)
+        body = self._make_insert_body(
+            rows, skip_invalid=skip_invalid, ignore_unknown=ignore_unknown,
+            insert_id_fn=insert_id_fn or self._mk_unique_insert_id)
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
