@@ -72,7 +72,7 @@ class Value:
 
     def _infer_type(self, value: Any) -> TypeName:
         # Compatibility for python2
-        kind = (type('') if value.__class__.__name__ == 'unicode'
+        kind = (type('') if 'unicode' in value.__class__.__name__
                 else type(value))
         supported_types = self._get_supported_types()
 
