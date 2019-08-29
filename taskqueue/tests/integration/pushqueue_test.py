@@ -13,7 +13,7 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     schedule_time = datetime.utcnow() + timedelta(days=1)
 
     task = {
-        'scheduleTime': f'{schedule_time.isoformat("T")}Z',
+        'scheduleTime': '{}Z'.format(schedule_time.isoformat('T')),
         'appEngineHttpRequest': {
             'httpMethod': 'POST',
             # something that we know won't work,
