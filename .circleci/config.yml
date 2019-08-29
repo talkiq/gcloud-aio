@@ -18,14 +18,7 @@ jobs:
           at: rest
       - run: cd rest/
       - run: pip install pre-commit
-      - restore_cache:
-          keys:
-            - cache-pre-commit-{{ checksum "<<parameters.config_file>>" }}
       - run: pre-commit run --all-files -c <<parameters.config_file>>
-      - save_cache:
-          key: cache-pre-commit-{{ checksum "<<parameters.config_file>>" }}
-          paths:
-            - ~/.cache/pre-commit
   nox:
     docker:
       - image: thekevjames/nox:2018.10.17
