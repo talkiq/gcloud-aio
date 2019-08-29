@@ -4,6 +4,28 @@ orbs:
   linter: thekevjames/linter@0.1
 
 jobs:
+  lint-rest:
+    parameters:
+      config_file:
+        default: .pre-commit-config.yaml
+        description: |
+          Optional alternate config file.
+        type: string
+    docker:
+      - image: python:2.7.15
+    steps:
+      - attach_workspace:
+          at: rest
+      - run: cd rest/
+      - run: pip install pre-commit
+      - restore_cache:
+          keys:
+            - cache-pre-commit-{{ checksum "<<parameters.config_file>>" }}
+      - run: pre-commit run --all-files -c <<parameters.config_file>>
+      - save_cache:
+          key: cache-pre-commit-{{ checksum "<<parameters.config_file>>" }}
+          paths:
+            - ~/.cache/pre-commit
   nox:
     docker:
       - image: thekevjames/nox:2018.10.17
@@ -237,7 +259,7 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-      - linter/pre-commit:
+      - lint-rest:
           name: lint-rest
           python_version: 2.7.15
           config_file: .pre-commit-config.rest.yaml
