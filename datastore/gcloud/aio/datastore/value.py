@@ -48,8 +48,8 @@ class Value:
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                f'{data.keys()} does not contain a supported value type'
-                f' (any of: {supported})')
+                '{} does not contain a supported value type'
+                ' (any of: {})'.format(data.keys(), supported))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -80,8 +80,8 @@ class Value:
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(
-                f'{kind} is not a supported value type (any of: '
-                f'{supported_types})')
+                '{} is not a supported value type (any of: '
+                '{})'.format(kind, supported_types))
 
     @classmethod
     def _get_supported_types(cls):
