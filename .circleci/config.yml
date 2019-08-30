@@ -81,18 +81,19 @@ jobs:
       # Install some requirements
       - run: pip install pytest future strip-hints future-fstrings[rewrite]
 
-      # TODO: Remove
-      # - run: find . -type f | grep "venv" | xargs -L1  -I"{}" rm -r  {} || true
-      # - run: find . -type f | grep ".pytest" | xargs -L1  -I"{}" rm -r  {} || true
-      # - run: find . -type f | grep "__pycache__" | xargs -L1  -I"{}" rm -r  {} || true
-
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -exec dirname {} \; | grep "aio" | sed 's/aio/rest/g' | xargs -L1 mkdir -p
       - run: for file in $(find . -type f | grep "aio"); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
-      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -E "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); cp $file $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
-      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -Ev "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
-      # - run: for file in $(find . -type f | grep -E "aio.*\.py$" | grep -Ev "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do echo $file; strip-hints $file > "${file}.tmp"; mv "${file}.tmp" $file; done
+      # For some files with conflicts due to unicode encoding in py2, do not use
+      # the automated string conversion tools
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -E "datastore.*/(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); cp $file $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -Ev "datastore.*/(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+
+      # Remove the files with `aio` in file names (we copied all required files
+      # already)
       - run: find . -type f | grep "aio" | xargs -L1 rm -r
+
+      # Replace build metadata
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
       - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7\.15'/g"
