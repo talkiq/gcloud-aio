@@ -89,8 +89,9 @@ jobs:
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -exec dirname {} \; | grep "aio" | sed 's/aio/rest/g' | xargs -L1 mkdir -p
       - run: for file in $(find . -type f | grep "aio"); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
-      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
-      - run: for file in $(find . -type f | grep -E "rest.*\.py$" | grep -Ev "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do echo $file; strip-hints $file > "${file}.tmp"; mv "${file}.tmp" $file; done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -E "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); cp $file $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -Ev "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+      - run: for file in $(find . -type f | grep -E "aio.*\.py$" | grep -Ev "datastore.*/(value.py|constants.py|value_types_test.py|value_test.py)$" | sort | uniq); do echo $file; strip-hints $file > "${file}.tmp"; mv "${file}.tmp" $file; done
       - run: find . -type f | grep "aio" | xargs -L1 rm -r
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
