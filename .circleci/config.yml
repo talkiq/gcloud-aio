@@ -86,8 +86,8 @@ jobs:
       - run: for file in $(find . -type f | grep "aio"); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
       # For some files with conflicts due to unicode encoding in py2, do not use
       # the automated string conversion tools
-      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); cp $file $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
-      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -Ev "datastore./(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); cp $file $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; echo "Skipped formatting ${new_file}"; done
+      - run: for file in $(find . -type f | grep "aio" | grep '\.py$' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); future-fstrings-show $file > $new_file; strip-hints $new_file > "${new_file}.tmp"; mv "${new_file}.tmp" $new_file; done
 
       # Remove the files with `aio` in file names (we copied all required files
       # already)
