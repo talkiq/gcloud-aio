@@ -103,7 +103,7 @@ jobs:
       - run: find . -type f | grep '\.py$' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
 
       # Add object class inheritence where needed for python2
-      - run: find . -type f | grep -E "datastore.*value\.py$" | sed -Ei 's/class Value:/class Value(object):/g'
+      - run: find . -type f | grep "value\.py$" | sed -Ei 's/class Value:/class Value(object):/g'
 
       # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
