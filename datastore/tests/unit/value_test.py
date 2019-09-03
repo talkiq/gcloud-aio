@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 
 import pytest
@@ -10,13 +11,13 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        # Removed encoding because py2 does not support it
-        ('blobValue', b'foobar'),
+        # Modified the test because python2's bytes are strings
+        ('stringValue' if sys.version_info[0] < 3 else 'blobValue', b'foobar'),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        ('blobValue', b''),
+        ('stringValue' if sys.version_info[0] < 3 else 'blobValue', b''),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
@@ -94,12 +95,12 @@ class TestValue:
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
         # Removed encoding because py2 does not support it
-        (b'foobar', 'blobValue'),
+        (b'foobar', 'stringValue' if sys.version_info[0] < 3 else 'blobValue'),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
-        (b'', 'blobValue'),
+        (b'', 'stringValue' if sys.version_info[0] < 3 else 'blobValue'),
         (False, 'booleanValue'),
         (0.0, 'doubleValue'),
         (0, 'integerValue'),
