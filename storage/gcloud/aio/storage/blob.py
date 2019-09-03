@@ -6,12 +6,19 @@ import io
 from typing import Any
 from typing import Optional
 from typing import Union
-from urllib.parse import quote
 
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+
+# Handle library differences in python2 and python3
+try:
+    from urllib.parse import quote
+except ImportError:
+    # from urllib import urlencode
+    # from urllib import pathname2url as quote_plus
+    from six.moves.urllib.parse import quote
 
 
 HOST = 'storage.googleapis.com'

@@ -240,15 +240,6 @@ workflows:
             - linter/pre-commit
             - build-rest
       - nox-rest:
-          name: test-rest-pubsub
-          folder: pubsub
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
           name: test-rest-storage
           folder: storage
           filters:

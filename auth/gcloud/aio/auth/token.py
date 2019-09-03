@@ -16,6 +16,9 @@ from typing import Union
 import backoff
 import cryptography  # pylint: disable=unused-import
 import jwt
+
+from .build_constants import BUILD_GCLOUD_REST
+from .session import AioSession as RestSession
 # N.B. the cryptography library is required when calling jwt.encrypt() with
 # algorithm='RS256'. It does not need to be imported here, but this allows us
 # to throw this error at load time rather than lazily during normal operations,
@@ -32,8 +35,12 @@ except ImportError:
     from six.moves.urllib.parse import urlencode
     from six.moves.urllib.parse import quote_plus
 
-from .session import AioSession as RestSession
-from .build_constants import BUILD_GCLOUD_REST
+# Handle differences in exceptions
+try:
+    CustomFileError = FileNotFoundError
+except NameError:
+    CustomFileError = IOError
+
 
 # Selectively load libraries based on the package
 # TODO: Can we somehow just pick up the pacakge name instead of this
@@ -76,7 +83,7 @@ def get_service_data(
         except TypeError:
             data: Dict[str, Any] = json.loads(service.read())
             return data
-    except FileNotFoundError:
+    except CustomFileError:
         if set_explicitly:
             # only warn users if they have explicitly set the service_file path
             raise
