@@ -15,7 +15,7 @@ from gcloud.aio.storage import Storage
 RANDOM_BINARY = os.urandom(2045)
 
 # Updated statement to make it compatible with python2
-rand_str_list = [random.choice(string.ascii_letters) in range(0, 1054)]
+rand_str_list = [random.choice(string.ascii_letters) for r in range(0, 1054)]
 RANDOM_STRING = ''.join(rand_str_list)
 
 
