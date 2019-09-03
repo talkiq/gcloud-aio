@@ -104,7 +104,7 @@ jobs:
 
       # Add object class inheritence where needed for python2
       - run: find . -type f | grep "value\.py$" | xargs -L1 sed -Ei 's/class Value:/class Value(object):/g'
-      - run: find . -type f | grep "value\.py$" | xargs -L1 sed -Ei 's/class CustomKey:/class CustomKey(object):/g'
+      - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class CustomKey:/class CustomKey(object):/g'
 
       # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
