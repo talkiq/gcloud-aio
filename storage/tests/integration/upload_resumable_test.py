@@ -13,7 +13,10 @@ from gcloud.aio.storage import Storage
 
 # TODO: use hypothesis
 RANDOM_BINARY = os.urandom(2045)
-RANDOM_STRING = ''.join(random.choices(string.ascii_letters, k=1054))
+
+# Updated statement to make it compatible with python2
+rand_str_list = [random.choice(string.ascii_letters) in range(0, 1054)]
+RANDOM_STRING = ''.join(rand_str_list)
 
 
 @pytest.mark.asyncio

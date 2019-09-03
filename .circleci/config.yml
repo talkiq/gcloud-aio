@@ -113,6 +113,9 @@ jobs:
       - run: find . -type f | xargs -L1 sed -Ei 's/(async|await) //g'
       - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 
+      # Remove pubsub
+      - run: rm -r ./pubsub
+
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
           root: .
