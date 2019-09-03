@@ -33,7 +33,7 @@ repos:
         args:
         - --max-line-length=80
         - --ignore-imports=yes
-        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import,line-too-long
+        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import,line-too-long,bad-option-value
         - -d duplicate-code
         - -d fixme
         - -d import-error

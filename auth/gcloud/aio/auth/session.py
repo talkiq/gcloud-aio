@@ -95,9 +95,7 @@ if not BUILD_GCLOUD_REST:
 
 
 class SyncSession(BaseSession):
-    def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
-        super().__init__(conn_timeout, read_timeout)
-        self.google_api_lock = threading.RLock()
+    google_api_lock = threading.RLock()
 
     @property
     def session(self) -> requests.Session:
