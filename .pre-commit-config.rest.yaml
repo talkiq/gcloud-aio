@@ -25,7 +25,7 @@ repos:
         args: [--fix=lf]
     -   id: name-tests-test
     -   id: requirements-txt-fixer
-    -   id: trailing-whitespace
+    # -   id: trailing-whitespace
 -   repo: https://github.com/pre-commit/mirrors-pylint
     rev: v1.9.1
     hooks:
@@ -33,7 +33,7 @@ repos:
         args:
         - --max-line-length=80
         - --ignore-imports=yes
-        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import
+        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import,line-too-long
         - -d duplicate-code
         - -d fixme
         - -d import-error
