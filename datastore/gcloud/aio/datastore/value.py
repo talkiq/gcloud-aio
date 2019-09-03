@@ -1,3 +1,4 @@
+from builtins import object as obj
 from datetime import datetime
 from typing import Any
 from typing import Dict
@@ -9,7 +10,7 @@ from gcloud.aio.datastore.lat_lng import LatLng
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
-class Value:  # pyupgrade:disable=useless-object-inheritance  # pylint:disable=useless-object-inheritance
+class Value(obj):  # pylint:disable=useless-object-inheritance
     key_kind = Key
 
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
