@@ -11,7 +11,7 @@ class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
         # Removed encoding because py2 does not support it
-        ('blobValue', bytes('foobar')),
+        ('blobValue', b'foobar'),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
@@ -94,7 +94,7 @@ class TestValue:
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
         # Removed encoding because py2 does not support it
-        (bytes('foobar'), 'blobValue'),
+        (b'foobar', 'blobValue'),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
