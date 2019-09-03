@@ -14,9 +14,11 @@ from .build_constants import BUILD_GCLOUD_REST
 
 class BaseSession():
     __metaclass__ = ABCMeta
+    _session = None
 
-    def __init__(self):
-        self._session = None
+    def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
+        self.conn_timeout = conn_timeout
+        self.read_timeout = read_timeout
 
     @abstractproperty
     def session(self):
@@ -49,11 +51,6 @@ class BaseSession():
 if not BUILD_GCLOUD_REST:
     import aiohttp
     class AioSession(BaseSession):
-        def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
-            super().__init__()
-            self.conn_timeout = conn_timeout
-            self.read_timeout = read_timeout
-
         @property
         def session(self) -> aiohttp.ClientSession:
             self._session = self._session or aiohttp.ClientSession(
@@ -98,8 +95,8 @@ if not BUILD_GCLOUD_REST:
 
 
 class SyncSession(BaseSession):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
+        super().__init__(conn_timeout, read_timeout)
         self.google_api_lock = threading.RLock()
 
     @property
