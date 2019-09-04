@@ -7,7 +7,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import aiohttp
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
 from gcloud.aio.datastore.constants import Mode
@@ -20,7 +20,9 @@ from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.value import Value
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
 
@@ -49,7 +51,7 @@ class Datastore:
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  namespace: str = '',
-                 session: Optional[aiohttp.ClientSession] = None,
+                 session: Optional[RestSession] = None,
                  token: Optional[Token] = None) -> None:
         self.namespace = namespace
         self.session = session
@@ -118,7 +120,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
     async def allocateIds(self, keys: List[Key],
-                          session: aiohttp.ClientSession = None,
+                          session: Optional[RestSession] = None,
                           timeout: int = 10) -> List[Key]:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:allocateIds'
@@ -134,19 +136,17 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data['keys']]
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
-    async def beginTransaction(self, session: aiohttp.ClientSession = None,
+    async def beginTransaction(self, session: Optional[RestSession] = None,
                                timeout: int = 10) -> str:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:beginTransaction'
@@ -157,11 +157,9 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
         data = await resp.json()
 
         transaction: str = data['transaction']
@@ -172,7 +170,7 @@ class Datastore:
     async def commit(self, mutations: List[Dict[str, Any]],
                      transaction: Optional[str] = None,
                      mode: Mode = Mode.TRANSACTIONAL,
-                     session: aiohttp.ClientSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:commit'
@@ -188,19 +186,16 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
                      kinds: Optional[List[str]] = None,
                      namespaces: Optional[List[str]] = None,
                      labels: Optional[Dict[str, str]] = None,
-                     session: aiohttp.ClientSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> DatastoreOperation:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:export'
@@ -221,19 +216,17 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
     async def get_datastore_operation(self, name: str,
-                                      session: aiohttp.ClientSession = None,
+                                      session: Optional[RestSession] = None,
                                       timeout: int = 10) -> DatastoreOperation:
         url = f'{API_ROOT}/{name}'
 
@@ -243,11 +236,9 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
@@ -255,7 +246,7 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(self, keys: List[Key], transaction: str = None,
                      consistency: Consistency = Consistency.STRONG,
-                     session: aiohttp.ClientSession = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 10) -> Dict[str, Union[EntityResult, Key]]:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:lookup'
@@ -276,12 +267,10 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
 
         return {
@@ -295,7 +284,7 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(self, keys: List[Key], database_id: str = '',
-                         session: aiohttp.ClientSession = None,
+                         session: Optional[RestSession] = None,
                          timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:reserveIds'
@@ -312,16 +301,13 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(self, transaction: str,
-                       session: aiohttp.ClientSession = None,
+                       session: Optional[RestSession] = None,
                        timeout: int = 10) -> None:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:rollback'
@@ -337,17 +323,14 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        await session.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(self, query: BaseQuery, transaction: str = None,
                        consistency: Consistency = Consistency.EVENTUAL,
-                       session: aiohttp.ClientSession = None,
+                       session: Optional[RestSession] = None,
                        timeout: int = 10) -> QueryResultBatch:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:runQuery'
@@ -372,39 +355,37 @@ class Datastore:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   timeout=timeout)
-        resp.raise_for_status()
 
         data: dict = await resp.json()
         return self.query_result_batch_kind.from_repr(data['batch'])
 
     async def delete(self, key: Key,
-                     session: aiohttp.ClientSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.DELETE, key, session=session)
 
     async def insert(self, key: Key, properties: Dict[str, Any],
-                     session: aiohttp.ClientSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
     async def update(self, key: Key, properties: Dict[str, Any],
-                     session: aiohttp.ClientSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
     async def upsert(self, key: Key, properties: Dict[str, Any],
-                     session: aiohttp.ClientSession = None) -> None:
+                     session: Optional[RestSession] = None) -> None:
         return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
                       properties: Dict[str, Any] = None,
-                      session: aiohttp.ClientSession = None) -> None:
+                      session: Optional[RestSession] = None) -> None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)

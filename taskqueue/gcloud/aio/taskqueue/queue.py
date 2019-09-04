@@ -8,8 +8,8 @@ from typing import Dict
 from typing import Optional
 from typing import Union
 
-import aiohttp
 import backoff
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 
@@ -26,7 +26,7 @@ class PushQueue:
     def __init__(self, project: str, taskqueue: str,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  location: str = LOCATION,
-                 session: Optional[aiohttp.ClientSession] = None,
+                 session: Optional[RestSession] = None,
                  token: Optional[Token] = None) -> None:
         self.base_api_root = f'{API_ROOT}/v2beta3'
         self.api_root = (f'{self.base_api_root}/projects/{project}/'
@@ -44,11 +44,10 @@ class PushQueue:
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def _request(self, method: str, url: str,
-                       session: Optional[aiohttp.ClientSession] = None,
+                       session: Optional[RestSession] = None,
                        **kwargs: Any) -> Any:
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         s = session or self.session
         headers = await self.headers()
 
@@ -57,12 +56,12 @@ class PushQueue:
         # debug tools, which tend to be able to capture assigned variables but
         # not un-awaited data.
         data = await resp.json()
-        resp.raise_for_status()
+
         return data
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
     async def create(self, task: Dict[str, Any],
-                     session: Optional[aiohttp.ClientSession] = None) -> Any:
+                     session: Optional[RestSession] = None) -> Any:
         url = f'{self.api_root}/tasks'
         body = {
             'task': task,
@@ -73,14 +72,14 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
     async def delete(self, tname: str,
-                     session: Optional[aiohttp.ClientSession] = None) -> Any:
+                     session: Optional[RestSession] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
 
         return await self._request('DELETE', url, session=session)
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
     async def get(self, tname: str, full: bool = False,
-                  session: Optional[aiohttp.ClientSession] = None) -> Any:
+                  session: Optional[RestSession] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
         params = {
             'responseView': 'FULL' if full else 'BASIC',
@@ -91,7 +90,7 @@ class PushQueue:
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
     async def list(self, full: bool = False, page_size: int = 1000,
                    page_token: str = '',
-                   session: Optional[aiohttp.ClientSession] = None) -> Any:
+                   session: Optional[RestSession] = None) -> Any:
         url = f'{self.api_root}/tasks'
         params = {
             'responseView': 'FULL' if full else 'BASIC',
@@ -103,7 +102,7 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
     async def run(self, tname: str, full: bool = False,
-                  session: Optional[aiohttp.ClientSession] = None) -> Any:
+                  session: Optional[RestSession] = None) -> Any:
         url = f'{self.base_api_root}/{tname}:run'
         body = {
             'responseView': 'FULL' if full else 'BASIC',

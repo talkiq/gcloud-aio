@@ -1,4 +1,3 @@
-import asyncio
 import enum
 import io
 import logging
@@ -8,16 +7,35 @@ from typing import Any
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from urllib.parse import quote
 
-import aiohttp
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
+
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
+# Handle library differences in python2 and python3
+try:
+    from urllib.parse import quote
+except ImportError:
+    # from urllib import urlencode
+    # from urllib import pathname2url as quote_plus
+    from six.moves.urllib.parse import quote
+
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from time import sleep
+    from requests import HTTPError as ResponseError
+else:
+    from asyncio import sleep
+    from aiohttp import ClientResponseError as ResponseError
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -39,7 +57,7 @@ class UploadType(enum.Enum):
 class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
-                 session: Optional[aiohttp.ClientSession] = None) -> None:
+                 session: Optional[RestSession] = None) -> None:
         self.session = session
         self.token = token or Token(service_file=service_file,
                                     session=self.session, scopes=SCOPES)
@@ -49,7 +67,7 @@ class Storage:
 
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
-                     session: aiohttp.ClientSession = None) -> str:
+                     session: Optional[RestSession] = None) -> str:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -59,31 +77,29 @@ class Storage:
         }
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.delete(url, headers=headers, params=params or {},
                                     timeout=timeout)
-        resp.raise_for_status()
         data: str = await resp.text()
         return data
 
     async def download(self, bucket: str, object_name: str, *,
                        timeout: int = 10,
-                       session: aiohttp.ClientSession = None) -> bytes:
+                       session: Optional[RestSession] = None) -> bytes:
         return await self._download(bucket, object_name, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 timeout: int = 10,
-                                session: aiohttp.ClientSession = None) -> dict:
+                                session: Optional[RestSession] = None) -> dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
         metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
-                           session: aiohttp.ClientSession = None,
+                           session: Optional[RestSession] = None,
                            timeout: int = 10) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT}/{bucket}/o'
@@ -92,12 +108,10 @@ class Storage:
         }
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.get(url, headers=headers, params=params or {},
                                  timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data
 
@@ -107,14 +121,13 @@ class Storage:
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
                      headers: dict = None, metadata: dict = None,
-                     session: aiohttp.ClientSession = None, timeout: int = 30,
+                     session: Optional[RestSession] = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
 
         stream = self._preprocess_data(file_data)
@@ -203,7 +216,7 @@ class Storage:
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
-                        session: aiohttp.ClientSession = None) -> bytes:
+                        session: Optional[RestSession] = None) -> bytes:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -213,12 +226,10 @@ class Storage:
         }
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         response = await session.get(url, headers=headers, params=params or {},
                                      timeout=timeout)
-        response.raise_for_status()
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -227,7 +238,7 @@ class Storage:
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: io.IOBase, params: dict, headers: dict,
-                             *, session: aiohttp.ClientSession = None,
+                             *, session: Optional[RestSession] = None,
                              timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params['name'] = object_name
@@ -238,19 +249,17 @@ class Storage:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=stream, headers=headers,
                                   params=params, timeout=timeout)
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, params: dict,
                                 headers: dict, *, metadata: dict = None,
-                                session: aiohttp.ClientSession = None,
+                                session: Optional[RestSession] = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, params,
@@ -263,12 +272,14 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str, params: dict,
                                headers: dict, *, metadata: dict = None,
-                               session: aiohttp.ClientSession = None) -> str:
+                               session: Optional[RestSession] = None) -> str:
         params['uploadType'] = 'resumable'
 
-        metadata = json.dumps({**(metadata or {}), **{'name': object_name}})
+        metadict = (metadata or {}).copy()
+        metadict.update({'name': object_name})
+        metadata = json.dumps(metadict)
 
-        post_headers = {**headers}
+        post_headers = headers.copy()
         post_headers.update({
             'Content-Length': str(len(metadata)),
             'Content-Type': 'application/json; charset=UTF-8',
@@ -277,32 +288,28 @@ class Storage:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, headers=post_headers, params=params,
                                   data=metadata, timeout=10)
-        resp.raise_for_status()
         session_uri: str = resp.headers['Location']
         return session_uri
 
     async def _do_upload(self, session_uri: str, stream: io.IOBase,
                          headers: dict, *, retries: int = 5,
-                         session: aiohttp.ClientSession = None,
+                         session: Optional[RestSession] = None,
                          timeout: int = 30) -> dict:
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
 
-        resp = await session.put(session_uri, headers=headers, data=stream,
-                                 timeout=timeout)
         for tries in range(retries):
             try:
-                resp.raise_for_status()
-            except aiohttp.ClientResponseError:
+                resp = await session.put(session_uri, headers=headers,
+                                         data=stream, timeout=timeout)
+            except ResponseError:
                 headers.update({'Content-Range': '*/*'})
-                await asyncio.sleep(2. ** tries)
+                await sleep(2. ** tries)
 
                 resp = await session.put(session_uri, headers=headers,
                                          data=stream, timeout=timeout)
@@ -310,6 +317,5 @@ class Storage:
 
             break
 
-        resp.raise_for_status()
         data: dict = await resp.json()
         return data

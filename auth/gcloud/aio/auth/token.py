@@ -1,7 +1,6 @@
 """
 Google Cloud auth via service account file
 """
-import asyncio
 import datetime
 import enum
 import io
@@ -13,13 +12,40 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
-from urllib.parse import quote_plus
-from urllib.parse import urlencode
 
-import aiohttp
 import backoff
+import cryptography  # pylint: disable=unused-import
 import jwt
 
+from .build_constants import BUILD_GCLOUD_REST
+from .session import AioSession as RestSession
+# N.B. the cryptography library is required when calling jwt.encrypt() with
+# algorithm='RS256'. It does not need to be imported here, but this allows us
+# to throw this error at load time rather than lazily during normal operations,
+# where plumbing this error through will require several changes to otherwise-
+# good error handling.
+
+# Handle library differences in python2 and python3
+try:
+    from urllib.parse import urlencode
+    from urllib.parse import quote_plus
+except ImportError:
+    # from urllib import urlencode
+    # from urllib import pathname2url as quote_plus
+    from six.moves.urllib.parse import urlencode
+    from six.moves.urllib.parse import quote_plus
+
+# Handle differences in exceptions
+try:
+    CustomFileError = FileNotFoundError
+except NameError:
+    CustomFileError = IOError
+
+
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if not BUILD_GCLOUD_REST:
+    import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
@@ -57,7 +83,7 @@ def get_service_data(
         except TypeError:
             data: Dict[str, Any] = json.loads(service.read())
             return data
-    except FileNotFoundError:
+    except CustomFileError:
         if set_explicitly:
             # only warn users if they have explicitly set the service_file path
             raise
@@ -70,7 +96,7 @@ def get_service_data(
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: aiohttp.ClientSession = None,
+                 session: Optional[RestSession] = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -83,7 +109,7 @@ class Token:
             self.token_type = Type.GCE_METADATA
             self.token_uri = GCE_ENDPOINT_TOKEN
 
-        self.session = session
+        self.session = session or RestSession()
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
             raise Exception('scopes must be provided when token type is '
@@ -93,7 +119,8 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future] = None
+        if not os.environ.get('BUILD_GCLOUD_REST'):
+            self.acquiring: Optional[asyncio.Future] = None
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -104,7 +131,6 @@ class Token:
             await self.ensure_token()
             resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
                                           headers=GCE_METADATA_HEADERS)
-            resp.raise_for_status()
             project = project or (await resp.text())
         elif self.token_type == Type.SERVICE_ACCOUNT:
             project = project or self.service_data.get('project_id')
@@ -116,6 +142,9 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
+        if BUILD_GCLOUD_REST:
+            return
+
         if self.acquiring:
             await self.acquiring
             return
@@ -134,7 +163,7 @@ class Token:
         await self.acquiring
 
     async def _refresh_authorized_user(self,
-                                       timeout: int) -> aiohttp.ClientResponse:
+                                       timeout: int) -> Dict[str, str]:
         payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
@@ -142,18 +171,18 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         }, quote_via=quote_plus)
 
-        return await self.session.post(self.token_uri, data=payload,
+        return await self.session.post(url=self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
                                        timeout=timeout)
 
     async def _refresh_gce_metadata(self,
-                                    timeout: int) -> aiohttp.ClientResponse:
-        return await self.session.get(self.token_uri,
+                                    timeout: int) -> Dict[str, str]:
+        return await self.session.get(url=self.token_uri,
                                       headers=GCE_METADATA_HEADERS,
                                       timeout=timeout)
 
     async def _refresh_service_account(self,
-                                       timeout: int) -> aiohttp.ClientResponse:
+                                       timeout: int) -> Dict[str, str]:
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
@@ -178,10 +207,6 @@ class Token:
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=timeout,
-                                                 read_timeout=timeout)
-
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
@@ -191,7 +216,6 @@ class Token:
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
-        resp.raise_for_status()
         content = await resp.json()
 
         self.access_token = str(content['access_token'])

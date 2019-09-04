@@ -6,11 +6,14 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import aiohttp
+from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+
 try:
     import ujson as json
-except ModuleNotFoundError:
+except ImportError:
+     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
+     # compatibility
     import json  # type: ignore
 
 
@@ -24,7 +27,7 @@ class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[aiohttp.ClientSession] = None,
+                 session: Optional[RestSession] = None,
                  token: Optional[Token] = None) -> None:
         self._project = project
         self.dataset_name = dataset_name
@@ -66,7 +69,7 @@ class Table:
 
     async def insert(self, rows: List[Dict[str, Any]],
                      skip_invalid: bool = False, ignore_unknown: bool = True,
-                     session: Optional[aiohttp.ClientSession] = None,
+                     session: Optional[RestSession] = None,
                      timeout: int = 60) -> Dict[str, Any]:
         """
         Streams data into BigQuery
@@ -75,7 +78,7 @@ class Table:
         the rows failed to get inserted.
         """
         if not rows:
-            return
+            return None
 
         project = await self.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
@@ -92,10 +95,8 @@ class Table:
         })
 
         if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
+            self.session = RestSession(conn_timeout=10, read_timeout=10)
         session = session or self.session
         resp = await session.post(url, data=payload, headers=headers,
                                   params=None, timeout=timeout)
-        resp.raise_for_status()
         return await resp.json()

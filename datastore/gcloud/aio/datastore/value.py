@@ -9,7 +9,7 @@ from gcloud.aio.datastore.lat_lng import LatLng
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
-class Value:
+class Value:  # pylint:disable=useless-object-inheritance
     key_kind = Key
 
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
@@ -48,8 +48,8 @@ class Value:
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                f'{data.keys()} does not contain a supported value type'
-                f' (any of: {supported})')
+                '{} does not contain a supported value type'
+                ' (any of: {})'.format(data.keys(), supported))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -71,19 +71,22 @@ class Value:
         }
 
     def _infer_type(self, value: Any) -> TypeName:
-        kind = type(value)
+        # Compatibility for python2
+        kind = (type(str('')) if 'unicode' in value.__class__.__name__
+                else type(value))
         supported_types = self._get_supported_types()
 
         try:
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(
-                f'{kind} is not a supported value type (any of: '
-                f'{supported_types})')
+                '{} is not a supported value type (any of: '
+                '{})'.format(kind, supported_types))
 
     @classmethod
     def _get_supported_types(cls):
-        return {
-            **TYPES,
+        supported_types = TYPES
+        supported_types.update({
             cls.key_kind: TypeName.KEY,
-        }
+        })
+        return supported_types

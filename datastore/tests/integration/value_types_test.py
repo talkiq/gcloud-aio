@@ -1,16 +1,28 @@
 """Make sure all value types are serialized/deserialized correctly"""
-import aiohttp
 import pytest
+from gcloud.aio.auth import AioSession as RestSession  # pylint:disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint:disable=no-name-in-module
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import LatLng
 from gcloud.aio.datastore import PathElement
 
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
+
+
 @pytest.mark.asyncio  # type: ignore
 async def test_geo_point_value(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
-    async with aiohttp.ClientSession(timeout=10) as s:
+    async with Session(timeout=10) as _s:
+        s = RestSession()
+        s.session = _s
+
         ds = Datastore(project=project, service_file=creds, session=s)
 
         allocatedKeys = await ds.allocateIds([key], session=s)
