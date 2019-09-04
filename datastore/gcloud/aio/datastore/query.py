@@ -6,6 +6,7 @@ from gcloud.aio.datastore.constants import MoreResultsType
 from gcloud.aio.datastore.constants import ResultType
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.filter import Filter
+from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
 from gcloud.aio.datastore.value import Value
 
@@ -27,13 +28,14 @@ class BaseQuery:
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#Query
 class Query(BaseQuery):
+    # pylint: disable=too-many-instance-attributes
     json_key = 'query'
 
-    # TODO: support `projection` and `distinctOn`
     def __init__(self, kind: str = '', query_filter: Filter = None,
                  order: List[PropertyOrder] = None, start_cursor: str = '',
-                 end_cursor: str = '', offset: int = 0,
-                 limit: int = 0) -> None:
+                 end_cursor: str = '', offset: int = 0, limit: int = 0,
+                 projection: List[Projection] = None,
+                 distinct_on: List[str] = None) -> None:
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -41,6 +43,8 @@ class Query(BaseQuery):
         self.end_cursor = end_cursor
         self.offset = offset
         self.limit = limit
+        self.projection = projection or []
+        self.distinct_on = distinct_on or []
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Query):
@@ -58,13 +62,17 @@ class Query(BaseQuery):
         end_cursor = data.get('endCursor') or ''
         offset = int(data.get('offset') or 0)
         limit = int(data.get('limit') or 0)
+        projection = [Projection.from_repr(p)
+                      for p in data.get('projection', [])]
+        distinct_on = [d['name'] for d in data.get('distinct_on', [])]
 
         filter_ = data.get('filter')
         query_filter = Filter.from_repr(filter_) if filter_ else None
 
         return cls(kind=kind, query_filter=query_filter, order=orders,
                    start_cursor=start_cursor, end_cursor=end_cursor,
-                   offset=offset, limit=limit)
+                   offset=offset, limit=limit,
+                   projection=projection, distinct_on=distinct_on)
 
     def to_repr(self) -> Dict[str, Any]:
         data = {'kind': [{'name': self.kind}] if self.kind else []}
@@ -80,6 +88,10 @@ class Query(BaseQuery):
             data['offset'] = self.offset
         if self.limit:
             data['limit'] = self.limit
+        if self.projection:
+            data['projection'] = [p.to_repr() for p in self.projection]
+        if self.distinct_on:
+            data['distinctOn'] = [{'name': d} for d in self.distinct_on]
         return data
 
 

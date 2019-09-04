@@ -38,7 +38,7 @@ jobs:
 
   pypi:
     docker:
-      - image: python:3.7.0-slim
+      - image: python:3.7.4-slim
     steps:
       - run: pip install pyopenssl twine
       - checkout
@@ -51,7 +51,7 @@ jobs:
 
   github:
     docker:
-      - image: python:3.7.0-alpine3.8
+      - image: python:3.7.4-alpine
     steps:
       - run: apk add --no-cache curl git openssh-client
       - checkout
