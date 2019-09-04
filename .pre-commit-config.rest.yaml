@@ -33,7 +33,25 @@ repos:
         args:
         - --max-line-length=80
         - --ignore-imports=yes
-        - --disable=bad-whitespace,wrong-import-position,wrong-import-order,bad-continuation,unused-import,line-too-long,bad-option-value,redefined-builtin,multiple-statements,pointless-statement,too-many-branches,too-many-statements,old-style-class,no-init
+        # Formatting related
+        - -d bad-whitespace
+        - -d wrong-import-position
+        - -d wrong-import-order
+        - -d bad-continuation
+        - -d line-too-long
+        # Caused by automated conversion tools
+        - -d unused-import
+        - -d redefined-builtin
+        - -d bad-option-value
+        - -d multiple-statements
+        - -d pointless-statement
+        # Other refactor issues
+        - -d too-many-branches
+        - -d too-many-statements
+        - -d old-style-class
+        - -d no-init
+        - -d unused-variable
+        # Originally available
         - -d duplicate-code
         - -d fixme
         - -d import-error
