@@ -41,10 +41,24 @@ jobs:
       - image: python:3.7.4-slim
     steps:
       - run: pip install pyopenssl twine
-      - checkout
       - deploy:
           name: upload to pypi
           command: |
+            cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
+            python setup.py sdist bdist_wheel
+            twine upload dist/*
+
+  pypi-rest:
+    docker:
+      - image: python:3.7.4-slim
+    steps:
+      - run: pip install pyopenssl twine
+      - attach_workspace:
+          at: rest
+      - deploy:
+          name: upload to pypi
+          command: |
+            cd rest/
             cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
             python setup.py sdist bdist_wheel
             twine upload dist/*
@@ -270,6 +284,21 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
+      - pypi-rest:
+          context: org-global
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - linter/pre-commit
+            - test-rest-auth
+            - test-rest-bigquery
+            - test-rest-datastore
+            - test-rest-kms
+            - test-rest-storage
+            - test-rest-taskqueue
       - pypi:
           context: org-global
           filters:
