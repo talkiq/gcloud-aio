@@ -103,9 +103,10 @@ jobs:
       - run: find . -type f | grep '\.py$' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
 
       # Add object class inheritence where needed for python2
-      - run: find . -type f | grep "value\.py$" | xargs -L1 sed -Ei 's/class Value:/class Value(object):/g'
-      - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class CustomKey:/class CustomKey(object):/g'
-      - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class NonSupportedType:/class NonSupportedType(object):/g'
+      - run: find . -type f | grep "\.py$" | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
+      # - run: find . -type f | grep "value\.py$" | xargs -L1 sed -Ei 's/class Value:/class Value(object):/g'
+      # - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class CustomKey:/class CustomKey(object):/g'
+      # - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class NonSupportedType:/class NonSupportedType(object):  #pylint:disable=bad-option-value/g'
 
       # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
