@@ -78,7 +78,7 @@ class Table:
         the rows failed to get inserted.
         """
         if not rows:
-            return
+            return None
 
         project = await self.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
