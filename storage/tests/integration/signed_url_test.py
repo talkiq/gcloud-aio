@@ -1,11 +1,18 @@
 import uuid
 
-import aiohttp
 import pytest
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Bucket
 from gcloud.aio.storage import Storage
+
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 
 @pytest.mark.asyncio
@@ -13,7 +20,7 @@ from gcloud.aio.storage import Storage
 async def test_gcs_signed_url(bucket_name, creds, data):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
 
-    async with aiohttp.ClientSession() as s:
+    async with Session() as s:
         session = RestSession()
         session.session = s
         storage = Storage(service_file=creds, session=session)
