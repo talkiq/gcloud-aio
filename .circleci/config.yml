@@ -104,9 +104,6 @@ jobs:
 
       # Add object class inheritence where needed for python2
       - run: find . -type f | grep "\.py$" | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
-      # - run: find . -type f | grep "value\.py$" | xargs -L1 sed -Ei 's/class Value:/class Value(object):/g'
-      # - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class CustomKey:/class CustomKey(object):/g'
-      # - run: find . -type f | grep "value_test\.py$" | xargs -L1 sed -Ei 's/class NonSupportedType:/class NonSupportedType(object):  #pylint:disable=bad-option-value/g'
 
       # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
@@ -204,60 +201,6 @@ workflows:
             - test-pubsub
             - test-storage
             - test-taskqueue
-      - nox-rest:
-          name: test-rest-auth
-          folder: auth
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
-          name: test-rest-bigquery
-          folder: bigquery
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
-          name: test-rest-datastore
-          folder: datastore
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
-          name: test-rest-kms
-          folder: kms
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
-          name: test-rest-storage
-          folder: storage
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
-      - nox-rest:
-          name: test-rest-taskqueue
-          folder: taskqueue
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
       - lint-rest:
           name: lint-rest
           config_file: .pre-commit-config.rest.yaml
@@ -267,6 +210,66 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
+      - nox-rest:
+          name: test-rest-auth
+          folder: auth
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+      - nox-rest:
+          name: test-rest-bigquery
+          folder: bigquery
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+      - nox-rest:
+          name: test-rest-datastore
+          folder: datastore
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+      - nox-rest:
+          name: test-rest-kms
+          folder: kms
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+      - nox-rest:
+          name: test-rest-storage
+          folder: storage
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+      - nox-rest:
+          name: test-rest-taskqueue
+          folder: taskqueue
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
       - pypi:
           context: org-global
           filters:
