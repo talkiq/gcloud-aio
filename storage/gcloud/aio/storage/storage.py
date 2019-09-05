@@ -83,7 +83,12 @@ class Storage:
         s = RestSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
                               timeout=timeout)
-        data: str = await resp.text()
+
+        if BUILD_GCLOUD_REST:
+            data: str = str(resp.text)
+        else:
+            data: str = await resp.text()
+
         return data
 
     async def download(self, bucket: str, object_name: str, *,

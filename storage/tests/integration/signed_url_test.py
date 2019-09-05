@@ -32,7 +32,11 @@ async def test_gcs_signed_url(bucket_name, creds, data):
         signed_url = await blob.get_signed_url(60, iam_client=iam_client)
 
         resp = await session.get(signed_url)
-        downloaded_data = await resp.text()
+
+        if BUILD_GCLOUD_REST:
+            downloaded_data: str = str(resp.text)
+        else:
+            downloaded_data: str = await resp.text()
 
         try:
             assert data == downloaded_data

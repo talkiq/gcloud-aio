@@ -125,7 +125,12 @@ class Token:
             await self.ensure_token()
             resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
                                           headers=GCE_METADATA_HEADERS)
-            project = project or (await resp.text())
+
+            if not project:
+                if BUILD_GCLOUD_REST:
+                    project = str(resp.text)
+                else:
+                    project = await resp.text()
         elif self.token_type == Type.SERVICE_ACCOUNT:
             project = project or self.service_data.get('project_id')
 
