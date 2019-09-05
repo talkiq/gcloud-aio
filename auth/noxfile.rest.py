@@ -19,7 +19,7 @@ def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
         session.skip('Credentials must be set via environment variable.')
 
-    session.install('pytest', 'pytest-cov', 'pytest-mock')
+    session.install('pytest', 'pytest-cov', 'pytest-mock', 'future')
     session.install('.')
 
     session.run('py.test', '--quiet', '--cov=gcloud.rest',
