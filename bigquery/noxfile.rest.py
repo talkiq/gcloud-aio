@@ -8,7 +8,8 @@ LOCAL_DEPS = ('../auth/', )
 
 @nox.session(python=['2.7', '3.5', '3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
-    session.install('pytest', 'pytest-cov', 'future', *LOCAL_DEPS)
+    session.install('pytest', 'pytest-cov', 'future')
+    session.install('-e', *LOCAL_DEPS)
     session.install('-e', '.')
 
     session.run('py.test', '--quiet', '--cov=gcloud.rest', '--cov=tests.unit',
@@ -21,8 +22,8 @@ def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
         session.skip('Credentials must be set via environment variable.')
 
-    session.install('pytest', 'pytest-cov', 'pytest-mock', 'future',
-                    *LOCAL_DEPS)
+    session.install('pytest', 'pytest-cov', 'pytest-mock', 'future',)
+    session.install('-e', *LOCAL_DEPS)
     session.install('-e', '.')
 
     session.run('py.test', '--quiet', '--cov=gcloud.rest',
