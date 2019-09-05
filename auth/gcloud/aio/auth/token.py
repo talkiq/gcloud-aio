@@ -27,8 +27,6 @@ from .session import AioSession as RestSession
 # where plumbing this error through will require several changes to otherwise-
 # good error handling.
 
-
-
 # Handle differences in exceptions
 try:
     CustomFileError = FileNotFoundError
