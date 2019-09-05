@@ -234,7 +234,7 @@ class Storage:
         if BUILD_GCLOUD_REST:
             data: bytes = bytes(response.text, encoding='utf-8')
         else:
-            data: bytes = await response.text()
+            data: bytes = await response.read()
 
         return data
 
