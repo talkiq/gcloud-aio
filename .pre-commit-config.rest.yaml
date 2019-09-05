@@ -51,6 +51,7 @@ repos:
         - -d old-style-class
         - -d no-init
         - -d unused-variable
+        - -d too-many-locals
         # Originally available
         - -d duplicate-code
         - -d fixme
