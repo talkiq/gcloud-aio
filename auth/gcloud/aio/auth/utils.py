@@ -13,7 +13,7 @@ def decode(payload: str) -> bytes:
     See https://en.wikipedia.org/wiki/Base64#URL_applications
     """
 
-    if isinstance(payload, str) and sys.version_info[0] < 3:
+    if sys.version_info[0] < 3:
         # Base64 encode/decode does not accept `str` as input in python2
         payload = native_str_to_bytes(payload)
 
