@@ -2,8 +2,6 @@ import base64
 import sys
 from typing import Union
 
-from future.utils import native_str_to_bytes
-
 
 def decode(payload: str) -> bytes:
     """
@@ -15,6 +13,9 @@ def decode(payload: str) -> bytes:
 
     if sys.version_info[0] < 3:
         # Base64 encode/decode does not accept `str` as input in python2
+        def native_str_to_bytes(s, encoding=None):
+            from future.types import newbytes
+            return newbytes(s, encoding=encoding)
         payload = native_str_to_bytes(payload, encoding='utf-8')
 
     return base64.b64decode(payload, altchars=b'-_')
