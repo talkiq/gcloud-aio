@@ -2,6 +2,8 @@ import base64
 import sys
 from typing import Union
 
+from future.utils import native_str_to_bytes
+
 
 def decode(payload: str) -> bytes:
     """
@@ -11,11 +13,11 @@ def decode(payload: str) -> bytes:
     See https://en.wikipedia.org/wiki/Base64#URL_applications
     """
 
-    if not isinstance(payload, bytes) and sys.version_info[0] < 3:
+    if isinstance(payload, str) and sys.version_info[0] < 3:
         # Base64 encode/decode does not accept `str` as input in python2
-        payload = payload.encode('utf-8')
+        payload = native_str_to_bytes(payload)
 
-    return base64.b64decode(bytes(payload, 'utf-8'), altchars=b'-_')
+    return base64.b64decode(payload, altchars=b'-_')
 
 
 def encode(payload: Union[bytes, str]) -> bytes:
