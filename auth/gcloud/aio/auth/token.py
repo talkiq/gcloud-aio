@@ -12,7 +12,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
-from urllib.parse import quote_plus
 from urllib.parse import urlencode
 
 import backoff
@@ -161,13 +160,12 @@ class Token:
 
     async def _refresh_authorized_user(self,
                                        timeout: int) -> Dict[str, str]:
-        data = {
+        payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
             'client_secret': self.service_data['client_secret'],
             'refresh_token': self.service_data['refresh_token'],
-        }
-        payload = urlencode(data, quote_via=quote_plus)
+        })
 
         return await self.session.post(url=self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
@@ -197,7 +195,7 @@ class Token:
         payload = urlencode({
             'assertion': assertion,
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        }, quote_via=quote_plus)
+        })
 
         return await self.session.post(self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,
