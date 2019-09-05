@@ -5,7 +5,7 @@ from typing import Union
 def make_compatible_bytes_unicode(text: str):
     if sys.version_info[0] < 3:
         return unicode(text)  # pylint:disable=undefined-variable
-    return bytes(text)
+    return bytes(text, 'utf-8')
 
 
 def decode(payload: str) -> bytes:
