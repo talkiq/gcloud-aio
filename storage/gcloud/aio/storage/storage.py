@@ -237,7 +237,7 @@ class Storage:
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
         if BUILD_GCLOUD_REST:
-            data: bytes = bytes(response.text, encoding='utf-8')
+            data: bytes = response.content
         else:
             data: bytes = await response.read()
 
