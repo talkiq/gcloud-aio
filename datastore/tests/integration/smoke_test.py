@@ -1,9 +1,8 @@
 import asyncio
 import uuid
 
-import aiohttp
 import pytest
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLQuery
@@ -17,14 +16,19 @@ from gcloud.aio.datastore import Query
 from gcloud.aio.datastore import Value
 from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
+
 
 @pytest.mark.asyncio  # type: ignore
 async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         allocatedKeys = await ds.allocateIds([key], session=s)
@@ -58,9 +62,7 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
@@ -81,9 +83,7 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_rollback(creds: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         transaction = await ds.beginTransaction(session=s)
@@ -92,7 +92,7 @@ async def test_rollback(creds: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 async def test_query_with_key_projection(creds: str, kind: str,
                                          project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
         # setup test data
         await ds.insert(Key(project, [PathElement(kind)]), {'value': 30}, s)
@@ -112,7 +112,7 @@ async def test_query_with_key_projection(creds: str, kind: str,
 @pytest.mark.asyncio  # type: ignore
 async def test_query_with_value_projection(creds: str, kind: str,
                                            project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
         # setup test data
         await ds.insert(Key(project, [PathElement(kind)]), {'value': 30}, s)
@@ -130,7 +130,7 @@ async def test_query_with_distinct_on(creds: str, kind: str,
                                       project: str) -> None:
     keys1 = [Key(project, [PathElement(kind)]) for i in range(3)]
     keys2 = [Key(project, [PathElement(kind)]) for i in range(3)]
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         # setup test data
@@ -153,9 +153,7 @@ async def test_query_with_distinct_on(creds: str, kind: str,
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_query(creds: str, kind: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         property_filter = PropertyFilter(
@@ -184,9 +182,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 @pytest.mark.xfail(strict=False)  # type: ignore
 async def test_gql_query(creds: str, kind: str, project: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         query = GQLQuery(f'SELECT * FROM {kind} WHERE value = @value',
@@ -221,9 +217,7 @@ async def test_datastore_export(creds: str, project: str,
 
     rand_uuid = str(uuid.uuid4())
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         await ds.insert(Key(project, [PathElement(kind)]),

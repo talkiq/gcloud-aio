@@ -3,10 +3,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from io import IOBase
-from typing import Dict  # pylint: disable=unused-import
-from typing import List  # pylint: disable=unused-import
-from typing import Optional  # pylint: disable=unused-import
-from typing import Union  # pylint: disable=unused-import
+from typing import Dict
 
 import requests
 
@@ -14,11 +11,12 @@ from .build_constants import BUILD_GCLOUD_REST
 
 class BaseSession():
     __metaclass__ = ABCMeta
-    _session = None
 
-    def __init__(self, conn_timeout: int = 10, read_timeout: int = 10):
+    def __init__(self, session=None, conn_timeout: int = 10,
+                 read_timeout: int = 10):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
+        self._session = session
 
     @abstractproperty
     def session(self):

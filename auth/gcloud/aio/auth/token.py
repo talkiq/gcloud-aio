@@ -44,7 +44,10 @@ except NameError:
 
 # Selectively load libraries based on the package
 # TODO: Can we somehow just pick up the pacakge name instead of this
-if not BUILD_GCLOUD_REST:
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
     import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -96,7 +99,7 @@ def get_service_data(
 class Token:
     # pylint: disable=too-many-instance-attributes
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[RestSession] = None,
+                 session: Optional[Session] = None,
                  scopes: List[str] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -109,7 +112,7 @@ class Token:
             self.token_type = Type.GCE_METADATA
             self.token_uri = GCE_ENDPOINT_TOKEN
 
-        self.session = session or RestSession()
+        self.session = RestSession(session) if session else RestSession()
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
             raise Exception('scopes must be provided when token type is '

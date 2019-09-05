@@ -1,6 +1,5 @@
 """Make sure all value types are serialized/deserialized correctly"""
 import pytest
-from gcloud.aio.auth import AioSession as RestSession  # pylint:disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint:disable=no-name-in-module
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Key
@@ -19,10 +18,7 @@ else:
 async def test_geo_point_value(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
-    async with Session(timeout=10) as _s:
-        s = RestSession()
-        s.session = _s
-
+    async with Session(timeout=10) as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         allocatedKeys = await ds.allocateIds([key], session=s)

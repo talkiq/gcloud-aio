@@ -2,7 +2,6 @@ import logging
 from typing import List
 from typing import Optional
 
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
 from .blob import Blob
@@ -11,8 +10,10 @@ from .blob import Blob
 # TODO: Can we somehow just pick up the pacakge name instead of this
 if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
+    from requests import Session
 else:
     from aiohttp import ClientResponseError as ResponseError
+    from aiohttp import ClientSession as Session
 
 log = logging.getLogger(__name__)
 
@@ -23,14 +24,14 @@ class Bucket:
         self.name = name
 
     async def get_blob(self, blob_name: str,
-                       session: Optional[RestSession] = None) -> Blob:
+                       session: Optional[Session] = None) -> Blob:
         metadata = await self.storage.download_metadata(self.name, blob_name,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
 
     async def blob_exists(self, blob_name: str,
-                          session: Optional[RestSession] = None) -> bool:
+                          session: Optional[Session] = None) -> bool:
         try:
             await self.get_blob(blob_name, session=session)
             return True
@@ -40,7 +41,7 @@ class Bucket:
             raise e
 
     async def list_blobs(self, prefix: str = '',
-                         session: Optional[RestSession] = None) -> List[str]:
+                         session: Optional[Session] = None) -> List[str]:
         params = {'prefix': prefix}
         content = await self.storage.list_objects(self.name, params=params,
                                                   session=session)

@@ -5,11 +5,16 @@ import random
 import string
 import uuid
 
-import aiohttp
 import pytest
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Storage
 
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 # TODO: use hypothesis
 RANDOM_BINARY = os.urandom(2045)
@@ -32,9 +37,7 @@ async def test_upload_resumable(bucket_name, creds, uploaded_data,
                                 expected_data, file_extension):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
-    async with aiohttp.ClientSession() as s:
-        session = RestSession()
-        session.session = s
+    async with Session() as session:
         storage = Storage(service_file=creds, session=session)
         res = await storage.upload(bucket_name, object_name, uploaded_data,
                                    force_resumable_upload=True)

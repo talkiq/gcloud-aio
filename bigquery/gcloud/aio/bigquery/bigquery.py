@@ -7,6 +7,7 @@ from typing import Optional
 from typing import Union
 
 from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 try:
@@ -16,6 +17,12 @@ except ImportError:
      # compatibility
     import json  # type: ignore
 
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 API_ROOT = 'https://www.googleapis.com/bigquery/v2'
 SCOPES = [
@@ -27,13 +34,13 @@ class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[RestSession] = None,
+                 session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self._project = project
         self.dataset_name = dataset_name
         self.table_name = table_name
 
-        self.session = session
+        self.session = RestSession(session) if session else RestSession()
         self.token = token or Token(service_file=service_file, session=session,
                                     scopes=SCOPES)
 
@@ -69,7 +76,7 @@ class Table:
 
     async def insert(self, rows: List[Dict[str, Any]],
                      skip_invalid: bool = False, ignore_unknown: bool = True,
-                     session: Optional[RestSession] = None,
+                     session: Optional[Session] = None,
                      timeout: int = 60) -> Dict[str, Any]:
         """
         Streams data into BigQuery
@@ -96,7 +103,7 @@ class Table:
 
         if not self.session:
             self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        resp = await session.post(url, data=payload, headers=headers,
-                                  params=None, timeout=timeout)
+        s = RestSession(session) if session else self.session
+        resp = await s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
         return await resp.json()
