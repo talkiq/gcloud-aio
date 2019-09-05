@@ -33,9 +33,11 @@ except ImportError:
 if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
+    from requests import Session
 else:
     from asyncio import sleep
     from aiohttp import ClientResponseError as ResponseError
+    from aiohttp import ClientSession as Session
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -57,17 +59,17 @@ class UploadType(enum.Enum):
 class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
-                 session: Optional[RestSession] = None) -> None:
-        self.session = session
+                 session: Optional[Session] = None) -> None:
+        self.session = RestSession(session) if session else RestSession()
         self.token = token or Token(service_file=service_file,
-                                    session=self.session, scopes=SCOPES)
+                                    session=session, scopes=SCOPES)
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
-                     session: Optional[RestSession] = None) -> str:
+                     session: Optional[Session] = None) -> str:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -77,29 +79,29 @@ class Storage:
         }
 
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        resp = await session.delete(url, headers=headers, params=params or {},
-                                    timeout=timeout)
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers, params=params or {},
+                              timeout=timeout)
         data: str = await resp.text()
         return data
 
     async def download(self, bucket: str, object_name: str, *,
                        timeout: int = 10,
-                       session: Optional[RestSession] = None) -> bytes:
+                       session: Optional[Session] = None) -> bytes:
         return await self._download(bucket, object_name, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 timeout: int = 10,
-                                session: Optional[RestSession] = None) -> dict:
+                                session: Optional[Session] = None) -> dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
         metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
-                           session: Optional[RestSession] = None,
+                           session: Optional[Session] = None,
                            timeout: int = 10) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT}/{bucket}/o'
@@ -108,10 +110,10 @@ class Storage:
         }
 
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        resp = await session.get(url, headers=headers, params=params or {},
-                                 timeout=timeout)
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
         data: dict = await resp.json()
         return data
 
@@ -121,14 +123,10 @@ class Storage:
     async def upload(self, bucket: str, object_name: str, file_data: Any,
                      *, content_type: str = None, parameters: dict = None,
                      headers: dict = None, metadata: dict = None,
-                     session: Optional[RestSession] = None, timeout: int = 30,
+                     session: Optional[Session] = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
         token = await self.token.get()
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
-
-        if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
 
         stream = self._preprocess_data(file_data)
         content_length = self._get_stream_len(stream)
@@ -216,7 +214,7 @@ class Storage:
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
-                        session: Optional[RestSession] = None) -> bytes:
+                        session: Optional[Session] = None) -> bytes:
         token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -226,10 +224,10 @@ class Storage:
         }
 
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        response = await session.get(url, headers=headers, params=params or {},
-                                     timeout=timeout)
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
+        response = await s.get(url, headers=headers, params=params or {},
+                               timeout=timeout)
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -238,7 +236,7 @@ class Storage:
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: io.IOBase, params: dict, headers: dict,
-                             *, session: Optional[RestSession] = None,
+                             *, session: Optional[Session] = None,
                              timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params['name'] = object_name
@@ -249,17 +247,17 @@ class Storage:
         })
 
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        resp = await session.post(url, data=stream, headers=headers,
-                                  params=params, timeout=timeout)
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
+        resp = await s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
         data: dict = await resp.json()
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, params: dict,
                                 headers: dict, *, metadata: dict = None,
-                                session: Optional[RestSession] = None,
+                                session: Optional[Session] = None,
                                 timeout: int = 30) -> dict:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(url, object_name, params,
@@ -272,7 +270,7 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str, params: dict,
                                headers: dict, *, metadata: dict = None,
-                               session: Optional[RestSession] = None) -> str:
+                               session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
         metadict = (metadata or {}).copy()
@@ -288,31 +286,31 @@ class Storage:
         })
 
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
-        resp = await session.post(url, headers=post_headers, params=params,
-                                  data=metadata, timeout=10)
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
+        resp = await s.post(url, headers=post_headers, params=params,
+                            data=metadata, timeout=10)
         session_uri: str = resp.headers['Location']
         return session_uri
 
     async def _do_upload(self, session_uri: str, stream: io.IOBase,
                          headers: dict, *, retries: int = 5,
-                         session: Optional[RestSession] = None,
+                         session: Optional[Session] = None,
                          timeout: int = 30) -> dict:
         if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
-        session = session or self.session
+            self.session = RestSession()
+        s = RestSession(session) if session else self.session
 
         for tries in range(retries):
             try:
-                resp = await session.put(session_uri, headers=headers,
-                                         data=stream, timeout=timeout)
+                resp = await s.put(session_uri, headers=headers,
+                                   data=stream, timeout=timeout)
             except ResponseError:
                 headers.update({'Content-Range': '*/*'})
                 await sleep(2. ** tries)
 
-                resp = await session.put(session_uri, headers=headers,
-                                         data=stream, timeout=timeout)
+                resp = await s.put(session_uri, headers=headers,
+                                   data=stream, timeout=timeout)
                 continue
 
             break

@@ -5,11 +5,18 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from .build_constants import BUILD_GCLOUD_REST
 from .session import AioSession as RestSession
 from .token import Token
 from .token import Type
 from .utils import encode
 
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 API_ROOT_IAM = 'https://iam.googleapis.com/v1'
 API_ROOT_IAM_CREDENTIALS = 'https://iamcredentials.googleapis.com/v1'
@@ -17,10 +24,10 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, session: RestSession,
+    def __init__(self, session: Session,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = session
+        self.session = RestSession(session)
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 
@@ -44,7 +51,7 @@ class IamClient:
                              key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
-                             session: Optional[RestSession] = None,
+                             session: Optional[Session] = None,
                              timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -60,9 +67,9 @@ class IamClient:
         url = f'{API_ROOT_IAM}/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
-        session = session or self.session
+        s = RestSession(session) if session else self.session
 
-        resp = await session.get(url=url, headers=headers, timeout=timeout)
+        resp = await s.get(url=url, headers=headers, timeout=timeout)
 
         return await resp.json()
 
@@ -70,7 +77,7 @@ class IamClient:
     async def list_public_keys(
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
-            session: Optional[RestSession] = None,
+            session: Optional[Session] = None,
             timeout: int = 10) -> List[Dict[str, str]]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -81,9 +88,9 @@ class IamClient:
 
         headers = await self.headers()
 
-        session = session or self.session
+        s = RestSession(session) if session else self.session
 
-        resp = await session.get(url=url, headers=headers, timeout=timeout)
+        resp = await s.get(url=url, headers=headers, timeout=timeout)
 
         return (await resp.json()).get('keys', [])
 
@@ -91,7 +98,7 @@ class IamClient:
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
-                        session: Optional[RestSession] = None,
+                        session: Optional[Session] = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
                                  self.service_account_email)
@@ -113,8 +120,8 @@ class IamClient:
             'Content-Type': 'application/json',
         })
 
-        session = session or self.session
+        s = RestSession(session) if session else self.session
 
-        resp = await session.post(url=url, data=json_str, headers=headers,
-                                  timeout=timeout)
+        resp = await s.post(url=url, data=json_str, headers=headers,
+                            timeout=timeout)
         return await resp.json()

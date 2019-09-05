@@ -7,7 +7,7 @@ from typing import Any
 from typing import Optional
 from typing import Union
 
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -19,6 +19,13 @@ except ImportError:
     # from urllib import urlencode
     # from urllib import pathname2url as quote_plus
     from six.moves.urllib.parse import quote
+
+# Selectively load libraries based on the package
+# TODO: Can we somehow just pick up the pacakge name instead of this
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 
 HOST = 'storage.googleapis.com'
@@ -36,12 +43,12 @@ class Blob:
     def chunk_size(self) -> int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self, session: Optional[RestSession] = None) -> Any:
+    async def download(self, session: Optional[Session] = None) -> Any:
         return await self.bucket.storage.download(self.bucket.name, self.name,
                                                   session=session)
 
     async def upload(self, data: Any,
-                     session: Optional[RestSession] = None) -> dict:
+                     session: Optional[Session] = None) -> dict:
         metadata: dict = await self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
@@ -55,7 +62,7 @@ class Blob:
             service_account_email: Optional[str] = None,
             service_file: Optional[Union[str, io.IOBase]] = None,
             token: Optional[Token] = None,
-            session: Optional[RestSession] = None) -> str:
+            session: Optional[Session] = None) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
         with the link.

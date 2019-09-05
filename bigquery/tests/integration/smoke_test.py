@@ -1,7 +1,6 @@
 import uuid
 
 import pytest
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.bigquery import Table
 
@@ -18,9 +17,7 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
     rows = [{'key': uuid.uuid4().hex, 'value': uuid.uuid4().hex}
             for i in range(3)]
 
-    async with Session() as _s:
-        s = RestSession()
-        s.session = _s
+    async with Session() as s:
         t = Table(dataset, table, project=project, service_file=creds,
                   session=s)
         await t.insert(rows)

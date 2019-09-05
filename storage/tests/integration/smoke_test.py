@@ -2,7 +2,6 @@ import json
 import uuid
 
 import pytest
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Storage
 
@@ -26,9 +25,7 @@ async def test_object_life_cycle(bucket_name, creds, uploaded_data,
                                  expected_data, file_extension):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
 
-    async with Session() as s:
-        session = RestSession()
-        session.session = s
+    async with Session() as session:
         storage = Storage(service_file=creds, session=session)
         await storage.upload(bucket_name, object_name, uploaded_data)
 
