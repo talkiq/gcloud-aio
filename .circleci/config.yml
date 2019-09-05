@@ -139,7 +139,6 @@ jobs:
       - image: thekevjames/nox:2019.5.30
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
-      BUILD_GCLOUD_REST: 'TRUE'
     parameters:
       folder:
         type: string

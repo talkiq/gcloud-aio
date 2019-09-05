@@ -146,6 +146,8 @@ class Token:
 
     async def ensure_token(self) -> None:
         if BUILD_GCLOUD_REST:
+            if not self.access_token:
+                self.acquire_access_token()
             return
 
         if self.acquiring:
