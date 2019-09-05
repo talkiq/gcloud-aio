@@ -124,6 +124,7 @@ jobs:
       - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/(async|await) //g'
       - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
+      - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
 
       # Remove pubsub
       - run: rm -r ./pubsub
