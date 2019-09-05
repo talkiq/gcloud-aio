@@ -3,6 +3,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from io import IOBase
+from typing import Any
 from typing import Dict
 
 import requests
@@ -44,6 +45,11 @@ class BaseSession():
     @abstractmethod
     def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
                timeout: int):
+        pass
+
+    @abstractmethod
+    def request(self, method: str, url: str, headers: Dict[str, str],
+                **kwargs: Any):
         pass
 
 if not BUILD_GCLOUD_REST:
@@ -91,6 +97,12 @@ if not BUILD_GCLOUD_REST:
             resp.raise_for_status()
             return resp
 
+        async def request(self, method: str, url: str, headers: Dict[str, str],
+                          **kwargs: Any) -> aiohttp.ClientResponse:
+            resp = await self.session.request(method, url, headers=headers,
+                                              **kwargs)
+            resp.raise_for_status()
+            return resp
 
 class SyncSession(BaseSession):
     google_api_lock = threading.RLock()
@@ -134,5 +146,12 @@ class SyncSession(BaseSession):
         with self.google_api_lock:
             resp = self.session.delete(url, params=params, headers=headers,
                                        timeout=timeout)
+        resp.raise_for_status()
+        return resp
+
+    def request(self, method: str, url: str, headers: Dict[str, str],
+                **kwargs: Any) -> requests.Response:
+        with self.google_api_lock:
+            resp = self.session.request(method, url, headers=headers, **kwargs)
         resp.raise_for_status()
         return resp
