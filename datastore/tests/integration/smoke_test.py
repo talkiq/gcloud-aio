@@ -1,4 +1,3 @@
-import asyncio
 import uuid
 
 import pytest
@@ -20,8 +19,10 @@ from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 # TODO: Can we somehow just pick up the pacakge name instead of this
 if BUILD_GCLOUD_REST:
     from requests import Session
+    from time import sleep
 else:
     from aiohttp import ClientSession as Session
+    from asyncio import sleep
 
 
 @pytest.mark.asyncio  # type: ignore
@@ -228,7 +229,7 @@ async def test_datastore_export(creds: str, project: str,
         count = 0
         while (count < 10 and operation and
                operation.metadata['common']['state'] == 'PROCESSING'):
-            await asyncio.sleep(10)
+            await sleep(10)
             operation = await ds.get_datastore_operation(operation.name)
             count += 1
 

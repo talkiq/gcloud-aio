@@ -52,6 +52,7 @@ repos:
         - -d no-init
         - -d unused-variable
         - -d too-many-locals
+        - -d ungrouped-imports
         # Originally available
         - -d duplicate-code
         - -d fixme

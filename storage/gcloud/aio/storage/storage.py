@@ -83,7 +83,12 @@ class Storage:
         s = RestSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
                               timeout=timeout)
-        data: str = await resp.text()
+
+        if BUILD_GCLOUD_REST:
+            data: str = str(resp.text)
+        else:
+            data: str = await resp.text()
+
         return data
 
     async def download(self, bucket: str, object_name: str, *,
@@ -231,7 +236,11 @@ class Storage:
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
-        data: bytes = await response.read()
+        if BUILD_GCLOUD_REST:
+            data: bytes = response.content
+        else:
+            data: bytes = await response.read()
+
         return data
 
     async def _upload_simple(self, url: str, object_name: str,
