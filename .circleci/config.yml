@@ -122,9 +122,10 @@ jobs:
       # Physically update files to remove incompatible syntax
       - run: find . -type f | grep "requirements.txt" | xargs -L1 sed -Ei 's/aiohttp/#aiohttp/g'
       - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
-      - run: find . -type f | xargs -L1 sed -Ei 's/(async|await) //g'
+      - run: find . -type f | grep '\.py$' | xargs -L1 sed -Ei 's/(async|await) //g'
       - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
       - run: find . -type f | grep "tests/" | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
+      - run: find . -type f | grep '\.py$' | xargs -L1 sed -Ei 's/urllib.parse/six.moves.urllib.parse/g'
 
       # Remove pubsub
       - run: rm -r ./pubsub

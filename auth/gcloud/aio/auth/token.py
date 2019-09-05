@@ -12,6 +12,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+from urllib.parse import quote_plus
+from urllib.parse import urlencode
 
 import backoff
 import cryptography  # pylint: disable=unused-import
@@ -25,15 +27,7 @@ from .session import AioSession as RestSession
 # where plumbing this error through will require several changes to otherwise-
 # good error handling.
 
-# Handle library differences in python2 and python3
-try:
-    from urllib.parse import urlencode
-    from urllib.parse import quote_plus
-except ImportError:
-    # from urllib import urlencode
-    # from urllib import pathname2url as quote_plus
-    from six.moves.urllib.parse import urlencode
-    from six.moves.urllib.parse import quote_plus
+
 
 # Handle differences in exceptions
 try:
@@ -169,12 +163,13 @@ class Token:
 
     async def _refresh_authorized_user(self,
                                        timeout: int) -> Dict[str, str]:
-        payload = urlencode({
+        data = {
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
             'client_secret': self.service_data['client_secret'],
             'refresh_token': self.service_data['refresh_token'],
-        }, quote_via=quote_plus)
+        }
+        payload = urlencode(data, quote_via=quote_plus)
 
         return await self.session.post(url=self.token_uri, data=payload,
                                        headers=REFRESH_HEADERS,

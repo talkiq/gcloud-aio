@@ -21,7 +21,7 @@ def unit_tests(session):
 #         session.skip('Credentials must be set via environment variable.')
 
 #     session.install('pytest', 'pytest-cov', 'pytest-mock')
-#     session.install('.')
+#     session.install('-e', '.')
 
 #     session.run('py.test', '--quiet', '--cov=gcloud.rest',
 #                 '--cov=tests.integration', '--cov-append', '--cov-report=',
