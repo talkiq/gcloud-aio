@@ -231,7 +231,11 @@ class Storage:
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
-        data: bytes = await response.read()
+        if BUILD_GCLOUD_REST:
+            data: bytes = bytes(response.text, encoding='utf-8')
+        else:
+            data: bytes = await response.text()
+
         return data
 
     async def _upload_simple(self, url: str, object_name: str,
