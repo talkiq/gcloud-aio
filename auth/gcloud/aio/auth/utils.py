@@ -15,7 +15,7 @@ def decode(payload: str) -> bytes:
 
     if sys.version_info[0] < 3:
         # Base64 encode/decode does not accept `str` as input in python2
-        payload = native_str_to_bytes(payload)
+        payload = native_str_to_bytes(payload, encoding='utf-8')
 
     return base64.b64decode(payload, altchars=b'-_')
 
