@@ -14,18 +14,18 @@ def unit_tests(session):
                 *session.posargs)
 
 
-# TODO: re-enable once we have some integration tests again
-# @nox.session(python=['2.7', '3.7'], reuse_venv=True)
-# def integration_tests(session):
-#     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
-#         session.skip('Credentials must be set via environment variable.')
 
-#     session.install('pytest', 'pytest-cov', 'pytest-mock')
-#     session.install('.')
+@nox.session(python=['2.7', '3.7'], reuse_venv=True)
+def integration_tests(session):
+    if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
+        session.skip('Credentials must be set via environment variable.')
 
-#     session.run('py.test', '--quiet', '--cov=gcloud.rest',
-#                 '--cov=tests.integration', '--cov-append', '--cov-report=',
-#                 os.path.join('tests', 'integration'), *session.posargs)
+    session.install('pytest', 'pytest-cov', 'pytest-mock', 'future')
+    session.install('.')
+
+    session.run('py.test', '--quiet', '--cov=gcloud.rest',
+                '--cov=tests.integration', '--cov-append', '--cov-report=',
+                os.path.join('tests', 'integration'), *session.posargs)
 
 
 @nox.session(python=['2.7', '3.7'], reuse_venv=True)
