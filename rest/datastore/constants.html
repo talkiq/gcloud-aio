@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.rest.datastore.constants API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.rest.datastore.constants</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import enum
+from datetime import datetime as dt
+
+from gcloud.rest.datastore.lat_lng import LatLng
+
+
+class CompositeFilterOperator(enum.Enum):
+    AND = &#39;AND&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;
+
+
+class Consistency(enum.Enum):
+    EVENTUAL = &#39;EVENTUAL&#39;
+    STRONG = &#39;STRONG&#39;
+    UNSPECIFIED = &#39;READ_CONSISTENCY_UNSPECIFIED&#39;
+
+
+class Direction(enum.Enum):
+    ASCENDING = &#39;ASCENDING&#39;
+    DESCENDING = &#39;DESCENDING&#39;
+    UNSPECIFIED = &#39;DIRECTION_UNSPECIFIED&#39;
+
+
+class Mode(enum.Enum):
+    NON_TRANSACTIONAL = &#39;NON_TRANSACTIONAL&#39;
+    TRANSACTIONAL = &#39;TRANSACTIONAL&#39;
+    UNSPECIFIED = &#39;MODE_UNSPECIFIED&#39;
+
+
+class MoreResultsType(enum.Enum):
+    MORE_RESULTS_AFTER_CURSOR = &#39;MORE_RESULTS_AFTER_CURSOR&#39;
+    MORE_RESULTS_AFTER_LIMIT = &#39;MORE_RESULTS_AFTER_LIMIT&#39;
+    NO_MORE_RESULTS = &#39;NO_MORE_RESULTS&#39;
+    NOT_FINISHED = &#39;NOT_FINISHED&#39;
+    UNSPECIFIED = &#39;MORE_RESULTS_TYPE_UNSPECIFIED&#39;
+
+
+class Operation(enum.Enum):
+    DELETE = &#39;delete&#39;
+    INSERT = &#39;insert&#39;
+    UPDATE = &#39;update&#39;
+    UPSERT = &#39;upsert&#39;
+
+
+class PropertyFilterOperator(enum.Enum):
+    EQUAL = &#39;EQUAL&#39;
+    GREATER_THAN = &#39;GREATER_THAN&#39;
+    GREATER_THAN_OR_EQUAL = &#39;GREATER_THAN_OR_EQUAL&#39;
+    HAS_ANCESTOR = &#39;HAS_ANCESTOR&#39;
+    LESS_THAN = &#39;LESS_THAN&#39;
+    LESS_THAN_OR_EQUAL = &#39;LESS_THAN_OR_EQUAL&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;
+
+
+class ResultType(enum.Enum):
+    FULL = &#39;FULL&#39;
+    KEY_ONLY = &#39;KEY_ONLY&#39;
+    PROJECTION = &#39;PROJECTION&#39;
+    UNSPECIFIED = &#39;RESULT_TYPE_UNSPECIFIED&#39;
+
+
+class TypeName(enum.Enum):
+    ARRAY = &#39;arrayValue&#39;
+    BLOB = &#39;blobValue&#39;
+    BOOLEAN = &#39;booleanValue&#39;
+    DOUBLE = &#39;doubleValue&#39;
+    ENTITY = &#39;entityValue&#39;
+    INTEGER = &#39;integerValue&#39;
+    GEOPOINT = &#39;geoPointValue&#39;
+    KEY = &#39;keyValue&#39;
+    NULL = &#39;nullValue&#39;
+    STRING = &#39;stringValue&#39;
+    TIMESTAMP = &#39;timestampValue&#39;
+
+
+TYPES = {
+    bool: TypeName.BOOLEAN,
+    bytes: TypeName.BLOB,
+    dt: TypeName.TIMESTAMP,
+    float: TypeName.DOUBLE,
+    int: TypeName.INTEGER,
+    LatLng: TypeName.GEOPOINT,
+    str: TypeName.STRING,
+    type(None): TypeName.NULL,
+}</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.rest.datastore.constants.CompositeFilterOperator"><code class="flex name class">
+<span>class <span class="ident">CompositeFilterOperator</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompositeFilterOperator(enum.Enum):
+    AND = &#39;AND&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.CompositeFilterOperator.AND"><code class="name">var <span class="ident">AND</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.CompositeFilterOperator.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Consistency"><code class="flex name class">
+<span>class <span class="ident">Consistency</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Consistency(enum.Enum):
+    EVENTUAL = &#39;EVENTUAL&#39;
+    STRONG = &#39;STRONG&#39;
+    UNSPECIFIED = &#39;READ_CONSISTENCY_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.Consistency.EVENTUAL"><code class="name">var <span class="ident">EVENTUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Consistency.STRONG"><code class="name">var <span class="ident">STRONG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Consistency.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Direction"><code class="flex name class">
+<span>class <span class="ident">Direction</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Direction(enum.Enum):
+    ASCENDING = &#39;ASCENDING&#39;
+    DESCENDING = &#39;DESCENDING&#39;
+    UNSPECIFIED = &#39;DIRECTION_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.Direction.ASCENDING"><code class="name">var <span class="ident">ASCENDING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Direction.DESCENDING"><code class="name">var <span class="ident">DESCENDING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Direction.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Mode"><code class="flex name class">
+<span>class <span class="ident">Mode</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Mode(enum.Enum):
+    NON_TRANSACTIONAL = &#39;NON_TRANSACTIONAL&#39;
+    TRANSACTIONAL = &#39;TRANSACTIONAL&#39;
+    UNSPECIFIED = &#39;MODE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.Mode.NON_TRANSACTIONAL"><code class="name">var <span class="ident">NON_TRANSACTIONAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Mode.TRANSACTIONAL"><code class="name">var <span class="ident">TRANSACTIONAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Mode.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType"><code class="flex name class">
+<span>class <span class="ident">MoreResultsType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MoreResultsType(enum.Enum):
+    MORE_RESULTS_AFTER_CURSOR = &#39;MORE_RESULTS_AFTER_CURSOR&#39;
+    MORE_RESULTS_AFTER_LIMIT = &#39;MORE_RESULTS_AFTER_LIMIT&#39;
+    NO_MORE_RESULTS = &#39;NO_MORE_RESULTS&#39;
+    NOT_FINISHED = &#39;NOT_FINISHED&#39;
+    UNSPECIFIED = &#39;MORE_RESULTS_TYPE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_CURSOR"><code class="name">var <span class="ident">MORE_RESULTS_AFTER_CURSOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_LIMIT"><code class="name">var <span class="ident">MORE_RESULTS_AFTER_LIMIT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType.NOT_FINISHED"><code class="name">var <span class="ident">NOT_FINISHED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType.NO_MORE_RESULTS"><code class="name">var <span class="ident">NO_MORE_RESULTS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.MoreResultsType.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Operation"><code class="flex name class">
+<span>class <span class="ident">Operation</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Operation(enum.Enum):
+    DELETE = &#39;delete&#39;
+    INSERT = &#39;insert&#39;
+    UPDATE = &#39;update&#39;
+    UPSERT = &#39;upsert&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.Operation.DELETE"><code class="name">var <span class="ident">DELETE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Operation.INSERT"><code class="name">var <span class="ident">INSERT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Operation.UPDATE"><code class="name">var <span class="ident">UPDATE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.Operation.UPSERT"><code class="name">var <span class="ident">UPSERT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator"><code class="flex name class">
+<span>class <span class="ident">PropertyFilterOperator</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PropertyFilterOperator(enum.Enum):
+    EQUAL = &#39;EQUAL&#39;
+    GREATER_THAN = &#39;GREATER_THAN&#39;
+    GREATER_THAN_OR_EQUAL = &#39;GREATER_THAN_OR_EQUAL&#39;
+    HAS_ANCESTOR = &#39;HAS_ANCESTOR&#39;
+    LESS_THAN = &#39;LESS_THAN&#39;
+    LESS_THAN_OR_EQUAL = &#39;LESS_THAN_OR_EQUAL&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.EQUAL"><code class="name">var <span class="ident">EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN"><code class="name">var <span class="ident">GREATER_THAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN_OR_EQUAL"><code class="name">var <span class="ident">GREATER_THAN_OR_EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.HAS_ANCESTOR"><code class="name">var <span class="ident">HAS_ANCESTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN"><code class="name">var <span class="ident">LESS_THAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN_OR_EQUAL"><code class="name">var <span class="ident">LESS_THAN_OR_EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.PropertyFilterOperator.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.ResultType"><code class="flex name class">
+<span>class <span class="ident">ResultType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ResultType(enum.Enum):
+    FULL = &#39;FULL&#39;
+    KEY_ONLY = &#39;KEY_ONLY&#39;
+    PROJECTION = &#39;PROJECTION&#39;
+    UNSPECIFIED = &#39;RESULT_TYPE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.ResultType.FULL"><code class="name">var <span class="ident">FULL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.ResultType.KEY_ONLY"><code class="name">var <span class="ident">KEY_ONLY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.ResultType.PROJECTION"><code class="name">var <span class="ident">PROJECTION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.ResultType.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName"><code class="flex name class">
+<span>class <span class="ident">TypeName</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TypeName(enum.Enum):
+    ARRAY = &#39;arrayValue&#39;
+    BLOB = &#39;blobValue&#39;
+    BOOLEAN = &#39;booleanValue&#39;
+    DOUBLE = &#39;doubleValue&#39;
+    ENTITY = &#39;entityValue&#39;
+    INTEGER = &#39;integerValue&#39;
+    GEOPOINT = &#39;geoPointValue&#39;
+    KEY = &#39;keyValue&#39;
+    NULL = &#39;nullValue&#39;
+    STRING = &#39;stringValue&#39;
+    TIMESTAMP = &#39;timestampValue&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.constants.TypeName.ARRAY"><code class="name">var <span class="ident">ARRAY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.BLOB"><code class="name">var <span class="ident">BLOB</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.BOOLEAN"><code class="name">var <span class="ident">BOOLEAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.DOUBLE"><code class="name">var <span class="ident">DOUBLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.ENTITY"><code class="name">var <span class="ident">ENTITY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.GEOPOINT"><code class="name">var <span class="ident">GEOPOINT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.INTEGER"><code class="name">var <span class="ident">INTEGER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.KEY"><code class="name">var <span class="ident">KEY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.NULL"><code class="name">var <span class="ident">NULL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.STRING"><code class="name">var <span class="ident">STRING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.constants.TypeName.TIMESTAMP"><code class="name">var <span class="ident">TIMESTAMP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.rest.datastore" href="index.html">gcloud.rest.datastore</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.CompositeFilterOperator" href="#gcloud.rest.datastore.constants.CompositeFilterOperator">CompositeFilterOperator</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.CompositeFilterOperator.AND" href="#gcloud.rest.datastore.constants.CompositeFilterOperator.AND">AND</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.CompositeFilterOperator.UNSPECIFIED" href="#gcloud.rest.datastore.constants.CompositeFilterOperator.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.Consistency" href="#gcloud.rest.datastore.constants.Consistency">Consistency</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.Consistency.EVENTUAL" href="#gcloud.rest.datastore.constants.Consistency.EVENTUAL">EVENTUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Consistency.STRONG" href="#gcloud.rest.datastore.constants.Consistency.STRONG">STRONG</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Consistency.UNSPECIFIED" href="#gcloud.rest.datastore.constants.Consistency.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.Direction" href="#gcloud.rest.datastore.constants.Direction">Direction</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.Direction.ASCENDING" href="#gcloud.rest.datastore.constants.Direction.ASCENDING">ASCENDING</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Direction.DESCENDING" href="#gcloud.rest.datastore.constants.Direction.DESCENDING">DESCENDING</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Direction.UNSPECIFIED" href="#gcloud.rest.datastore.constants.Direction.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.Mode" href="#gcloud.rest.datastore.constants.Mode">Mode</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.Mode.NON_TRANSACTIONAL" href="#gcloud.rest.datastore.constants.Mode.NON_TRANSACTIONAL">NON_TRANSACTIONAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Mode.TRANSACTIONAL" href="#gcloud.rest.datastore.constants.Mode.TRANSACTIONAL">TRANSACTIONAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Mode.UNSPECIFIED" href="#gcloud.rest.datastore.constants.Mode.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.MoreResultsType" href="#gcloud.rest.datastore.constants.MoreResultsType">MoreResultsType</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_CURSOR" href="#gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_CURSOR">MORE_RESULTS_AFTER_CURSOR</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_LIMIT" href="#gcloud.rest.datastore.constants.MoreResultsType.MORE_RESULTS_AFTER_LIMIT">MORE_RESULTS_AFTER_LIMIT</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.MoreResultsType.NOT_FINISHED" href="#gcloud.rest.datastore.constants.MoreResultsType.NOT_FINISHED">NOT_FINISHED</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.MoreResultsType.NO_MORE_RESULTS" href="#gcloud.rest.datastore.constants.MoreResultsType.NO_MORE_RESULTS">NO_MORE_RESULTS</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.MoreResultsType.UNSPECIFIED" href="#gcloud.rest.datastore.constants.MoreResultsType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.Operation" href="#gcloud.rest.datastore.constants.Operation">Operation</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.Operation.DELETE" href="#gcloud.rest.datastore.constants.Operation.DELETE">DELETE</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Operation.INSERT" href="#gcloud.rest.datastore.constants.Operation.INSERT">INSERT</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Operation.UPDATE" href="#gcloud.rest.datastore.constants.Operation.UPDATE">UPDATE</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.Operation.UPSERT" href="#gcloud.rest.datastore.constants.Operation.UPSERT">UPSERT</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator" href="#gcloud.rest.datastore.constants.PropertyFilterOperator">PropertyFilterOperator</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.EQUAL" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.EQUAL">EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN">GREATER_THAN</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN_OR_EQUAL" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.GREATER_THAN_OR_EQUAL">GREATER_THAN_OR_EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.HAS_ANCESTOR" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.HAS_ANCESTOR">HAS_ANCESTOR</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN">LESS_THAN</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN_OR_EQUAL" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.LESS_THAN_OR_EQUAL">LESS_THAN_OR_EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.PropertyFilterOperator.UNSPECIFIED" href="#gcloud.rest.datastore.constants.PropertyFilterOperator.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.ResultType" href="#gcloud.rest.datastore.constants.ResultType">ResultType</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.constants.ResultType.FULL" href="#gcloud.rest.datastore.constants.ResultType.FULL">FULL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.ResultType.KEY_ONLY" href="#gcloud.rest.datastore.constants.ResultType.KEY_ONLY">KEY_ONLY</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.ResultType.PROJECTION" href="#gcloud.rest.datastore.constants.ResultType.PROJECTION">PROJECTION</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.ResultType.UNSPECIFIED" href="#gcloud.rest.datastore.constants.ResultType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.constants.TypeName" href="#gcloud.rest.datastore.constants.TypeName">TypeName</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.ARRAY" href="#gcloud.rest.datastore.constants.TypeName.ARRAY">ARRAY</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.BLOB" href="#gcloud.rest.datastore.constants.TypeName.BLOB">BLOB</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.BOOLEAN" href="#gcloud.rest.datastore.constants.TypeName.BOOLEAN">BOOLEAN</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.DOUBLE" href="#gcloud.rest.datastore.constants.TypeName.DOUBLE">DOUBLE</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.ENTITY" href="#gcloud.rest.datastore.constants.TypeName.ENTITY">ENTITY</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.GEOPOINT" href="#gcloud.rest.datastore.constants.TypeName.GEOPOINT">GEOPOINT</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.INTEGER" href="#gcloud.rest.datastore.constants.TypeName.INTEGER">INTEGER</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.KEY" href="#gcloud.rest.datastore.constants.TypeName.KEY">KEY</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.NULL" href="#gcloud.rest.datastore.constants.TypeName.NULL">NULL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.STRING" href="#gcloud.rest.datastore.constants.TypeName.STRING">STRING</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants.TypeName.TIMESTAMP" href="#gcloud.rest.datastore.constants.TypeName.TIMESTAMP">TIMESTAMP</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

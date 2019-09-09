@@ -1,0 +1,3080 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.rest.datastore API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.rest.datastore</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from pkg_resources import get_distribution
+__version__ = get_distribution(&#39;gcloud-rest-datastore&#39;).version
+
+from gcloud.rest.datastore.constants import CompositeFilterOperator
+from gcloud.rest.datastore.constants import Consistency
+from gcloud.rest.datastore.constants import Direction
+from gcloud.rest.datastore.constants import Mode
+from gcloud.rest.datastore.constants import MoreResultsType
+from gcloud.rest.datastore.constants import Operation
+from gcloud.rest.datastore.constants import PropertyFilterOperator
+from gcloud.rest.datastore.constants import ResultType
+from gcloud.rest.datastore.datastore import Datastore
+from gcloud.rest.datastore.datastore import SCOPES
+from gcloud.rest.datastore.datastore_operation import DatastoreOperation
+from gcloud.rest.datastore.entity import Entity
+from gcloud.rest.datastore.entity import EntityResult
+from gcloud.rest.datastore.filter import CompositeFilter
+from gcloud.rest.datastore.filter import Filter
+from gcloud.rest.datastore.filter import PropertyFilter
+from gcloud.rest.datastore.key import Key
+from gcloud.rest.datastore.key import PathElement
+from gcloud.rest.datastore.lat_lng import LatLng
+from gcloud.rest.datastore.projection import Projection
+from gcloud.rest.datastore.property_order import PropertyOrder
+from gcloud.rest.datastore.query import GQLQuery
+from gcloud.rest.datastore.query import Query
+from gcloud.rest.datastore.query import QueryResultBatch
+from gcloud.rest.datastore.value import Value
+
+
+__all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilterOperator&#39;,
+           &#39;Consistency&#39;, &#39;Datastore&#39;, &#39;DatastoreOperation&#39;, &#39;Direction&#39;,
+           &#39;Entity&#39;, &#39;EntityResult&#39;, &#39;Filter&#39;, &#39;GQLQuery&#39;, &#39;Key&#39;, &#39;LatLng&#39;,
+           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;Operation&#39;, &#39;PathElement&#39;, &#39;Projection&#39;,
+           &#39;PropertyFilter&#39;, &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;,
+           &#39;Query&#39;, &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="gcloud.rest.datastore.array" href="array.html">gcloud.rest.datastore.array</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.constants" href="constants.html">gcloud.rest.datastore.constants</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.datastore" href="datastore.html">gcloud.rest.datastore.datastore</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.datastore_operation" href="datastore_operation.html">gcloud.rest.datastore.datastore_operation</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.entity" href="entity.html">gcloud.rest.datastore.entity</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.filter" href="filter.html">gcloud.rest.datastore.filter</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.key" href="key.html">gcloud.rest.datastore.key</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.lat_lng" href="lat_lng.html">gcloud.rest.datastore.lat_lng</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.projection" href="projection.html">gcloud.rest.datastore.projection</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.property_order" href="property_order.html">gcloud.rest.datastore.property_order</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.query" href="query.html">gcloud.rest.datastore.query</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.value" href="value.html">gcloud.rest.datastore.value</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.rest.datastore.CompositeFilter"><code class="flex name class">
+<span>class <span class="ident">CompositeFilter</span></span>
+<span>(</span><span>operator, filters)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompositeFilter(BaseFilter):
+    json_key = &#39;compositeFilter&#39;
+
+    def __init__(self, operator                         ,
+                 filters              )        :
+        self.operator = operator
+        self.filters = filters
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, CompositeFilter):
+            return False
+
+        return bool(
+            self.operator == other.operator
+            and self.filters == other.filters)
+
+    @classmethod
+    def from_repr(cls, data                )                     :
+        operator = CompositeFilterOperator(data[&#39;op&#39;])
+        filters = [Filter.from_repr(f) for f in data[&#39;filters&#39;]]
+        return cls(operator=operator, filters=filters)
+
+    def to_repr(self)                  :
+        return {
+            &#39;filters&#39;: [f.to_repr() for f in self.filters],
+            &#39;op&#39;: self.operator.value,
+        }</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gcloud.rest.datastore.filter.BaseFilter" href="filter.html#gcloud.rest.datastore.filter.BaseFilter">BaseFilter</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.CompositeFilter.json_key"><code class="name">var <span class="ident">json_key</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.CompositeFilter.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                     :
+    operator = CompositeFilterOperator(data[&#39;op&#39;])
+    filters = [Filter.from_repr(f) for f in data[&#39;filters&#39;]]
+    return cls(operator=operator, filters=filters)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.CompositeFilter.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;filters&#39;: [f.to_repr() for f in self.filters],
+        &#39;op&#39;: self.operator.value,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.CompositeFilterOperator"><code class="flex name class">
+<span>class <span class="ident">CompositeFilterOperator</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CompositeFilterOperator(enum.Enum):
+    AND = &#39;AND&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.CompositeFilterOperator.AND"><code class="name">var <span class="ident">AND</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.CompositeFilterOperator.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Consistency"><code class="flex name class">
+<span>class <span class="ident">Consistency</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Consistency(enum.Enum):
+    EVENTUAL = &#39;EVENTUAL&#39;
+    STRONG = &#39;STRONG&#39;
+    UNSPECIFIED = &#39;READ_CONSISTENCY_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Consistency.EVENTUAL"><code class="name">var <span class="ident">EVENTUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Consistency.STRONG"><code class="name">var <span class="ident">STRONG</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Consistency.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore"><code class="flex name class">
+<span>class <span class="ident">Datastore</span></span>
+<span>(</span><span>project=None, service_file=None, namespace='', session=None, token=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Datastore(object):
+    datastore_operation_kind = DatastoreOperation
+    entity_result_kind = EntityResult
+    key_kind = Key
+    query_result_batch_kind = QueryResultBatch
+    value_kind = Value
+
+    def __init__(self, project                = None,
+                 service_file                                  = None,
+                 namespace      = &#39;&#39;, session                    = None,
+                 token                  = None)        :
+        self.namespace = namespace
+        self.session = SyncSession(session)
+
+        if IS_DEV:
+            self._project = os.environ.get(&#39;DATASTORE_PROJECT_ID&#39;, &#39;dev&#39;)
+            # Tokens are not needed when using dev emulator
+            self.token = None
+        else:
+            self._project = project
+            self.token = token or Token(service_file=service_file,
+                                        session=self.session.session,
+                                        scopes=SCOPES)
+
+    def project(self)       :
+        if self._project:
+            return self._project
+
+        self._project = self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    @staticmethod
+    def _make_commit_body(mutations                      ,
+                          transaction                = None,
+                          mode       = Mode.TRANSACTIONAL)                  :
+        if not mutations:
+            raise Exception(&#39;at least one mutation record is required&#39;)
+
+        if transaction is None and mode != Mode.NON_TRANSACTIONAL:
+            raise Exception(&#39;a transaction ID must be provided when mode is &#39;
+                            &#39;transactional&#39;)
+
+        data = {
+            &#39;mode&#39;: mode.value,
+            &#39;mutations&#39;: mutations,
+        }
+        if transaction is not None:
+            data[&#39;transaction&#39;] = transaction
+        return data
+
+    def headers(self)                  :
+        if IS_DEV:
+            return {}
+
+        token = self.token.get()
+        return {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+    # TODO: support mutations w version specifiers, return new version (commit)
+    @classmethod
+    def make_mutation(cls, operation           , key     ,
+                      properties                 = None)                  :
+        if operation == Operation.DELETE:
+            return {operation.value: key.to_repr()}
+
+        return {
+            operation.value: {
+                &#39;key&#39;: key.to_repr(),
+                &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
+                               for k, v in properties.items()},
+            }
+        }
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
+    def allocateIds(self, keys           ,
+                          session                    = None,
+                          timeout      = 10)             :
+        project = self.project()
+        url = &#39;{}/projects/{}:allocateIds&#39;.format((API_ROOT), (project))
+
+        payload = json.dumps({
+            &#39;keys&#39;: [k.to_repr() for k in keys],
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        data = resp.json()
+
+        return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
+    # TODO: support readwrite vs readonly transaction types
+    def beginTransaction(self, session                    = None,
+                               timeout      = 10)       :
+        project = self.project()
+        url = &#39;{}/projects/{}:beginTransaction&#39;.format((API_ROOT), (project))
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, timeout=timeout)
+        data = resp.json()
+
+        transaction      = data[&#39;transaction&#39;]
+        return transaction
+
+    # TODO: return mutation results
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
+    def commit(self, mutations                      ,
+                     transaction                = None,
+                     mode       = Mode.TRANSACTIONAL,
+                     session                    = None,
+                     timeout      = 10)        :
+        project = self.project()
+        url = &#39;{}/projects/{}:commit&#39;.format((API_ROOT), (project))
+
+        body = self._make_commit_body(mutations, transaction=transaction,
+                                      mode=mode)
+        payload = json.dumps(body).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        s.post(url, data=payload, headers=headers, timeout=timeout)
+
+    # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
+    def export(self, output_bucket_prefix     ,
+                     kinds                      = None,
+                     namespaces                      = None,
+                     labels                           = None,
+                     session                    = None,
+                     timeout      = 10)                      :
+        project = self.project()
+        url = &#39;{}/projects/{}:export&#39;.format((API_ROOT), (project))
+
+        payload = json.dumps({
+            &#39;entityFilter&#39;: {
+                &#39;kinds&#39;: kinds or [],
+                &#39;namespaceIds&#39;: namespaces or [],
+            },
+            &#39;labels&#39;: labels or {},
+            &#39;outputUrlPrefix&#39;: &#39;gs://{}&#39;.format((output_bucket_prefix)),
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
+        data       = resp.json()
+
+        return self.datastore_operation_kind.from_repr(data)
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
+    def get_datastore_operation(self, name     ,
+                                      session                    = None,
+                                      timeout      = 10)                      :
+        url = &#39;{}/{}&#39;.format((API_ROOT), (name))
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, timeout=timeout)
+        data       = resp.json()
+
+        return self.datastore_operation_kind.from_repr(data)
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
+    def lookup(self, keys           , transaction      = None,
+                     consistency              = Consistency.STRONG,
+                     session                    = None,
+                     timeout      = 10)                                       :
+        project = self.project()
+        url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
+
+        if transaction:
+            options = {&#39;transaction&#39;: transaction}
+        else:
+            options = {&#39;readConsistency&#39;: consistency.value}
+        payload = json.dumps({
+            &#39;keys&#39;: [k.to_repr() for k in keys],
+            &#39;readOptions&#39;: options,
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+
+        data       = resp.json()
+
+        return {
+            &#39;found&#39;: [self.entity_result_kind.from_repr(e)
+                      for e in data.get(&#39;found&#39;, [])],
+            &#39;missing&#39;: [self.entity_result_kind.from_repr(e)
+                        for e in data.get(&#39;missing&#39;, [])],
+            &#39;deferred&#39;: [self.key_kind.from_repr(k)
+                         for k in data.get(&#39;deferred&#39;, [])],
+        }
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
+    def reserveIds(self, keys           , database_id      = &#39;&#39;,
+                         session                    = None,
+                         timeout      = 10)        :
+        project = self.project()
+        url = &#39;{}/projects/{}:reserveIds&#39;.format((API_ROOT), (project))
+
+        payload = json.dumps({
+            &#39;databaseId&#39;: database_id,
+            &#39;keys&#39;: [k.to_repr() for k in keys],
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        s.post(url, data=payload, headers=headers, timeout=timeout)
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
+    def rollback(self, transaction     ,
+                       session                    = None,
+                       timeout      = 10)        :
+        project = self.project()
+        url = &#39;{}/projects/{}:rollback&#39;.format((API_ROOT), (project))
+
+        payload = json.dumps({
+            &#39;transaction&#39;: transaction,
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        s.post(url, data=payload, headers=headers, timeout=timeout)
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
+    def runQuery(self, query           , transaction      = None,
+                       consistency              = Consistency.EVENTUAL,
+                       session                    = None,
+                       timeout      = 10)                    :
+        project = self.project()
+        url = &#39;{}/projects/{}:runQuery&#39;.format((API_ROOT), (project))
+
+        if transaction:
+            options = {&#39;transaction&#39;: transaction}
+        else:
+            options = {&#39;readConsistency&#39;: consistency.value}
+        payload = json.dumps({
+            &#39;partitionId&#39;: {
+                &#39;projectId&#39;: project,
+                &#39;namespaceId&#39;: self.namespace,
+            },
+            query.json_key:  query.to_repr(),
+            &#39;readOptions&#39;: options,
+        }).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+
+        data       = resp.json()
+        return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
+
+    def delete(self, key     ,
+                     session                    = None)        :
+        return self.operate(Operation.DELETE, key, session=session)
+
+    def insert(self, key     , properties                ,
+                     session                    = None)        :
+        return self.operate(Operation.INSERT, key, properties,
+                                  session=session)
+
+    def update(self, key     , properties                ,
+                     session                    = None)        :
+        return self.operate(Operation.UPDATE, key, properties,
+                                  session=session)
+
+    def upsert(self, key     , properties                ,
+                     session                    = None)        :
+        return self.operate(Operation.UPSERT, key, properties,
+                                  session=session)
+
+    # TODO: accept Entity rather than key/properties?
+    def operate(self, operation           , key     ,
+                      properties                 = None,
+                      session                    = None)        :
+        transaction = self.beginTransaction(session=session)
+        mutation = self.make_mutation(operation, key, properties=properties)
+        self.commit([mutation], transaction=transaction, session=session)
+
+    def close(self):
+        self.session.close()
+
+    def __enter__(self)               :
+        return self
+
+    def __exit__(self, *args)        :
+        self.close()</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Datastore.datastore_operation_kind"><code class="name">var <span class="ident">datastore_operation_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.entity_result_kind"><code class="name">var <span class="ident">entity_result_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.query_result_batch_kind"><code class="name">var <span class="ident">query_result_batch_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.value_kind"><code class="name">var <span class="ident">value_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Datastore.make_mutation"><code class="name flex">
+<span>def <span class="ident">make_mutation</span></span>(<span>operation, key, properties=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def make_mutation(cls, operation           , key     ,
+                  properties                 = None)                  :
+    if operation == Operation.DELETE:
+        return {operation.value: key.to_repr()}
+
+    return {
+        operation.value: {
+            &#39;key&#39;: key.to_repr(),
+            &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
+                           for k, v in properties.items()},
+        }
+    }</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Datastore.allocateIds"><code class="name flex">
+<span>def <span class="ident">allocateIds</span></span>(<span>self, keys, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def allocateIds(self, keys           ,
+                      session                    = None,
+                      timeout      = 10)             :
+    project = self.project()
+    url = &#39;{}/projects/{}:allocateIds&#39;.format((API_ROOT), (project))
+
+    payload = json.dumps({
+        &#39;keys&#39;: [k.to_repr() for k in keys],
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    data = resp.json()
+
+    return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.beginTransaction"><code class="name flex">
+<span>def <span class="ident">beginTransaction</span></span>(<span>self, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def beginTransaction(self, session                    = None,
+                           timeout      = 10)       :
+    project = self.project()
+    url = &#39;{}/projects/{}:beginTransaction&#39;.format((API_ROOT), (project))
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: &#39;0&#39;,
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, headers=headers, timeout=timeout)
+    data = resp.json()
+
+    transaction      = data[&#39;transaction&#39;]
+    return transaction</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.session.close()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.commit"><code class="name flex">
+<span>def <span class="ident">commit</span></span>(<span>self, mutations, transaction=None, mode=Mode.TRANSACTIONAL, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def commit(self, mutations                      ,
+                 transaction                = None,
+                 mode       = Mode.TRANSACTIONAL,
+                 session                    = None,
+                 timeout      = 10)        :
+    project = self.project()
+    url = &#39;{}/projects/{}:commit&#39;.format((API_ROOT), (project))
+
+    body = self._make_commit_body(mutations, transaction=transaction,
+                                  mode=mode)
+    payload = json.dumps(body).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, key, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self, key     ,
+                 session                    = None)        :
+    return self.operate(Operation.DELETE, key, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.export"><code class="name flex">
+<span>def <span class="ident">export</span></span>(<span>self, output_bucket_prefix, kinds=None, namespaces=None, labels=None, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def export(self, output_bucket_prefix     ,
+                 kinds                      = None,
+                 namespaces                      = None,
+                 labels                           = None,
+                 session                    = None,
+                 timeout      = 10)                      :
+    project = self.project()
+    url = &#39;{}/projects/{}:export&#39;.format((API_ROOT), (project))
+
+    payload = json.dumps({
+        &#39;entityFilter&#39;: {
+            &#39;kinds&#39;: kinds or [],
+            &#39;namespaceIds&#39;: namespaces or [],
+        },
+        &#39;labels&#39;: labels or {},
+        &#39;outputUrlPrefix&#39;: &#39;gs://{}&#39;.format((output_bucket_prefix)),
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
+    data       = resp.json()
+
+    return self.datastore_operation_kind.from_repr(data)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.get_datastore_operation"><code class="name flex">
+<span>def <span class="ident">get_datastore_operation</span></span>(<span>self, name, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_datastore_operation(self, name     ,
+                                  session                    = None,
+                                  timeout      = 10)                      :
+    url = &#39;{}/{}&#39;.format((API_ROOT), (name))
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, timeout=timeout)
+    data       = resp.json()
+
+    return self.datastore_operation_kind.from_repr(data)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.headers"><code class="name flex">
+<span>def <span class="ident">headers</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def headers(self)                  :
+    if IS_DEV:
+        return {}
+
+    token = self.token.get()
+    return {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+    }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.insert"><code class="name flex">
+<span>def <span class="ident">insert</span></span>(<span>self, key, properties, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def insert(self, key     , properties                ,
+                 session                    = None)        :
+    return self.operate(Operation.INSERT, key, properties,
+                              session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.lookup"><code class="name flex">
+<span>def <span class="ident">lookup</span></span>(<span>self, keys, transaction=None, consistency=Consistency.STRONG, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lookup(self, keys           , transaction      = None,
+                 consistency              = Consistency.STRONG,
+                 session                    = None,
+                 timeout      = 10)                                       :
+    project = self.project()
+    url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
+
+    if transaction:
+        options = {&#39;transaction&#39;: transaction}
+    else:
+        options = {&#39;readConsistency&#39;: consistency.value}
+    payload = json.dumps({
+        &#39;keys&#39;: [k.to_repr() for k in keys],
+        &#39;readOptions&#39;: options,
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+
+    data       = resp.json()
+
+    return {
+        &#39;found&#39;: [self.entity_result_kind.from_repr(e)
+                  for e in data.get(&#39;found&#39;, [])],
+        &#39;missing&#39;: [self.entity_result_kind.from_repr(e)
+                    for e in data.get(&#39;missing&#39;, [])],
+        &#39;deferred&#39;: [self.key_kind.from_repr(k)
+                     for k in data.get(&#39;deferred&#39;, [])],
+    }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.operate"><code class="name flex">
+<span>def <span class="ident">operate</span></span>(<span>self, operation, key, properties=None, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def operate(self, operation           , key     ,
+                  properties                 = None,
+                  session                    = None)        :
+    transaction = self.beginTransaction(session=session)
+    mutation = self.make_mutation(operation, key, properties=properties)
+    self.commit([mutation], transaction=transaction, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.project"><code class="name flex">
+<span>def <span class="ident">project</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def project(self)       :
+    if self._project:
+        return self._project
+
+    self._project = self.token.get_project()
+    if self._project:
+        return self._project
+
+    raise Exception(&#39;could not determine project, please set it manually&#39;)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.reserveIds"><code class="name flex">
+<span>def <span class="ident">reserveIds</span></span>(<span>self, keys, database_id='', session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reserveIds(self, keys           , database_id      = &#39;&#39;,
+                     session                    = None,
+                     timeout      = 10)        :
+    project = self.project()
+    url = &#39;{}/projects/{}:reserveIds&#39;.format((API_ROOT), (project))
+
+    payload = json.dumps({
+        &#39;databaseId&#39;: database_id,
+        &#39;keys&#39;: [k.to_repr() for k in keys],
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.rollback"><code class="name flex">
+<span>def <span class="ident">rollback</span></span>(<span>self, transaction, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rollback(self, transaction     ,
+                   session                    = None,
+                   timeout      = 10)        :
+    project = self.project()
+    url = &#39;{}/projects/{}:rollback&#39;.format((API_ROOT), (project))
+
+    payload = json.dumps({
+        &#39;transaction&#39;: transaction,
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.runQuery"><code class="name flex">
+<span>def <span class="ident">runQuery</span></span>(<span>self, query, transaction=None, consistency=Consistency.EVENTUAL, session=None, timeout=10)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runQuery(self, query           , transaction      = None,
+                   consistency              = Consistency.EVENTUAL,
+                   session                    = None,
+                   timeout      = 10)                    :
+    project = self.project()
+    url = &#39;{}/projects/{}:runQuery&#39;.format((API_ROOT), (project))
+
+    if transaction:
+        options = {&#39;transaction&#39;: transaction}
+    else:
+        options = {&#39;readConsistency&#39;: consistency.value}
+    payload = json.dumps({
+        &#39;partitionId&#39;: {
+            &#39;projectId&#39;: project,
+            &#39;namespaceId&#39;: self.namespace,
+        },
+        query.json_key:  query.to_repr(),
+        &#39;readOptions&#39;: options,
+    }).encode(&#39;utf-8&#39;)
+
+    headers = self.headers()
+    headers.update({
+        &#39;Content-Length&#39;: str(len(payload)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    })
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+
+    data       = resp.json()
+    return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, key, properties, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, key     , properties                ,
+                 session                    = None)        :
+    return self.operate(Operation.UPDATE, key, properties,
+                              session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.upsert"><code class="name flex">
+<span>def <span class="ident">upsert</span></span>(<span>self, key, properties, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def upsert(self, key     , properties                ,
+                 session                    = None)        :
+    return self.operate(Operation.UPSERT, key, properties,
+                              session=session)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.DatastoreOperation"><code class="flex name class">
+<span>class <span class="ident">DatastoreOperation</span></span>
+<span>(</span><span>name, done, metadata=None, error=None, response=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DatastoreOperation(object):
+    def __init__(self, name     , done      ,
+                 metadata                           = None,
+                 error                 = None,
+                 response                           = None)        :
+        self.name = name
+        self.done = done
+
+        self.metadata = metadata
+        self.error = error
+        self.response = response
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                        :
+        return cls(data[&#39;name&#39;], data.get(&#39;done&#39;, False), data.get(&#39;metadata&#39;),
+                   data.get(&#39;error&#39;), data.get(&#39;response&#39;))
+
+    def to_repr(self)                  :
+        return {
+            &#39;done&#39;: self.done,
+            &#39;error&#39;: self.error,
+            &#39;metadata&#39;: self.metadata,
+            &#39;name&#39;: self.name,
+            &#39;response&#39;: self.response,
+        }</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.DatastoreOperation.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                        :
+    return cls(data[&#39;name&#39;], data.get(&#39;done&#39;, False), data.get(&#39;metadata&#39;),
+               data.get(&#39;error&#39;), data.get(&#39;response&#39;))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.DatastoreOperation.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;done&#39;: self.done,
+        &#39;error&#39;: self.error,
+        &#39;metadata&#39;: self.metadata,
+        &#39;name&#39;: self.name,
+        &#39;response&#39;: self.response,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Direction"><code class="flex name class">
+<span>class <span class="ident">Direction</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Direction(enum.Enum):
+    ASCENDING = &#39;ASCENDING&#39;
+    DESCENDING = &#39;DESCENDING&#39;
+    UNSPECIFIED = &#39;DIRECTION_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Direction.ASCENDING"><code class="name">var <span class="ident">ASCENDING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Direction.DESCENDING"><code class="name">var <span class="ident">DESCENDING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Direction.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Entity"><code class="flex name class">
+<span>class <span class="ident">Entity</span></span>
+<span>(</span><span>key, properties=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Entity(object):
+    key_kind = Key
+    value_kind = Value
+
+    def __init__(self, key     , properties                  = None)        :
+        self.key = key
+        self.properties = {k: self.value_kind.from_repr(v).value
+                           for k, v in (properties or {}).items()}
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Entity):
+            return False
+
+        return bool(self.key == other.key
+                    and self.properties == other.properties)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )            :
+        # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
+        # &#34;for example, an entity in Value.entity_value may have no key&#34;
+        if &#39;key&#39; in data:
+            key                = cls.key_kind.from_repr(data[&#39;key&#39;])
+        else:
+            key = None
+        return cls(key, data.get(&#39;properties&#39;))
+
+    def to_repr(self)                  :
+        return {
+            &#39;key&#39;: self.key.to_repr() if self.key else None,
+            &#39;properties&#39;: {k: self.value_kind(v).to_repr()
+                           for k, v in self.properties.items()},
+        }</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Entity.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Entity.value_kind"><code class="name">var <span class="ident">value_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Entity.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )            :
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
+    # &#34;for example, an entity in Value.entity_value may have no key&#34;
+    if &#39;key&#39; in data:
+        key                = cls.key_kind.from_repr(data[&#39;key&#39;])
+    else:
+        key = None
+    return cls(key, data.get(&#39;properties&#39;))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Entity.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;key&#39;: self.key.to_repr() if self.key else None,
+        &#39;properties&#39;: {k: self.value_kind(v).to_repr()
+                       for k, v in self.properties.items()},
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.EntityResult"><code class="flex name class">
+<span>class <span class="ident">EntityResult</span></span>
+<span>(</span><span>entity, version='', cursor='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EntityResult(object):
+    entity_kind = Entity
+
+    def __init__(self, entity        , version      = &#39;&#39;,
+                 cursor      = &#39;&#39;)        :
+        self.entity = entity
+        self.version = version
+        self.cursor = cursor
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, EntityResult):
+            return False
+
+        return bool(self.entity == other.entity
+                    and self.version == other.version
+                    and self.cursor == self.cursor)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                  :
+        return cls(cls.entity_kind.from_repr(data[&#39;entity&#39;]),
+                   data.get(&#39;version&#39;, &#39;&#39;),
+                   data.get(&#39;cursor&#39;, &#39;&#39;))
+
+    def to_repr(self)                  :
+        data = {
+            &#39;entity&#39;: self.entity.to_repr(),
+        }
+        if self.version:
+            data[&#39;version&#39;] = self.version
+        if self.cursor:
+            data[&#39;cursor&#39;] = self.cursor
+
+        return data</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.EntityResult.entity_kind"><code class="name">var <span class="ident">entity_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.EntityResult.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                  :
+    return cls(cls.entity_kind.from_repr(data[&#39;entity&#39;]),
+               data.get(&#39;version&#39;, &#39;&#39;),
+               data.get(&#39;cursor&#39;, &#39;&#39;))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.EntityResult.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    data = {
+        &#39;entity&#39;: self.entity.to_repr(),
+    }
+    if self.version:
+        data[&#39;version&#39;] = self.version
+    if self.cursor:
+        data[&#39;cursor&#39;] = self.cursor
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Filter"><code class="flex name class">
+<span>class <span class="ident">Filter</span></span>
+<span>(</span><span>inner_filter)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Filter(object):
+    def __init__(self, inner_filter            )        :
+        self.inner_filter = inner_filter
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Filter):
+            return False
+
+        return self.inner_filter == other.inner_filter
+
+    @classmethod
+    def from_repr(cls, data                )            :
+        if &#39;compositeFilter&#39; in data:
+            return cls(CompositeFilter.from_repr(data[&#39;compositeFilter&#39;]))
+        if &#39;propertyFilter&#39; in data:
+            return cls(PropertyFilter.from_repr(data[&#39;propertyFilter&#39;]))
+
+        raise ValueError(&#39;invalid filter name: {}&#39;.format((data.keys())))
+
+    def to_repr(self)                  :
+        return {
+            self.inner_filter.json_key: self.inner_filter.to_repr(),
+        }</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Filter.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )            :
+    if &#39;compositeFilter&#39; in data:
+        return cls(CompositeFilter.from_repr(data[&#39;compositeFilter&#39;]))
+    if &#39;propertyFilter&#39; in data:
+        return cls(PropertyFilter.from_repr(data[&#39;propertyFilter&#39;]))
+
+    raise ValueError(&#39;invalid filter name: {}&#39;.format((data.keys())))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Filter.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        self.inner_filter.json_key: self.inner_filter.to_repr(),
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.GQLQuery"><code class="flex name class">
+<span>class <span class="ident">GQLQuery</span></span>
+<span>(</span><span>query_string, allow_literals=True, named_bindings=None, positional_bindings=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GQLQuery(BaseQuery):
+    json_key = &#39;gqlQuery&#39;
+
+    def __init__(self, query_string     , allow_literals       = True,
+                 named_bindings                 = None,
+                 positional_bindings            = None)        :
+        self.query_string = query_string
+        self.allow_literals = allow_literals
+        self.named_bindings = named_bindings or {}
+        self.positional_bindings = positional_bindings or []
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, GQLQuery):
+            return False
+
+        return bool(
+            self.query_string == other.query_string
+            and self.allow_literals == other.allow_literals
+            and self.named_bindings == other.named_bindings
+            and self.positional_bindings == other.positional_bindings)
+
+    @classmethod
+    def from_repr(cls, data                )              :
+        allow_literals = data[&#39;allowLiterals&#39;]
+        query_string = data[&#39;queryString&#39;]
+        named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+                          for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
+        positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+                               for v in data.get(&#39;positionalBindings&#39;, [])]
+        return cls(query_string, allow_literals=allow_literals,
+                   named_bindings=named_bindings,
+                   positional_bindings=positional_bindings)
+
+    def to_repr(self)                  :
+        return {
+            &#39;allowLiterals&#39;: self.allow_literals,
+            &#39;queryString&#39;: self.query_string,
+            &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+                              for k, v in self.named_bindings.items()},
+            &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+                                   for v in self.positional_bindings],
+        }</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gcloud.rest.datastore.query.BaseQuery" href="query.html#gcloud.rest.datastore.query.BaseQuery">BaseQuery</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.GQLQuery.json_key"><code class="name">var <span class="ident">json_key</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.GQLQuery.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )              :
+    allow_literals = data[&#39;allowLiterals&#39;]
+    query_string = data[&#39;queryString&#39;]
+    named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+                      for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
+    positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+                           for v in data.get(&#39;positionalBindings&#39;, [])]
+    return cls(query_string, allow_literals=allow_literals,
+               named_bindings=named_bindings,
+               positional_bindings=positional_bindings)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.GQLQuery.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;allowLiterals&#39;: self.allow_literals,
+        &#39;queryString&#39;: self.query_string,
+        &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+                          for k, v in self.named_bindings.items()},
+        &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+                               for v in self.positional_bindings],
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Key"><code class="flex name class">
+<span>class <span class="ident">Key</span></span>
+<span>(</span><span>project, path, namespace='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Key(object):
+    path_element_kind = PathElement
+
+    def __init__(self, project     , path                   ,
+                 namespace      = &#39;&#39;)        :
+        self.project = project
+        self.namespace = namespace
+        self.path = path
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Key):
+            return False
+
+        return bool(self.project == other.project
+                    and self.namespace == other.namespace
+                    and self.path == other.path)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )         :
+        return cls(data[&#39;partitionId&#39;][&#39;projectId&#39;],
+                   path=[cls.path_element_kind.from_repr(p)
+                         for p in data[&#39;path&#39;]],
+                   namespace=data[&#39;partitionId&#39;].get(&#39;namespaceId&#39;, &#39;&#39;))
+
+    def to_repr(self)                  :
+        return {
+            &#39;partitionId&#39;: {
+                &#39;projectId&#39;: self.project,
+                &#39;namespaceId&#39;: self.namespace,
+            },
+            &#39;path&#39;: [p.to_repr() for p in self.path],
+        }</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Key.path_element_kind"><code class="name">var <span class="ident">path_element_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Key.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )         :
+    return cls(data[&#39;partitionId&#39;][&#39;projectId&#39;],
+               path=[cls.path_element_kind.from_repr(p)
+                     for p in data[&#39;path&#39;]],
+               namespace=data[&#39;partitionId&#39;].get(&#39;namespaceId&#39;, &#39;&#39;))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Key.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;partitionId&#39;: {
+            &#39;projectId&#39;: self.project,
+            &#39;namespaceId&#39;: self.namespace,
+        },
+        &#39;path&#39;: [p.to_repr() for p in self.path],
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.LatLng"><code class="flex name class">
+<span>class <span class="ident">LatLng</span></span>
+<span>(</span><span>lat, lon)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LatLng(object):
+    def __init__(self, lat       , lon       )        :
+        self.lat = lat
+        self.lon = lon
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, LatLng):
+            return False
+
+        return bool(
+            self.lat == other.lat
+            and self.lon == other.lon)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )            :
+        lat = data[&#39;latitude&#39;]
+        lon = data[&#39;longitude&#39;]
+        return cls(lat=lat, lon=lon)
+
+    def to_repr(self)                  :
+        return {
+            &#39;latitude&#39;: self.lat,
+            &#39;longitude&#39;: self.lon,
+        }</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.LatLng.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )            :
+    lat = data[&#39;latitude&#39;]
+    lon = data[&#39;longitude&#39;]
+    return cls(lat=lat, lon=lon)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.LatLng.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;latitude&#39;: self.lat,
+        &#39;longitude&#39;: self.lon,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Mode"><code class="flex name class">
+<span>class <span class="ident">Mode</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Mode(enum.Enum):
+    NON_TRANSACTIONAL = &#39;NON_TRANSACTIONAL&#39;
+    TRANSACTIONAL = &#39;TRANSACTIONAL&#39;
+    UNSPECIFIED = &#39;MODE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Mode.NON_TRANSACTIONAL"><code class="name">var <span class="ident">NON_TRANSACTIONAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Mode.TRANSACTIONAL"><code class="name">var <span class="ident">TRANSACTIONAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Mode.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.MoreResultsType"><code class="flex name class">
+<span>class <span class="ident">MoreResultsType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MoreResultsType(enum.Enum):
+    MORE_RESULTS_AFTER_CURSOR = &#39;MORE_RESULTS_AFTER_CURSOR&#39;
+    MORE_RESULTS_AFTER_LIMIT = &#39;MORE_RESULTS_AFTER_LIMIT&#39;
+    NO_MORE_RESULTS = &#39;NO_MORE_RESULTS&#39;
+    NOT_FINISHED = &#39;NOT_FINISHED&#39;
+    UNSPECIFIED = &#39;MORE_RESULTS_TYPE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_CURSOR"><code class="name">var <span class="ident">MORE_RESULTS_AFTER_CURSOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_LIMIT"><code class="name">var <span class="ident">MORE_RESULTS_AFTER_LIMIT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.MoreResultsType.NOT_FINISHED"><code class="name">var <span class="ident">NOT_FINISHED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.MoreResultsType.NO_MORE_RESULTS"><code class="name">var <span class="ident">NO_MORE_RESULTS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.MoreResultsType.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Operation"><code class="flex name class">
+<span>class <span class="ident">Operation</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Operation(enum.Enum):
+    DELETE = &#39;delete&#39;
+    INSERT = &#39;insert&#39;
+    UPDATE = &#39;update&#39;
+    UPSERT = &#39;upsert&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Operation.DELETE"><code class="name">var <span class="ident">DELETE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Operation.INSERT"><code class="name">var <span class="ident">INSERT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Operation.UPDATE"><code class="name">var <span class="ident">UPDATE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Operation.UPSERT"><code class="name">var <span class="ident">UPSERT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.PathElement"><code class="flex name class">
+<span>class <span class="ident">PathElement</span></span>
+<span>(</span><span>kind, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PathElement(object):
+    def __init__(self, kind     , **_3to2kwargs)        :
+        if &#39;name&#39; in _3to2kwargs: name = _3to2kwargs[&#39;name&#39;]; del _3to2kwargs[&#39;name&#39;]
+        else: name =  None
+        if &#39;id_&#39; in _3to2kwargs: id_ = _3to2kwargs[&#39;id_&#39;]; del _3to2kwargs[&#39;id_&#39;]
+        else: id_ =  None
+        self.kind = kind
+
+        self.id = id_
+        self.name = name
+        if self.id and self.name:
+            raise Exception(&#39;invalid PathElement contains both ID and name&#39;)
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, PathElement):
+            return False
+
+        return bool(self.kind == other.kind and self.id == other.id
+                    and self.name == other.name)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                 :
+        kind      = data[&#39;kind&#39;]
+        id_                = data.get(&#39;id&#39;)
+        name                = data.get(&#39;name&#39;)
+        return cls(kind, id_=id_, name=name)
+
+    def to_repr(self)                  :
+        data                 = {&#39;kind&#39;: self.kind}
+        if self.id:
+            data[&#39;id&#39;] = self.id
+        elif self.name:
+            data[&#39;name&#39;] = self.name
+
+        return data</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PathElement.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                 :
+    kind      = data[&#39;kind&#39;]
+    id_                = data.get(&#39;id&#39;)
+    name                = data.get(&#39;name&#39;)
+    return cls(kind, id_=id_, name=name)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PathElement.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    data                 = {&#39;kind&#39;: self.kind}
+    if self.id:
+        data[&#39;id&#39;] = self.id
+    elif self.name:
+        data[&#39;name&#39;] = self.name
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Projection"><code class="flex name class">
+<span>class <span class="ident">Projection</span></span>
+<span>(</span><span>prop)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Projection(object):
+    def __init__(self, prop     )        :
+        self.prop = prop
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Projection):
+            return False
+
+        return bool(self.prop == other.prop)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                :
+        return cls(prop=data[&#39;property&#39;][&#39;name&#39;])
+
+    def to_repr(self)                  :
+        return {
+            &#39;property&#39;: {&#39;name&#39;: self.prop},
+        }</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Projection.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                :
+    return cls(prop=data[&#39;property&#39;][&#39;name&#39;])</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Projection.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;property&#39;: {&#39;name&#39;: self.prop},
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilter"><code class="flex name class">
+<span>class <span class="ident">PropertyFilter</span></span>
+<span>(</span><span>prop, operator, value)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PropertyFilter(BaseFilter):
+    json_key = &#39;propertyFilter&#39;
+
+    def __init__(self, prop     , operator                        ,
+                 value       )        :
+        self.prop = prop
+        self.operator = operator
+        self.value = value
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, PropertyFilter):
+            return False
+
+        return bool(
+            self.prop == other.prop
+            and self.operator == other.operator
+            and self.value == other.value)
+
+    @classmethod
+    def from_repr(cls, data                )                    :
+        prop = data[&#39;property&#39;][&#39;name&#39;]
+        operator = PropertyFilterOperator(data[&#39;op&#39;])
+        value = Value.from_repr(data[&#39;value&#39;])
+        return cls(prop=prop, operator=operator, value=value)
+
+    def to_repr(self)                  :
+        return {
+            &#39;op&#39;: self.operator.value,
+            &#39;property&#39;: {&#39;name&#39;: self.prop},
+            &#39;value&#39;: self.value.to_repr(),
+        }</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gcloud.rest.datastore.filter.BaseFilter" href="filter.html#gcloud.rest.datastore.filter.BaseFilter">BaseFilter</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyFilter.json_key"><code class="name">var <span class="ident">json_key</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyFilter.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                    :
+    prop = data[&#39;property&#39;][&#39;name&#39;]
+    operator = PropertyFilterOperator(data[&#39;op&#39;])
+    value = Value.from_repr(data[&#39;value&#39;])
+    return cls(prop=prop, operator=operator, value=value)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyFilter.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;op&#39;: self.operator.value,
+        &#39;property&#39;: {&#39;name&#39;: self.prop},
+        &#39;value&#39;: self.value.to_repr(),
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator"><code class="flex name class">
+<span>class <span class="ident">PropertyFilterOperator</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PropertyFilterOperator(enum.Enum):
+    EQUAL = &#39;EQUAL&#39;
+    GREATER_THAN = &#39;GREATER_THAN&#39;
+    GREATER_THAN_OR_EQUAL = &#39;GREATER_THAN_OR_EQUAL&#39;
+    HAS_ANCESTOR = &#39;HAS_ANCESTOR&#39;
+    LESS_THAN = &#39;LESS_THAN&#39;
+    LESS_THAN_OR_EQUAL = &#39;LESS_THAN_OR_EQUAL&#39;
+    UNSPECIFIED = &#39;OPERATOR_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.EQUAL"><code class="name">var <span class="ident">EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN"><code class="name">var <span class="ident">GREATER_THAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN_OR_EQUAL"><code class="name">var <span class="ident">GREATER_THAN_OR_EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.HAS_ANCESTOR"><code class="name">var <span class="ident">HAS_ANCESTOR</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN"><code class="name">var <span class="ident">LESS_THAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN_OR_EQUAL"><code class="name">var <span class="ident">LESS_THAN_OR_EQUAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyFilterOperator.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.PropertyOrder"><code class="flex name class">
+<span>class <span class="ident">PropertyOrder</span></span>
+<span>(</span><span>prop, direction=Direction.ASCENDING)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PropertyOrder(object):
+    def __init__(self, prop     ,
+                 direction            = Direction.ASCENDING)        :
+        self.prop = prop
+        self.direction = direction
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, PropertyOrder):
+            return False
+
+        return bool(
+            self.prop == other.prop
+            and self.direction == other.direction)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                   :
+        prop = data[&#39;property&#39;][&#39;name&#39;]
+        direction = Direction(data[&#39;direction&#39;])
+        return cls(prop=prop, direction=direction)
+
+    def to_repr(self)                  :
+        return {
+            &#39;property&#39;: {&#39;name&#39;: self.prop},
+            &#39;direction&#39;: self.direction.value,
+        }</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyOrder.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                   :
+    prop = data[&#39;property&#39;][&#39;name&#39;]
+    direction = Direction(data[&#39;direction&#39;])
+    return cls(prop=prop, direction=direction)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.PropertyOrder.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;property&#39;: {&#39;name&#39;: self.prop},
+        &#39;direction&#39;: self.direction.value,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Query"><code class="flex name class">
+<span>class <span class="ident">Query</span></span>
+<span>(</span><span>kind='', query_filter=None, order=None, start_cursor='', end_cursor='', offset=None, limit=None, projection=None, distinct_on=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Query(BaseQuery):
+    # pylint: disable=too-many-instance-attributes
+    json_key = &#39;query&#39;
+
+    def __init__(self, kind      = &#39;&#39;, query_filter         = None,
+                 order                      = None, start_cursor      = &#39;&#39;,
+                 end_cursor      = &#39;&#39;, offset                = None,
+                 limit                = None,
+                 projection                   = None,
+                 distinct_on            = None)        :
+        self.kind = kind
+        self.query_filter = query_filter
+        self.orders = order or []
+        self.start_cursor = start_cursor
+        self.end_cursor = end_cursor
+        self.offset = offset
+        self.limit = limit
+        self.projection = projection or []
+        self.distinct_on = distinct_on or []
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Query):
+            return False
+
+        return bool(
+            self.kind == other.kind
+            and self.query_filter == other.query_filter)
+
+    @classmethod
+    def from_repr(cls, data                )           :
+        kind = data[&#39;kind&#39;] or &#39;&#39;  # Kind is required
+        orders = [PropertyOrder.from_repr(o) for o in data.get(&#39;order&#39;, [])]
+        start_cursor = data.get(&#39;startCursor&#39;) or &#39;&#39;
+        end_cursor = data.get(&#39;endCursor&#39;) or &#39;&#39;
+        offset = int(data[&#39;offset&#39;]) if &#39;offset&#39; in data else None
+        limit = int(data[&#39;limit&#39;]) if &#39;limit&#39; in data else None
+        projection = [Projection.from_repr(p)
+                      for p in data.get(&#39;projection&#39;, [])]
+        distinct_on = [d[&#39;name&#39;] for d in data.get(&#39;distinct_on&#39;, [])]
+
+        filter_ = data.get(&#39;filter&#39;)
+        query_filter = Filter.from_repr(filter_) if filter_ else None
+
+        return cls(kind=kind, query_filter=query_filter, order=orders,
+                   start_cursor=start_cursor, end_cursor=end_cursor,
+                   offset=offset, limit=limit,
+                   projection=projection, distinct_on=distinct_on)
+
+    def to_repr(self)                  :
+        data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+        if self.query_filter:
+            data[&#39;filter&#39;] = self.query_filter.to_repr()
+        if self.orders:
+            data[&#39;order&#39;] = [o.to_repr() for o in self.orders]
+        if self.start_cursor:
+            data[&#39;startCursor&#39;] = self.start_cursor
+        if self.end_cursor:
+            data[&#39;endCursor&#39;] = self.end_cursor
+        if self.offset is not None:
+            data[&#39;offset&#39;] = self.offset
+        if self.limit is not None:
+            data[&#39;limit&#39;] = self.limit
+        if self.projection:
+            data[&#39;projection&#39;] = [p.to_repr() for p in self.projection]
+        if self.distinct_on:
+            data[&#39;distinctOn&#39;] = [{&#39;name&#39;: d} for d in self.distinct_on]
+        return data</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="gcloud.rest.datastore.query.BaseQuery" href="query.html#gcloud.rest.datastore.query.BaseQuery">BaseQuery</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Query.json_key"><code class="name">var <span class="ident">json_key</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Query.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )           :
+    kind = data[&#39;kind&#39;] or &#39;&#39;  # Kind is required
+    orders = [PropertyOrder.from_repr(o) for o in data.get(&#39;order&#39;, [])]
+    start_cursor = data.get(&#39;startCursor&#39;) or &#39;&#39;
+    end_cursor = data.get(&#39;endCursor&#39;) or &#39;&#39;
+    offset = int(data[&#39;offset&#39;]) if &#39;offset&#39; in data else None
+    limit = int(data[&#39;limit&#39;]) if &#39;limit&#39; in data else None
+    projection = [Projection.from_repr(p)
+                  for p in data.get(&#39;projection&#39;, [])]
+    distinct_on = [d[&#39;name&#39;] for d in data.get(&#39;distinct_on&#39;, [])]
+
+    filter_ = data.get(&#39;filter&#39;)
+    query_filter = Filter.from_repr(filter_) if filter_ else None
+
+    return cls(kind=kind, query_filter=query_filter, order=orders,
+               start_cursor=start_cursor, end_cursor=end_cursor,
+               offset=offset, limit=limit,
+               projection=projection, distinct_on=distinct_on)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Query.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+    if self.query_filter:
+        data[&#39;filter&#39;] = self.query_filter.to_repr()
+    if self.orders:
+        data[&#39;order&#39;] = [o.to_repr() for o in self.orders]
+    if self.start_cursor:
+        data[&#39;startCursor&#39;] = self.start_cursor
+    if self.end_cursor:
+        data[&#39;endCursor&#39;] = self.end_cursor
+    if self.offset is not None:
+        data[&#39;offset&#39;] = self.offset
+    if self.limit is not None:
+        data[&#39;limit&#39;] = self.limit
+    if self.projection:
+        data[&#39;projection&#39;] = [p.to_repr() for p in self.projection]
+    if self.distinct_on:
+        data[&#39;distinctOn&#39;] = [{&#39;name&#39;: d} for d in self.distinct_on]
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.QueryResultBatch"><code class="flex name class">
+<span>class <span class="ident">QueryResultBatch</span></span>
+<span>(</span><span>end_cursor, entity_result_type=ResultType.UNSPECIFIED, entity_results=None, more_results=MoreResultsType.UNSPECIFIED, skipped_cursor='', skipped_results=0, snapshot_version='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class QueryResultBatch(object):
+    entity_result_kind = EntityResult
+
+    def __init__(self, end_cursor     ,
+                 entity_result_type             = ResultType.UNSPECIFIED,
+                 entity_results                     = None,
+                 more_results                  = MoreResultsType.UNSPECIFIED,
+                 skipped_cursor      = &#39;&#39;, skipped_results      = 0,
+                 snapshot_version      = &#39;&#39;)        :
+        self.end_cursor = end_cursor
+
+        self.entity_result_type = entity_result_type
+        self.entity_results = entity_results or []
+        self.more_results = more_results
+        self.skipped_cursor = skipped_cursor
+        self.skipped_results = skipped_results
+        self.snapshot_version = snapshot_version
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, QueryResultBatch):
+            return False
+
+        return bool(self.end_cursor == other.end_cursor
+                    and self.entity_result_type == other.entity_result_type
+                    and self.entity_results == other.entity_results
+                    and self.more_results == other.more_results
+                    and self.skipped_cursor == other.skipped_cursor
+                    and self.skipped_results == other.skipped_results
+                    and self.snapshot_version == other.snapshot_version)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                      :
+        end_cursor = data[&#39;endCursor&#39;]
+        entity_result_type = ResultType(data[&#39;entityResultType&#39;])
+        entity_results = [cls.entity_result_kind.from_repr(er)
+                          for er in data.get(&#39;entityResults&#39;, [])]
+        more_results = MoreResultsType(data[&#39;moreResults&#39;])
+        skipped_cursor = data.get(&#39;skippedCursor&#39;, &#39;&#39;)
+        skipped_results = data.get(&#39;skippedResults&#39;, 0)
+        snapshot_version = data.get(&#39;snapshotVersion&#39;, &#39;&#39;)
+        return cls(end_cursor, entity_result_type=entity_result_type,
+                   entity_results=entity_results, more_results=more_results,
+                   skipped_cursor=skipped_cursor,
+                   skipped_results=skipped_results,
+                   snapshot_version=snapshot_version)
+
+    def to_repr(self)                  :
+        data = {
+            &#39;endCursor&#39;: self.end_cursor,
+            &#39;entityResults&#39;: [er.to_repr() for er in self.entity_results],
+            &#39;entityResultType&#39;: self.entity_result_type.value,
+            &#39;moreResults&#39;: self.more_results.value,
+            &#39;skippedResults&#39;: self.skipped_results,
+        }
+        if self.skipped_cursor:
+            data[&#39;skippedCursor&#39;] = self.skipped_cursor
+        if self.snapshot_version:
+            data[&#39;snapshotVersion&#39;] = self.snapshot_version
+
+        return data</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.QueryResultBatch.entity_result_kind"><code class="name">var <span class="ident">entity_result_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.QueryResultBatch.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                      :
+    end_cursor = data[&#39;endCursor&#39;]
+    entity_result_type = ResultType(data[&#39;entityResultType&#39;])
+    entity_results = [cls.entity_result_kind.from_repr(er)
+                      for er in data.get(&#39;entityResults&#39;, [])]
+    more_results = MoreResultsType(data[&#39;moreResults&#39;])
+    skipped_cursor = data.get(&#39;skippedCursor&#39;, &#39;&#39;)
+    skipped_results = data.get(&#39;skippedResults&#39;, 0)
+    snapshot_version = data.get(&#39;snapshotVersion&#39;, &#39;&#39;)
+    return cls(end_cursor, entity_result_type=entity_result_type,
+               entity_results=entity_results, more_results=more_results,
+               skipped_cursor=skipped_cursor,
+               skipped_results=skipped_results,
+               snapshot_version=snapshot_version)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.QueryResultBatch.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    data = {
+        &#39;endCursor&#39;: self.end_cursor,
+        &#39;entityResults&#39;: [er.to_repr() for er in self.entity_results],
+        &#39;entityResultType&#39;: self.entity_result_type.value,
+        &#39;moreResults&#39;: self.more_results.value,
+        &#39;skippedResults&#39;: self.skipped_results,
+    }
+    if self.skipped_cursor:
+        data[&#39;skippedCursor&#39;] = self.skipped_cursor
+    if self.snapshot_version:
+        data[&#39;snapshotVersion&#39;] = self.snapshot_version
+
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.ResultType"><code class="flex name class">
+<span>class <span class="ident">ResultType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ResultType(enum.Enum):
+    FULL = &#39;FULL&#39;
+    KEY_ONLY = &#39;KEY_ONLY&#39;
+    PROJECTION = &#39;PROJECTION&#39;
+    UNSPECIFIED = &#39;RESULT_TYPE_UNSPECIFIED&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.ResultType.FULL"><code class="name">var <span class="ident">FULL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.ResultType.KEY_ONLY"><code class="name">var <span class="ident">KEY_ONLY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.ResultType.PROJECTION"><code class="name">var <span class="ident">PROJECTION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.ResultType.UNSPECIFIED"><code class="name">var <span class="ident">UNSPECIFIED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.datastore.Value"><code class="flex name class">
+<span>class <span class="ident">Value</span></span>
+<span>(</span><span>value, exclude_from_indexes=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Value(object):  # pylint:disable=useless-object-inheritance
+    key_kind = Key
+
+    def __init__(self, value     , exclude_from_indexes       = False)        :
+        self.value = value
+        self.excludeFromIndexes = exclude_from_indexes
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, Value):
+            return False
+
+        return bool(
+            self.excludeFromIndexes == other.excludeFromIndexes
+            and self.value == other.value)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )           :
+        supported_types = cls._get_supported_types()
+        for value_type, type_name in supported_types.items():
+            json_key = type_name.value
+            if json_key in data:
+                if json_key == &#39;nullValue&#39;:
+                    value = None
+                elif json_key == &#39;blobValue&#39;:
+                    value = base64.b64decode(data[json_key])
+                elif value_type == datetime:
+                    date_string = data[json_key].rstrip(&#39;Z&#39;)[:26]
+                    date_fmt = (&#39;%Y-%m-%dT%H:%M:%S.%f&#39;
+                                if &#39;.&#39; in date_string else &#39;%Y-%m-%dT%H:%M:%S&#39;)
+                    value = datetime.strptime(date_string, date_fmt)
+                elif hasattr(value_type, &#39;from_repr&#39;):
+                    value = value_type.from_repr(data[json_key])
+                else:
+                    value = value_type(data[json_key])
+                break
+        else:
+            supported = [name.value for name in supported_types.values()]
+            raise NotImplementedError(
+                &#39;{vals} does not contain a supported value type&#39;
+                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
+                                                supported=supported))
+
+        # Google may not populate that field. This can happen with both
+        # indexed and non-indexed fields.
+        exclude_from_indexes = bool(data.get(&#39;excludeFromIndexes&#39;, False))
+
+        return cls(value=value, exclude_from_indexes=exclude_from_indexes)
+
+    def to_repr(self)                  :
+        value_type = self._infer_type(self.value)
+        if value_type in {TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
+                          TypeName.KEY}:
+            value = self.value.to_repr()
+        elif value_type == TypeName.TIMESTAMP:
+            value = self.value.strftime(&#39;%Y-%m-%dT%H:%M:%S.%f000Z&#39;)
+        elif value_type == TypeName.BLOB:
+            value = base64.b64encode(self.value).decode(&#39;utf8&#39;)
+        else:
+            value = &#39;NULL_VALUE&#39; if self.value is None else self.value
+        return {
+            &#39;excludeFromIndexes&#39;: self.excludeFromIndexes,
+            value_type.value: value,
+        }
+
+    def _infer_type(self, value     )            :
+        odd_strings = {&#39;newstr&#39;, &#39;unicode&#39;}
+        kind = str if value.__class__.__name__ in odd_strings else type(value)
+        supported_types = self._get_supported_types()
+
+        try:
+            return supported_types[kind]
+        except KeyError:
+            raise NotImplementedError(
+                &#39;{} is not a supported value type (any of: &#39;
+                &#39;{})&#39;.format(kind, supported_types))
+
+    @classmethod
+    def _get_supported_types(cls):
+        from gcloud.rest.datastore import array
+        from gcloud.rest.datastore import entity
+
+        supported_types = TYPES
+        supported_types.update({
+            cls.key_kind: TypeName.KEY,
+            array.Array: TypeName.ARRAY,
+            entity.Entity: TypeName.ENTITY,
+        })
+        return supported_types</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Value.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Value.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )           :
+    supported_types = cls._get_supported_types()
+    for value_type, type_name in supported_types.items():
+        json_key = type_name.value
+        if json_key in data:
+            if json_key == &#39;nullValue&#39;:
+                value = None
+            elif json_key == &#39;blobValue&#39;:
+                value = base64.b64decode(data[json_key])
+            elif value_type == datetime:
+                date_string = data[json_key].rstrip(&#39;Z&#39;)[:26]
+                date_fmt = (&#39;%Y-%m-%dT%H:%M:%S.%f&#39;
+                            if &#39;.&#39; in date_string else &#39;%Y-%m-%dT%H:%M:%S&#39;)
+                value = datetime.strptime(date_string, date_fmt)
+            elif hasattr(value_type, &#39;from_repr&#39;):
+                value = value_type.from_repr(data[json_key])
+            else:
+                value = value_type(data[json_key])
+            break
+    else:
+        supported = [name.value for name in supported_types.values()]
+        raise NotImplementedError(
+            &#39;{vals} does not contain a supported value type&#39;
+            &#39; (any of: {supported})&#39;.format(vals=data.keys(),
+                                            supported=supported))
+
+    # Google may not populate that field. This can happen with both
+    # indexed and non-indexed fields.
+    exclude_from_indexes = bool(data.get(&#39;excludeFromIndexes&#39;, False))
+
+    return cls(value=value, exclude_from_indexes=exclude_from_indexes)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.Value.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    value_type = self._infer_type(self.value)
+    if value_type in {TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
+                      TypeName.KEY}:
+        value = self.value.to_repr()
+    elif value_type == TypeName.TIMESTAMP:
+        value = self.value.strftime(&#39;%Y-%m-%dT%H:%M:%S.%f000Z&#39;)
+    elif value_type == TypeName.BLOB:
+        value = base64.b64encode(self.value).decode(&#39;utf8&#39;)
+    else:
+        value = &#39;NULL_VALUE&#39; if self.value is None else self.value
+    return {
+        &#39;excludeFromIndexes&#39;: self.excludeFromIndexes,
+        value_type.value: value,
+    }</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.rest" href="../index.html">gcloud.rest</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="gcloud.rest.datastore.array" href="array.html">gcloud.rest.datastore.array</a></code></li>
+<li><code><a title="gcloud.rest.datastore.constants" href="constants.html">gcloud.rest.datastore.constants</a></code></li>
+<li><code><a title="gcloud.rest.datastore.datastore" href="datastore.html">gcloud.rest.datastore.datastore</a></code></li>
+<li><code><a title="gcloud.rest.datastore.datastore_operation" href="datastore_operation.html">gcloud.rest.datastore.datastore_operation</a></code></li>
+<li><code><a title="gcloud.rest.datastore.entity" href="entity.html">gcloud.rest.datastore.entity</a></code></li>
+<li><code><a title="gcloud.rest.datastore.filter" href="filter.html">gcloud.rest.datastore.filter</a></code></li>
+<li><code><a title="gcloud.rest.datastore.key" href="key.html">gcloud.rest.datastore.key</a></code></li>
+<li><code><a title="gcloud.rest.datastore.lat_lng" href="lat_lng.html">gcloud.rest.datastore.lat_lng</a></code></li>
+<li><code><a title="gcloud.rest.datastore.projection" href="projection.html">gcloud.rest.datastore.projection</a></code></li>
+<li><code><a title="gcloud.rest.datastore.property_order" href="property_order.html">gcloud.rest.datastore.property_order</a></code></li>
+<li><code><a title="gcloud.rest.datastore.query" href="query.html">gcloud.rest.datastore.query</a></code></li>
+<li><code><a title="gcloud.rest.datastore.value" href="value.html">gcloud.rest.datastore.value</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.rest.datastore.CompositeFilter" href="#gcloud.rest.datastore.CompositeFilter">CompositeFilter</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.CompositeFilter.from_repr" href="#gcloud.rest.datastore.CompositeFilter.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.CompositeFilter.json_key" href="#gcloud.rest.datastore.CompositeFilter.json_key">json_key</a></code></li>
+<li><code><a title="gcloud.rest.datastore.CompositeFilter.to_repr" href="#gcloud.rest.datastore.CompositeFilter.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.CompositeFilterOperator" href="#gcloud.rest.datastore.CompositeFilterOperator">CompositeFilterOperator</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.CompositeFilterOperator.AND" href="#gcloud.rest.datastore.CompositeFilterOperator.AND">AND</a></code></li>
+<li><code><a title="gcloud.rest.datastore.CompositeFilterOperator.UNSPECIFIED" href="#gcloud.rest.datastore.CompositeFilterOperator.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Consistency" href="#gcloud.rest.datastore.Consistency">Consistency</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Consistency.EVENTUAL" href="#gcloud.rest.datastore.Consistency.EVENTUAL">EVENTUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Consistency.STRONG" href="#gcloud.rest.datastore.Consistency.STRONG">STRONG</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Consistency.UNSPECIFIED" href="#gcloud.rest.datastore.Consistency.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Datastore" href="#gcloud.rest.datastore.Datastore">Datastore</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Datastore.allocateIds" href="#gcloud.rest.datastore.Datastore.allocateIds">allocateIds</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.beginTransaction" href="#gcloud.rest.datastore.Datastore.beginTransaction">beginTransaction</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.close" href="#gcloud.rest.datastore.Datastore.close">close</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.commit" href="#gcloud.rest.datastore.Datastore.commit">commit</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.datastore_operation_kind" href="#gcloud.rest.datastore.Datastore.datastore_operation_kind">datastore_operation_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.delete" href="#gcloud.rest.datastore.Datastore.delete">delete</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.entity_result_kind" href="#gcloud.rest.datastore.Datastore.entity_result_kind">entity_result_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.export" href="#gcloud.rest.datastore.Datastore.export">export</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.get_datastore_operation" href="#gcloud.rest.datastore.Datastore.get_datastore_operation">get_datastore_operation</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.headers" href="#gcloud.rest.datastore.Datastore.headers">headers</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.insert" href="#gcloud.rest.datastore.Datastore.insert">insert</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.key_kind" href="#gcloud.rest.datastore.Datastore.key_kind">key_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.lookup" href="#gcloud.rest.datastore.Datastore.lookup">lookup</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.make_mutation" href="#gcloud.rest.datastore.Datastore.make_mutation">make_mutation</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.operate" href="#gcloud.rest.datastore.Datastore.operate">operate</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.project" href="#gcloud.rest.datastore.Datastore.project">project</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.query_result_batch_kind" href="#gcloud.rest.datastore.Datastore.query_result_batch_kind">query_result_batch_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.reserveIds" href="#gcloud.rest.datastore.Datastore.reserveIds">reserveIds</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.rollback" href="#gcloud.rest.datastore.Datastore.rollback">rollback</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.runQuery" href="#gcloud.rest.datastore.Datastore.runQuery">runQuery</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.update" href="#gcloud.rest.datastore.Datastore.update">update</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.upsert" href="#gcloud.rest.datastore.Datastore.upsert">upsert</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.value_kind" href="#gcloud.rest.datastore.Datastore.value_kind">value_kind</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.DatastoreOperation" href="#gcloud.rest.datastore.DatastoreOperation">DatastoreOperation</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.DatastoreOperation.from_repr" href="#gcloud.rest.datastore.DatastoreOperation.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.DatastoreOperation.to_repr" href="#gcloud.rest.datastore.DatastoreOperation.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Direction" href="#gcloud.rest.datastore.Direction">Direction</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Direction.ASCENDING" href="#gcloud.rest.datastore.Direction.ASCENDING">ASCENDING</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Direction.DESCENDING" href="#gcloud.rest.datastore.Direction.DESCENDING">DESCENDING</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Direction.UNSPECIFIED" href="#gcloud.rest.datastore.Direction.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Entity" href="#gcloud.rest.datastore.Entity">Entity</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Entity.from_repr" href="#gcloud.rest.datastore.Entity.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Entity.key_kind" href="#gcloud.rest.datastore.Entity.key_kind">key_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Entity.to_repr" href="#gcloud.rest.datastore.Entity.to_repr">to_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Entity.value_kind" href="#gcloud.rest.datastore.Entity.value_kind">value_kind</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.EntityResult" href="#gcloud.rest.datastore.EntityResult">EntityResult</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.EntityResult.entity_kind" href="#gcloud.rest.datastore.EntityResult.entity_kind">entity_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.EntityResult.from_repr" href="#gcloud.rest.datastore.EntityResult.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.EntityResult.to_repr" href="#gcloud.rest.datastore.EntityResult.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Filter" href="#gcloud.rest.datastore.Filter">Filter</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Filter.from_repr" href="#gcloud.rest.datastore.Filter.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Filter.to_repr" href="#gcloud.rest.datastore.Filter.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.GQLQuery" href="#gcloud.rest.datastore.GQLQuery">GQLQuery</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.GQLQuery.from_repr" href="#gcloud.rest.datastore.GQLQuery.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.GQLQuery.json_key" href="#gcloud.rest.datastore.GQLQuery.json_key">json_key</a></code></li>
+<li><code><a title="gcloud.rest.datastore.GQLQuery.to_repr" href="#gcloud.rest.datastore.GQLQuery.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Key" href="#gcloud.rest.datastore.Key">Key</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Key.from_repr" href="#gcloud.rest.datastore.Key.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Key.path_element_kind" href="#gcloud.rest.datastore.Key.path_element_kind">path_element_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Key.to_repr" href="#gcloud.rest.datastore.Key.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.LatLng" href="#gcloud.rest.datastore.LatLng">LatLng</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.LatLng.from_repr" href="#gcloud.rest.datastore.LatLng.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.LatLng.to_repr" href="#gcloud.rest.datastore.LatLng.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Mode" href="#gcloud.rest.datastore.Mode">Mode</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Mode.NON_TRANSACTIONAL" href="#gcloud.rest.datastore.Mode.NON_TRANSACTIONAL">NON_TRANSACTIONAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Mode.TRANSACTIONAL" href="#gcloud.rest.datastore.Mode.TRANSACTIONAL">TRANSACTIONAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Mode.UNSPECIFIED" href="#gcloud.rest.datastore.Mode.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.MoreResultsType" href="#gcloud.rest.datastore.MoreResultsType">MoreResultsType</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_CURSOR" href="#gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_CURSOR">MORE_RESULTS_AFTER_CURSOR</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_LIMIT" href="#gcloud.rest.datastore.MoreResultsType.MORE_RESULTS_AFTER_LIMIT">MORE_RESULTS_AFTER_LIMIT</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MoreResultsType.NOT_FINISHED" href="#gcloud.rest.datastore.MoreResultsType.NOT_FINISHED">NOT_FINISHED</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MoreResultsType.NO_MORE_RESULTS" href="#gcloud.rest.datastore.MoreResultsType.NO_MORE_RESULTS">NO_MORE_RESULTS</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MoreResultsType.UNSPECIFIED" href="#gcloud.rest.datastore.MoreResultsType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Operation" href="#gcloud.rest.datastore.Operation">Operation</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Operation.DELETE" href="#gcloud.rest.datastore.Operation.DELETE">DELETE</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Operation.INSERT" href="#gcloud.rest.datastore.Operation.INSERT">INSERT</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Operation.UPDATE" href="#gcloud.rest.datastore.Operation.UPDATE">UPDATE</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Operation.UPSERT" href="#gcloud.rest.datastore.Operation.UPSERT">UPSERT</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.PathElement" href="#gcloud.rest.datastore.PathElement">PathElement</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.PathElement.from_repr" href="#gcloud.rest.datastore.PathElement.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PathElement.to_repr" href="#gcloud.rest.datastore.PathElement.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Projection" href="#gcloud.rest.datastore.Projection">Projection</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Projection.from_repr" href="#gcloud.rest.datastore.Projection.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Projection.to_repr" href="#gcloud.rest.datastore.Projection.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.PropertyFilter" href="#gcloud.rest.datastore.PropertyFilter">PropertyFilter</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.PropertyFilter.from_repr" href="#gcloud.rest.datastore.PropertyFilter.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilter.json_key" href="#gcloud.rest.datastore.PropertyFilter.json_key">json_key</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilter.to_repr" href="#gcloud.rest.datastore.PropertyFilter.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.PropertyFilterOperator" href="#gcloud.rest.datastore.PropertyFilterOperator">PropertyFilterOperator</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.EQUAL" href="#gcloud.rest.datastore.PropertyFilterOperator.EQUAL">EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN" href="#gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN">GREATER_THAN</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN_OR_EQUAL" href="#gcloud.rest.datastore.PropertyFilterOperator.GREATER_THAN_OR_EQUAL">GREATER_THAN_OR_EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.HAS_ANCESTOR" href="#gcloud.rest.datastore.PropertyFilterOperator.HAS_ANCESTOR">HAS_ANCESTOR</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN" href="#gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN">LESS_THAN</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN_OR_EQUAL" href="#gcloud.rest.datastore.PropertyFilterOperator.LESS_THAN_OR_EQUAL">LESS_THAN_OR_EQUAL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyFilterOperator.UNSPECIFIED" href="#gcloud.rest.datastore.PropertyFilterOperator.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.PropertyOrder" href="#gcloud.rest.datastore.PropertyOrder">PropertyOrder</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.PropertyOrder.from_repr" href="#gcloud.rest.datastore.PropertyOrder.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.PropertyOrder.to_repr" href="#gcloud.rest.datastore.PropertyOrder.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Query" href="#gcloud.rest.datastore.Query">Query</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Query.from_repr" href="#gcloud.rest.datastore.Query.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Query.json_key" href="#gcloud.rest.datastore.Query.json_key">json_key</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Query.to_repr" href="#gcloud.rest.datastore.Query.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.QueryResultBatch" href="#gcloud.rest.datastore.QueryResultBatch">QueryResultBatch</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.QueryResultBatch.entity_result_kind" href="#gcloud.rest.datastore.QueryResultBatch.entity_result_kind">entity_result_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.QueryResultBatch.from_repr" href="#gcloud.rest.datastore.QueryResultBatch.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.QueryResultBatch.to_repr" href="#gcloud.rest.datastore.QueryResultBatch.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.ResultType" href="#gcloud.rest.datastore.ResultType">ResultType</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.ResultType.FULL" href="#gcloud.rest.datastore.ResultType.FULL">FULL</a></code></li>
+<li><code><a title="gcloud.rest.datastore.ResultType.KEY_ONLY" href="#gcloud.rest.datastore.ResultType.KEY_ONLY">KEY_ONLY</a></code></li>
+<li><code><a title="gcloud.rest.datastore.ResultType.PROJECTION" href="#gcloud.rest.datastore.ResultType.PROJECTION">PROJECTION</a></code></li>
+<li><code><a title="gcloud.rest.datastore.ResultType.UNSPECIFIED" href="#gcloud.rest.datastore.ResultType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.Value" href="#gcloud.rest.datastore.Value">Value</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.Value.from_repr" href="#gcloud.rest.datastore.Value.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Value.key_kind" href="#gcloud.rest.datastore.Value.key_kind">key_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Value.to_repr" href="#gcloud.rest.datastore.Value.to_repr">to_repr</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

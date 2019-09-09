@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.aio.storage.storage API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.aio.storage.storage</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import enum
+import io
+import json
+import logging
+import mimetypes
+import os
+from typing import Any
+from typing import Optional
+from typing import Tuple
+from typing import Union
+from urllib.parse import quote
+
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+from gcloud.aio.storage.bucket import Bucket
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from time import sleep
+    from requests import HTTPError as ResponseError
+    from requests import Session
+else:
+    from asyncio import sleep
+    from aiohttp import ClientResponseError as ResponseError
+    from aiohttp import ClientSession as Session
+
+
+API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
+API_ROOT_UPLOAD = &#39;https://www.googleapis.com/upload/storage/v1/b&#39;
+SCOPES = [
+    &#39;https://www.googleapis.com/auth/devstorage.read_write&#39;,
+]
+
+MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
+
+
+log = logging.getLogger(__name__)
+
+
+class UploadType(enum.Enum):
+    SIMPLE = 1
+    RESUMABLE = 2
+
+
+class Storage:
+    def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
+                 token: Optional[Token] = None,
+                 session: Optional[Session] = None) -&gt; None:
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    def get_bucket(self, bucket_name: str) -&gt; Bucket:
+        return Bucket(self, bucket_name)
+
+    async def copy(self, bucket: str, object_name: str,
+                   destination_bucket: str, *, new_name: str = None,
+                   headers: dict = None, params: dict = None,
+                   timeout: int = 10,
+                   session: Optional[Session] = None) -&gt; bytes:
+
+        &#34;&#34;&#34;
+        When files are too large, multiple calls to `rewriteTo` are made. We
+        refer to the same copy job by using the `rewriteToken` from the
+        previous return payload in subsequent `rewriteTo` calls.
+
+        Using the `rewriteTo` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the `copyTo` GCS
+        API only calls `rewriteTo` once under the hood, and thus may fail if
+        files are large.
+
+        In the rare case you need to resume a copy operation, include the
+        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+        copy operation, you then have 1 week to complete the copy job.
+
+        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        &#34;&#34;&#34;
+        token = await self.token.get()
+
+        if not new_name:
+            new_name = object_name
+
+        url = (f&#34;{API_ROOT}/{bucket}/o/{quote(object_name, safe=&#39;&#39;)}/rewriteTo&#34;
+               f&#34;/b/{destination_bucket}/o/{quote(new_name, safe=&#39;&#39;)}&#34;)
+
+        # We may optionally supply metadata* to apply to the rewritten
+        # object, which explains why `rewriteTo` is a POST endpoint; however,
+        # we don&#39;t expose that here so we have to send an empty body. Therefore
+        # the `Content-Length` and `Content-Type` indicate an empty body.
+        #
+        # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;&#39;,
+        })
+
+        params = params or {}
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+
+        data: dict = await resp.json()
+
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
+            resp = await s.post(url, headers=headers, params=params,
+                                timeout=timeout)
+            data = await resp.json()
+
+        return data
+
+    async def delete(self, bucket: str, object_name: str, *,
+                     params: dict = None, timeout: int = 10,
+                     session: Optional[Session] = None) -&gt; str:
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers, params=params or {},
+                              timeout=timeout)
+
+        try:
+            data: str = await resp.text()
+        except (AttributeError, TypeError):
+            data: str = str(resp.text)
+
+        return data
+
+    async def download(self, bucket: str, object_name: str, *,
+                       timeout: int = 10,
+                       session: Optional[Session] = None) -&gt; bytes:
+        return await self._download(bucket, object_name, timeout=timeout,
+                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+
+    async def download_metadata(self, bucket: str, object_name: str, *,
+                                timeout: int = 10,
+                                session: Optional[Session] = None) -&gt; dict:
+        data = await self._download(bucket, object_name, timeout=timeout,
+                                    session=session)
+        metadata: dict = json.loads(data.decode())
+        return metadata
+
+    async def list_objects(self, bucket: str, *, params: dict = None,
+                           session: Optional[Session] = None,
+                           timeout: int = 10) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT}/{bucket}/o&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    # TODO: if `metadata` is set, use multipart upload:
+    # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
+    # pylint: disable=too-many-locals
+    async def upload(self, bucket: str, object_name: str, file_data: Any,
+                     *, content_type: str = None, parameters: dict = None,
+                     headers: dict = None, metadata: dict = None,
+                     session: Optional[Session] = None, timeout: int = 30,
+                     force_resumable_upload: bool = None) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT_UPLOAD}/{bucket}/o&#39;
+
+        stream = self._preprocess_data(file_data)
+
+        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+            # HACK: `requests` library does not accept `str` as `data` in `put`
+            # HTTP request.
+            stream = io.BytesIO(stream.getvalue().encode(&#39;utf-8&#39;))
+
+        content_length = self._get_stream_len(stream)
+
+        # mime detection method same as in aiohttp 3.4.4
+        content_type = content_type or mimetypes.guess_type(object_name)[0]
+
+        parameters = parameters or {}
+
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+            &#39;Content-Length&#39;: str(content_length),
+            &#39;Content-Type&#39;: content_type or &#39;&#39;,
+        })
+
+        upload_type = self._decide_upload_type(force_resumable_upload,
+                                               content_length)
+        log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
+
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
+            return await self._upload_simple(url, object_name, stream,
+                                             parameters, headers,
+                                             session=session, timeout=timeout)
+
+        if upload_type == UploadType.RESUMABLE:
+            return await self._upload_resumable(
+                url, object_name, stream, parameters, headers,
+                metadata=metadata, session=session, timeout=timeout)
+
+        raise TypeError(f&#39;upload type {upload_type} not supported&#39;)
+
+    @staticmethod
+    def _get_stream_len(stream: io.IOBase) -&gt; int:
+        current = stream.tell()
+        try:
+            return stream.seek(0, os.SEEK_END)
+        finally:
+            stream.seek(current)
+
+    @staticmethod
+    def _preprocess_data(data: Any) -&gt; io.IOBase:
+        if data is None:
+            return io.StringIO(&#39;&#39;)
+
+        if isinstance(data, bytes):
+            return io.BytesIO(data)
+        if isinstance(data, str):
+            return io.StringIO(data)
+        if isinstance(data, io.IOBase):
+            return data
+
+        raise TypeError(f&#39;unsupported upload type: &#34;{type(data)}&#34;&#39;)
+
+    @staticmethod
+    def _decide_upload_type(force_resumable_upload: Optional[bool],
+                            content_length: int) -&gt; UploadType:
+        # force resumable
+        if force_resumable_upload is True:
+            return UploadType.RESUMABLE
+
+        # force simple
+        if force_resumable_upload is False:
+            return UploadType.SIMPLE
+
+        # decide based on Content-Length
+        if content_length &gt; MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+            return UploadType.RESUMABLE
+
+        return UploadType.SIMPLE
+
+    @staticmethod
+    def _split_content_type(content_type: str) -&gt; Tuple[str, str]:
+        content_type_and_encoding_split = content_type.split(&#39;;&#39;)
+        content_type = content_type_and_encoding_split[0].lower().strip()
+
+        encoding = None
+        if len(content_type_and_encoding_split) &gt; 1:
+            encoding_str = content_type_and_encoding_split[1].lower().strip()
+            encoding = encoding_str.split(&#39;=&#39;)[-1]
+
+        return content_type, encoding
+
+    async def _download(self, bucket: str, object_name: str, *,
+                        params: dict = None, timeout: int = 10,
+                        session: Optional[Session] = None) -&gt; bytes:
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        response = await s.get(url, headers=headers, params=params or {},
+                               timeout=timeout)
+        # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
+        # string was uploaded. To avoid potential weirdness, always return a
+        # bytes object.
+        try:
+            data: bytes = await response.read()
+        except (AttributeError, TypeError):
+            data: bytes = response.content
+
+        return data
+
+    async def _upload_simple(self, url: str, object_name: str,
+                             stream: io.IOBase, params: dict, headers: dict,
+                             *, session: Optional[Session] = None,
+                             timeout: int = 30) -&gt; dict:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
+        params[&#39;name&#39;] = object_name
+        params[&#39;uploadType&#39;] = &#39;media&#39;
+
+        headers.update({
+            &#39;Accept&#39;: &#39;application/json&#39;,
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    async def _upload_resumable(self, url: str, object_name: str,
+                                stream: io.IOBase, params: dict,
+                                headers: dict, *, metadata: dict = None,
+                                session: Optional[Session] = None,
+                                timeout: int = 30) -&gt; dict:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
+        session_uri = await self._initiate_upload(url, object_name, params,
+                                                  headers, metadata=metadata,
+                                                  session=session)
+        data: dict = await self._do_upload(session_uri, stream,
+                                           headers=headers, session=session,
+                                           timeout=timeout)
+        return data
+
+    async def _initiate_upload(self, url: str, object_name: str, params: dict,
+                               headers: dict, *, metadata: dict = None,
+                               session: Optional[Session] = None) -&gt; str:
+        params[&#39;uploadType&#39;] = &#39;resumable&#39;
+
+        metadict = (metadata or {}).copy()
+        metadict.update({&#39;name&#39;: object_name})
+        metadata = json.dumps(metadict)
+
+        post_headers = headers.copy()
+        post_headers.update({
+            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
+            &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
+            &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=post_headers, params=params,
+                            data=metadata, timeout=10)
+        session_uri: str = resp.headers[&#39;Location&#39;]
+        return session_uri
+
+    async def _do_upload(self, session_uri: str, stream: io.IOBase,
+                         headers: dict, *, retries: int = 5,
+                         session: Optional[Session] = None,
+                         timeout: int = 30) -&gt; dict:
+        s = AioSession(session) if session else self.session
+
+        for tries in range(retries):
+            try:
+                resp = await s.put(session_uri, headers=headers,
+                                   data=stream, timeout=timeout)
+            except ResponseError:
+                headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
+                await sleep(2. ** tries)
+
+                continue
+
+            break
+
+        data: dict = await resp.json()
+        return data
+
+    async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
+                                  session: Optional[Session] = None,
+                                  timeout: int = 10) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT}/{bucket}/&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -&gt; &#39;Storage&#39;:
+        return self
+
+    async def __aexit__(self, *args) -&gt; None:
+        await self.close()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.aio.storage.storage.Storage"><code class="flex name class">
+<span>class <span class="ident">Storage</span></span>
+<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, token: Union[gcloud.aio.auth.token.Token, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Storage:
+    def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
+                 token: Optional[Token] = None,
+                 session: Optional[Session] = None) -&gt; None:
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    def get_bucket(self, bucket_name: str) -&gt; Bucket:
+        return Bucket(self, bucket_name)
+
+    async def copy(self, bucket: str, object_name: str,
+                   destination_bucket: str, *, new_name: str = None,
+                   headers: dict = None, params: dict = None,
+                   timeout: int = 10,
+                   session: Optional[Session] = None) -&gt; bytes:
+
+        &#34;&#34;&#34;
+        When files are too large, multiple calls to `rewriteTo` are made. We
+        refer to the same copy job by using the `rewriteToken` from the
+        previous return payload in subsequent `rewriteTo` calls.
+
+        Using the `rewriteTo` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the `copyTo` GCS
+        API only calls `rewriteTo` once under the hood, and thus may fail if
+        files are large.
+
+        In the rare case you need to resume a copy operation, include the
+        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+        copy operation, you then have 1 week to complete the copy job.
+
+        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        &#34;&#34;&#34;
+        token = await self.token.get()
+
+        if not new_name:
+            new_name = object_name
+
+        url = (f&#34;{API_ROOT}/{bucket}/o/{quote(object_name, safe=&#39;&#39;)}/rewriteTo&#34;
+               f&#34;/b/{destination_bucket}/o/{quote(new_name, safe=&#39;&#39;)}&#34;)
+
+        # We may optionally supply metadata* to apply to the rewritten
+        # object, which explains why `rewriteTo` is a POST endpoint; however,
+        # we don&#39;t expose that here so we have to send an empty body. Therefore
+        # the `Content-Length` and `Content-Type` indicate an empty body.
+        #
+        # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;&#39;,
+        })
+
+        params = params or {}
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+
+        data: dict = await resp.json()
+
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
+            resp = await s.post(url, headers=headers, params=params,
+                                timeout=timeout)
+            data = await resp.json()
+
+        return data
+
+    async def delete(self, bucket: str, object_name: str, *,
+                     params: dict = None, timeout: int = 10,
+                     session: Optional[Session] = None) -&gt; str:
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers, params=params or {},
+                              timeout=timeout)
+
+        try:
+            data: str = await resp.text()
+        except (AttributeError, TypeError):
+            data: str = str(resp.text)
+
+        return data
+
+    async def download(self, bucket: str, object_name: str, *,
+                       timeout: int = 10,
+                       session: Optional[Session] = None) -&gt; bytes:
+        return await self._download(bucket, object_name, timeout=timeout,
+                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+
+    async def download_metadata(self, bucket: str, object_name: str, *,
+                                timeout: int = 10,
+                                session: Optional[Session] = None) -&gt; dict:
+        data = await self._download(bucket, object_name, timeout=timeout,
+                                    session=session)
+        metadata: dict = json.loads(data.decode())
+        return metadata
+
+    async def list_objects(self, bucket: str, *, params: dict = None,
+                           session: Optional[Session] = None,
+                           timeout: int = 10) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT}/{bucket}/o&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    # TODO: if `metadata` is set, use multipart upload:
+    # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
+    # pylint: disable=too-many-locals
+    async def upload(self, bucket: str, object_name: str, file_data: Any,
+                     *, content_type: str = None, parameters: dict = None,
+                     headers: dict = None, metadata: dict = None,
+                     session: Optional[Session] = None, timeout: int = 30,
+                     force_resumable_upload: bool = None) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT_UPLOAD}/{bucket}/o&#39;
+
+        stream = self._preprocess_data(file_data)
+
+        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+            # HACK: `requests` library does not accept `str` as `data` in `put`
+            # HTTP request.
+            stream = io.BytesIO(stream.getvalue().encode(&#39;utf-8&#39;))
+
+        content_length = self._get_stream_len(stream)
+
+        # mime detection method same as in aiohttp 3.4.4
+        content_type = content_type or mimetypes.guess_type(object_name)[0]
+
+        parameters = parameters or {}
+
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+            &#39;Content-Length&#39;: str(content_length),
+            &#39;Content-Type&#39;: content_type or &#39;&#39;,
+        })
+
+        upload_type = self._decide_upload_type(force_resumable_upload,
+                                               content_length)
+        log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
+
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
+            return await self._upload_simple(url, object_name, stream,
+                                             parameters, headers,
+                                             session=session, timeout=timeout)
+
+        if upload_type == UploadType.RESUMABLE:
+            return await self._upload_resumable(
+                url, object_name, stream, parameters, headers,
+                metadata=metadata, session=session, timeout=timeout)
+
+        raise TypeError(f&#39;upload type {upload_type} not supported&#39;)
+
+    @staticmethod
+    def _get_stream_len(stream: io.IOBase) -&gt; int:
+        current = stream.tell()
+        try:
+            return stream.seek(0, os.SEEK_END)
+        finally:
+            stream.seek(current)
+
+    @staticmethod
+    def _preprocess_data(data: Any) -&gt; io.IOBase:
+        if data is None:
+            return io.StringIO(&#39;&#39;)
+
+        if isinstance(data, bytes):
+            return io.BytesIO(data)
+        if isinstance(data, str):
+            return io.StringIO(data)
+        if isinstance(data, io.IOBase):
+            return data
+
+        raise TypeError(f&#39;unsupported upload type: &#34;{type(data)}&#34;&#39;)
+
+    @staticmethod
+    def _decide_upload_type(force_resumable_upload: Optional[bool],
+                            content_length: int) -&gt; UploadType:
+        # force resumable
+        if force_resumable_upload is True:
+            return UploadType.RESUMABLE
+
+        # force simple
+        if force_resumable_upload is False:
+            return UploadType.SIMPLE
+
+        # decide based on Content-Length
+        if content_length &gt; MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+            return UploadType.RESUMABLE
+
+        return UploadType.SIMPLE
+
+    @staticmethod
+    def _split_content_type(content_type: str) -&gt; Tuple[str, str]:
+        content_type_and_encoding_split = content_type.split(&#39;;&#39;)
+        content_type = content_type_and_encoding_split[0].lower().strip()
+
+        encoding = None
+        if len(content_type_and_encoding_split) &gt; 1:
+            encoding_str = content_type_and_encoding_split[1].lower().strip()
+            encoding = encoding_str.split(&#39;=&#39;)[-1]
+
+        return content_type, encoding
+
+    async def _download(self, bucket: str, object_name: str, *,
+                        params: dict = None, timeout: int = 10,
+                        session: Optional[Session] = None) -&gt; bytes:
+        token = await self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        response = await s.get(url, headers=headers, params=params or {},
+                               timeout=timeout)
+        # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
+        # string was uploaded. To avoid potential weirdness, always return a
+        # bytes object.
+        try:
+            data: bytes = await response.read()
+        except (AttributeError, TypeError):
+            data: bytes = response.content
+
+        return data
+
+    async def _upload_simple(self, url: str, object_name: str,
+                             stream: io.IOBase, params: dict, headers: dict,
+                             *, session: Optional[Session] = None,
+                             timeout: int = 30) -&gt; dict:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
+        params[&#39;name&#39;] = object_name
+        params[&#39;uploadType&#39;] = &#39;media&#39;
+
+        headers.update({
+            &#39;Accept&#39;: &#39;application/json&#39;,
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    async def _upload_resumable(self, url: str, object_name: str,
+                                stream: io.IOBase, params: dict,
+                                headers: dict, *, metadata: dict = None,
+                                session: Optional[Session] = None,
+                                timeout: int = 30) -&gt; dict:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
+        session_uri = await self._initiate_upload(url, object_name, params,
+                                                  headers, metadata=metadata,
+                                                  session=session)
+        data: dict = await self._do_upload(session_uri, stream,
+                                           headers=headers, session=session,
+                                           timeout=timeout)
+        return data
+
+    async def _initiate_upload(self, url: str, object_name: str, params: dict,
+                               headers: dict, *, metadata: dict = None,
+                               session: Optional[Session] = None) -&gt; str:
+        params[&#39;uploadType&#39;] = &#39;resumable&#39;
+
+        metadict = (metadata or {}).copy()
+        metadict.update({&#39;name&#39;: object_name})
+        metadata = json.dumps(metadict)
+
+        post_headers = headers.copy()
+        post_headers.update({
+            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
+            &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
+            &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=post_headers, params=params,
+                            data=metadata, timeout=10)
+        session_uri: str = resp.headers[&#39;Location&#39;]
+        return session_uri
+
+    async def _do_upload(self, session_uri: str, stream: io.IOBase,
+                         headers: dict, *, retries: int = 5,
+                         session: Optional[Session] = None,
+                         timeout: int = 30) -&gt; dict:
+        s = AioSession(session) if session else self.session
+
+        for tries in range(retries):
+            try:
+                resp = await s.put(session_uri, headers=headers,
+                                   data=stream, timeout=timeout)
+            except ResponseError:
+                headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
+                await sleep(2. ** tries)
+
+                continue
+
+            break
+
+        data: dict = await resp.json()
+        return data
+
+    async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
+                                  session: Optional[Session] = None,
+                                  timeout: int = 10) -&gt; dict:
+        token = await self.token.get()
+        url = f&#39;{API_ROOT}/{bucket}/&#39;
+        headers = {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -&gt; &#39;Storage&#39;:
+        return self
+
+    async def __aexit__(self, *args) -&gt; None:
+        await self.close()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.storage.storage.Storage.close"><code class="name flex">
+<span>async def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def close(self):
+    await self.session.close()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.copy"><code class="name flex">
+<span>async def <span class="ident">copy</span></span>(<span>self, bucket: str, object_name: str, destination_bucket: str, *, new_name: str = None, headers: dict = None, params: dict = None, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> bytes</span>
+</code></dt>
+<dd>
+<div class="desc"><p>When files are too large, multiple calls to <code>rewriteTo</code> are made. We
+refer to the same copy job by using the <code>rewriteToken</code> from the
+previous return payload in subsequent <code>rewriteTo</code> calls.</p>
+<p>Using the <code>rewriteTo</code> GCS API is preferred in part because it is able
+to make multiple calls to fully copy an object whereas the <code>copyTo</code> GCS
+API only calls <code>rewriteTo</code> once under the hood, and thus may fail if
+files are large.</p>
+<p>In the rare case you need to resume a copy operation, include the
+<code>rewriteToken</code> in the <code>params</code> dictionary. Once you begin a multi-part
+copy operation, you then have 1 week to complete the copy job.</p>
+<p><a href="https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite">https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def copy(self, bucket: str, object_name: str,
+               destination_bucket: str, *, new_name: str = None,
+               headers: dict = None, params: dict = None,
+               timeout: int = 10,
+               session: Optional[Session] = None) -&gt; bytes:
+
+    &#34;&#34;&#34;
+    When files are too large, multiple calls to `rewriteTo` are made. We
+    refer to the same copy job by using the `rewriteToken` from the
+    previous return payload in subsequent `rewriteTo` calls.
+
+    Using the `rewriteTo` GCS API is preferred in part because it is able
+    to make multiple calls to fully copy an object whereas the `copyTo` GCS
+    API only calls `rewriteTo` once under the hood, and thus may fail if
+    files are large.
+
+    In the rare case you need to resume a copy operation, include the
+    `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+    copy operation, you then have 1 week to complete the copy job.
+
+    https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+    &#34;&#34;&#34;
+    token = await self.token.get()
+
+    if not new_name:
+        new_name = object_name
+
+    url = (f&#34;{API_ROOT}/{bucket}/o/{quote(object_name, safe=&#39;&#39;)}/rewriteTo&#34;
+           f&#34;/b/{destination_bucket}/o/{quote(new_name, safe=&#39;&#39;)}&#34;)
+
+    # We may optionally supply metadata* to apply to the rewritten
+    # object, which explains why `rewriteTo` is a POST endpoint; however,
+    # we don&#39;t expose that here so we have to send an empty body. Therefore
+    # the `Content-Length` and `Content-Type` indicate an empty body.
+    #
+    # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+    headers = headers or {}
+    headers.update({
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        &#39;Content-Length&#39;: &#39;0&#39;,
+        &#39;Content-Type&#39;: &#39;&#39;,
+    })
+
+    params = params or {}
+
+    s = AioSession(session) if session else self.session
+    resp = await s.post(url, headers=headers, params=params,
+                        timeout=timeout)
+
+    data: dict = await resp.json()
+
+    while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+        params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
+        resp = await s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+        data = await resp.json()
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.delete"><code class="name flex">
+<span>async def <span class="ident">delete</span></span>(<span>self, bucket: str, object_name: str, *, params: dict = None, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def delete(self, bucket: str, object_name: str, *,
+                 params: dict = None, timeout: int = 10,
+                 session: Optional[Session] = None) -&gt; str:
+    token = await self.token.get()
+    # https://cloud.google.com/storage/docs/json_api/#encoding
+    encoded_object_name = quote(object_name, safe=&#39;&#39;)
+    url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+    headers = {
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+    }
+
+    s = AioSession(session) if session else self.session
+    resp = await s.delete(url, headers=headers, params=params or {},
+                          timeout=timeout)
+
+    try:
+        data: str = await resp.text()
+    except (AttributeError, TypeError):
+        data: str = str(resp.text)
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.download"><code class="name flex">
+<span>async def <span class="ident">download</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> bytes</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def download(self, bucket: str, object_name: str, *,
+                   timeout: int = 10,
+                   session: Optional[Session] = None) -&gt; bytes:
+    return await self._download(bucket, object_name, timeout=timeout,
+                                params={&#39;alt&#39;: &#39;media&#39;}, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.download_metadata"><code class="name flex">
+<span>async def <span class="ident">download_metadata</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def download_metadata(self, bucket: str, object_name: str, *,
+                            timeout: int = 10,
+                            session: Optional[Session] = None) -&gt; dict:
+    data = await self._download(bucket, object_name, timeout=timeout,
+                                session=session)
+    metadata: dict = json.loads(data.decode())
+    return metadata</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.get_bucket"><code class="name flex">
+<span>def <span class="ident">get_bucket</span></span>(<span>self, bucket_name: str) -> <a title="gcloud.aio.storage.bucket.Bucket" href="bucket.html#gcloud.aio.storage.bucket.Bucket">Bucket</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bucket(self, bucket_name: str) -&gt; Bucket:
+    return Bucket(self, bucket_name)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.get_bucket_metadata"><code class="name flex">
+<span>async def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket: str, *, params: dict = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) -> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
+                              session: Optional[Session] = None,
+                              timeout: int = 10) -&gt; dict:
+    token = await self.token.get()
+    url = f&#39;{API_ROOT}/{bucket}/&#39;
+    headers = {
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+    }
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, params=params or {},
+                       timeout=timeout)
+    data: dict = await resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.list_objects"><code class="name flex">
+<span>async def <span class="ident">list_objects</span></span>(<span>self, bucket: str, *, params: dict = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) -> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def list_objects(self, bucket: str, *, params: dict = None,
+                       session: Optional[Session] = None,
+                       timeout: int = 10) -&gt; dict:
+    token = await self.token.get()
+    url = f&#39;{API_ROOT}/{bucket}/o&#39;
+    headers = {
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+    }
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, params=params or {},
+                       timeout=timeout)
+    data: dict = await resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.storage.Storage.upload"><code class="name flex">
+<span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: str = None, parameters: dict = None, headers: dict = None, metadata: dict = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 30, force_resumable_upload: bool = None) -> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def upload(self, bucket: str, object_name: str, file_data: Any,
+                 *, content_type: str = None, parameters: dict = None,
+                 headers: dict = None, metadata: dict = None,
+                 session: Optional[Session] = None, timeout: int = 30,
+                 force_resumable_upload: bool = None) -&gt; dict:
+    token = await self.token.get()
+    url = f&#39;{API_ROOT_UPLOAD}/{bucket}/o&#39;
+
+    stream = self._preprocess_data(file_data)
+
+    if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+        # HACK: `requests` library does not accept `str` as `data` in `put`
+        # HTTP request.
+        stream = io.BytesIO(stream.getvalue().encode(&#39;utf-8&#39;))
+
+    content_length = self._get_stream_len(stream)
+
+    # mime detection method same as in aiohttp 3.4.4
+    content_type = content_type or mimetypes.guess_type(object_name)[0]
+
+    parameters = parameters or {}
+
+    headers = headers or {}
+    headers.update({
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        &#39;Content-Length&#39;: str(content_length),
+        &#39;Content-Type&#39;: content_type or &#39;&#39;,
+    })
+
+    upload_type = self._decide_upload_type(force_resumable_upload,
+                                           content_length)
+    log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
+
+    if upload_type == UploadType.SIMPLE:
+        if metadata:
+            log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
+        return await self._upload_simple(url, object_name, stream,
+                                         parameters, headers,
+                                         session=session, timeout=timeout)
+
+    if upload_type == UploadType.RESUMABLE:
+        return await self._upload_resumable(
+            url, object_name, stream, parameters, headers,
+            metadata=metadata, session=session, timeout=timeout)
+
+    raise TypeError(f&#39;upload type {upload_type} not supported&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.aio.storage.storage.UploadType"><code class="flex name class">
+<span>class <span class="ident">UploadType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UploadType(enum.Enum):
+    SIMPLE = 1
+    RESUMABLE = 2</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.aio.storage.storage.UploadType.RESUMABLE"><code class="name">var <span class="ident">RESUMABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.aio.storage.storage.UploadType.SIMPLE"><code class="name">var <span class="ident">SIMPLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.aio.storage" href="index.html">gcloud.aio.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.aio.storage.storage.Storage" href="#gcloud.aio.storage.storage.Storage">Storage</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gcloud.aio.storage.storage.Storage.close" href="#gcloud.aio.storage.storage.Storage.close">close</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.copy" href="#gcloud.aio.storage.storage.Storage.copy">copy</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.delete" href="#gcloud.aio.storage.storage.Storage.delete">delete</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.download" href="#gcloud.aio.storage.storage.Storage.download">download</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.download_metadata" href="#gcloud.aio.storage.storage.Storage.download_metadata">download_metadata</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.get_bucket" href="#gcloud.aio.storage.storage.Storage.get_bucket">get_bucket</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.get_bucket_metadata" href="#gcloud.aio.storage.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.list_objects" href="#gcloud.aio.storage.storage.Storage.list_objects">list_objects</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.upload" href="#gcloud.aio.storage.storage.Storage.upload">upload</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.storage.storage.UploadType" href="#gcloud.aio.storage.storage.UploadType">UploadType</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.storage.storage.UploadType.RESUMABLE" href="#gcloud.aio.storage.storage.UploadType.RESUMABLE">RESUMABLE</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.UploadType.SIMPLE" href="#gcloud.aio.storage.storage.UploadType.SIMPLE">SIMPLE</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

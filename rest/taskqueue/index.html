@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.rest.taskqueue API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.rest.taskqueue</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from pkg_resources import get_distribution
+__version__ = get_distribution(&#39;gcloud-rest-taskqueue&#39;).version
+
+from gcloud.rest.taskqueue.queue import PushQueue
+from gcloud.rest.taskqueue.queue import SCOPES
+from gcloud.rest.taskqueue.utils import decode
+from gcloud.rest.taskqueue.utils import encode
+
+
+__all__ = [&#39;__version__&#39;, &#39;decode&#39;, &#39;encode&#39;, &#39;PushQueue&#39;, &#39;SCOPES&#39;]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="gcloud.rest.taskqueue.queue" href="queue.html">gcloud.rest.taskqueue.queue</a></code></dt>
+<dd>
+<div class="desc"><p>An asynchronous push queue for Google Appengine Task Queues</p></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.taskqueue.utils" href="utils.html">gcloud.rest.taskqueue.utils</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gcloud.rest.taskqueue.decode"><code class="name flex">
+<span>def <span class="ident">decode</span></span>(<span>payload)</span>
+</code></dt>
+<dd>
+<div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
+for URL variants exist, where the + and / characters of standard
+Base64 are respectively replaced by - and _</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def decode(payload):
+    &#34;&#34;&#34;
+    https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
+    for URL variants exist, where the + and / characters of standard
+    Base64 are respectively replaced by - and _
+    &#34;&#34;&#34;
+    variant = payload.replace(&#39;-&#39;, &#39;+&#39;).replace(&#39;_&#39;, &#39;/&#39;)
+    return base64.b64decode(variant).decode()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.encode"><code class="name flex">
+<span>def <span class="ident">encode</span></span>(<span>payload)</span>
+</code></dt>
+<dd>
+<div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
+for URL variants exist, where the + and / characters of standard
+Base64 are respectively replaced by - and _</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encode(payload):
+    &#34;&#34;&#34;
+    https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
+    for URL variants exist, where the + and / characters of standard
+    Base64 are respectively replaced by - and _
+    &#34;&#34;&#34;
+    if not isinstance(payload, bytes):
+        payload = payload.encode(&#39;utf-8&#39;)
+
+    encoded = base64.b64encode(payload)
+    return encoded.replace(b&#39;+&#39;, b&#39;-&#39;).replace(b&#39;/&#39;, b&#39;_&#39;).decode(&#39;utf-8&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.rest.taskqueue.PushQueue"><code class="flex name class">
+<span>class <span class="ident">PushQueue</span></span>
+<span>(</span><span>project, taskqueue, service_file=None, location='us-central1', session=None, token=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PushQueue(object):
+    def __init__(self, project     , taskqueue     ,
+                 service_file                                  = None,
+                 location      = LOCATION,
+                 session                    = None,
+                 token                  = None)        :
+        self.base_api_root = &#39;{}/v2beta3&#39;.format((API_ROOT))
+        self.api_root = (&#39;{}/projects/{}/&#39;
+                         &#39;locations/{}/queues/{}&#39;.format((self.base_api_root), (project), (location), (taskqueue)))
+        self.session = SyncSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    def headers(self)                  :
+        token = self.token.get()
+        return {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        }
+
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    def _request(self, method     , url     ,
+                       session                    = None,
+                       **kwargs     )       :
+        s = SyncSession(session) if session else self.session
+        headers = self.headers()
+
+        resp = s.request(method, url, headers=headers,
+                               auto_raise_for_status=False, **kwargs)
+        # N.B. This is awaited early to give an extra helping hand to various
+        # debug tools, which tend to be able to capture assigned variables but
+        # not un-awaited data.
+        data = resp.json()
+        resp.raise_for_status()
+
+        return data
+
+    # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
+    def create(self, task                ,
+                     session                    = None)       :
+        url = &#39;{}/tasks&#39;.format((self.api_root))
+        body = {
+            &#39;task&#39;: task,
+            &#39;responseView&#39;: &#39;FULL&#39;,
+        }
+
+        return self._request(&#39;POST&#39;, url, json=body, session=session)
+
+    # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
+    def delete(self, tname     ,
+                     session                    = None)       :
+        url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
+
+        return self._request(&#39;DELETE&#39;, url, session=session)
+
+    # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
+    def get(self, tname     , full       = False,
+                  session                    = None)       :
+        url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
+        params = {
+            &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+        }
+
+        return self._request(&#39;GET&#39;, url, params=params, session=session)
+
+    # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
+    def list(self, full       = False, page_size      = 1000,
+                   page_token      = &#39;&#39;,
+                   session                    = None)       :
+        url = &#39;{}/tasks&#39;.format((self.api_root))
+        params = {
+            &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+            &#39;pageSize&#39;: page_size,
+            &#39;pageToken&#39;: page_token,
+        }
+
+        return self._request(&#39;GET&#39;, url, params=params, session=session)
+
+    # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
+    def run(self, tname     , full       = False,
+                  session                    = None)       :
+        url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
+        body = {
+            &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+        }
+
+        return self._request(&#39;POST&#39;, url, json=body, session=session)
+
+    def close(self):
+        self.session.close()
+
+    def __enter__(self)               :
+        return self
+
+    def __exit__(self, *args)        :
+        self.close()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.taskqueue.PushQueue.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.session.close()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>self, task, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create(self, task                ,
+                 session                    = None)       :
+    url = &#39;{}/tasks&#39;.format((self.api_root))
+    body = {
+        &#39;task&#39;: task,
+        &#39;responseView&#39;: &#39;FULL&#39;,
+    }
+
+    return self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, tname, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self, tname     ,
+                 session                    = None)       :
+    url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
+
+    return self._request(&#39;DELETE&#39;, url, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, tname, full=False, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, tname     , full       = False,
+              session                    = None)       :
+    url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
+    params = {
+        &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+    }
+
+    return self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.headers"><code class="name flex">
+<span>def <span class="ident">headers</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def headers(self)                  :
+    token = self.token.get()
+    return {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        &#39;Content-Type&#39;: &#39;application/json&#39;,
+    }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.list"><code class="name flex">
+<span>def <span class="ident">list</span></span>(<span>self, full=False, page_size=1000, page_token='', session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list(self, full       = False, page_size      = 1000,
+               page_token      = &#39;&#39;,
+               session                    = None)       :
+    url = &#39;{}/tasks&#39;.format((self.api_root))
+    params = {
+        &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+        &#39;pageSize&#39;: page_size,
+        &#39;pageToken&#39;: page_token,
+    }
+
+    return self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.taskqueue.PushQueue.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, tname, full=False, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, tname     , full       = False,
+              session                    = None)       :
+    url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
+    body = {
+        &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
+    }
+
+    return self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.rest" href="../index.html">gcloud.rest</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="gcloud.rest.taskqueue.queue" href="queue.html">gcloud.rest.taskqueue.queue</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.utils" href="utils.html">gcloud.rest.taskqueue.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gcloud.rest.taskqueue.decode" href="#gcloud.rest.taskqueue.decode">decode</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.encode" href="#gcloud.rest.taskqueue.encode">encode</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.rest.taskqueue.PushQueue" href="#gcloud.rest.taskqueue.PushQueue">PushQueue</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.close" href="#gcloud.rest.taskqueue.PushQueue.close">close</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.create" href="#gcloud.rest.taskqueue.PushQueue.create">create</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.delete" href="#gcloud.rest.taskqueue.PushQueue.delete">delete</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.get" href="#gcloud.rest.taskqueue.PushQueue.get">get</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.headers" href="#gcloud.rest.taskqueue.PushQueue.headers">headers</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.list" href="#gcloud.rest.taskqueue.PushQueue.list">list</a></code></li>
+<li><code><a title="gcloud.rest.taskqueue.PushQueue.run" href="#gcloud.rest.taskqueue.PushQueue.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

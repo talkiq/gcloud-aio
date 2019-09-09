@@ -1,0 +1,1263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.rest.storage API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.rest.storage</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from pkg_resources import get_distribution
+__version__ = get_distribution(&#39;gcloud-rest-storage&#39;).version
+
+from gcloud.rest.storage.blob import Blob
+from gcloud.rest.storage.bucket import Bucket
+from gcloud.rest.storage.storage import SCOPES
+from gcloud.rest.storage.storage import Storage
+
+
+__all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&#39;, &#39;Storage&#39;]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="gcloud.rest.storage.blob" href="blob.html">gcloud.rest.storage.blob</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.storage.bucket" href="bucket.html">gcloud.rest.storage.bucket</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.storage.storage" href="storage.html">gcloud.rest.storage.storage</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.rest.storage.Blob"><code class="flex name class">
+<span>class <span class="ident">Blob</span></span>
+<span>(</span><span>bucket, name, metadata)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Blob(object):
+    def __init__(self, bucket, name     , metadata      )        :
+        self.__dict__.update(**metadata)
+
+        self.bucket = bucket
+        self.name = name
+        self.size      = int(self.size)
+
+    @property
+    def chunk_size(self)       :
+        return self.size + (262144 - (self.size % 262144))
+
+    def download(self, session                    = None)       :
+        return self.bucket.storage.download(self.bucket.name, self.name,
+                                                  session=session)
+
+    def upload(self, data     ,
+                     session                    = None)        :
+        metadata       = self.bucket.storage.upload(
+            self.bucket.name, self.name, data, session=session)
+
+        self.__dict__.update(metadata)
+        return metadata
+
+    def get_signed_url(  # pylint: disable=too-many-locals
+            self, expiration     , headers                 = None,
+            query_params                 = None, http_method      = &#39;GET&#39;,
+            iam_client                      = None,
+            service_account_email                = None,
+            service_file                                  = None,
+            token                  = None,
+            session                    = None)       :
+        &#34;&#34;&#34;
+        Create a temporary access URL for Storage Blob accessible by anyone
+        with the link.
+
+        Adapted from Google Documentation:
+        https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+        &#34;&#34;&#34;
+        if expiration &gt; 604800:
+            raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
+                             &#39;seconds (7 days)&#39;)
+
+        iam_client = iam_client or IamClient(service_file=service_file,
+                                             token=token, session=session)
+
+        quoted_name = quote(self.name, safe=&#39;&#39;)
+        canonical_uri = &#39;/{}/{}&#39;.format((self.bucket.name), (quoted_name))
+
+        datetime_now = datetime.datetime.utcnow()
+        request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
+        datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
+
+        service_account_email = (service_account_email or
+                                 iam_client.service_account_email)
+        credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
+        credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
+
+        headers = headers or {}
+        headers[&#39;host&#39;] = HOST
+
+        ordered_headers = collections.OrderedDict(sorted(headers.items()))
+        canonical_headers = &#39;&#39;.join(
+            &#39;{}:{}\n&#39;.format((str(k).lower()), (str(v).lower()))
+            for k, v in ordered_headers.items())
+
+        signed_headers = &#39;;&#39;.join(
+            &#39;{}&#39;.format((str(k).lower())) for k in ordered_headers.keys())
+
+        query_params = query_params or {}
+        query_params[&#39;X-Goog-Algorithm&#39;] = &#39;GOOG4-RSA-SHA256&#39;
+        query_params[&#39;X-Goog-Credential&#39;] = credential
+        query_params[&#39;X-Goog-Date&#39;] = request_timestamp
+        query_params[&#39;X-Goog-Expires&#39;] = expiration
+        query_params[&#39;X-Goog-SignedHeaders&#39;] = signed_headers
+
+        ordered_query_params = collections.OrderedDict(
+            sorted(query_params.items()))
+
+        canonical_query_str = &#39;&amp;&#39;.join(
+            &#39;{}={}&#39;.format((quote(str(k), safe=&#34;&#34;)), (quote(str(v), safe=&#34;&#34;)))
+            for k, v in ordered_query_params.items())
+
+        canonical_req = &#39;\n&#39;.join([http_method, canonical_uri,
+                                   canonical_query_str, canonical_headers,
+                                   signed_headers, &#39;UNSIGNED-PAYLOAD&#39;])
+        canonical_req_hash = hashlib.sha256(canonical_req.encode()).hexdigest()
+
+        str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
+                                 credential_scope, canonical_req_hash])
+        signed_resp = iam_client.sign_blob(
+            str_to_sign, service_account_email=service_account_email,
+            session=session)
+
+        signature = binascii.hexlify(
+            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+
+        return (&#39;https://{}{}?{}&#39;
+                &#39;&amp;X-Goog-Signature={}&#39;.format((HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gcloud.rest.storage.Blob.chunk_size"><code class="name">var <span class="ident">chunk_size</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def chunk_size(self)       :
+    return self.size + (262144 - (self.size % 262144))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.storage.Blob.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download(self, session                    = None)       :
+    return self.bucket.storage.download(self.bucket.name, self.name,
+                                              session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Blob.get_signed_url"><code class="name flex">
+<span>def <span class="ident">get_signed_url</span></span>(<span>self, expiration, headers=None, query_params=None, http_method='GET', iam_client=None, service_account_email=None, service_file=None, token=None, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a temporary access URL for Storage Blob accessible by anyone
+with the link.</p>
+<p>Adapted from Google Documentation:
+<a href="https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample">https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_signed_url(  # pylint: disable=too-many-locals
+        self, expiration     , headers                 = None,
+        query_params                 = None, http_method      = &#39;GET&#39;,
+        iam_client                      = None,
+        service_account_email                = None,
+        service_file                                  = None,
+        token                  = None,
+        session                    = None)       :
+    &#34;&#34;&#34;
+    Create a temporary access URL for Storage Blob accessible by anyone
+    with the link.
+
+    Adapted from Google Documentation:
+    https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+    &#34;&#34;&#34;
+    if expiration &gt; 604800:
+        raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
+                         &#39;seconds (7 days)&#39;)
+
+    iam_client = iam_client or IamClient(service_file=service_file,
+                                         token=token, session=session)
+
+    quoted_name = quote(self.name, safe=&#39;&#39;)
+    canonical_uri = &#39;/{}/{}&#39;.format((self.bucket.name), (quoted_name))
+
+    datetime_now = datetime.datetime.utcnow()
+    request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
+    datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
+
+    service_account_email = (service_account_email or
+                             iam_client.service_account_email)
+    credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
+    credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
+
+    headers = headers or {}
+    headers[&#39;host&#39;] = HOST
+
+    ordered_headers = collections.OrderedDict(sorted(headers.items()))
+    canonical_headers = &#39;&#39;.join(
+        &#39;{}:{}\n&#39;.format((str(k).lower()), (str(v).lower()))
+        for k, v in ordered_headers.items())
+
+    signed_headers = &#39;;&#39;.join(
+        &#39;{}&#39;.format((str(k).lower())) for k in ordered_headers.keys())
+
+    query_params = query_params or {}
+    query_params[&#39;X-Goog-Algorithm&#39;] = &#39;GOOG4-RSA-SHA256&#39;
+    query_params[&#39;X-Goog-Credential&#39;] = credential
+    query_params[&#39;X-Goog-Date&#39;] = request_timestamp
+    query_params[&#39;X-Goog-Expires&#39;] = expiration
+    query_params[&#39;X-Goog-SignedHeaders&#39;] = signed_headers
+
+    ordered_query_params = collections.OrderedDict(
+        sorted(query_params.items()))
+
+    canonical_query_str = &#39;&amp;&#39;.join(
+        &#39;{}={}&#39;.format((quote(str(k), safe=&#34;&#34;)), (quote(str(v), safe=&#34;&#34;)))
+        for k, v in ordered_query_params.items())
+
+    canonical_req = &#39;\n&#39;.join([http_method, canonical_uri,
+                               canonical_query_str, canonical_headers,
+                               signed_headers, &#39;UNSIGNED-PAYLOAD&#39;])
+    canonical_req_hash = hashlib.sha256(canonical_req.encode()).hexdigest()
+
+    str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
+                             credential_scope, canonical_req_hash])
+    signed_resp = iam_client.sign_blob(
+        str_to_sign, service_account_email=service_account_email,
+        session=session)
+
+    signature = binascii.hexlify(
+        decode(signed_resp[&#39;signedBlob&#39;])).decode()
+
+    return (&#39;https://{}{}?{}&#39;
+            &#39;&amp;X-Goog-Signature={}&#39;.format((HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Blob.upload"><code class="name flex">
+<span>def <span class="ident">upload</span></span>(<span>self, data, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def upload(self, data     ,
+                 session                    = None)        :
+    metadata       = self.bucket.storage.upload(
+        self.bucket.name, self.name, data, session=session)
+
+    self.__dict__.update(metadata)
+    return metadata</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.storage.Bucket"><code class="flex name class">
+<span>class <span class="ident">Bucket</span></span>
+<span>(</span><span>storage, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Bucket(object):
+    def __init__(self, storage, name     )        :
+        self.storage = storage
+        self.name = name
+
+    def get_blob(self, blob_name     ,
+                       session                    = None)        :
+        metadata = self.storage.download_metadata(self.name, blob_name,
+                                                        session=session)
+
+        return Blob(self, blob_name, metadata)
+
+    def blob_exists(self, blob_name     ,
+                          session                    = None)        :
+        try:
+            self.get_blob(blob_name, session=session)
+            return True
+        except ResponseError as e:
+            try:
+                if e.status in {404, 410}:
+                    return False
+            except AttributeError:
+                if e.code in {404, 410}:
+                    return False
+
+            raise e
+
+    def list_blobs(self, prefix      = &#39;&#39;,
+                         session                    = None)             :
+        params = {&#39;prefix&#39;: prefix, &#39;pageToken&#39;: &#39;&#39;}
+        items = []
+        while True:
+            content = self.storage.list_objects(self.name,
+                                                      params=params,
+                                                      session=session)
+            items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
+
+            params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;)
+            if not params[&#39;pageToken&#39;]:
+                break
+
+        return items
+
+
+    def new_blob(self, blob_name     )        :
+        return Blob(self, blob_name, {&#39;size&#39;: 0})
+
+    def get_metadata(self, params       = None,
+                           session                    = None)        :
+        return self.storage.get_bucket_metadata(self.name, params=params,
+                                                      session=session)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.storage.Bucket.blob_exists"><code class="name flex">
+<span>def <span class="ident">blob_exists</span></span>(<span>self, blob_name, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blob_exists(self, blob_name     ,
+                      session                    = None)        :
+    try:
+        self.get_blob(blob_name, session=session)
+        return True
+    except ResponseError as e:
+        try:
+            if e.status in {404, 410}:
+                return False
+        except AttributeError:
+            if e.code in {404, 410}:
+                return False
+
+        raise e</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Bucket.get_blob"><code class="name flex">
+<span>def <span class="ident">get_blob</span></span>(<span>self, blob_name, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_blob(self, blob_name     ,
+                   session                    = None)        :
+    metadata = self.storage.download_metadata(self.name, blob_name,
+                                                    session=session)
+
+    return Blob(self, blob_name, metadata)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Bucket.get_metadata"><code class="name flex">
+<span>def <span class="ident">get_metadata</span></span>(<span>self, params=None, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_metadata(self, params       = None,
+                       session                    = None)        :
+    return self.storage.get_bucket_metadata(self.name, params=params,
+                                                  session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Bucket.list_blobs"><code class="name flex">
+<span>def <span class="ident">list_blobs</span></span>(<span>self, prefix='', session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_blobs(self, prefix      = &#39;&#39;,
+                     session                    = None)             :
+    params = {&#39;prefix&#39;: prefix, &#39;pageToken&#39;: &#39;&#39;}
+    items = []
+    while True:
+        content = self.storage.list_objects(self.name,
+                                                  params=params,
+                                                  session=session)
+        items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
+
+        params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;)
+        if not params[&#39;pageToken&#39;]:
+            break
+
+    return items</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Bucket.new_blob"><code class="name flex">
+<span>def <span class="ident">new_blob</span></span>(<span>self, blob_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def new_blob(self, blob_name     )        :
+    return Blob(self, blob_name, {&#39;size&#39;: 0})</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.storage.Storage"><code class="flex name class">
+<span>class <span class="ident">Storage</span></span>
+<span>(</span><span>**_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Storage(object):
+    def __init__(self, **_3to2kwargs)        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;token&#39; in _3to2kwargs: token = _3to2kwargs[&#39;token&#39;]; del _3to2kwargs[&#39;token&#39;]
+        else: token =  None
+        if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
+        else: service_file =  None
+        self.session = SyncSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    def get_bucket(self, bucket_name     )          :
+        return Bucket(self, bucket_name)
+
+    def copy(self, bucket     , object_name     ,
+                   destination_bucket     , **_3to2kwargs)         :
+
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;new_name&#39; in _3to2kwargs: new_name = _3to2kwargs[&#39;new_name&#39;]; del _3to2kwargs[&#39;new_name&#39;]
+        else: new_name =  None
+        &#34;&#34;&#34;
+        When files are too large, multiple calls to `rewriteTo` are made. We
+        refer to the same copy job by using the `rewriteToken` from the
+        previous return payload in subsequent `rewriteTo` calls.
+
+        Using the `rewriteTo` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the `copyTo` GCS
+        API only calls `rewriteTo` once under the hood, and thus may fail if
+        files are large.
+
+        In the rare case you need to resume a copy operation, include the
+        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+        copy operation, you then have 1 week to complete the copy job.
+
+        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        &#34;&#34;&#34;
+        token = self.token.get()
+
+        if not new_name:
+            new_name = object_name
+
+        url = (&#34;{}/{}/o/{}/rewriteTo&#34;
+               &#34;/b/{}/o/{}&#34;.format((API_ROOT), (bucket), (quote(object_name, safe=&#39;&#39;)), (destination_bucket), (quote(new_name, safe=&#39;&#39;))))
+
+        # We may optionally supply metadata* to apply to the rewritten
+        # object, which explains why `rewriteTo` is a POST endpoint; however,
+        # we don&#39;t expose that here so we have to send an empty body. Therefore
+        # the `Content-Length` and `Content-Type` indicate an empty body.
+        #
+        # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;&#39;,
+        })
+
+        params = params or {}
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+
+        data       = resp.json()
+
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
+            resp = s.post(url, headers=headers, params=params,
+                                timeout=timeout)
+            data = resp.json()
+
+        return data
+
+    def delete(self, bucket     , object_name     , **_3to2kwargs)       :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        token = self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
+        headers = {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+        s = SyncSession(session) if session else self.session
+        resp = s.delete(url, headers=headers, params=params or {},
+                              timeout=timeout)
+
+        try:
+            data      = resp.text()
+        except (AttributeError, TypeError):
+            data      = str(resp.text)
+
+        return data
+
+    def download(self, bucket     , object_name     , **_3to2kwargs)         :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        return self._download(bucket, object_name, timeout=timeout,
+                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+
+    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        data = self._download(bucket, object_name, timeout=timeout,
+                                    session=session)
+        metadata       = json.loads(data.decode())
+        return metadata
+
+    def list_objects(self, bucket     , **_3to2kwargs)        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        token = self.token.get()
+        url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
+        headers = {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data       = resp.json()
+        return data
+
+    # TODO: if `metadata` is set, use multipart upload:
+    # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
+    # pylint: disable=too-many-locals
+    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
+        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+        else: force_resumable_upload =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
+        else: metadata =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;parameters&#39; in _3to2kwargs: parameters = _3to2kwargs[&#39;parameters&#39;]; del _3to2kwargs[&#39;parameters&#39;]
+        else: parameters =  None
+        if &#39;content_type&#39; in _3to2kwargs: content_type = _3to2kwargs[&#39;content_type&#39;]; del _3to2kwargs[&#39;content_type&#39;]
+        else: content_type =  None
+        token = self.token.get()
+        url = &#39;{}/{}/o&#39;.format((API_ROOT_UPLOAD), (bucket))
+
+        stream = self._preprocess_data(file_data)
+
+        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+            # HACK: `requests` library does not accept `str` as `data` in `put`
+            # HTTP request.
+            stream = io.BytesIO(stream.getvalue().encode(&#39;utf-8&#39;))
+
+        content_length = self._get_stream_len(stream)
+
+        # mime detection method same as in aiohttp 3.4.4
+        content_type = content_type or mimetypes.guess_type(object_name)[0]
+
+        parameters = parameters or {}
+
+        headers = headers or {}
+        headers.update({
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+            &#39;Content-Length&#39;: str(content_length),
+            &#39;Content-Type&#39;: content_type or &#39;&#39;,
+        })
+
+        upload_type = self._decide_upload_type(force_resumable_upload,
+                                               content_length)
+        log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
+
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
+            return self._upload_simple(url, object_name, stream,
+                                             parameters, headers,
+                                             session=session, timeout=timeout)
+
+        if upload_type == UploadType.RESUMABLE:
+            return self._upload_resumable(
+                url, object_name, stream, parameters, headers,
+                metadata=metadata, session=session, timeout=timeout)
+
+        raise TypeError(&#39;upload type {} not supported&#39;.format((upload_type)))
+
+    @staticmethod
+    def _get_stream_len(stream           )       :
+        current = stream.tell()
+        try:
+            return stream.seek(0, os.SEEK_END)
+        finally:
+            stream.seek(current)
+
+    @staticmethod
+    def _preprocess_data(data     )             :
+        if data is None:
+            return io.StringIO(&#39;&#39;)
+
+        if isinstance(data, bytes):
+            return io.BytesIO(data)
+        if isinstance(data, str):
+            return io.StringIO(data)
+        if isinstance(data, io.IOBase):
+            return data
+
+        raise TypeError(&#39;unsupported upload type: &#34;{}&#34;&#39;.format((type(data))))
+
+    @staticmethod
+    def _decide_upload_type(force_resumable_upload                ,
+                            content_length     )              :
+        # force resumable
+        if force_resumable_upload is True:
+            return UploadType.RESUMABLE
+
+        # force simple
+        if force_resumable_upload is False:
+            return UploadType.SIMPLE
+
+        # decide based on Content-Length
+        if content_length &gt; MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+            return UploadType.RESUMABLE
+
+        return UploadType.SIMPLE
+
+    @staticmethod
+    def _split_content_type(content_type     )                   :
+        content_type_and_encoding_split = content_type.split(&#39;;&#39;)
+        content_type = content_type_and_encoding_split[0].lower().strip()
+
+        encoding = None
+        if len(content_type_and_encoding_split) &gt; 1:
+            encoding_str = content_type_and_encoding_split[1].lower().strip()
+            encoding = encoding_str.split(&#39;=&#39;)[-1]
+
+        return content_type, encoding
+
+    def _download(self, bucket     , object_name     , **_3to2kwargs)         :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        token = self.token.get()
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
+        headers = {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+        s = SyncSession(session) if session else self.session
+        response = s.get(url, headers=headers, params=params or {},
+                               timeout=timeout)
+        # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
+        # string was uploaded. To avoid potential weirdness, always return a
+        # bytes object.
+        try:
+            data        = response.read()
+        except (AttributeError, TypeError):
+            data        = response.content
+
+        return data
+
+    def _upload_simple(self, url     , object_name     ,
+                             stream           , params      , headers      , **_3to2kwargs)        :
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        params[&#39;name&#39;] = object_name
+        params[&#39;uploadType&#39;] = &#39;media&#39;
+
+        headers.update({
+            &#39;Accept&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data       = resp.json()
+        return data
+
+    def _upload_resumable(self, url     , object_name     ,
+                                stream           , params      ,
+                                headers      , **_3to2kwargs)        :
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
+        else: metadata =  None
+        session_uri = self._initiate_upload(url, object_name, params,
+                                                  headers, metadata=metadata,
+                                                  session=session)
+        data       = self._do_upload(session_uri, stream,
+                                           headers=headers, session=session,
+                                           timeout=timeout)
+        return data
+
+    def _initiate_upload(self, url     , object_name     , params      ,
+                               headers      , **_3to2kwargs)       :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
+        else: metadata =  None
+        params[&#39;uploadType&#39;] = &#39;resumable&#39;
+
+        metadict = (metadata or {}).copy()
+        metadict.update({&#39;name&#39;: object_name})
+        metadata = json.dumps(metadict)
+
+        post_headers = headers.copy()
+        post_headers.update({
+            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
+            &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
+            &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=post_headers, params=params,
+                            data=metadata, timeout=10)
+        session_uri      = resp.headers[&#39;Location&#39;]
+        return session_uri
+
+    def _do_upload(self, session_uri     , stream           ,
+                         headers      , **_3to2kwargs)        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;retries&#39; in _3to2kwargs: retries = _3to2kwargs[&#39;retries&#39;]; del _3to2kwargs[&#39;retries&#39;]
+        else: retries =  5
+        s = SyncSession(session) if session else self.session
+
+        for tries in range(retries):
+            try:
+                resp = s.put(session_uri, headers=headers,
+                                   data=stream, timeout=timeout)
+            except ResponseError:
+                headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
+                sleep(2. ** tries)
+
+                continue
+
+            break
+
+        data       = resp.json()
+        return data
+
+    def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        token = self.token.get()
+        url = &#39;{}/{}/&#39;.format((API_ROOT), (bucket))
+        headers = {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data       = resp.json()
+        return data
+
+    def close(self):
+        self.session.close()
+
+    def __enter__(self)             :
+        return self
+
+    def __exit__(self, *args)        :
+        self.close()</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.storage.Storage.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.session.close()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self, bucket, object_name, destination_bucket, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy(self, bucket     , object_name     ,
+               destination_bucket     , **_3to2kwargs)         :
+
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    if &#39;new_name&#39; in _3to2kwargs: new_name = _3to2kwargs[&#39;new_name&#39;]; del _3to2kwargs[&#39;new_name&#39;]
+    else: new_name =  None
+    &#34;&#34;&#34;
+    When files are too large, multiple calls to `rewriteTo` are made. We
+    refer to the same copy job by using the `rewriteToken` from the
+    previous return payload in subsequent `rewriteTo` calls.
+
+    Using the `rewriteTo` GCS API is preferred in part because it is able
+    to make multiple calls to fully copy an object whereas the `copyTo` GCS
+    API only calls `rewriteTo` once under the hood, and thus may fail if
+    files are large.
+
+    In the rare case you need to resume a copy operation, include the
+    `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+    copy operation, you then have 1 week to complete the copy job.
+
+    https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+    &#34;&#34;&#34;
+    token = self.token.get()
+
+    if not new_name:
+        new_name = object_name
+
+    url = (&#34;{}/{}/o/{}/rewriteTo&#34;
+           &#34;/b/{}/o/{}&#34;.format((API_ROOT), (bucket), (quote(object_name, safe=&#39;&#39;)), (destination_bucket), (quote(new_name, safe=&#39;&#39;))))
+
+    # We may optionally supply metadata* to apply to the rewritten
+    # object, which explains why `rewriteTo` is a POST endpoint; however,
+    # we don&#39;t expose that here so we have to send an empty body. Therefore
+    # the `Content-Length` and `Content-Type` indicate an empty body.
+    #
+    # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+    headers = headers or {}
+    headers.update({
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        &#39;Content-Length&#39;: &#39;0&#39;,
+        &#39;Content-Type&#39;: &#39;&#39;,
+    })
+
+    params = params or {}
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, headers=headers, params=params,
+                        timeout=timeout)
+
+    data       = resp.json()
+
+    while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+        params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
+        resp = s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+        data = resp.json()
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, bucket, object_name, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self, bucket     , object_name     , **_3to2kwargs)       :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
+    token = self.token.get()
+    # https://cloud.google.com/storage/docs/json_api/#encoding
+    encoded_object_name = quote(object_name, safe=&#39;&#39;)
+    url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
+    headers = {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+    }
+
+    s = SyncSession(session) if session else self.session
+    resp = s.delete(url, headers=headers, params=params or {},
+                          timeout=timeout)
+
+    try:
+        data      = resp.text()
+    except (AttributeError, TypeError):
+        data      = str(resp.text)
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self, bucket, object_name, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download(self, bucket     , object_name     , **_3to2kwargs)         :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    return self._download(bucket, object_name, timeout=timeout,
+                                params={&#39;alt&#39;: &#39;media&#39;}, session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.download_metadata"><code class="name flex">
+<span>def <span class="ident">download_metadata</span></span>(<span>self, bucket, object_name, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    data = self._download(bucket, object_name, timeout=timeout,
+                                session=session)
+    metadata       = json.loads(data.decode())
+    return metadata</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.get_bucket"><code class="name flex">
+<span>def <span class="ident">get_bucket</span></span>(<span>self, bucket_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bucket(self, bucket_name     )          :
+    return Bucket(self, bucket_name)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.get_bucket_metadata"><code class="name flex">
+<span>def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
+    token = self.token.get()
+    url = &#39;{}/{}/&#39;.format((API_ROOT), (bucket))
+    headers = {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+    }
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=params or {},
+                       timeout=timeout)
+    data       = resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.list_objects"><code class="name flex">
+<span>def <span class="ident">list_objects</span></span>(<span>self, bucket, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
+    token = self.token.get()
+    url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
+    headers = {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+    }
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=params or {},
+                       timeout=timeout)
+    data       = resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.Storage.upload"><code class="name flex">
+<span>def <span class="ident">upload</span></span>(<span>self, bucket, object_name, file_data, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
+    if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+    else: force_resumable_upload =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  30
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
+    else: metadata =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    if &#39;parameters&#39; in _3to2kwargs: parameters = _3to2kwargs[&#39;parameters&#39;]; del _3to2kwargs[&#39;parameters&#39;]
+    else: parameters =  None
+    if &#39;content_type&#39; in _3to2kwargs: content_type = _3to2kwargs[&#39;content_type&#39;]; del _3to2kwargs[&#39;content_type&#39;]
+    else: content_type =  None
+    token = self.token.get()
+    url = &#39;{}/{}/o&#39;.format((API_ROOT_UPLOAD), (bucket))
+
+    stream = self._preprocess_data(file_data)
+
+    if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+        # HACK: `requests` library does not accept `str` as `data` in `put`
+        # HTTP request.
+        stream = io.BytesIO(stream.getvalue().encode(&#39;utf-8&#39;))
+
+    content_length = self._get_stream_len(stream)
+
+    # mime detection method same as in aiohttp 3.4.4
+    content_type = content_type or mimetypes.guess_type(object_name)[0]
+
+    parameters = parameters or {}
+
+    headers = headers or {}
+    headers.update({
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        &#39;Content-Length&#39;: str(content_length),
+        &#39;Content-Type&#39;: content_type or &#39;&#39;,
+    })
+
+    upload_type = self._decide_upload_type(force_resumable_upload,
+                                           content_length)
+    log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
+
+    if upload_type == UploadType.SIMPLE:
+        if metadata:
+            log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
+        return self._upload_simple(url, object_name, stream,
+                                         parameters, headers,
+                                         session=session, timeout=timeout)
+
+    if upload_type == UploadType.RESUMABLE:
+        return self._upload_resumable(
+            url, object_name, stream, parameters, headers,
+            metadata=metadata, session=session, timeout=timeout)
+
+    raise TypeError(&#39;upload type {} not supported&#39;.format((upload_type)))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.rest" href="../index.html">gcloud.rest</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="gcloud.rest.storage.blob" href="blob.html">gcloud.rest.storage.blob</a></code></li>
+<li><code><a title="gcloud.rest.storage.bucket" href="bucket.html">gcloud.rest.storage.bucket</a></code></li>
+<li><code><a title="gcloud.rest.storage.storage" href="storage.html">gcloud.rest.storage.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.rest.storage.Blob" href="#gcloud.rest.storage.Blob">Blob</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.storage.Blob.chunk_size" href="#gcloud.rest.storage.Blob.chunk_size">chunk_size</a></code></li>
+<li><code><a title="gcloud.rest.storage.Blob.download" href="#gcloud.rest.storage.Blob.download">download</a></code></li>
+<li><code><a title="gcloud.rest.storage.Blob.get_signed_url" href="#gcloud.rest.storage.Blob.get_signed_url">get_signed_url</a></code></li>
+<li><code><a title="gcloud.rest.storage.Blob.upload" href="#gcloud.rest.storage.Blob.upload">upload</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.storage.Bucket" href="#gcloud.rest.storage.Bucket">Bucket</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.storage.Bucket.blob_exists" href="#gcloud.rest.storage.Bucket.blob_exists">blob_exists</a></code></li>
+<li><code><a title="gcloud.rest.storage.Bucket.get_blob" href="#gcloud.rest.storage.Bucket.get_blob">get_blob</a></code></li>
+<li><code><a title="gcloud.rest.storage.Bucket.get_metadata" href="#gcloud.rest.storage.Bucket.get_metadata">get_metadata</a></code></li>
+<li><code><a title="gcloud.rest.storage.Bucket.list_blobs" href="#gcloud.rest.storage.Bucket.list_blobs">list_blobs</a></code></li>
+<li><code><a title="gcloud.rest.storage.Bucket.new_blob" href="#gcloud.rest.storage.Bucket.new_blob">new_blob</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.storage.Storage" href="#gcloud.rest.storage.Storage">Storage</a></code></h4>
+<ul class="two-column">
+<li><code><a title="gcloud.rest.storage.Storage.close" href="#gcloud.rest.storage.Storage.close">close</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.copy" href="#gcloud.rest.storage.Storage.copy">copy</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.delete" href="#gcloud.rest.storage.Storage.delete">delete</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.download" href="#gcloud.rest.storage.Storage.download">download</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.download_metadata" href="#gcloud.rest.storage.Storage.download_metadata">download_metadata</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.get_bucket" href="#gcloud.rest.storage.Storage.get_bucket">get_bucket</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.get_bucket_metadata" href="#gcloud.rest.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.list_objects" href="#gcloud.rest.storage.Storage.list_objects">list_objects</a></code></li>
+<li><code><a title="gcloud.rest.storage.Storage.upload" href="#gcloud.rest.storage.Storage.upload">upload</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

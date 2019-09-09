@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.1" />
+<title>gcloud.aio.storage.blob API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.aio.storage.blob</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import binascii
+import collections
+import datetime
+import hashlib
+import io
+from typing import Any
+from typing import Optional
+from typing import Union
+from urllib.parse import quote
+
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
+
+
+HOST = &#39;storage.googleapis.com&#39;
+
+
+class Blob:
+    def __init__(self, bucket, name: str, metadata: dict) -&gt; None:
+        self.__dict__.update(**metadata)
+
+        self.bucket = bucket
+        self.name = name
+        self.size: int = int(self.size)
+
+    @property
+    def chunk_size(self) -&gt; int:
+        return self.size + (262144 - (self.size % 262144))
+
+    async def download(self, session: Optional[Session] = None) -&gt; Any:
+        return await self.bucket.storage.download(self.bucket.name, self.name,
+                                                  session=session)
+
+    async def upload(self, data: Any,
+                     session: Optional[Session] = None) -&gt; dict:
+        metadata: dict = await self.bucket.storage.upload(
+            self.bucket.name, self.name, data, session=session)
+
+        self.__dict__.update(metadata)
+        return metadata
+
+    async def get_signed_url(  # pylint: disable=too-many-locals
+            self, expiration: int, headers: Optional[dict] = None,
+            query_params: Optional[dict] = None, http_method: str = &#39;GET&#39;,
+            iam_client: Optional[IamClient] = None,
+            service_account_email: Optional[str] = None,
+            service_file: Optional[Union[str, io.IOBase]] = None,
+            token: Optional[Token] = None,
+            session: Optional[Session] = None) -&gt; str:
+        &#34;&#34;&#34;
+        Create a temporary access URL for Storage Blob accessible by anyone
+        with the link.
+
+        Adapted from Google Documentation:
+        https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+        &#34;&#34;&#34;
+        if expiration &gt; 604800:
+            raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
+                             &#39;seconds (7 days)&#39;)
+
+        iam_client = iam_client or IamClient(service_file=service_file,
+                                             token=token, session=session)
+
+        quoted_name = quote(self.name, safe=&#39;&#39;)
+        canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+
+        datetime_now = datetime.datetime.utcnow()
+        request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
+        datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
+
+        service_account_email = (service_account_email or
+                                 iam_client.service_account_email)
+        credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
+        credential = f&#39;{service_account_email}/{credential_scope}&#39;
+
+        headers = headers or {}
+        headers[&#39;host&#39;] = HOST
+
+        ordered_headers = collections.OrderedDict(sorted(headers.items()))
+        canonical_headers = &#39;&#39;.join(
+            f&#39;{str(k).lower()}:{str(v).lower()}\n&#39;
+            for k, v in ordered_headers.items())
+
+        signed_headers = &#39;;&#39;.join(
+            f&#39;{str(k).lower()}&#39; for k in ordered_headers.keys())
+
+        query_params = query_params or {}
+        query_params[&#39;X-Goog-Algorithm&#39;] = &#39;GOOG4-RSA-SHA256&#39;
+        query_params[&#39;X-Goog-Credential&#39;] = credential
+        query_params[&#39;X-Goog-Date&#39;] = request_timestamp
+        query_params[&#39;X-Goog-Expires&#39;] = expiration
+        query_params[&#39;X-Goog-SignedHeaders&#39;] = signed_headers
+
+        ordered_query_params = collections.OrderedDict(
+            sorted(query_params.items()))
+
+        canonical_query_str = &#39;&amp;&#39;.join(
+            f&#39;{quote(str(k), safe=&#34;&#34;)}={quote(str(v), safe=&#34;&#34;)}&#39;
+            for k, v in ordered_query_params.items())
+
+        canonical_req = &#39;\n&#39;.join([http_method, canonical_uri,
+                                   canonical_query_str, canonical_headers,
+                                   signed_headers, &#39;UNSIGNED-PAYLOAD&#39;])
+        canonical_req_hash = hashlib.sha256(canonical_req.encode()).hexdigest()
+
+        str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
+                                 credential_scope, canonical_req_hash])
+        signed_resp = await iam_client.sign_blob(
+            str_to_sign, service_account_email=service_account_email,
+            session=session)
+
+        signature = binascii.hexlify(
+            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+
+        return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
+                f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.aio.storage.blob.Blob"><code class="flex name class">
+<span>class <span class="ident">Blob</span></span>
+<span>(</span><span>bucket, name: str, metadata: dict)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Blob:
+    def __init__(self, bucket, name: str, metadata: dict) -&gt; None:
+        self.__dict__.update(**metadata)
+
+        self.bucket = bucket
+        self.name = name
+        self.size: int = int(self.size)
+
+    @property
+    def chunk_size(self) -&gt; int:
+        return self.size + (262144 - (self.size % 262144))
+
+    async def download(self, session: Optional[Session] = None) -&gt; Any:
+        return await self.bucket.storage.download(self.bucket.name, self.name,
+                                                  session=session)
+
+    async def upload(self, data: Any,
+                     session: Optional[Session] = None) -&gt; dict:
+        metadata: dict = await self.bucket.storage.upload(
+            self.bucket.name, self.name, data, session=session)
+
+        self.__dict__.update(metadata)
+        return metadata
+
+    async def get_signed_url(  # pylint: disable=too-many-locals
+            self, expiration: int, headers: Optional[dict] = None,
+            query_params: Optional[dict] = None, http_method: str = &#39;GET&#39;,
+            iam_client: Optional[IamClient] = None,
+            service_account_email: Optional[str] = None,
+            service_file: Optional[Union[str, io.IOBase]] = None,
+            token: Optional[Token] = None,
+            session: Optional[Session] = None) -&gt; str:
+        &#34;&#34;&#34;
+        Create a temporary access URL for Storage Blob accessible by anyone
+        with the link.
+
+        Adapted from Google Documentation:
+        https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+        &#34;&#34;&#34;
+        if expiration &gt; 604800:
+            raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
+                             &#39;seconds (7 days)&#39;)
+
+        iam_client = iam_client or IamClient(service_file=service_file,
+                                             token=token, session=session)
+
+        quoted_name = quote(self.name, safe=&#39;&#39;)
+        canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+
+        datetime_now = datetime.datetime.utcnow()
+        request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
+        datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
+
+        service_account_email = (service_account_email or
+                                 iam_client.service_account_email)
+        credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
+        credential = f&#39;{service_account_email}/{credential_scope}&#39;
+
+        headers = headers or {}
+        headers[&#39;host&#39;] = HOST
+
+        ordered_headers = collections.OrderedDict(sorted(headers.items()))
+        canonical_headers = &#39;&#39;.join(
+            f&#39;{str(k).lower()}:{str(v).lower()}\n&#39;
+            for k, v in ordered_headers.items())
+
+        signed_headers = &#39;;&#39;.join(
+            f&#39;{str(k).lower()}&#39; for k in ordered_headers.keys())
+
+        query_params = query_params or {}
+        query_params[&#39;X-Goog-Algorithm&#39;] = &#39;GOOG4-RSA-SHA256&#39;
+        query_params[&#39;X-Goog-Credential&#39;] = credential
+        query_params[&#39;X-Goog-Date&#39;] = request_timestamp
+        query_params[&#39;X-Goog-Expires&#39;] = expiration
+        query_params[&#39;X-Goog-SignedHeaders&#39;] = signed_headers
+
+        ordered_query_params = collections.OrderedDict(
+            sorted(query_params.items()))
+
+        canonical_query_str = &#39;&amp;&#39;.join(
+            f&#39;{quote(str(k), safe=&#34;&#34;)}={quote(str(v), safe=&#34;&#34;)}&#39;
+            for k, v in ordered_query_params.items())
+
+        canonical_req = &#39;\n&#39;.join([http_method, canonical_uri,
+                                   canonical_query_str, canonical_headers,
+                                   signed_headers, &#39;UNSIGNED-PAYLOAD&#39;])
+        canonical_req_hash = hashlib.sha256(canonical_req.encode()).hexdigest()
+
+        str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
+                                 credential_scope, canonical_req_hash])
+        signed_resp = await iam_client.sign_blob(
+            str_to_sign, service_account_email=service_account_email,
+            session=session)
+
+        signature = binascii.hexlify(
+            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+
+        return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
+                f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gcloud.aio.storage.blob.Blob.chunk_size"><code class="name">var <span class="ident">chunk_size</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def chunk_size(self) -&gt; int:
+    return self.size + (262144 - (self.size % 262144))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.storage.blob.Blob.download"><code class="name flex">
+<span>async def <span class="ident">download</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> Any</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def download(self, session: Optional[Session] = None) -&gt; Any:
+    return await self.bucket.storage.download(self.bucket.name, self.name,
+                                              session=session)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.blob.Blob.get_signed_url"><code class="name flex">
+<span>async def <span class="ident">get_signed_url</span></span>(<span>self, expiration: int, headers: Union[dict, NoneType] = None, query_params: Union[dict, NoneType] = None, http_method: str = 'GET', iam_client: Union[gcloud.aio.auth.iam.IamClient, NoneType] = None, service_account_email: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, token: Union[gcloud.aio.auth.token.Token, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a temporary access URL for Storage Blob accessible by anyone
+with the link.</p>
+<p>Adapted from Google Documentation:
+<a href="https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample">https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def get_signed_url(  # pylint: disable=too-many-locals
+        self, expiration: int, headers: Optional[dict] = None,
+        query_params: Optional[dict] = None, http_method: str = &#39;GET&#39;,
+        iam_client: Optional[IamClient] = None,
+        service_account_email: Optional[str] = None,
+        service_file: Optional[Union[str, io.IOBase]] = None,
+        token: Optional[Token] = None,
+        session: Optional[Session] = None) -&gt; str:
+    &#34;&#34;&#34;
+    Create a temporary access URL for Storage Blob accessible by anyone
+    with the link.
+
+    Adapted from Google Documentation:
+    https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+    &#34;&#34;&#34;
+    if expiration &gt; 604800:
+        raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
+                         &#39;seconds (7 days)&#39;)
+
+    iam_client = iam_client or IamClient(service_file=service_file,
+                                         token=token, session=session)
+
+    quoted_name = quote(self.name, safe=&#39;&#39;)
+    canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+
+    datetime_now = datetime.datetime.utcnow()
+    request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
+    datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
+
+    service_account_email = (service_account_email or
+                             iam_client.service_account_email)
+    credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
+    credential = f&#39;{service_account_email}/{credential_scope}&#39;
+
+    headers = headers or {}
+    headers[&#39;host&#39;] = HOST
+
+    ordered_headers = collections.OrderedDict(sorted(headers.items()))
+    canonical_headers = &#39;&#39;.join(
+        f&#39;{str(k).lower()}:{str(v).lower()}\n&#39;
+        for k, v in ordered_headers.items())
+
+    signed_headers = &#39;;&#39;.join(
+        f&#39;{str(k).lower()}&#39; for k in ordered_headers.keys())
+
+    query_params = query_params or {}
+    query_params[&#39;X-Goog-Algorithm&#39;] = &#39;GOOG4-RSA-SHA256&#39;
+    query_params[&#39;X-Goog-Credential&#39;] = credential
+    query_params[&#39;X-Goog-Date&#39;] = request_timestamp
+    query_params[&#39;X-Goog-Expires&#39;] = expiration
+    query_params[&#39;X-Goog-SignedHeaders&#39;] = signed_headers
+
+    ordered_query_params = collections.OrderedDict(
+        sorted(query_params.items()))
+
+    canonical_query_str = &#39;&amp;&#39;.join(
+        f&#39;{quote(str(k), safe=&#34;&#34;)}={quote(str(v), safe=&#34;&#34;)}&#39;
+        for k, v in ordered_query_params.items())
+
+    canonical_req = &#39;\n&#39;.join([http_method, canonical_uri,
+                               canonical_query_str, canonical_headers,
+                               signed_headers, &#39;UNSIGNED-PAYLOAD&#39;])
+    canonical_req_hash = hashlib.sha256(canonical_req.encode()).hexdigest()
+
+    str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
+                             credential_scope, canonical_req_hash])
+    signed_resp = await iam_client.sign_blob(
+        str_to_sign, service_account_email=service_account_email,
+        session=session)
+
+    signature = binascii.hexlify(
+        decode(signed_resp[&#39;signedBlob&#39;])).decode()
+
+    return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
+            f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.storage.blob.Blob.upload"><code class="name flex">
+<span>async def <span class="ident">upload</span></span>(<span>self, data: Any, session: Union[aiohttp.client.ClientSession, NoneType] = None) -> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def upload(self, data: Any,
+                 session: Optional[Session] = None) -&gt; dict:
+    metadata: dict = await self.bucket.storage.upload(
+        self.bucket.name, self.name, data, session=session)
+
+    self.__dict__.update(metadata)
+    return metadata</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.aio.storage" href="index.html">gcloud.aio.storage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.aio.storage.blob.Blob" href="#gcloud.aio.storage.blob.Blob">Blob</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.storage.blob.Blob.chunk_size" href="#gcloud.aio.storage.blob.Blob.chunk_size">chunk_size</a></code></li>
+<li><code><a title="gcloud.aio.storage.blob.Blob.download" href="#gcloud.aio.storage.blob.Blob.download">download</a></code></li>
+<li><code><a title="gcloud.aio.storage.blob.Blob.get_signed_url" href="#gcloud.aio.storage.blob.Blob.get_signed_url">get_signed_url</a></code></li>
+<li><code><a title="gcloud.aio.storage.blob.Blob.upload" href="#gcloud.aio.storage.blob.Blob.upload">upload</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
