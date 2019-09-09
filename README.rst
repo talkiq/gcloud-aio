@@ -4,7 +4,7 @@ Asyncio Google Cloud Client Library for Python
 This project is a collection of Google Cloud client libraries which have been
 built to work with Python's asyncio.
 
-|circleci| |coverage| |pythons|
+|circleci| |pythons|
 
 The following clients are available:
 
