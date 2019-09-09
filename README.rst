@@ -63,10 +63,6 @@ Installation
     :alt: CircleCI Test Status
     :target: https://circleci.com/gh/talkiq/gcloud-aio/tree/master
 
-.. |coverage| image:: https://img.shields.io/codecov/c/github/talkiq/gcloud-aio/master.svg?style=flat-square
-    :alt: Code Coverage
-    :target: https://codecov.io/gh/talkiq/gcloud-aio
-
 .. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square
     :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-auth/
