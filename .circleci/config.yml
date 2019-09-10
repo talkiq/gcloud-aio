@@ -129,7 +129,7 @@ jobs:
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
       - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7\.15'/g"
-      - run: echo "BUILD_GCLOUD_REST = True" > 'auth/gcloud/aio/auth/build_constants.py'
+      - run: echo "BUILD_GCLOUD_REST = True" > 'auth/gcloud/rest/auth/build_constants.py'
 
       # Backport other things like type hints, exception handling, etc.
       - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
