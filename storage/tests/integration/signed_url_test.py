@@ -7,7 +7,7 @@ from gcloud.aio.storage import Bucket
 from gcloud.aio.storage import Storage
 
 # Selectively load libraries based on the package
-# TODO: Can we somehow just pick up the pacakge name instead of this
+
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:

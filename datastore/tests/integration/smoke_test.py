@@ -16,7 +16,7 @@ from gcloud.aio.datastore import Value
 from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
-# TODO: Can we somehow just pick up the pacakge name instead of this
+
 if BUILD_GCLOUD_REST:
     from requests import Session
     from time import sleep
