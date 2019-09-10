@@ -18,7 +18,7 @@ try:
 except ImportError:
     # from urllib import urlencode
     # from urllib import pathname2url as quote_plus
-    from six.moves.urllib.parse import quote
+    from urllib import quote
 
 # Selectively load libraries based on the package
 # TODO: Can we somehow just pick up the pacakge name instead of this
