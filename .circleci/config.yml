@@ -36,6 +36,21 @@ jobs:
       - checkout
       - run: nox -f <<parameters.folder>>/noxfile.py
 
+  nox-rest:
+    docker:
+      - image: thekevjames/nox:2019.5.30
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    parameters:
+      folder:
+        type: string
+    steps:
+      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - attach_workspace:
+          at: rest
+      - run: pip install future
+      - run: nox -f rest/<<parameters.folder>>/noxfile.rest.py
+
   pypi:
     docker:
       - image: python:3.7.4-slim
@@ -135,21 +150,6 @@ jobs:
           root: .
           paths:
           - ./*
-  nox-rest:
-    docker:
-      - image: thekevjames/nox:2019.5.30
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /key.json
-    parameters:
-      folder:
-        type: string
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
-      - attach_workspace:
-          at: rest
-      - run: pip install future
-      - run: nox -f rest/<<parameters.folder>>/noxfile.rest.py
-
 
 workflows:
   run-jobs:

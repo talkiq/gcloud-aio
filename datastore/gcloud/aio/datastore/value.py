@@ -48,8 +48,9 @@ class Value:  # pylint:disable=useless-object-inheritance
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                '{} does not contain a supported value type'
-                ' (any of: {})'.format(data.keys(), supported))
+                '{vals} does not contain a supported value type'
+                ' (any of: {supported})'.format(vals=data.keys(),
+                                                supported=supported))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -72,8 +73,7 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     def _infer_type(self, value: Any) -> TypeName:
         # Compatibility for python2
-        kind = (type(str('')) if 'unicode' in value.__class__.__name__
-                else type(value))
+        kind = str if 'unicode' in value.__class__.__name__ else type(value)
         supported_types = self._get_supported_types()
 
         try:

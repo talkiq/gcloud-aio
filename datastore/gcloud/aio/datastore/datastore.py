@@ -22,8 +22,6 @@ from gcloud.aio.datastore.value import Value
 try:
     import ujson as json
 except ImportError:
-     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
-     # compatibility
     import json  # type: ignore
 
 # Selectively load libraries based on the package
@@ -141,8 +139,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
         data = await resp.json()
@@ -161,8 +157,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, headers=headers, timeout=timeout)
         data = await resp.json()
@@ -190,8 +184,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
@@ -220,8 +212,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
@@ -240,8 +230,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         data: dict = await resp.json()
@@ -271,8 +259,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
@@ -305,8 +291,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
@@ -327,8 +311,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
@@ -359,8 +341,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 

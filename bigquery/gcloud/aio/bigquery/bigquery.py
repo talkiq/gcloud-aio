@@ -13,8 +13,6 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 try:
     import ujson as json
 except ImportError:
-     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
-     # compatibility
     import json  # type: ignore
 
 # Selectively load libraries based on the package
@@ -85,7 +83,7 @@ class Table:
         the rows failed to get inserted.
         """
         if not rows:
-            return None
+            return {}
 
         project = await self.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
@@ -101,8 +99,6 @@ class Table:
             'Content-Type': 'application/json'
         })
 
-        if not self.session:
-            self.session = RestSession(conn_timeout=10, read_timeout=10)
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)

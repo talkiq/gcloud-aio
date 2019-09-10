@@ -16,8 +16,6 @@ from gcloud.aio.storage.bucket import Bucket
 try:
     import ujson as json
 except ImportError:
-     # HACK: Using `ImportError` instead of `ModuleNotFoundError` for python2
-     # compatibility
     import json  # type: ignore
 
 # Handle library differences in python2 and python3
@@ -78,8 +76,6 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
                               timeout=timeout)
@@ -114,8 +110,6 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
@@ -228,8 +222,6 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
@@ -255,8 +247,6 @@ class Storage:
             'Accept': 'application/json',
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
@@ -294,8 +284,6 @@ class Storage:
             'X-Upload-Content-Length': headers['Content-Length']
         })
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
                             data=metadata, timeout=10)
@@ -306,8 +294,6 @@ class Storage:
                          headers: dict, *, retries: int = 5,
                          session: Optional[Session] = None,
                          timeout: int = 30) -> dict:
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
 
         for tries in range(retries):

@@ -11,7 +11,6 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        # Modified the test because python2's bytes are strings
         ('stringValue' if sys.version_info[0] < 3 else 'blobValue', b'foobar'),
         ('booleanValue', True),
         ('doubleValue', 34.48),

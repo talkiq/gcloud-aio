@@ -52,8 +52,6 @@ class KMS:
             'ciphertext': ciphertext,
         }
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
 
@@ -68,8 +66,6 @@ class KMS:
             'plaintext': plaintext,
         }
 
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
 

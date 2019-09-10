@@ -16,8 +16,6 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 try:
     from urllib.parse import quote
 except ImportError:
-    # from urllib import urlencode
-    # from urllib import pathname2url as quote_plus
     from urllib import quote
 
 # Selectively load libraries based on the package

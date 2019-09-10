@@ -53,8 +53,6 @@ class PushQueue:
     async def _request(self, method: str, url: str,
                        session: Optional[Session] = None,
                        **kwargs: Any) -> Any:
-        if not self.session:
-            self.session = RestSession()
         s = RestSession(session) if session else self.session
         headers = await self.headers()
 
