@@ -115,11 +115,11 @@ jobs:
 
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
-      - run: for file in $(find . -type f -path '*aio*'); do cp -r $file $(echo "$file" | sed 's/aio/rest/g'); done
+      - run: for file in $(find . -type f -path '*aio*'); do cp -r $file ${file//aio/rest}; done
       # For some files with conflicts due to unicode encoding in py2, do not use
       # the automated string conversion tools
-      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
-      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=$(echo "$file" | sed 's/aio/rest/g'); temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
 
       # Remove the files with `aio` in file names (we copied all required files
       # already)
