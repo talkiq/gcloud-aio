@@ -81,7 +81,7 @@ class Storage:
 
         try:
             data: str = await resp.text()
-        except AttributeError:
+        except (AttributeError, TypeError):
             data: str = resp.read
 
         return data
@@ -229,7 +229,7 @@ class Storage:
         # bytes object.
         try:
             data: bytes = await response.read()
-        except AttributeError:
+        except (AttributeError, TypeError):
             data: bytes = response.content
 
         return data
