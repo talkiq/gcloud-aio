@@ -23,10 +23,10 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, session: Session,
+    def __init__(self, session: Optional[Session],
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = AioSession(session)
+        self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 

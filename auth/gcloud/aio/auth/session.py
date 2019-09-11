@@ -6,8 +6,6 @@ from io import IOBase
 from typing import Any
 from typing import Dict
 
-import requests
-
 from .build_constants import BUILD_GCLOUD_REST
 
 class BaseSession():
@@ -104,54 +102,60 @@ if not BUILD_GCLOUD_REST:
             resp.raise_for_status()
             return resp
 
-class SyncSession(BaseSession):
-    google_api_lock = threading.RLock()
+if BUILD_GCLOUD_REST:
+    import requests
 
-    @property
-    def session(self) -> requests.Session:
-        self._session = self._session or requests.Session()
-        return self._session
+    class SyncSession(BaseSession):
+        google_api_lock = threading.RLock()
 
-    @session.setter
-    def session(self, session: requests.Session):
-        self._session = session
+        @property
+        def session(self) -> requests.Session:
+            self._session = self._session or requests.Session()
+            return self._session
 
-    def post(self, url: str, headers: Dict[str, str], data: str = None,
-             timeout: int = 10, params: Dict[str, str] = None
-             ) -> requests.Response:
-        with self.google_api_lock:
-            resp = self.session.post(url, data=data, headers=headers,
-                                     timeout=timeout, params=params)
-        resp.raise_for_status()
-        return resp
+        @session.setter
+        def session(self, session: requests.Session):
+            self._session = session
 
-    def get(self, url: str, headers: Dict[str, str] = None, timeout: int = 10,
-            params: Dict[str, str] = None) -> requests.Response:
-        with self.google_api_lock:
-            resp = self.session.get(url, headers=headers, timeout=timeout,
-                                    params=params)
-        resp.raise_for_status()
-        return resp
+        def post(self, url: str, headers: Dict[str, str], data: str = None,
+                 timeout: int = 10, params: Dict[str, str] = None
+                 ) -> requests.Response:
+            with self.google_api_lock:
+                resp = self.session.post(url, data=data, headers=headers,
+                                         timeout=timeout, params=params)
+            resp.raise_for_status()
+            return resp
 
-    def put(self, url: str, headers: Dict[str, str], data: IOBase,
-            timeout: int = 10) -> requests.Response:
-        with self.google_api_lock:
-            resp = self.session.put(url, data=data, headers=headers,
-                                    timeout=timeout)
-        resp.raise_for_status()
-        return resp
+        def get(self, url: str, headers: Dict[str, str] = None,
+                timeout: int = 10, params: Dict[str, str] = None
+                ) -> requests.Response:
+            with self.google_api_lock:
+                resp = self.session.get(url, headers=headers, timeout=timeout,
+                                        params=params)
+            resp.raise_for_status()
+            return resp
 
-    def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
-               timeout: int = 10) -> requests.Response:
-        with self.google_api_lock:
-            resp = self.session.delete(url, params=params, headers=headers,
-                                       timeout=timeout)
-        resp.raise_for_status()
-        return resp
+        def put(self, url: str, headers: Dict[str, str], data: IOBase,
+                timeout: int = 10) -> requests.Response:
+            with self.google_api_lock:
+                resp = self.session.put(url, data=data, headers=headers,
+                                        timeout=timeout)
+            resp.raise_for_status()
+            return resp
 
-    def request(self, method: str, url: str, headers: Dict[str, str],
-                **kwargs: Any) -> requests.Response:
-        with self.google_api_lock:
-            resp = self.session.request(method, url, headers=headers, **kwargs)
-        resp.raise_for_status()
-        return resp
+        def delete(self, url: str, headers: Dict[str, str],
+                   params: Dict[str, str], timeout: int = 10
+                   ) -> requests.Response:
+            with self.google_api_lock:
+                resp = self.session.delete(url, params=params, headers=headers,
+                                           timeout=timeout)
+            resp.raise_for_status()
+            return resp
+
+        def request(self, method: str, url: str, headers: Dict[str, str],
+                    **kwargs: Any) -> requests.Response:
+            with self.google_api_lock:
+                resp = self.session.request(method, url, headers=headers,
+                                            **kwargs)
+            resp.raise_for_status()
+            return resp
