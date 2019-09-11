@@ -19,7 +19,6 @@ except ImportError:
     from urllib import quote
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:

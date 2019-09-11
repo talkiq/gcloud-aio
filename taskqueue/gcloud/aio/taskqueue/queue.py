@@ -14,7 +14,6 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-modu
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:

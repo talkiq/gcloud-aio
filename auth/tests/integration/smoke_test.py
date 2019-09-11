@@ -11,7 +11,6 @@ from gcloud.aio.auth import IamClient
 from gcloud.aio.auth import Token
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:

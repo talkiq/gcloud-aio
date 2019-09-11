@@ -25,7 +25,6 @@ except ImportError:
     import json  # type: ignore
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
