@@ -8,6 +8,7 @@ LOCAL_DEPS = ('../auth/', )
 
 @nox.session(python=['2.7', '3.5', '3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
+    session.install('future')
     session.install('pytest', 'pytest-cov', 'future')
     session.install('-e', *LOCAL_DEPS)
     session.install('-e', '.')
@@ -19,6 +20,7 @@ def unit_tests(session):
 
 @nox.session(python=['2.7', '3.7'], reuse_venv=True)
 def integration_tests(session):
+    session.install('future')
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'):
         session.skip('Credentials must be set via environment variable.')
 
@@ -33,6 +35,7 @@ def integration_tests(session):
 
 @nox.session(python=['2.7', '3.7'], reuse_venv=True)
 def lint_setup_py(session):
+    session.install('future')
     session.install('docutils', 'Pygments', 'future')
     session.run('python', 'setup.py', 'check', '--restructuredtext',
                 '--strict')
@@ -40,6 +43,7 @@ def lint_setup_py(session):
 
 @nox.session(python=['3.7'], reuse_venv=True)
 def cover(session):
+    session.install('future')
     session.install('coverage', 'pytest-cov', 'future')
 
     session.run('coverage', 'report', '--show-missing')
