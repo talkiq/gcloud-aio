@@ -32,10 +32,10 @@ async def test_gcs_signed_url(bucket_name, creds, data):
 
         resp = await session.get(signed_url)
 
-        if BUILD_GCLOUD_REST:
-            downloaded_data: str = str(resp.text)
-        else:
+        try:
             downloaded_data: str = await resp.text()
+        except (AttributeError, TypeError):
+            downloaded_data: str = str(resp.text)
 
         try:
             assert data == downloaded_data

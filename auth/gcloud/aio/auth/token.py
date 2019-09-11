@@ -112,8 +112,7 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        if not os.environ.get('BUILD_GCLOUD_REST'):
-            self.acquiring: Optional[asyncio.Future] = None
+        self.acquiring: Optional[asyncio.Future] = None
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -126,10 +125,11 @@ class Token:
                                           headers=GCE_METADATA_HEADERS)
 
             if not project:
-                if BUILD_GCLOUD_REST:
-                    project = str(resp.text)
-                else:
+                try:
                     project = await resp.text()
+                except (AttributeError, TypeError):
+                    project = str(resp.text)
+
         elif self.token_type == Type.SERVICE_ACCOUNT:
             project = project or self.service_data.get('project_id')
 
@@ -140,11 +140,6 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if BUILD_GCLOUD_REST:
-            if not self.access_token:
-                self.acquire_access_token()
-            return
-
         if self.acquiring:
             await self.acquiring
             return
