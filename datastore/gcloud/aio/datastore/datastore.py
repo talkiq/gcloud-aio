@@ -7,7 +7,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore.constants import Consistency
@@ -58,7 +58,7 @@ class Datastore:
                  namespace: str = '', session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.namespace = namespace
-        self.session = RestSession(session) if session else RestSession()
+        self.session = AioSession(session) if session else AioSession()
 
         if IS_DEV:
             self._project = os.environ.get('DATASTORE_PROJECT_ID', 'dev')
@@ -139,7 +139,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
         data = await resp.json()
 
@@ -157,7 +157,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, timeout=timeout)
         data = await resp.json()
 
@@ -184,7 +184,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
@@ -212,7 +212,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
         data: dict = await resp.json()
@@ -230,7 +230,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         data: dict = await resp.json()
 
@@ -259,7 +259,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
         data: dict = await resp.json()
@@ -291,7 +291,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
@@ -311,7 +311,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
@@ -341,7 +341,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
         data: dict = await resp.json()

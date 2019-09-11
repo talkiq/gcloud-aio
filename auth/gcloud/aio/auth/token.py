@@ -19,7 +19,7 @@ import cryptography  # pylint: disable=unused-import
 import jwt
 
 from .build_constants import BUILD_GCLOUD_REST
-from .session import AioSession as RestSession
+from .session import AioSession
 # N.B. the cryptography library is required when calling jwt.encrypt() with
 # algorithm='RS256'. It does not need to be imported here, but this allows us
 # to throw this error at load time rather than lazily during normal operations,
@@ -103,7 +103,7 @@ class Token:
             self.token_type = Type.GCE_METADATA
             self.token_uri = GCE_ENDPOINT_TOKEN
 
-        self.session = RestSession(session) if session else RestSession()
+        self.session = AioSession(session) if session else AioSession()
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
             raise Exception('scopes must be provided when token type is '

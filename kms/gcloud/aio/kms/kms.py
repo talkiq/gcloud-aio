@@ -6,7 +6,7 @@ from typing import Dict
 from typing import Optional
 from typing import Union
 
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
@@ -33,7 +33,7 @@ class KMS:
                          f'locations/{location}/keyRings/{keyring}/'
                          f'cryptoKeys/{keyname}')
 
-        self.session = RestSession(session) if session else RestSession()
+        self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=session)
 
@@ -52,7 +52,7 @@ class KMS:
             'ciphertext': ciphertext,
         }
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
 
         plaintext: str = (await resp.json())['plaintext']
@@ -66,7 +66,7 @@ class KMS:
             'plaintext': plaintext,
         }
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=await self.headers(), json=body)
 
         ciphertext: str = (await resp.json())['ciphertext']

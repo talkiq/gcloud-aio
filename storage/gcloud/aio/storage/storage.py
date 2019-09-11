@@ -8,7 +8,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
@@ -58,7 +58,7 @@ class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
-        self.session = RestSession(session) if session else RestSession()
+        self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 
@@ -76,14 +76,14 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
                               timeout=timeout)
 
-        if BUILD_GCLOUD_REST:
-            data: str = str(resp.text)
-        else:
+        try:
             data: str = await resp.text()
+        except AttributeError:
+            data: str = resp.read
 
         return data
 
@@ -110,7 +110,7 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
         data: dict = await resp.json()
@@ -222,16 +222,16 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
-        if BUILD_GCLOUD_REST:
-            data: bytes = response.content
-        else:
+        try:
             data: bytes = await response.read()
+        except AttributeError:
+            data: bytes = response.content
 
         return data
 
@@ -247,7 +247,7 @@ class Storage:
             'Accept': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
         data: dict = await resp.json()
@@ -284,7 +284,7 @@ class Storage:
             'X-Upload-Content-Length': headers['Content-Length']
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
                             data=metadata, timeout=10)
         session_uri: str = resp.headers['Location']
@@ -294,7 +294,7 @@ class Storage:
                          headers: dict, *, retries: int = 5,
                          session: Optional[Session] = None,
                          timeout: int = 30) -> dict:
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
 
         for tries in range(retries):
             try:

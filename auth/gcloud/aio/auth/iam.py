@@ -6,7 +6,7 @@ from typing import Optional
 from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
-from .session import AioSession as RestSession
+from .session import AioSession
 from .token import Token
 from .token import Type
 from .utils import encode
@@ -27,7 +27,7 @@ class IamClient:
     def __init__(self, session: Session,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = RestSession(session)
+        self.session = AioSession(session)
         self.token = token or Token(service_file=service_file,
                                     session=session, scopes=SCOPES)
 
@@ -67,7 +67,7 @@ class IamClient:
         url = f'{API_ROOT_IAM}/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
@@ -88,7 +88,7 @@ class IamClient:
 
         headers = await self.headers()
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
@@ -120,7 +120,7 @@ class IamClient:
             'Content-Type': 'application/json',
         })
 
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
 
         resp = await s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)

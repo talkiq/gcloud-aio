@@ -9,7 +9,7 @@ from typing import Optional
 from typing import Union
 
 import backoff
-from gcloud.aio.auth import AioSession as RestSession  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
@@ -38,7 +38,7 @@ class PushQueue:
         self.base_api_root = f'{API_ROOT}/v2beta3'
         self.api_root = (f'{self.base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
-        self.session = RestSession(session) if session else RestSession()
+        self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=session)
 
@@ -53,7 +53,7 @@ class PushQueue:
     async def _request(self, method: str, url: str,
                        session: Optional[Session] = None,
                        **kwargs: Any) -> Any:
-        s = RestSession(session) if session else self.session
+        s = AioSession(session) if session else self.session
         headers = await self.headers()
 
         resp = await s.request(method, url, headers=headers, **kwargs)
