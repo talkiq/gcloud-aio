@@ -146,6 +146,11 @@ jobs:
       - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/urllib.parse/six.moves.urllib.parse/g'
 
+      # Update the nox files
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei 's/pytest-asyncio/future/g'
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/\['3.6', '3.7'\]/\['2.7', '3.5', '3.6', '3.7']/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/\['3.7'\]/\['2.7', '3.7']/g"
+
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
           root: .
@@ -226,7 +231,7 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-      - nox-rest:
+      - nox:
           name: test-rest-auth
           folder: auth
           filters:
@@ -236,7 +241,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox-rest:
+      - nox:
           name: test-rest-bigquery
           folder: bigquery
           filters:
@@ -246,7 +251,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox-rest:
+      - nox:
           name: test-rest-datastore
           folder: datastore
           filters:
@@ -256,7 +261,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox-rest:
+      - nox:
           name: test-rest-kms
           folder: kms
           filters:
@@ -266,7 +271,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox-rest:
+      - nox:
           name: test-rest-storage
           folder: storage
           filters:
@@ -276,7 +281,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox-rest:
+      - nox:
           name: test-rest-taskqueue
           folder: taskqueue
           filters:
