@@ -49,7 +49,7 @@ jobs:
       - attach_workspace:
           at: rest
       - run: pip install future
-      - run: nox -f rest/<<parameters.folder>>/noxfile.rest.py
+      - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
   pypi:
     docker:
@@ -231,7 +231,7 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-      - nox:
+      - nox-rest:
           name: test-rest-auth
           folder: auth
           filters:
@@ -241,7 +241,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox:
+      - nox-rest:
           name: test-rest-bigquery
           folder: bigquery
           filters:
@@ -251,7 +251,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox:
+      - nox-rest:
           name: test-rest-datastore
           folder: datastore
           filters:
@@ -261,7 +261,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox:
+      - nox-rest:
           name: test-rest-kms
           folder: kms
           filters:
@@ -271,7 +271,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox:
+      - nox-rest:
           name: test-rest-storage
           folder: storage
           filters:
@@ -281,7 +281,7 @@ workflows:
             - linter/pre-commit
             - build-rest
             - lint-rest
-      - nox:
+      - nox-rest:
           name: test-rest-taskqueue
           folder: taskqueue
           filters:
