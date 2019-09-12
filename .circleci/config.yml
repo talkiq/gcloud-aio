@@ -114,7 +114,7 @@ jobs:
       - run: rm -r ./pubsub
 
       # Remove caches and config directories
-      - run: find . -exec dirname {} \; | sort -u | grep -E '/\..*/' | xargs -L1 rm -r
+      - run: find . -exec dirname {} \; | sort -u | grep -E '/\..*/' | xargs -L1 rm -rf
 
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
