@@ -48,14 +48,14 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: rest
-      - run: pip install future
+      - run: pip install future==0.17.1
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
   pypi:
     docker:
       - image: python:3.7.4-slim
     steps:
-      - run: pip install pyopenssl twine
+      - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - deploy:
           name: upload to pypi
           command: |
@@ -67,7 +67,7 @@ jobs:
     docker:
       - image: python:3.7.4-slim
     steps:
-      - run: pip install pyopenssl twine
+      - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
           at: rest
       - deploy:
@@ -108,7 +108,7 @@ jobs:
     steps:
       - checkout
       # Install some requirements
-      - run: pip install pytest future strip-hints future-fstrings[rewrite]
+      - run: pip install pytest==2.3.1 future==0.17.1 strip-hints==0.1.7 future-fstrings[rewrite]==1.2.0
 
       # Remove pubsub
       - run: rm -r ./pubsub
