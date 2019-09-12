@@ -21,10 +21,6 @@ class BaseSession:
     def session(self):
         return self._session
 
-    @session.setter
-    def session(self, session):
-        self._session = session
-
     @abstractmethod
     def post(self, url: str, headers: Dict[str, str], data: str, timeout: int,
              params: Dict[str, str]):
