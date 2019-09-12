@@ -124,7 +124,7 @@ class Storage:
         if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
             # HACK: `requests` library does not accept `str` as `data` in `put`
             # HTTP request.
-            return io.BytesIO(stream.getvalue().encode('utf-8'))
+            stream = io.BytesIO(stream.getvalue().encode('utf-8'))
 
         content_length = self._get_stream_len(stream)
 
