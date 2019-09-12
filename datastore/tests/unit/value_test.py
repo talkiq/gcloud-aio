@@ -11,16 +11,25 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        ('stringValue' if sys.version_info[0] < 3 else 'blobValue', b'foobar'),
+        ('blobValue', b'foobar'),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        ('stringValue' if sys.version_info[0] < 3 else 'blobValue', b''),
+        ('blobValue', b''),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
         ('stringValue', ''),
+        # pytest.mark.xfail(
+        #     reason='python2 has different types for bytes and string')(
+        #         ('blobValue', b'foobar'),
+        #         ('blobValue', b''),
+        #     ),
+        pytest.mark.skipif(sys.version_info[0] < 3)(
+            ('blobValue', b'foobar'),
+            ('blobValue', b''),
+            ),
     ])
     def test_from_repr(json_key, json_value):
         data = {
