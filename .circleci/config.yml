@@ -112,6 +112,7 @@ jobs:
 
       # Remove pubsub
       - run: rm -r ./pubsub
+      - run: find . -path '*aio*' -exec dirname {} \; | grep -E '/\..*/' | xargs -L1 rm -r
 
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
