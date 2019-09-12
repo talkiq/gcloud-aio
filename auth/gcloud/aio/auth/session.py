@@ -59,10 +59,6 @@ if not BUILD_GCLOUD_REST:
                 conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
             return self._session
 
-        @session.setter
-        def session(self, session: aiohttp.ClientSession):
-            self._session = session
-
         async def post(self, url: str, headers: Dict[str, str],
                        data: str = None, timeout: int = 10,
                        params: Dict[str, str] = None
@@ -112,10 +108,6 @@ if BUILD_GCLOUD_REST:
         def session(self) -> requests.Session:
             self._session = self._session or requests.Session()
             return self._session
-
-        @session.setter
-        def session(self, session: requests.Session):
-            self._session = session
 
         def post(self, url: str, headers: Dict[str, str], data: str = None,
                  timeout: int = 10, params: Dict[str, str] = None
