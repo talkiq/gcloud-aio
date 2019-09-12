@@ -6,17 +6,12 @@ import io
 from typing import Any
 from typing import Optional
 from typing import Union
+from urllib.parse import quote
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-
-# Handle library differences in python2 and python3
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:

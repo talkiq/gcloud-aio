@@ -7,6 +7,7 @@ from typing import Any
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from urllib.parse import quote
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -17,14 +18,6 @@ try:
     import ujson as json
 except ImportError:
     import json  # type: ignore
-
-# Handle library differences in python2 and python3
-try:
-    from urllib.parse import quote
-except ImportError:
-    # from urllib import urlencode
-    # from urllib import pathname2url as quote_plus
-    from six.moves.urllib.parse import quote
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
