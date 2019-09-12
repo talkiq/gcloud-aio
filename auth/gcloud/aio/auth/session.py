@@ -8,7 +8,7 @@ from typing import Dict
 
 from .build_constants import BUILD_GCLOUD_REST
 
-class BaseSession():
+class BaseSession:
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout: int = 10,
