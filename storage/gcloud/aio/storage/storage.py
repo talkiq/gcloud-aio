@@ -51,8 +51,8 @@ class Storage:
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
         self.session = AioSession(session) if session else AioSession()
-        self.token = token or Token(service_file=service_file,
-                                    session=session, scopes=SCOPES)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)

@@ -38,8 +38,8 @@ class Table:
         self.table_name = table_name
 
         self.session = AioSession(session) if session else AioSession()
-        self.token = token or Token(service_file=service_file, session=session,
-                                    scopes=SCOPES)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
 
     async def project(self) -> str:
         if self._project:

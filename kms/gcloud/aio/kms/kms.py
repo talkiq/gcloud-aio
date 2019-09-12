@@ -34,7 +34,7 @@ class KMS:
 
         self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=session)
+                                    session=self.session.session)
 
     async def headers(self) -> Dict[str, str]:
         token = await self.token.get()

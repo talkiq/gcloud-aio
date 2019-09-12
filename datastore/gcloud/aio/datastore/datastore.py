@@ -66,7 +66,8 @@ class Datastore:
         else:
             self._project = project
             self.token = token or Token(service_file=service_file,
-                                        session=session, scopes=SCOPES)
+                                        session=self.session.session,
+                                        scopes=SCOPES)
 
     async def project(self) -> str:
         if self._project:

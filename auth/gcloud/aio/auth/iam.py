@@ -28,7 +28,7 @@ class IamClient:
                  token: Optional[Token] = None) -> None:
         self.session = AioSession(session) if session else AioSession()
         self.token = token or Token(service_file=service_file,
-                                    session=session, scopes=SCOPES)
+                                    session=self.session.session, scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
