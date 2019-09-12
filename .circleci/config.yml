@@ -147,7 +147,7 @@ jobs:
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/urllib.parse/six.moves.urllib.parse/g'
 
       # Update the nox files
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei 's/'aiohttp',//g'
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'3.6'/'3.5', '3.6'/g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'3.7'/'2.7', '3.7'/g"
