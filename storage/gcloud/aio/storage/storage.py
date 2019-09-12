@@ -175,6 +175,10 @@ class Storage:
         if isinstance(data, bytes):
             return io.BytesIO(data)
         if isinstance(data, str):
+            if BUILD_GCLOUD_REST:
+                # HACK: `requests` library does not accept `str` as `data` in
+                # `put` HTTP request.
+                return io.BytesIO(data.encode('utf-8'))
             return io.StringIO(data)
         if isinstance(data, io.IOBase):
             return data
