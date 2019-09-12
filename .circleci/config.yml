@@ -126,8 +126,7 @@ jobs:
       - run: find . -type f -path '*aio*' | xargs -L1 rm -r
 
       # Replace build metadata
-      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud\.aio/gcloud\.rest/g'
-      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud-aio/gcloud-rest/g'
+      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
       - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7'/g"
       - run: echo "BUILD_GCLOUD_REST = True" > 'auth/gcloud/rest/auth/build_constants.py'
 
