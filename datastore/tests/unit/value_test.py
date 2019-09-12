@@ -11,12 +11,22 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        ('blobValue', b'foobar'),
+        pytest.param(
+            'blobValue', b'foobar',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        ('blobValue', b''),
+        pytest.param(
+            'blobValue', b'',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
@@ -96,13 +106,22 @@ class TestValue:
 
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
-        # Removed encoding because py2 does not support it
-        (b'foobar', 'stringValue' if sys.version_info[0] < 3 else 'blobValue'),
+        pytest.param(
+            b'foobar', 'blobValue',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
-        (b'', 'stringValue' if sys.version_info[0] < 3 else 'blobValue'),
+        pytest.param(
+            b'', 'blobValue',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         (False, 'booleanValue'),
         (0.0, 'doubleValue'),
         (0, 'integerValue'),
