@@ -120,6 +120,12 @@ class Storage:
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
 
         stream = self._preprocess_data(file_data)
+
+        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
+            # HACK: `requests` library does not accept `str` as `data` in `put`
+            # HTTP request.
+            return io.BytesIO(stream.getvalue().encode('utf-8'))
+
         content_length = self._get_stream_len(stream)
 
         # mime detection method same as in aiohttp 3.4.4
@@ -168,10 +174,6 @@ class Storage:
         if isinstance(data, bytes):
             return io.BytesIO(data)
         if isinstance(data, str):
-            if BUILD_GCLOUD_REST:
-                # HACK: `requests` library does not accept `str` as `data` in
-                # `put` HTTP request.
-                return io.BytesIO(data.encode('utf-8'))
             return io.StringIO(data)
         if isinstance(data, io.IOBase):
             return data
