@@ -95,6 +95,7 @@ jobs:
       - image: python:3.7.4-slim
     steps:
       - run: pip install pyopenssl==19.0.0 twine==1.14.0
+      - checkout
       - deploy:
           name: upload to pypi
           command: |
