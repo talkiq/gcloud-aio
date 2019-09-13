@@ -43,7 +43,7 @@ class BaseSession:
 
     @abstractmethod
     def request(self, method: str, url: str, headers: Dict[str, str],
-                **kwargs: Any):
+                auto_raise_for_status: bool = True, **kwargs: Any):
         pass
 
 if not BUILD_GCLOUD_REST:
@@ -88,10 +88,12 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def request(self, method: str, url: str, headers: Dict[str, str],
-                          **kwargs: Any) -> aiohttp.ClientResponse:
+                          auto_raise_for_status: bool = True, **kwargs: Any
+                          ) -> aiohttp.ClientResponse:
             resp = await self.session.request(method, url, headers=headers,
                                               **kwargs)
-            resp.raise_for_status()
+            if auto_raise_for_status:
+                resp.raise_for_status()
             return resp
 
 if BUILD_GCLOUD_REST:
@@ -141,9 +143,11 @@ if BUILD_GCLOUD_REST:
             return resp
 
         def request(self, method: str, url: str, headers: Dict[str, str],
-                    **kwargs: Any) -> requests.Response:
+                    auto_raise_for_status: bool = True, **kwargs: Any
+                    ) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.request(method, url, headers=headers,
                                             **kwargs)
-            resp.raise_for_status()
+            if auto_raise_for_status:
+                resp.raise_for_status()
             return resp

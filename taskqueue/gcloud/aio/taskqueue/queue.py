@@ -55,11 +55,13 @@ class PushQueue:
         s = AioSession(session) if session else self.session
         headers = await self.headers()
 
-        resp = await s.request(method, url, headers=headers, **kwargs)
+        resp = await s.request(method, url, headers=headers,
+                               auto_raise_for_status=False, **kwargs)
         # N.B. This is awaited early to give an extra helping hand to various
         # debug tools, which tend to be able to capture assigned variables but
         # not un-awaited data.
         data = await resp.json()
+        resp.raise_for_status()
 
         return data
 
