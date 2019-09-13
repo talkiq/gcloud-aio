@@ -119,11 +119,11 @@ jobs:
       # Rename files and paths to `rest` and make strings py2 compatible
       - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
       - run: for file in $(find . -type f -path '*aio*'); do mv $file ${file//aio/rest}; done
+
       # For some files with conflicts due to unicode encoding in py2, do not use
       # the automated string conversion tools
-      - run : DONT_FORMAT_PATTERN="datastore.*(value|constants|value_types_test|value_test)\.py$"
-      - run: for file in $(find . -type f -path '*py' | grep -E ${DONT_FORMAT_PATTERN} | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
-      - run: for file in $(find . -type f -path '*py' | grep -Ev ${DONT_FORMAT_PATTERN} | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
 
       # Remove the files with `aio` in file names (we moved all required files
       # already)
@@ -135,7 +135,7 @@ jobs:
       - run: echo "BUILD_GCLOUD_REST = True" > 'auth/gcloud/rest/auth/build_constants.py'
 
       # Backport other things like type hints, exception handling, etc.
-      - run: find . -type f -path '*py' | grep -Ev ${DONT_FORMAT_PATTERN} | xargs -L1 pasteurize --nobackups --write
+      - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
 
       # Add object class inheritence where needed for python2
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
@@ -233,6 +233,13 @@ workflows:
               only: /.*/
           requires:
             - linter/pre-commit
+            - test-auth
+            - test-bigquery
+            - test-datastore
+            - test-kms
+            - test-pubsub
+            - test-storage
+            - test-taskqueue
             - build-rest
       - nox-rest:
           name: test-rest-auth
@@ -243,7 +250,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - nox-rest:
           name: test-rest-bigquery
           folder: bigquery
@@ -253,7 +259,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - nox-rest:
           name: test-rest-datastore
           folder: datastore
@@ -263,7 +268,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - nox-rest:
           name: test-rest-kms
           folder: kms
@@ -273,7 +277,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - nox-rest:
           name: test-rest-storage
           folder: storage
@@ -283,7 +286,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - nox-rest:
           name: test-rest-taskqueue
           folder: taskqueue
@@ -293,7 +295,6 @@ workflows:
           requires:
             - linter/pre-commit
             - build-rest
-            - lint-rest
       - pypi-rest:
           context: org-global
           filters:
@@ -303,6 +304,7 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
+            - lint-rest
             - test-rest-auth
             - test-rest-bigquery
             - test-rest-datastore
