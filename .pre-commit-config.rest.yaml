@@ -39,6 +39,7 @@ repos:
         - -d wrong-import-order
         - -d bad-continuation
         - -d line-too-long
+        - -d trailing-whitespace
         # Caused by automated conversion tools
         - -d unused-import
         - -d redefined-builtin

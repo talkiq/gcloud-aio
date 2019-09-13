@@ -304,6 +304,7 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
+            - build-rest
             - lint-rest
             - test-rest-auth
             - test-rest-bigquery
