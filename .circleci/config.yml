@@ -51,6 +51,45 @@ jobs:
       - run: pip install future==0.17.1
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
+  docs:
+    docker:
+      - image: python:3.7.4
+    steps:
+      - run: pip install pdoc3
+      - checkout
+      - run:
+          name: install all sub-projects
+          command: |
+            pip install ./auth
+            pip install ./bigquery
+            pip install ./datastore
+            pip install ./kms
+            pip install ./pubsub
+            pip install ./storage
+            pip install ./taskqueue
+      - run: pdoc --html -o ./docs gcloud
+      - persist_to_workspace:
+          root: docs
+          paths: gcloud
+
+  pages:
+    docker:
+      - image: node:8.16.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs
+      - run: npm install -g --silent gh-pages@2.0.1
+      - run:
+          name: configure git creds
+          command: |
+            git config user.email "voiceai-eng+ci@dialpad.com"
+            git config user.name "Vi Eng (CI)"
+      - add_ssh_keys:
+          fingerprints:
+            - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
+      - run: gh-pages --message "[skip ci] updated docs" --dist docs/gcloud
+
   pypi:
     docker:
       - image: python:3.7.4-slim
@@ -168,7 +207,20 @@ workflows:
           filters:
             tags:
               only: /.*/
-
+      - docs:
+          filters:
+            branches:
+              only: /master/
+            tags:
+              ignore: /.*/
+      - pages:
+          filters:
+            branches:
+              only: /master/
+            tags:
+              ignore: /.*/
+          requires:
+            - docs
       - nox:
           name: test-auth
           folder: auth
@@ -233,13 +285,6 @@ workflows:
               only: /.*/
           requires:
             - linter/pre-commit
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
             - build-rest
       - nox-rest:
           name: test-rest-auth

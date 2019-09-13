@@ -4,7 +4,7 @@ Asyncio Google Cloud Client Library for Python
 This project is a collection of Google Cloud client libraries which have been
 built to work with Python's asyncio.
 
-|circleci| |coverage| |pythons|
+|circleci| |pythons|
 
 The following clients are available:
 
@@ -62,10 +62,6 @@ Installation
 .. |circleci| image:: https://img.shields.io/circleci/project/github/talkiq/gcloud-aio/master.svg?style=flat-square
     :alt: CircleCI Test Status
     :target: https://circleci.com/gh/talkiq/gcloud-aio/tree/master
-
-.. |coverage| image:: https://img.shields.io/codecov/c/github/talkiq/gcloud-aio/master.svg?style=flat-square
-    :alt: Code Coverage
-    :target: https://codecov.io/gh/talkiq/gcloud-aio
 
 .. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square
     :alt: Python Version Support
