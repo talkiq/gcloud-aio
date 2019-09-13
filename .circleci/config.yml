@@ -121,8 +121,9 @@ jobs:
       - run: for file in $(find . -type f -path '*aio*'); do mv $file ${file//aio/rest}; done
       # For some files with conflicts due to unicode encoding in py2, do not use
       # the automated string conversion tools
-      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
-      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort | uniq); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
+      - run : DONT_FORMAT_PATTERN="datastore.*(value|constants|value_types_test|value_test)\.py$"
+      - run: for file in $(find . -type f -path '*py' | grep -E ${DONT_FORMAT_PATTERN} | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -Ev ${DONT_FORMAT_PATTERN} | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
 
       # Remove the files with `aio` in file names (we moved all required files
       # already)
@@ -134,7 +135,7 @@ jobs:
       - run: echo "BUILD_GCLOUD_REST = True" > 'auth/gcloud/rest/auth/build_constants.py'
 
       # Backport other things like type hints, exception handling, etc.
-      - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
+      - run: find . -type f -path '*py' | grep -Ev ${DONT_FORMAT_PATTERN} | xargs -L1 pasteurize --nobackups --write
 
       # Add object class inheritence where needed for python2
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
