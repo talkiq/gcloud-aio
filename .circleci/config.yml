@@ -182,6 +182,7 @@ jobs:
 
       # Physically update files to remove incompatible syntax
       - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/aiohttp/# aiohttp/g'
+      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/# requests/requests/g'
       - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
       - run: find . -type f | xargs -L1 sed -Ei 's/asyncio.ensure_future(.*)/\1/g'
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(async|await) //g'
