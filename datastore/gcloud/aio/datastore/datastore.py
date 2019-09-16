@@ -57,7 +57,7 @@ class Datastore:
                  namespace: str = '', session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.namespace = namespace
-        self.session = AioSession(session) if session else AioSession()
+        self.session = AioSession(session)
 
         if IS_DEV:
             self._project = os.environ.get('DATASTORE_PROJECT_ID', 'dev')

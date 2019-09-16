@@ -32,7 +32,7 @@ class KMS:
                          f'locations/{location}/keyRings/{keyring}/'
                          f'cryptoKeys/{keyname}')
 
-        self.session = AioSession(session) if session else AioSession()
+        self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 

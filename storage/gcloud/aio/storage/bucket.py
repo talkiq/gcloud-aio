@@ -35,8 +35,13 @@ class Bucket:
             await self.get_blob(blob_name, session=session)
             return True
         except ResponseError as e:
-            if e.status in {404, 410}:
-                return False
+            try:
+                if e.status in {404, 410}:
+                    return False
+            except AttributeError:
+                if e.code in {404, 410}:
+                    return False
+
             raise e
 
     async def list_blobs(self, prefix: str = '',

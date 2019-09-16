@@ -50,7 +50,7 @@ class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
-        self.session = AioSession(session) if session else AioSession()
+        self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 

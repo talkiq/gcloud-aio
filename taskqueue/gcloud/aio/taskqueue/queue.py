@@ -37,7 +37,7 @@ class PushQueue:
         self.base_api_root = f'{API_ROOT}/v2beta3'
         self.api_root = (f'{self.base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
-        self.session = AioSession(session) if session else AioSession()
+        self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
