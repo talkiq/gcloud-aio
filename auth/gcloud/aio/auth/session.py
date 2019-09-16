@@ -100,7 +100,11 @@ if BUILD_GCLOUD_REST:
     import requests
 
     class SyncSession(BaseSession):
-        google_api_lock = threading.RLock()
+        _google_api_lock = threading.RLock()
+
+        @property
+        def google_api_lock(self) -> threading.RLock:
+            return type(SyncSession)._google_api_lock  # pylint: disable=protected-access
 
         @property
         def session(self) -> requests.Session:
