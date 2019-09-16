@@ -19,10 +19,10 @@ def unit_tests(session):
 
 @nox.session(python=['3.6', '3.7'], reuse_venv=True)
 def integration_tests(session):
-    session.install('future')
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')
 
+    session.install('future')
     session.install('aiohttp', 'pytest', 'pytest-asyncio', 'pytest-mock',
                     *LOCAL_DEPS)
     session.install('.')
