@@ -302,8 +302,6 @@ class Storage:
                 headers.update({'Content-Range': '*/*'})
                 await sleep(2. ** tries)
 
-                resp = await s.put(session_uri, headers=headers,
-                                   data=stream, timeout=timeout)
                 continue
 
             break

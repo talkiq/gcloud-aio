@@ -148,7 +148,7 @@ jobs:
     steps:
       - checkout
       # Install some requirements
-      - run: pip install pytest==2.3.1 future==0.17.1 strip-hints==0.1.7 future-fstrings[rewrite]==1.2.0
+      - run: pip install -r requirements.py3to2.txt
 
       # Remove pubsub
       - run: rm -r ./pubsub
