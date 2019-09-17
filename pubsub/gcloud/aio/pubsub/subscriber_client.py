@@ -1,6 +1,7 @@
 import asyncio
 import concurrent.futures
 import signal
+from typing import Any
 from typing import Callable
 from typing import Optional
 
@@ -14,12 +15,9 @@ from .utils import convert_google_future_to_concurrent_future
 
 
 class SubscriberClient:
-
-    def __init__(self,
-                 *,
-                 loop: Optional[asyncio.AbstractEventLoop] = None
-                 ) -> None:
-        self._subscriber = pubsub.SubscriberClient()
+    def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
+                 **kwargs: Any) -> None:
+        self._subscriber = pubsub.SubscriberClient(**kwargs)
         self.loop = loop or asyncio.get_event_loop()
 
     def create_subscription(self,
