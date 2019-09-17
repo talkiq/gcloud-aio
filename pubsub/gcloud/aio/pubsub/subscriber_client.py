@@ -17,9 +17,13 @@ class SubscriberClient:
 
     def __init__(self,
                  *,
+                 credentials: Optional = None,
                  loop: Optional[asyncio.AbstractEventLoop] = None
                  ) -> None:
-        self._subscriber = pubsub.SubscriberClient()
+        if credentials:
+            self._subscriber = pubsub.SubscriberClient(credentials=credentials)
+        else:
+            self._subscriber = pubsub.SubscriberClient()
         self.loop = loop or asyncio.get_event_loop()
 
     def create_subscription(self,
