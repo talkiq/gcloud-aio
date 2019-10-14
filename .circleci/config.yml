@@ -4,9 +4,27 @@ orbs:
   linter: thekevjames/linter@0.1
 
 jobs:
+  lint-rest:
+    parameters:
+      config_file:
+        default: .pre-commit-config.yaml
+        description: |
+          Optional alternate config file.
+        type: string
+    docker:
+      - image: python:2.7.15
+    steps:
+      - attach_workspace:
+          at: rest
+      - run:
+          command: |
+            cd rest/
+            git init && git add -A
+            pip install pre-commit
+            pre-commit run --all-files -c <<parameters.config_file>>
   nox:
     docker:
-      - image: thekevjames/nox:2018.10.17
+      - image: thekevjames/nox:2019.5.30
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -17,6 +35,21 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - checkout
       - run: nox -f <<parameters.folder>>/noxfile.py
+
+  nox-rest:
+    docker:
+      - image: thekevjames/nox:2019.5.30
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    parameters:
+      folder:
+        type: string
+    steps:
+      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - attach_workspace:
+          at: rest
+      - run: pip install future==0.17.1
+      - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
   docs:
     docker:
@@ -61,11 +94,26 @@ jobs:
     docker:
       - image: python:3.7.4-slim
     steps:
-      - run: pip install pyopenssl twine
+      - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - checkout
       - deploy:
           name: upload to pypi
           command: |
+            cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
+            python setup.py sdist bdist_wheel
+            twine upload dist/*
+
+  pypi-rest:
+    docker:
+      - image: python:3.7.4-slim
+    steps:
+      - run: pip install pyopenssl==19.0.0 twine==1.14.0
+      - attach_workspace:
+          at: rest
+      - deploy:
+          name: upload to pypi
+          command: |
+            cd rest/
             cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
             python setup.py sdist bdist_wheel
             twine upload dist/*
@@ -94,6 +142,64 @@ jobs:
             ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}"
             cat release-description.md | grep ${PROJECT} | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
 
+  py3to2:
+    docker:
+      - image: python:3.7.0-slim
+    steps:
+      - checkout
+      # Install some requirements
+      - run: pip install -r requirements.py3to2.txt
+
+      # Remove pubsub
+      - run: rm -r ./pubsub
+
+      # Remove caches and config directories
+      - run: find . -exec dirname {} \; | sort -u | grep -E '/\..*' | xargs -L1 rm -rf
+
+      # Rename files and paths to `rest` and make strings py2 compatible
+      - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
+      - run: for file in $(find . -type f -path '*aio*'); do mv $file ${file//aio/rest}; done
+
+      # For some files with conflicts due to unicode encoding in py2, do not use
+      # the automated string conversion tools
+      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
+      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
+
+      # Remove the files with `aio` in file names (we moved all required files
+      # already)
+      - run: find . -type f -path '*aio*' | xargs -L1 rm -rf
+
+      # Replace build metadata
+      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
+      - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7'/g"
+
+      # Backport other things like type hints, exception handling, etc.
+      - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
+
+      # Add object class inheritence where needed for python2
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
+
+      # Physically update files to remove incompatible syntax
+      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/aiohttp/# aiohttp/g'
+      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/# requests/requests/g'
+      - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
+      - run: find . -type f | xargs -L1 sed -Ei 's/asyncio.ensure_future(.*)/\1/g'
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(async|await) //g'
+      - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
+      - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/urllib/six.moves.urllib/g'
+
+      # Update the nox files
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'3.6'/'2.7', '3.5', '3.6'/g"
+
+      # Persist updated files in a workspace for tests & package deployment
+      - persist_to_workspace:
+          root: .
+          paths:
+          - ./*
+
 workflows:
   run-jobs:
     jobs:
@@ -102,7 +208,20 @@ workflows:
           filters:
             tags:
               only: /.*/
-
+      - docs:
+          filters:
+            branches:
+              only: /master/
+            tags:
+              ignore: /.*/
+      - pages:
+          filters:
+            branches:
+              only: /master/
+            tags:
+              ignore: /.*/
+          requires:
+            - docs
       - nox:
           name: test-auth
           folder: auth
@@ -145,20 +264,11 @@ workflows:
           filters:
             tags:
               only: /.*/
-
-      - docs:
+      - py3to2:
+          name: build-rest
           filters:
-            branches:
-              only: /master/
             tags:
-              ignore: /.*/
-
-      - pages:
-          filters:
-            branches:
-              only: /master/
-            tags:
-              ignore: /.*/
+              only: /.*/
           requires:
             - linter/pre-commit
             - test-auth
@@ -168,7 +278,86 @@ workflows:
             - test-pubsub
             - test-storage
             - test-taskqueue
-            - docs
+      - lint-rest:
+          name: lint-rest
+          config_file: .pre-commit-config.rest.yaml
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-auth
+          folder: auth
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-bigquery
+          folder: bigquery
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-datastore
+          folder: datastore
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-kms
+          folder: kms
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-storage
+          folder: storage
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - nox-rest:
+          name: test-rest-taskqueue
+          folder: taskqueue
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - linter/pre-commit
+            - build-rest
+      - pypi-rest:
+          context: org-global
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - linter/pre-commit
+            - build-rest
+            - lint-rest
+            - test-rest-auth
+            - test-rest-bigquery
+            - test-rest-datastore
+            - test-rest-kms
+            - test-rest-storage
+            - test-rest-taskqueue
       - pypi:
           context: org-global
           filters:

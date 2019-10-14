@@ -5,12 +5,17 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import aiohttp
-
+from .build_constants import BUILD_GCLOUD_REST
+from .session import AioSession
 from .token import Token
 from .token import Type
 from .utils import encode
 
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 API_ROOT_IAM = 'https://iam.googleapis.com/v1'
 API_ROOT_IAM_CREDENTIALS = 'https://iamcredentials.googleapis.com/v1'
@@ -19,11 +24,11 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 class IamClient:
     def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[aiohttp.ClientSession] = None,
+                 session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = session
+        self.session = AioSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=session, scopes=SCOPES)
+                                    session=self.session.session, scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -45,7 +50,7 @@ class IamClient:
                              key: Optional[str] = None,
                              service_account_email: Optional[str] = None,
                              project: Optional[str] = None,
-                             session: aiohttp.ClientSession = None,
+                             session: Optional[Session] = None,
                              timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -61,19 +66,17 @@ class IamClient:
         url = f'{API_ROOT_IAM}/{key}?publicKeyType=TYPE_X509_PEM_FILE'
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
-        resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
+        s = AioSession(session) if session else self.session
+
+        resp = await s.get(url=url, headers=headers, timeout=timeout)
+
         return await resp.json()
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
-            session: aiohttp.ClientSession = None,
+            session: Optional[Session] = None,
             timeout: int = 10) -> List[Dict[str, str]]:
         service_account_email = (service_account_email
                                  or self.service_account_email)
@@ -84,19 +87,17 @@ class IamClient:
 
         headers = await self.headers()
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
-        resp = await session.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
+        s = AioSession(session) if session else self.session
+
+        resp = await s.get(url=url, headers=headers, timeout=timeout)
+
         return (await resp.json()).get('keys', [])
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
                         delegates: Optional[list] = None,
-                        session: aiohttp.ClientSession = None,
+                        session: Optional[Session] = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
                                  self.service_account_email)
@@ -118,11 +119,8 @@ class IamClient:
             'Content-Type': 'application/json',
         })
 
-        if not self.session:
-            self.session = aiohttp.ClientSession(conn_timeout=10,
-                                                 read_timeout=10)
-        session = session or self.session
-        resp = await session.post(url, data=json_str, headers=headers,
-                                  timeout=timeout)
-        resp.raise_for_status()
+        s = AioSession(session) if session else self.session
+
+        resp = await s.post(url=url, data=json_str, headers=headers,
+                            timeout=timeout)
         return await resp.json()

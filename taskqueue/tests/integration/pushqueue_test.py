@@ -2,7 +2,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import pytest
-
+from future.utils import text_to_native_str
 
 @pytest.mark.asyncio
 async def test_task_lifecycle_in_push_queue(push_queue_context):
@@ -13,7 +13,8 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     schedule_time = datetime.utcnow() + timedelta(days=1)
 
     task = {
-        'scheduleTime': f'{schedule_time.isoformat("T")}Z',
+        'scheduleTime': '{}Z'.format(
+            schedule_time.isoformat(text_to_native_str('T'))),
         'appEngineHttpRequest': {
             'httpMethod': 'POST',
             # something that we know won't work,

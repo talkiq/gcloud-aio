@@ -1,4 +1,5 @@
 import base64
+import sys
 from typing import Union
 
 
@@ -9,6 +10,16 @@ def decode(payload: str) -> bytes:
 
     See https://en.wikipedia.org/wiki/Base64#URL_applications
     """
+
+    if sys.version_info[0] < 3:
+        # Base64 encode/decode does not accept `str` as input in python2
+        # By running `future-fstrings-show`, it adds `unicode_literals` that
+        # redefines some classes so the default behaviour changes
+        def native_str_to_bytes(s, encoding=None):
+            from future.types import newbytes
+            return newbytes(s, encoding=encoding)
+        payload = native_str_to_bytes(payload, encoding='utf-8')
+
     return base64.b64decode(payload, altchars=b'-_')
 
 

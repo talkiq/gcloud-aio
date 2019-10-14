@@ -1,9 +1,15 @@
 # pylint: disable=redefined-outer-name
 import os
 
-import aiohttp
 import pytest
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.taskqueue import PushQueue
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 
 def pytest_configure(config):
@@ -35,17 +41,7 @@ def push_queue_location() -> str:
 
 @pytest.fixture(scope='function')  # type: ignore
 async def session() -> str:
-    async with aiohttp.ClientSession() as session:
-        yield session
-
-
-@pytest.fixture(scope='function')  # type: ignore
-async def tm_session() -> str:
-    connector = aiohttp.TCPConnector(enable_cleanup_closed=True,
-                                     force_close=True, limit_per_host=1)
-    timeout = aiohttp.ClientTimeout(connect=10, total=10)
-    async with aiohttp.ClientSession(connector=connector,
-                                     timeout=timeout) as session:
+    async with Session() as session:
         yield session
 
 

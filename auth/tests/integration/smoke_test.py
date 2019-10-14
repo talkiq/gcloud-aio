@@ -1,21 +1,27 @@
 import datetime
 
-import aiohttp
 import pytest
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+from gcloud.aio.auth import BUILD_GCLOUD_REST
 from gcloud.aio.auth import decode
 from gcloud.aio.auth import IamClient
 from gcloud.aio.auth import Token
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Session
+else:
+    from aiohttp import ClientSession as Session
 
 
 @pytest.mark.asyncio  # type: ignore
 async def test_token_is_created(creds: str) -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
-    async with aiohttp.ClientSession() as session:
+    async with Session() as session:
         token = Token(service_file=creds, session=session, scopes=scopes)
         result = await token.get()
 
@@ -68,7 +74,7 @@ async def verify_signature(data, signature, key_name, iam_client):
 async def test_sign_blob(creds: str) -> None:
     data = 'Testing Can be confidential!'
 
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session(conn_timeout=10, read_timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.sign_blob(data)
         signed_data = resp['signedBlob']
@@ -77,7 +83,7 @@ async def test_sign_blob(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key_names(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session(conn_timeout=10, read_timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.list_public_keys()
         assert len(resp) >= 1, '0 public keys found.'
@@ -85,7 +91,7 @@ async def test_get_service_account_public_key_names(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key(creds: str) -> None:
-    async with aiohttp.ClientSession(conn_timeout=10, read_timeout=10) as s:
+    async with Session(conn_timeout=10, read_timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.list_public_keys(session=s)
         pub_key_data = await iam_client.get_public_key(key=resp[0]['name'],

@@ -5,6 +5,7 @@ import nox
 
 @nox.session(python=['3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
+    session.install('future')
     session.install('pytest', 'pytest-asyncio', 'pytest-cov')
     session.install('-e', '.')
 
@@ -18,6 +19,7 @@ def integration_tests(session):
     if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
         session.skip('Credentials must be set via environment variable.')
 
+    session.install('future')
     session.install('aiohttp', 'pytest', 'pytest-asyncio', 'pytest-mock')
     session.install('.')
 
@@ -26,6 +28,7 @@ def integration_tests(session):
 
 @nox.session(python=['3.7'], reuse_venv=True)
 def lint_setup_py(session):
+    session.install('future')
     session.install('docutils', 'Pygments')
     session.run('python', 'setup.py', 'check', '--restructuredtext',
                 '--strict')
@@ -33,6 +36,7 @@ def lint_setup_py(session):
 
 @nox.session(python=['3.7'], reuse_venv=True)
 def cover(session):
+    session.install('future')
     session.install('coverage', 'pytest-cov')
 
     session.run('coverage', 'report', '--show-missing')

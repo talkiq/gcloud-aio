@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 
 import pytest
@@ -10,12 +11,22 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        ('blobValue', bytes('foobar', 'utf-8')),
+        pytest.param(
+            'blobValue', b'foobar',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        ('blobValue', b''),
+        pytest.param(
+            'blobValue', b'',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
@@ -92,12 +103,22 @@ class TestValue:
 
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
-        (bytes('foobar', 'utf-8'), 'blobValue'),
+        pytest.param(
+            b'foobar', 'blobValue',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
-        (b'', 'blobValue'),
+        pytest.param(
+            b'', 'blobValue',
+            marks=pytest.mark.skipif(sys.version_info[0] < 3,
+                                     reason='skipping because python2 has same '
+                                            'type for str and bytes')
+        ),
         (False, 'booleanValue'),
         (0.0, 'doubleValue'),
         (0, 'integerValue'),
@@ -110,7 +131,7 @@ class TestValue:
 
         assert len(r) == 2  # Value + excludeFromIndexes
         assert r['excludeFromIndexes'] is False
-        assert r[expected_json_key] == v
+        assert r[str(expected_json_key)] == v
 
     @staticmethod
     def test_to_repr_with_null_value():
