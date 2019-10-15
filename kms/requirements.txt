@@ -1,1 +1,1 @@
-gcloud-rest-auth >= 3.0.0, < 4.0.0
+gcloud-aio-auth >= 3.0.0, < 4.0.0
