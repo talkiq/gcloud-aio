@@ -1,16 +1,10 @@
 version: 2.1
 
 orbs:
-  linter: thekevjames/linter@0.1
+  linter: talkiq/linter@1
 
 jobs:
   lint-rest:
-    parameters:
-      config_file:
-        default: .pre-commit-config.yaml
-        description: |
-          Optional alternate config file.
-        type: string
     docker:
       - image: python:2.7.15
     steps:
@@ -21,7 +15,8 @@ jobs:
             cd rest/
             git init && git add -A
             pip install pre-commit
-            pre-commit run --all-files -c <<parameters.config_file>>
+            pre-commit run --all-files -c .pre-commit-config.rest.yaml
+
   nox:
     docker:
       - image: thekevjames/nox:2019.5.30
@@ -31,7 +26,9 @@ jobs:
       folder:
         type: string
     steps:
-      - run: apt-get -qy update && apt-get -qy install libssl-dev
+      - run: |
+          apt-get -qy update
+          apt-get -qy install libssl-dev
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - checkout
       - run: nox -f <<parameters.folder>>/noxfile.py
@@ -51,6 +48,7 @@ jobs:
       - run: pip install future==0.17.1
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
+  # TODO: fix after rest refactor
   docs:
     docker:
       - image: python:3.7.4
@@ -147,10 +145,9 @@ jobs:
       - image: python:3.7.0-slim
     steps:
       - checkout
-      # Install some requirements
       - run: pip install -r requirements.py3to2.txt
 
-      # Remove pubsub
+      # Remove pubsub, its just an aio shim
       - run: rm -r ./pubsub
 
       # Remove caches and config directories
@@ -203,11 +200,26 @@ jobs:
 workflows:
   run-jobs:
     jobs:
+      # build `-aio-*` -> `-rest-*`
+      - py3to2:
+          name: build-rest
+          filters:
+            tags:
+              only: /.*/
+
       - linter/pre-commit:
           python_version: 3.6.6
           filters:
             tags:
               only: /.*/
+      - lint-rest:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
+
+      # build docs
       - docs:
           filters:
             branches:
@@ -222,6 +234,8 @@ workflows:
               ignore: /.*/
           requires:
             - docs
+
+      # test `-aio-*`
       - nox:
           name: test-auth
           folder: auth
@@ -264,29 +278,8 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - py3to2:
-          name: build-rest
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
-      - lint-rest:
-          name: lint-rest
-          config_file: .pre-commit-config.rest.yaml
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - linter/pre-commit
-            - build-rest
+
+      # test `-rest-*`
       - nox-rest:
           name: test-rest-auth
           folder: auth
@@ -294,7 +287,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
       - nox-rest:
           name: test-rest-bigquery
@@ -303,7 +295,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
       - nox-rest:
           name: test-rest-datastore
@@ -312,7 +303,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
       - nox-rest:
           name: test-rest-kms
@@ -321,7 +311,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
       - nox-rest:
           name: test-rest-storage
@@ -330,7 +319,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
       - nox-rest:
           name: test-rest-taskqueue
@@ -339,25 +327,8 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - linter/pre-commit
             - build-rest
-      - pypi-rest:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-          requires:
-            - linter/pre-commit
-            - build-rest
-            - lint-rest
-            - test-rest-auth
-            - test-rest-bigquery
-            - test-rest-datastore
-            - test-rest-kms
-            - test-rest-storage
-            - test-rest-taskqueue
+
       - pypi:
           context: org-global
           filters:
@@ -374,7 +345,7 @@ workflows:
             - test-pubsub
             - test-storage
             - test-taskqueue
-      - github:
+      - pypi-rest:
           context: org-global
           filters:
             branches:
@@ -383,10 +354,21 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
+            - lint-rest
+            - test-rest-auth
+            - test-rest-bigquery
+            - test-rest-datastore
+            - test-rest-kms
+            - test-rest-storage
+            - test-rest-taskqueue
+
+      - github:
+          context: org-global
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - pypi
+            - pypi-rest

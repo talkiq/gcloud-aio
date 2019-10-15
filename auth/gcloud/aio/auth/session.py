@@ -8,6 +8,7 @@ from typing import Dict
 
 from .build_constants import BUILD_GCLOUD_REST
 
+
 class BaseSession:
     __metaclass__ = ABCMeta
 
@@ -46,8 +47,10 @@ class BaseSession:
                 auto_raise_for_status: bool = True, **kwargs: Any):
         pass
 
+
 if not BUILD_GCLOUD_REST:
     import aiohttp
+
     class AioSession(BaseSession):
         @property
         def session(self) -> aiohttp.ClientSession:
