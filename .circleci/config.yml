@@ -183,7 +183,7 @@ jobs:
 
       # Replace build metadata
       - run: find . -type f | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
-      - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7'/g"
+      - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
 
       # Backport other things like type hints, exception handling, etc.
       - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
