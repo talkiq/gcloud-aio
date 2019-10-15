@@ -58,14 +58,26 @@ jobs:
           command: |
             sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.7/site-packages/pdoc/__init__.py
       - checkout
+      - attach_workspace:
+          at: rest
       - run:
-          name: install all sub-projects
+          name: install all sub-projects (aio)
           command: |
             pip install ./auth
             pip install ./bigquery
             pip install ./datastore
             pip install ./kms
             pip install ./pubsub
+            pip install ./storage
+            pip install ./taskqueue
+      - run:
+          name: install all sub-projects (rest)
+          command: |
+            cd rest/
+            pip install ./auth
+            pip install ./bigquery
+            pip install ./datastore
+            pip install ./kms
             pip install ./storage
             pip install ./taskqueue
       - run: pdoc --html -o ./docs gcloud
@@ -229,6 +241,8 @@ workflows:
               only: /master/
             tags:
               ignore: /.*/
+          requires:
+            - build-rest
       - pages:
           filters:
             branches:
