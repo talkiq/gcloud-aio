@@ -13,8 +13,8 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-datastore',
-    version='4.5.0',
-    description='Asyncio Python Client for Google Cloud Datastore',
+    version='5.0.0',
+    description='Python Client for Google Cloud Datastore',
     long_description=README,
     namespace_packages=[
         'gcloud',
@@ -23,8 +23,8 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=('tests',)),
     python_requires='>= 3.6',
     install_requires=REQUIREMENTS,
-    author='TalkIQ',
-    author_email='engineering@talkiq.com',
+    author='Vi Engineering',
+    author_email='voiceai-eng@dialpad.com',
     url='https://github.com/talkiq/gcloud-aio',
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,

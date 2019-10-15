@@ -12,7 +12,7 @@ can create a release tag:
 .. code-block:: console
 
     git tag taskqueue-1.2.3
-    git push --tags
+    git push origin taskqueue-1.2.3
 
 The tag format is "``project``-x.y.z"; that will kick off CI jobs for releasing
 said project and version to PyPI.

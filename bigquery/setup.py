@@ -13,8 +13,8 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-bigquery',
-    version='2.1.1',
-    description='Asyncio Python Client for Google Cloud BigQuery',
+    version='3.0.0',
+    description='Python Client for Google Cloud BigQuery',
     long_description=README,
     namespace_packages=[
         'gcloud',
@@ -23,8 +23,8 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=('tests',)),
     install_requires=REQUIREMENTS,
     python_requires='>= 3.6',
-    author='TalkIQ',
-    author_email='engineering@talkiq.com',
+    author='Vi Engineering',
+    author_email='voiceai-eng@dialpad.com',
     url='https://github.com/talkiq/gcloud-aio',
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,

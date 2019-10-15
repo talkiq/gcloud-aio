@@ -1,7 +1,7 @@
 Asyncio Python Client for Google Cloud Datastore
 ================================================
 
-|pypi| |pythons|
+|aio-pypi| |aio-pythons| |rest-pypi| |rest-pythons|
 
 Installation
 ------------
@@ -9,6 +9,8 @@ Installation
 .. code-block:: console
 
     $ pip install --upgrade gcloud-aio-datastore
+    # or
+    $ pip install --upgrade gcloud-rest-datastore
 
 Usage
 -----
@@ -175,10 +177,18 @@ Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 
-.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-datastore.svg?style=flat-square
-    :alt: Latest PyPI Version
+.. |aio-pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-datastore.svg?style=flat-square&label=pypi (aio)
+    :alt: Latest PyPI Version (gcloud-aio-datastore)
     :target: https://pypi.org/project/gcloud-aio-datastore/
 
-.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-datastore.svg?style=flat-square
-    :alt: Python Version Support
+.. |aio-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-datastore.svg?style=flat-square&label=python (aio)
+    :alt: Python Version Support (gcloud-aio-datastore)
     :target: https://pypi.org/project/gcloud-aio-datastore/
+
+.. |rest-pypi| image:: https://img.shields.io/pypi/v/gcloud-rest-datastore.svg?style=flat-square&label=pypi (rest)
+    :alt: Latest PyPI Version (gcloud-rest-datastore)
+    :target: https://pypi.org/project/gcloud-rest-datastore/
+
+.. |rest-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-datastore.svg?style=flat-square&label=python (rest)
+    :alt: Python Version Support (gcloud-rest-datastore)
+    :target: https://pypi.org/project/gcloud-rest-datastore/

@@ -13,18 +13,18 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-kms',
-    version='2.1.0',
-    description='Asyncio Python Client for Google Cloud KMS',
+    version='3.0.0',
+    description='Python Client for Google Cloud KMS',
     long_description=README,
     namespace_packages=[
         'gcloud',
         'gcloud.aio',
     ],
     packages=setuptools.find_packages(exclude=('tests',)),
-    install_requires=REQUIREMENTS,
-    author='TalkIQ',
     python_requires='>= 3.6',
-    author_email='engineering@talkiq.com',
+    install_requires=REQUIREMENTS,
+    author='Vi Engineering',
+    author_email='voiceai-eng@dialpad.com',
     url='https://github.com/talkiq/gcloud-aio',
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,
