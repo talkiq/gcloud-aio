@@ -332,23 +332,7 @@ workflows:
           requires:
             - build-rest
 
-      - pypi:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-          requires:
-            - linter/pre-commit
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
-      - pypi-rest:
+      - github:
           context: org-global
           filters:
             branches:
@@ -358,6 +342,13 @@ workflows:
           requires:
             - linter/pre-commit
             - lint-rest
+            - test-auth
+            - test-bigquery
+            - test-datastore
+            - test-kms
+            - test-pubsub
+            - test-storage
+            - test-taskqueue
             - test-rest-auth
             - test-rest-bigquery
             - test-rest-datastore
@@ -365,7 +356,17 @@ workflows:
             - test-rest-storage
             - test-rest-taskqueue
 
-      - github:
+      - hold:
+          type: approval
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+           - github
+
+      - pypi:
           context: org-global
           filters:
             branches:
@@ -373,5 +374,13 @@ workflows:
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
-            - pypi
-            - pypi-rest
+            - hold
+      - pypi-rest:
+          context: org-global
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - hold

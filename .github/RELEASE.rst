@@ -14,12 +14,15 @@ can create a release tag:
     git tag taskqueue-1.2.3
     git push origin taskqueue-1.2.3
 
-The tag format is "``project``-x.y.z"; that will kick off CI jobs for releasing
-said project and version to PyPI.
+CircleCI will then create a `GitHub release`_. Release notes are auto-generated
+from commit messages, but you'll need to double-check its been generated
+properly and make any necessary changes to make it a bit more human-readable.
+Once you've done that, you can click the "approve" button in CircleCI (which
+should be linked in the workflow status for your commit).
 
-CircleCI will also create a `GitHub release`_. Release notes are auto-generated
-from commit messages, but you may want to check the new release and clean the
-changelog up, just in case.
+Once you've approved the release notes, it will kick off CI jobs for releasing
+said project and version to PyPI. Note that this will release both
+``gcloud-aio-foo`` and ``gcloud-rest-foo``.
 
 .. _GitHub release: https://github.com/talkiq/gcloud-aio/releases
 .. _Semantic versioning: http://semver.org/
