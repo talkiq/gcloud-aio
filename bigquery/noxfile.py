@@ -38,7 +38,7 @@ def lint_setup_py(session):
                 '--strict')
 
 
-@nox.session(python=['3.7'], reuse_venv=True)
+@nox.session(python=['3'], reuse_venv=True)
 def cover(session):
     session.install('future')
     session.install('coverage', 'pytest-cov')
