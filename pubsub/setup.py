@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-pubsub',
-    version='1.0.1',
+    version='1.0.2',
     description='Asyncio Python Client for Google Cloud Pub/Sub',
     long_description=README,
     namespace_packages=[
@@ -21,10 +21,10 @@ setuptools.setup(
         'gcloud.aio',
     ],
     packages=setuptools.find_packages(exclude=('tests',)),
-    install_requires=REQUIREMENTS,
-    author='TalkIQ',
     python_requires='>= 3.6',
-    author_email='engineering@talkiq.com',
+    install_requires=REQUIREMENTS,
+    author='Vi Engineering',
+    author_email='voiceai-eng@dialpad.com',
     url='https://github.com/talkiq/gcloud-aio',
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,

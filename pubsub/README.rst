@@ -1,7 +1,7 @@
 Asyncio Python Client for Google Cloud Pub/Sub
 ==============================================
 
-|pypi| |pythons|
+|aio-pypi| |aio-pythons|
 
 Installation
 ------------
@@ -192,10 +192,10 @@ Please see our `contributing guide`_.
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _official Google documentation: https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236
 
-.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-pubsub.svg?style=flat-square
+.. |aio-pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-pubsub.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-pubsub/
 
-.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square
+.. |aio-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square
     :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-pubsub/
