@@ -1,16 +1,17 @@
-Asyncio Python Client for Google Cloud BigQuery
-===============================================
+(Asyncio OR Threadsafe) Python Client for Google Cloud BigQuery
+===============================================================
 
-|aio-pypi| |aio-pythons| |rest-pypi| |rest-pythons|
+    This is a shared codebase for ``gcloud-aio-bigquery`` and
+    ``gcloud-rest-bigquery``
+
+|pypi| |pythons-aio| |pythons-rest|
 
 Installation
 ------------
 
 .. code-block:: console
 
-    $ pip install --upgrade gcloud-aio-bigquery
-    # or
-    $ pip install --upgrade gcloud-rest-bigquery
+    $ pip install --upgrade gcloud-{aio,rest}-bigquery
 
 Usage
 -----
@@ -26,18 +27,14 @@ Please see our `contributing guide`_.
 .. _contributing guide: https://github.com/talkiq/gcloud-rest/blob/master/.github/CONTRIBUTING.rst
 .. _smoke test: https://github.com/talkiq/gcloud-rest/blob/master/bigquery/tests/integration/smoke_test.py
 
-.. |aio-pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-bigquery.svg?style=flat-square&label=pypi (aio)
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-bigquery.svg?style=flat-square
     :alt: Latest PyPI Version (gcloud-aio-bigquery)
     :target: https://pypi.org/project/gcloud-aio-bigquery/
 
-.. |aio-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-bigquery.svg?style=flat-square&label=python (aio)
+.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-bigquery.svg?style=flat-square&label=python (aio)
     :alt: Python Version Support (gcloud-aio-bigquery)
     :target: https://pypi.org/project/gcloud-aio-bigquery/
 
-.. |rest-pypi| image:: https://img.shields.io/pypi/v/gcloud-rest-bigquery.svg?style=flat-square&label=pypi (rest)
-    :alt: Latest PyPI Version (gcloud-rest-bigquery)
-    :target: https://pypi.org/project/gcloud-rest-bigquery/
-
-.. |rest-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-bigquery.svg?style=flat-square&label=python (rest)
+.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-bigquery.svg?style=flat-square&label=python (rest)
     :alt: Python Version Support (gcloud-rest-bigquery)
     :target: https://pypi.org/project/gcloud-rest-bigquery/

@@ -1,42 +1,38 @@
-Asyncio Google Cloud Client Library for Python
-==============================================
+(Asyncio OR Threadsafe) Google Cloud Client Library for Python
+==============================================================
 
-This project is a collection of Google Cloud client libraries which have been
-built to work with Python's asyncio.
+This repository contains a shared codebase for two projects: ``gcloud-aio-*``
+and ``gcloud-rest-*``. Both of them are HTTP implementations of the Google
+Cloud client libraries. The former has been built to work with Python 3's
+asyncio. The later is a threadsafe ``requests``-based implementation which
+should be compatible all the way back to Python 2.7.
 
-|circleci| |pythons|
+|circleci| |pythons-aio| |pythons-rest|
 
 The following clients are available:
 
-- |pypia| `Google Cloud Auth`_ (`Auth README`_)
-- |pypibq| `Google Cloud BigQuery`_ (`BigQuery README`_)
-- |pypids| `Google Cloud Datastore`_ (`Datastore README`_)
-- |pypikms| `Google Cloud KMS`_ (`KMS README`_)
-- |pypips| `Google Cloud PubSub`_ (`PubSub README`_)
-- |pypist| `Google Cloud Storage`_ (`Storage README`_)
-- |pypitq| `Google Cloud Task Queue`_ (`Task Queue README`_)
+- `Google Cloud Auth`_: |pypia|
+- `Google Cloud BigQuery`_: |pypibq|
+- `Google Cloud Datastore`_: |pypids|
+- `Google Cloud KMS`_: |pypikms|
+- `Google Cloud PubSub`_: |pypips|
+- `Google Cloud Storage`_: |pypist|
+- `Google Cloud Task Queue`_: |pypitq|
 
 Installation
 ------------
 
 .. code-block:: console
 
-    $ pip install --upgrade gcloud-aio-{client_name}
+    $ pip install --upgrade gcloud-{aio,rest}-{client_name}
 
-.. _Google Cloud Auth: https://pypi.org/project/gcloud-aio-auth/
-.. _Google Cloud BigQuery: https://pypi.org/project/gcloud-aio-bigquery/
-.. _Google Cloud Datastore: https://pypi.org/project/gcloud-aio-datastore/
-.. _Google Cloud KMS: https://pypi.org/project/gcloud-aio-kms/
-.. _Google Cloud PubSub: https://pypi.org/project/gcloud-aio-pubsub/
-.. _Google Cloud Storage: https://pypi.org/project/gcloud-aio-storage/
-.. _Google Cloud Task Queue: https://pypi.org/project/gcloud-aio-taskqueue/
-.. _Auth README: https://github.com/talkiq/gcloud-aio/blob/master/auth/README.rst
-.. _BigQuery README: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/README.rst
-.. _Datastore README: https://github.com/talkiq/gcloud-aio/blob/master/datastore/README.rst
-.. _KMS README: https://github.com/talkiq/gcloud-aio/blob/master/kms/README.rst
-.. _PubSub README: https://github.com/talkiq/gcloud-aio/blob/master/pubsub/README.rst
-.. _Storage README: https://github.com/talkiq/gcloud-aio/blob/master/storage/README.rst
-.. _Task Queue README: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/README.rst
+.. _Google Cloud Auth: https://github.com/talkiq/gcloud-aio/blob/master/auth/README.rst
+.. _Google Cloud BigQuery: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/README.rst
+.. _Google Cloud Datastore: https://github.com/talkiq/gcloud-aio/blob/master/datastore/README.rst
+.. _Google Cloud KMS: https://github.com/talkiq/gcloud-aio/blob/master/kms/README.rst
+.. _Google Cloud PubSub: https://github.com/talkiq/gcloud-aio/blob/master/pubsub/README.rst
+.. _Google Cloud Storage: https://github.com/talkiq/gcloud-aio/blob/master/storage/README.rst
+.. _Google Cloud Task Queue: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/README.rst
 
 .. |pypia| image:: https://img.shields.io/pypi/v/gcloud-aio-auth.svg?style=flat-square
     :alt: Latest PyPI Version
@@ -70,6 +66,10 @@ Installation
     :alt: CircleCI Test Status
     :target: https://circleci.com/gh/talkiq/gcloud-aio/tree/master
 
-.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square
-    :alt: Python Version Support
+.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square&label=python (aio)
+    :alt: Python Version Support (aio)
     :target: https://pypi.org/project/gcloud-aio-auth/
+
+.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-auth.svg?style=flat-square&label=python (rest)
+    :alt: Python Version Support (rest)
+    :target: https://pypi.org/project/gcloud-rest-auth/

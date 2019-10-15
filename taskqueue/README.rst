@@ -1,16 +1,14 @@
-Asyncio Python Client for Google Cloud Task Queue
-=================================================
+(Asyncio OR Threadsafe) Python Client for Google Cloud Task Queue
+=================================================================
 
-|aio-pypi| |aio-pythons| |rest-pypi| |rest-pythons|
+|pypi| |pythons-aio| |pythons-rest|
 
 Installation
 ------------
 
 .. code-block:: console
 
-    $ pip install --upgrade gcloud-aio-taskqueue
-    # or
-    $ pip install --upgrade gcloud-rest-taskqueue
+    $ pip install --upgrade gcloud-{aio,rest}-taskqueue
 
 Usage
 -----
@@ -36,18 +34,14 @@ Please see our `contributing guide`_.
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _smoke tests: https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
 
-.. |aio-pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square&label=pypi (aio)
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-taskqueue.svg?style=flat-square
     :alt: Latest PyPI Version (gcloud-aio-taskqueue)
     :target: https://pypi.org/project/gcloud-aio-taskqueue/
 
-.. |aio-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-taskqueue.svg?style=flat-square&label=python (aio)
+.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-taskqueue.svg?style=flat-square&label=python (aio)
     :alt: Python Version Support (gcloud-aio-taskqueue)
     :target: https://pypi.org/project/gcloud-aio-taskqueue/
 
-.. |rest-pypi| image:: https://img.shields.io/pypi/v/gcloud-rest-taskqueue.svg?style=flat-square&label=pypi (rest)
-    :alt: Latest PyPI Version (gcloud-rest-taskqueue)
-    :target: https://pypi.org/project/gcloud-rest-taskqueue/
-
-.. |rest-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-taskqueue.svg?style=flat-square&label=python (rest)
+.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-taskqueue.svg?style=flat-square&label=python (rest)
     :alt: Python Version Support (gcloud-rest-taskqueue)
     :target: https://pypi.org/project/gcloud-rest-taskqueue/

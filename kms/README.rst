@@ -1,16 +1,16 @@
-Asyncio Python Client for Google Cloud KMS
-==========================================
+(Asyncio OR Threadsafe) Python Client for Google Cloud KMS
+==========================================================
 
-|aio-pypi| |aio-pythons| |rest-pypi| |rest-pythons|
+    This is a shared codebase for ``gcloud-aio-kms`` and ``gcloud-rest-kms``
+
+|pypi| |pythons-aio| |pythons-rest|
 
 Installation
 ------------
 
 .. code-block:: console
 
-    $ pip install --upgrade gcloud-aio-kms
-    # or
-    $ pip install --upgrade gcloud-rest-kms
+    $ pip install --upgrade gcloud-{aio,rest}-kms
 
 Usage
 -----
@@ -39,18 +39,14 @@ Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 
-.. |aio-pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-kms.svg?style=flat-square&label=pypi (aio)
+.. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-kms.svg?style=flat-square
     :alt: Latest PyPI Version (gcloud-aio-kms)
     :target: https://pypi.org/project/gcloud-aio-kms/
 
-.. |aio-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-kms.svg?style=flat-square&label=python (aio)
+.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-kms.svg?style=flat-square&label=python (aio)
     :alt: Python Version Support (gcloud-aio-kms)
     :target: https://pypi.org/project/gcloud-aio-kms/
 
-.. |rest-pypi| image:: https://img.shields.io/pypi/v/gcloud-rest-kms.svg?style=flat-square&label=pypi (rest)
-    :alt: Latest PyPI Version (gcloud-rest-kms)
-    :target: https://pypi.org/project/gcloud-rest-kms/
-
-.. |rest-pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-kms.svg?style=flat-square&label=python (rest)
+.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-kms.svg?style=flat-square&label=python (rest)
     :alt: Python Version Support (gcloud-rest-kms)
     :target: https://pypi.org/project/gcloud-rest-kms/
