@@ -48,12 +48,15 @@ jobs:
       - run: pip install future==0.17.1
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
-  # TODO: fix after rest refactor
   docs:
     docker:
       - image: python:3.7.4
     steps:
       - run: pip install pdoc3
+      - run:
+          name: patch pdoc
+          command: |
+            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.7/site-packages/pdoc/__init__.py
       - checkout
       - run:
           name: install all sub-projects
