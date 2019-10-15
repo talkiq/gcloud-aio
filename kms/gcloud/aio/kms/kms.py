@@ -16,6 +16,11 @@ if BUILD_GCLOUD_REST:
 else:
     from aiohttp import ClientSession as Session
 
+try:
+    import ujson as json
+except ImportError:
+    import json  # type: ignore
+
 API_ROOT = 'https://cloudkms.googleapis.com/v1'
 LOCATION = 'global'
 SCOPES = [
@@ -47,12 +52,12 @@ class KMS:
     async def decrypt(self, ciphertext: str,
                       session: Optional[Session] = None) -> str:
         url = f'{self.api_root}:decrypt'
-        body = {
+        body = json.dumps({
             'ciphertext': ciphertext,
-        }
+        }).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), json=body)
+        resp = await s.post(url, headers=await self.headers(), data=body)
 
         plaintext: str = (await resp.json())['plaintext']
         return plaintext
@@ -61,12 +66,12 @@ class KMS:
     async def encrypt(self, plaintext: str,
                       session: Optional[Session] = None) -> str:
         url = f'{self.api_root}:encrypt'
-        body = {
+        body = json.dumps({
             'plaintext': plaintext,
-        }
+        }).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), json=body)
+        resp = await s.post(url, headers=await self.headers(), data=body)
 
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext
