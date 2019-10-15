@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-auth',
-    version='3.0.0',
+    version='3.0.1',
     description='Python Client for Google Cloud Auth',
     long_description=README,
     namespace_packages=[
