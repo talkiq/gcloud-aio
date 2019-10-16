@@ -13,11 +13,45 @@ Installation
 
     $ pip install --upgrade gcloud-{aio,rest}-storage
 
+
 Usage
 -----
 
-We're still working on documentation -- for now, you can use the `smoke test`_
-as an example.
+.. code:: python
+
+    import asyncio
+    import aiohttp
+    # pip install aiofile
+    from aiofile import AIOFile
+    from gcloud.aio.storage import Storage 
+
+    BUCKET_NAME = '<bucket_name>'
+    FILE_NAME  = '<file_name>'
+    async def async_upload_to_bucket(blob_name, file_obj, folder='uploads'):
+        """ Upload files to bucket. """
+        async with aiohttp.ClientSession() as session:
+            storage = Storage(service_file='./creds.json', session=session) 
+            status = await storage.upload(BUCKET_NAME, f'{folder}/{blob_name}', file_obj)
+            #info of the uploaded file
+            # print(status)
+            return status['selfLink']
+
+
+    async def main():
+        async with AIOFile(FILE_NAME, mode='r') as afp:
+            f = await afp.read()
+            url = await async_upload_to_bucket(FILE_NAME, f)
+            print(url)
+
+
+    # Python 3.6
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+
+    # Python 3.7+
+    # asyncio.run(main())
+    
+You can also refer `smoke test`_.
 
 Contributing
 ------------
