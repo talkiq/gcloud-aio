@@ -112,7 +112,7 @@ jobs:
       - deploy:
           name: upload to pypi
           command: |
-            cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
+            cd "${CIRCLE_TAG%-*}"
             python setup.py sdist bdist_wheel
             twine upload dist/*
 
@@ -126,11 +126,11 @@ jobs:
       - deploy:
           name: upload to pypi
           command: |
-            cd rest/
-            cd $(echo "${CIRCLE_TAG}" | sed 's/-.*//')
-            if [ "${PWD##*/}" = "pubsub" ]; then
+            if [ "${CIRCLE_TAG%-*}" = "pubsub" ]; then
               circleci-agent step halt
             fi
+
+            cd "rest/${CIRCLE_TAG%-*}"
             python setup.py sdist bdist_wheel
             twine upload dist/*
 
