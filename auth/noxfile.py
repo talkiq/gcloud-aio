@@ -3,6 +3,27 @@ import os
 import nox
 
 
+def require_creds(session):
+    creds = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    if not creds:
+        session.skip('credentials must be set via environment variable '
+                     '$GOOGLE_APPLICATION_CREDENTIALS. Value not set; '
+                     'skipping integration tests')
+
+    try:
+        if open(creds, 'r').read():
+            # not necessarily _valid_ creds, but that'd probably be too hard
+            return
+    except IOError:
+        session.skip('credentials must be set via environment variable '
+                     '$GOOGLE_APPLICATION_CREDENTIALS. Value does not point '
+                     'to a file; skipping integration tests')
+
+    session.skip('credentials must be set via environment '
+                 'variable $GOOGLE_APPLICATION_CREDENTIALS. Value points to '
+                 'an empty file; skipping integration tests')
+
+
 @nox.session(python=['3.6', '3.7'], reuse_venv=True)
 def unit_tests(session):
     session.install('future')
@@ -16,8 +37,7 @@ def unit_tests(session):
 
 @nox.session(python=['3.7'], reuse_venv=True)
 def integration_tests(session):
-    if not os.environ.get('GOOGLE_APPLICATION_CREDENTIALS', ''):
-        session.skip('Credentials must be set via environment variable.')
+    require_creds(session)
 
     session.install('future')
     session.install('aiohttp', 'pytest', 'pytest-asyncio', 'pytest-mock')
