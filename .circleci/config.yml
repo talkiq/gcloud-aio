@@ -45,7 +45,7 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: rest
-      - run: pip install future==0.17.1
+      - run: python3 -m pip install future==0.17.1
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
   docs:
