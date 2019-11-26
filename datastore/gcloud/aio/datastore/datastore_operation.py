@@ -17,7 +17,7 @@ class DatastoreOperation:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'DatastoreOperation':
-        return cls(data['name'], data['done'], data.get('metadata'),
+        return cls(data['name'], data.get('done', False), data.get('metadata'),
                    data.get('error'), data.get('response'))
 
     def to_repr(self) -> Dict[str, Any]:
