@@ -78,6 +78,7 @@ class Table:
             'Authorization': f'Bearer {token}',
         }
 
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     async def insert(
             self, rows: List[Dict[str, Any]], skip_invalid: bool = False,
             ignore_unknown: bool = True, session: Optional[Session] = None,

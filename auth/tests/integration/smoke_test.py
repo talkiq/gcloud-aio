@@ -103,4 +103,12 @@ async def test_get_service_account_public_key(creds: str) -> None:
         key_id = resp[0]['name'].split('/')[-1]
         pub_key_by_key_id_data = await iam_client.get_public_key(key_id=key_id,
                                                                  session=s)
+
+        # Sometimes, one or both keys will be created with "no" expiry.
+        pub_key_time = pub_key_data.pop('validBeforeTime')
+        pub_key_by_key_id_time = pub_key_by_key_id_data.pop('validBeforeTime')
+        assert (pub_key_time == pub_key_by_key_id_time
+                or '9999-12-31T23:59:59Z' in {pub_key_time,
+                                              pub_key_by_key_id_time})
+
         assert pub_key_data == pub_key_by_key_id_data
