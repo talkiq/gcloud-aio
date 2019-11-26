@@ -126,10 +126,6 @@ jobs:
       - deploy:
           name: upload to pypi
           command: |
-            if [ "${CIRCLE_TAG%-*}" = "pubsub" ]; then
-              circleci-agent step halt
-            fi
-
             cd "rest/${CIRCLE_TAG%-*}"
             python setup.py sdist bdist_wheel
             twine upload dist/*
@@ -404,5 +400,6 @@ workflows:
               ignore: /.*/
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              ignore: /pubsub-*/
           requires:
             - hold
