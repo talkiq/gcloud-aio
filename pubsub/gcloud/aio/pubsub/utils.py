@@ -23,9 +23,10 @@ def convert_google_future_to_concurrent_future(
 
     Here are the gotchas is uses to do so:
     - sets `future.__class__` so the `isinstance` check works
-    - sets `future._condition`, `future._state`, and `future._done_callbacks`
-      to their equivalent expected values (these are the attributes which
-      Google decided to avoid mirroring from `concurrent.futures`)
+    - sets `future._condition`, `future._state`, `future._done_callbacks` and
+      `future._waiters` to their equivalent expected values (these are the
+      attributes which Google decided to avoid mirroring from
+      `concurrent.futures`)
     - spawns an infinite task which `await`s every second, which prevents the
       Google future from occasionally getting stuck
     """
@@ -42,5 +43,6 @@ def convert_google_future_to_concurrent_future(
     setattr(future, '_state', property(_state))
     setattr(future, '_done_callbacks',
             future._callbacks)  # pylint: disable=protected-access
+    setattr(future, '_waiters', [])
 
     loop.create_task(await_on_interval(1))
