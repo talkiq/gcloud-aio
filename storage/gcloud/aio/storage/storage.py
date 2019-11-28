@@ -57,6 +57,40 @@ class Storage:
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
+    async def copy(self, bucket: str, object_name: str,
+                   destination_bucket: str, *, new_name: str = None,
+                   headers: dict = None, params: dict = None,
+                   timeout: int = 10,
+                   session: Optional[Session] = None) -> bytes:
+        token = await self.token.get()
+
+        if not new_name:
+            new_name = object_name
+
+        # Using `rewriteTo` is preferred in part because it is able to make
+        # multiple calls to fully copy an object.
+        #
+        # https://cloud.google.com/storage/docs/renaming-copying-moving-objects#storage-copy-object-python
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/copy
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        encoded_object_name = quote(object_name, safe='')
+        encoded_new_name = quote(new_name, safe='')
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}/rewriteTo/b/{destination_bucket}/o/{encoded_new_name}'
+
+        headers = headers or {}
+        headers.update({
+            'Authorization': f'Bearer {token}',
+            'Content-Length': '0',
+            'Content-Type': '',
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, params=params or {},
+                            timeout=timeout)
+
+        data: dict = await resp.json()
+        return data
+
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
                      session: Optional[Session] = None) -> str:
