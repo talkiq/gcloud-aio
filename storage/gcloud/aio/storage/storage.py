@@ -70,12 +70,11 @@ class Storage:
         # Using `rewriteTo` is preferred in part because it is able to make
         # multiple calls to fully copy an object.
         #
-        # https://cloud.google.com/storage/docs/renaming-copying-moving-objects#storage-copy-object-python
-        # https://cloud.google.com/storage/docs/json_api/v1/objects/copy
         # https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         encoded_object_name = quote(object_name, safe='')
         encoded_new_name = quote(new_name, safe='')
-        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}/rewriteTo/b/{destination_bucket}/o/{encoded_new_name}'
+        url = (f'{API_ROOT}/{bucket}/o/{encoded_object_name}/rewriteTo'
+               f'/b/{destination_bucket}/o/{encoded_new_name}')
 
         headers = headers or {}
         headers.update({
@@ -84,11 +83,24 @@ class Storage:
             'Content-Type': '',
         })
 
+        params = params or {}
+
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, params=params or {},
+        resp = await s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
         data: dict = await resp.json()
+
+        # When files are too large, multiple calls to `rewriteTo` need to be
+        # made. To refer to the same copy job, the `rewriteToken` from the
+        # previous return payload is used in subsequent `rewriteTo` calls. The
+        # user then has 1 week to complete the copy job.
+        while not data.get('done') and data.get('rewriteToken'):
+            params['rewriteToken'] = data['rewriteToken']
+            resp = await s.post(url, headers=headers, params=params,
+                                timeout=timeout)
+            data = await resp.json()
+
         return data
 
     async def delete(self, bucket: str, object_name: str, *,
