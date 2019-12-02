@@ -62,15 +62,28 @@ class Storage:
                    headers: dict = None, params: dict = None,
                    timeout: int = 10,
                    session: Optional[Session] = None) -> bytes:
+
+        """
+        When files are too large, multiple calls to `rewriteTo` are made. We
+        refer to the same copy job by using the `rewriteToken` from the
+        previous return payload in subsequent `rewriteTo` calls.
+
+        Using the `rewriteTo` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the `copyTo` GCS
+        API only calls `rewriteTo` once under the hood, and thus may fail if
+        files are large.
+
+        In the rare case you need to resume a copy operation, include the
+        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+        copy operation, you then have 1 week to complete the copy job.
+
+        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        """
         token = await self.token.get()
 
         if not new_name:
             new_name = object_name
 
-        # Using `rewriteTo` is preferred in part because it is able to make
-        # multiple calls to fully copy an object.
-        #
-        # https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         url = (f"{API_ROOT}/{bucket}/o/{quote(object_name, safe='')}/rewriteTo"
                f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
 
@@ -89,10 +102,6 @@ class Storage:
 
         data: dict = await resp.json()
 
-        # When files are too large, multiple calls to `rewriteTo` need to be
-        # made. To refer to the same copy job, the `rewriteToken` from the
-        # previous return payload is used in subsequent `rewriteTo` calls. The
-        # user then has 1 week to complete the copy job.
         while not data.get('done') and data.get('rewriteToken'):
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(url, headers=headers, params=params,
