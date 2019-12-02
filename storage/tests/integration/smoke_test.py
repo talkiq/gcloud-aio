@@ -23,7 +23,7 @@ else:
 async def test_object_life_cycle(bucket_name, creds, uploaded_data,
                                  expected_data, file_extension):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
-    copied_object_name = f'copyof_{copied_object_name}'
+    copied_object_name = f'copyof_{object_name}'
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)

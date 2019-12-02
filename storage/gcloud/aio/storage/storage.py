@@ -71,10 +71,8 @@ class Storage:
         # multiple calls to fully copy an object.
         #
         # https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
-        encoded_object_name = quote(object_name, safe='')
-        encoded_new_name = quote(new_name, safe='')
-        url = (f'{API_ROOT}/{bucket}/o/{encoded_object_name}/rewriteTo'
-               f'/b/{destination_bucket}/o/{encoded_new_name}')
+        url = (f"{API_ROOT}/{bucket}/o/{quote(object_name, safe='')}/rewriteTo"
+               f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
 
         headers = headers or {}
         headers.update({
