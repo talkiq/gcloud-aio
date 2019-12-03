@@ -57,6 +57,65 @@ class Storage:
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
+    async def copy(self, bucket: str, object_name: str,
+                   destination_bucket: str, *, new_name: str = None,
+                   headers: dict = None, params: dict = None,
+                   timeout: int = 10,
+                   session: Optional[Session] = None) -> bytes:
+
+        """
+        When files are too large, multiple calls to `rewriteTo` are made. We
+        refer to the same copy job by using the `rewriteToken` from the
+        previous return payload in subsequent `rewriteTo` calls.
+
+        Using the `rewriteTo` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the `copyTo` GCS
+        API only calls `rewriteTo` once under the hood, and thus may fail if
+        files are large.
+
+        In the rare case you need to resume a copy operation, include the
+        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
+        copy operation, you then have 1 week to complete the copy job.
+
+        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        """
+        token = await self.token.get()
+
+        if not new_name:
+            new_name = object_name
+
+        url = (f"{API_ROOT}/{bucket}/o/{quote(object_name, safe='')}/rewriteTo"
+               f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
+
+        # We may optionally supply metadata* to apply to the rewritten
+        # object, which explains why `rewriteTo` is a POST endpoint; however,
+        # we don't expose that here so we have to send an empty body. Therefore
+        # the `Content-Length` and `Content-Type` indicate an empty body.
+        #
+        # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        headers = headers or {}
+        headers.update({
+            'Authorization': f'Bearer {token}',
+            'Content-Length': '0',
+            'Content-Type': '',
+        })
+
+        params = params or {}
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, params=params,
+                            timeout=timeout)
+
+        data: dict = await resp.json()
+
+        while not data.get('done') and data.get('rewriteToken'):
+            params['rewriteToken'] = data['rewriteToken']
+            resp = await s.post(url, headers=headers, params=params,
+                                timeout=timeout)
+            data = await resp.json()
+
+        return data
+
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
                      session: Optional[Session] = None) -> str:
