@@ -87,6 +87,12 @@ class Storage:
         url = (f"{API_ROOT}/{bucket}/o/{quote(object_name, safe='')}/rewriteTo"
                f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
 
+        # We may optionally supply metadata* to apply to the rewritten
+        # object, which explains why `rewriteTo` is a POST endpoint; however,
+        # we don't expose that here so we have to send an empty body. Therefore
+        # the `Content-Length` and `Content-Type` indicate an empty body.
+        #
+        # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update({
             'Authorization': f'Bearer {token}',
