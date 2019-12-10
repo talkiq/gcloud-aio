@@ -89,6 +89,7 @@ async def test_rollback(creds: str, project: str) -> None:
         transaction = await ds.beginTransaction(session=s)
         await ds.rollback(transaction, session=s)
 
+
 @pytest.mark.asyncio  # type: ignore
 async def test_query_with_key_projection(creds: str, kind: str,
                                          project: str) -> None:
@@ -109,6 +110,7 @@ async def test_query_with_key_projection(creds: str, kind: str,
         # clean up test data
         await ds.delete(result.entity_results[0].entity.key, s)
 
+
 @pytest.mark.asyncio  # type: ignore
 async def test_query_with_value_projection(creds: str, kind: str,
                                            project: str) -> None:
@@ -124,6 +126,7 @@ async def test_query_with_value_projection(creds: str, kind: str,
         assert result.entity_result_type.value == 'PROJECTION'
         # clean up test data
         await ds.delete(result.entity_results[0].entity.key, s)
+
 
 @pytest.mark.asyncio  # type: ignore
 async def test_query_with_distinct_on(creds: str, kind: str,
@@ -209,7 +212,6 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         assert len(after.entity_results) == num_results + 3
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio  # type: ignore
 async def test_datastore_export(creds: str, project: str,
                                 export_bucket_name: str):
