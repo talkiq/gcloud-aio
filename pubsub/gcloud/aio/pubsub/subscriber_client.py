@@ -95,8 +95,8 @@ class SubscriberClient:
     def _wrap_callback(self,
                        callback: Callable[[Message], None]
                        ) -> Callable[[Message], None]:
-        """Wrap callback function in an asyncio task"""
+        """Schedule callback to be called from the event loop"""
         def _callback_wrapper(message: Message) -> None:
-            self.loop.create_task(callback(message))
+            asyncio.run_coroutine_threadsafe(callback(message), self.loop)
 
         return _callback_wrapper
