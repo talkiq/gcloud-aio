@@ -72,8 +72,8 @@ class Value:  # pylint:disable=useless-object-inheritance
         }
 
     def _infer_type(self, value: Any) -> TypeName:
-        # Compatibility for python2
-        kind = str if 'unicode' in value.__class__.__name__ else type(value)
+        odd_strings = {'newstr', 'unicode'}
+        kind = str if value.__class__.__name__ in odd_strings else type(value)
         supported_types = self._get_supported_types()
 
         try:
