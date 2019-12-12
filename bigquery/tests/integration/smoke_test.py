@@ -3,9 +3,9 @@ import uuid
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.bigquery import Table
-from gcloud.aio.datastore import Datastore
-from gcloud.aio.datastore import Key
-from gcloud.aio.datastore import PathElement
+from gcloud.aio.datastore import Datastore  # pylint: disable=no-name-in-module
+from gcloud.aio.datastore import Key        # pylint: disable=no-name-in-module
+from gcloud.aio.datastore import PathElement  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Storage
 
 # Selectively load libraries based on the package
@@ -30,8 +30,9 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_table_load_copy(creds: str, dataset: str, project: str, export_bucket_name: str,
-                               backup_entity_table: str, copy_entity_table: str) -> None:
+async def test_table_load_copy(  # pylint: disable=too-many-locals
+        creds: str, dataset: str, project: str, export_bucket_name: str,
+        backup_entity_table: str, copy_entity_table: str) -> None:
     kind = 'PublicTestDatastoreExportModel'
 
     rand_uuid = str(uuid.uuid4())
@@ -52,9 +53,11 @@ async def test_table_load_copy(creds: str, dataset: str, project: str, export_bu
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
 
-        t = Table(dataset, backup_entity_table, project=project, service_file=creds, session=s)
+        t = Table(dataset, backup_entity_table, project=project,
+                  service_file=creds, session=s)
         gs_prefix = operation.metadata['outputUrlPrefix']
-        gs_file = f'{gs_prefix}/all_namespaces/kind_{kind}/all_namespaces_kind_{kind}.export_metadata'
+        gs_file = (f'{gs_prefix}/all_namespaces/kind_{kind}/'
+                   f'all_namespaces_kind_{kind}.export_metadata')
         await t.load([gs_file])
 
         await sleep(10)
@@ -64,7 +67,8 @@ async def test_table_load_copy(creds: str, dataset: str, project: str, export_bu
 
         await t.copy(project, dataset, copy_entity_table)
         await sleep(10)
-        t1 = Table(dataset, copy_entity_table, project=project, service_file=creds, session=s)
+        t1 = Table(dataset, copy_entity_table, project=project,
+                   service_file=creds, session=s)
         copy_table = await t1.get()
         assert copy_table['numRows'] == source_table['numRows']
 

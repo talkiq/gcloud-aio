@@ -73,7 +73,8 @@ class Table:
             } for row in rows],
         }
 
-    def _make_load_body(self, source_uris: List[str], project: str) -> Dict[str, Any]:
+    def _make_load_body(
+            self, source_uris: List[str], project: str) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
@@ -89,8 +90,10 @@ class Table:
             }
         }
 
-    def _make_copy_body(self, source_project: str, destination_project: str, destination_dataset: str,
-                        destination_table: str) -> Dict[str, Any]:
+    def _make_copy_body(
+            self, source_project: str, destination_project: str,
+            destination_dataset: str,
+            destination_table: str) -> Dict[str, Any]:
         return {
             'configuration': {
                 'copy': {
@@ -115,7 +118,8 @@ class Table:
             'Authorization': f'Bearer {token}',
         }
 
-    # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/
+    # tabledata/insertAll
     async def insert(
             self, rows: List[Dict[str, Any]], skip_invalid: bool = False,
             ignore_unknown: bool = True, session: Optional[Session] = None,
@@ -155,8 +159,9 @@ class Table:
                             timeout=timeout)
         return await resp.json()
 
-    async def load(self, source_uris: List[str], session: Optional[Session] = None,
-                   timeout: int = 60) -> Dict[str, Any]:
+    async def load(
+            self, source_uris: List[str], session: Optional[Session] = None,
+            timeout: int = 60) -> Dict[str, Any]:
         """
         Loads entities from storage to big query.
 
@@ -187,13 +192,15 @@ class Table:
 
         https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
         """
-        if not (destination_project and destination_dataset and destination_table):
+        if not (destination_project and destination_dataset
+                and destination_table):
             return {}
 
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
-        body = self._make_copy_body(project, destination_project, destination_dataset,
-                                    destination_table)
+        body = self._make_copy_body(
+            project, destination_project,
+            destination_dataset, destination_table)
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -206,28 +213,35 @@ class Table:
                             timeout=timeout)
         return await resp.json()
 
-    async def get(self, session: Optional[Session]= None, timeout: int = 60) -> Dict[str, Any]:
+    async def get(
+            self, session: Optional[Session] = None,
+            timeout: int = 60) -> Dict[str, Any]:
         """
         Gets the specified table resource by table ID
 
         https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
         """
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/tables/{self.table_name}'
+        url = (f'{API_ROOT}/projects/{project}/datasets/'
+               f'{self.dataset_name}/tables/{self.table_name}')
         headers = await self.headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         return await resp.json()
 
-    async def delete(self, session: Optional[Session] = None, timeout: int = 60) -> Dict[str, Any]:
+    async def delete(self,
+                     session: Optional[Session] = None,
+                     timeout: int = 60) -> Dict[str, Any]:
         """
         Deletes the table specified by tableId from the dataset.
 
         https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
         """
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/tables/{self.table_name}'
+        url = (f'{API_ROOT}/projects/{project}/datasets/'
+               f'{self.dataset_name}/tables/{self.table_name}')
         headers = await self.headers()
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers, params=None, timeout=timeout)
+        resp = await s.delete(
+            url, headers=headers, params=None, timeout=timeout)
         return await resp.json()
