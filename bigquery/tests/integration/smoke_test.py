@@ -6,7 +6,7 @@ from gcloud.aio.bigquery import Table
 from gcloud.aio.datastore import Datastore  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Key        # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import PathElement  # pylint: disable=no-name-in-module
-from gcloud.aio.storage import Storage
+from gcloud.aio.storage import Storage      # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
