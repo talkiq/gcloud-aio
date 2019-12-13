@@ -154,8 +154,14 @@ class Table:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers, params=None,
-                              timeout=timeout)
+        # TODO: finish debugging
+        # resp = await s.delete(url, headers=headers, params=None,
+        #                       timeout=timeout)
+        # return await resp.json()
+        resp = await s.session.delete(url, headers=headers, params=None,
+                                      timeout=timeout)
+        print(await resp.text())
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get

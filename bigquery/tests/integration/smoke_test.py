@@ -30,9 +30,9 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_table_load_copy(  # pylint: disable=too-many-locals
-        creds: str, dataset: str, project: str, export_bucket_name: str,
-        backup_entity_table: str, copy_entity_table: str) -> None:
+async def test_table_load_copy(creds: str, dataset: str, project: str,
+                               export_bucket_name: str) -> None:
+    # pylint: disable=too-many-locals
     # N.B. this test relies on Datastore.export -- see `test_datastore_export`
     # in the `gcloud-aio-datastore` smoke tests.
     kind = 'PublicTestDatastoreExportModel'
@@ -56,6 +56,9 @@ async def test_table_load_copy(  # pylint: disable=too-many-locals
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
+
+        backup_entity_table = f'public_test_backup_entity_{uuid.uuid4()}'
+        copy_entity_table = f'{backup_entity_table}_copy'
 
         t = Table(dataset, backup_entity_table, project=project,
                   service_file=creds, session=s)
