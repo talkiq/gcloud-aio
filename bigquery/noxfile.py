@@ -3,7 +3,7 @@ import os
 import nox
 
 
-LOCAL_DEPS = ('../auth/', )
+LOCAL_DEPS = ('../auth/', '../datastore/', '../storage/')
 
 
 def require_creds(session):

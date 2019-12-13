@@ -215,6 +215,8 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
 @pytest.mark.asyncio  # type: ignore
 async def test_datastore_export(creds: str, project: str,
                                 export_bucket_name: str):
+    # N.B. when modifying this test, please also see `test_table_load_copy` in
+    # `gcloud-aio-bigquery`.
     kind = 'PublicTestDatastoreExportModel'
 
     rand_uuid = str(uuid.uuid4())

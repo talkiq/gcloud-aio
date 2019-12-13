@@ -4,9 +4,9 @@ import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.bigquery import Table
 from gcloud.aio.datastore import Datastore  # pylint: disable=no-name-in-module
-from gcloud.aio.datastore import Key        # pylint: disable=no-name-in-module
+from gcloud.aio.datastore import Key  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import PathElement  # pylint: disable=no-name-in-module
-from gcloud.aio.storage import Storage      # pylint: disable=no-name-in-module
+from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -33,12 +33,15 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
 async def test_table_load_copy(  # pylint: disable=too-many-locals
         creds: str, dataset: str, project: str, export_bucket_name: str,
         backup_entity_table: str, copy_entity_table: str) -> None:
+    # N.B. this test relies on Datastore.export -- see `test_datastore_export`
+    # in the `gcloud-aio-datastore` smoke tests.
     kind = 'PublicTestDatastoreExportModel'
 
     rand_uuid = str(uuid.uuid4())
 
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
+
         await ds.insert(Key(project, [PathElement(kind)]),
                         properties={'rand_str': rand_uuid})
 
@@ -52,6 +55,7 @@ async def test_table_load_copy(  # pylint: disable=too-many-locals
             count += 1
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
+        # END: copy from `test_datastore_export`
 
         t = Table(dataset, backup_entity_table, project=project,
                   service_file=creds, session=s)

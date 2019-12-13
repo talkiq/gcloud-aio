@@ -26,12 +26,12 @@ def project() -> str:
 
 @pytest.fixture(scope='module')  # type: ignore
 def backup_entity_table() -> str:
-    return 'backup_entity'
+    return 'public_test_backup_entity'
 
 
 @pytest.fixture(scope='module')  # type: ignore
 def copy_entity_table() -> str:
-    return 'copy_backup_entity'
+    return 'public_test_backup_entity_copy'
 
 
 @pytest.fixture(scope='module')  # type: ignore
