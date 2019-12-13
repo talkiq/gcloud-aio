@@ -87,6 +87,7 @@ if not BUILD_GCLOUD_REST:
                          ) -> aiohttp.ClientResponse:
             resp = await self.session.delete(url, headers=headers,
                                              params=params, timeout=timeout)
+            print(await resp.json())
             resp.raise_for_status()
             return resp
 
@@ -146,6 +147,7 @@ if BUILD_GCLOUD_REST:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
                                            timeout=timeout)
+            print(resp.json)
             resp.raise_for_status()
             return resp
 
