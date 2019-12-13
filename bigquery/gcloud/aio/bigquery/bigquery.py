@@ -240,6 +240,12 @@ class Table:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, params=None,
-                            timeout=timeout)
+        # TODO: finish debugging
+        # resp = await s.post(url, data=payload, headers=headers, params=None,
+        #                     timeout=timeout)
+        # return await resp.json()
+        resp = await s.session.post(url, headers=headers, params=None,
+                                    data=payload, timeout=timeout)
+        print(await resp.text())
+        resp.raise_for_status()
         return await resp.json()
