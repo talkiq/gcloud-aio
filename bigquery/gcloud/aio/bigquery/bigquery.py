@@ -165,7 +165,13 @@ class Table:
         except (AttributeError, TypeError):
             print(resp.text)
         resp.raise_for_status()
-        return await resp.json()
+        try:
+            return await resp.json()
+        except Exception:
+            try:
+                return await resp.text()
+            except Exception:
+                return {'foo': 'bar'}
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(
