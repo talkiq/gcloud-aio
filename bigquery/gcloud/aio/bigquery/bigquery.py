@@ -160,7 +160,10 @@ class Table:
         # return await resp.json()
         resp = await s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
-        print(await resp.text())
+        try:
+            print(await resp.text())
+        except (AttributeError, TypeError):
+            print(resp.text)
         resp.raise_for_status()
         return await resp.json()
 
@@ -246,6 +249,9 @@ class Table:
         # return await resp.json()
         resp = await s.session.post(url, headers=headers, params=None,
                                     data=payload, timeout=timeout)
-        print(await resp.text())
+        try:
+            print(await resp.text())
+        except (AttributeError, TypeError):
+            print(resp.text)
         resp.raise_for_status()
         return await resp.json()
