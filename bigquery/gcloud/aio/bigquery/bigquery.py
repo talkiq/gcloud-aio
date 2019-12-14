@@ -251,6 +251,7 @@ class Table:
                                     data=payload, timeout=timeout)
         try:
             print(await resp.text())
+
         except (AttributeError, TypeError):
             print(resp.text)
         resp.raise_for_status()
