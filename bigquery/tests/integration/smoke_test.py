@@ -57,7 +57,8 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
 
-        backup_entity_table = f'public_test_backup_entity_{uuid.uuid4()}'
+        uuid_ = str(uuid.uuid4()).replace('-', '_')
+        backup_entity_table = f'public_test_backup_entity_{uuid_}'
         copy_entity_table = f'{backup_entity_table}_copy'
 
         t = Table(dataset, backup_entity_table, project=project,
