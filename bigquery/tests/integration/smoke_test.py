@@ -24,15 +24,16 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
             for _ in range(3)]
 
     async with Session() as s:
+        # TODO: create this table (with a random name)
         t = Table(dataset, table, project=project, service_file=creds,
                   session=s)
         await t.insert(rows)
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_table_load_copy(  # pylint: disable=too-many-locals
-        creds: str, dataset: str, project: str, export_bucket_name: str,
-        backup_entity_table: str, copy_entity_table: str) -> None:
+async def test_table_load_copy(creds: str, dataset: str, project: str,
+                               export_bucket_name: str) -> None:
+    # pylint: disable=too-many-locals
     # N.B. this test relies on Datastore.export -- see `test_datastore_export`
     # in the `gcloud-aio-datastore` smoke tests.
     kind = 'PublicTestDatastoreExportModel'
@@ -56,6 +57,10 @@ async def test_table_load_copy(  # pylint: disable=too-many-locals
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
+
+        uuid_ = str(uuid.uuid4()).replace('-', '_')
+        backup_entity_table = f'public_test_backup_entity_{uuid_}'
+        copy_entity_table = f'{backup_entity_table}_copy'
 
         t = Table(dataset, backup_entity_table, project=project,
                   service_file=creds, session=s)
@@ -81,6 +86,7 @@ async def test_table_load_copy(  # pylint: disable=too-many-locals
         await t1.delete()
 
         # delete the export file in google storage
+        # TODO: confugure the bucket with autodeletion
         prefix_len = len(f'gs://{export_bucket_name}/')
         export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
 

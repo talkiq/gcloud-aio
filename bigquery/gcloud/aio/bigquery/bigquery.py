@@ -154,9 +154,18 @@ class Table:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers, params=None,
-                              timeout=timeout)
-        return await resp.json()
+        resp = await s.session.delete(url, headers=headers, params=None,
+                                      timeout=timeout)
+        try:
+            return await resp.json()
+        except Exception:  # pylint: disable=broad-except
+            # For some reason, `gcloud-rest` seems to have intermittent issues
+            # parsing this response. In that case, fall back to returning the
+            # raw response body.
+            try:
+                return {'response': await resp.text()}
+            except (AttributeError, TypeError):
+                return {'response': resp.text}
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(

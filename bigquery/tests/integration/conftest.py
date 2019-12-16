@@ -25,15 +25,5 @@ def project() -> str:
 
 
 @pytest.fixture(scope='module')  # type: ignore
-def backup_entity_table() -> str:
-    return 'public_test_backup_entity'
-
-
-@pytest.fixture(scope='module')  # type: ignore
-def copy_entity_table() -> str:
-    return 'public_test_backup_entity_copy'
-
-
-@pytest.fixture(scope='module')  # type: ignore
 def export_bucket_name() -> str:
     return 'dialpad-oss-public-test'
