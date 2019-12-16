@@ -6,7 +6,7 @@ orbs:
 jobs:
   lint-rest:
     docker:
-      - image: python:2.7.16
+      - image: python:2.7.17
     steps:
       - attach_workspace:
           at: rest
