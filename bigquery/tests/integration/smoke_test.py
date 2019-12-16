@@ -24,6 +24,7 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
             for _ in range(3)]
 
     async with Session() as s:
+        # TODO: create this table (with a random name)
         t = Table(dataset, table, project=project, service_file=creds,
                   session=s)
         await t.insert(rows)
@@ -85,6 +86,7 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         await t1.delete()
 
         # delete the export file in google storage
+        # TODO: confugure the bucket with autodeletion
         prefix_len = len(f'gs://{export_bucket_name}/')
         export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
 

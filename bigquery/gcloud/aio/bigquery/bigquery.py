@@ -167,10 +167,10 @@ class Table:
         resp.raise_for_status()
         try:
             return await resp.json()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             try:
                 return await resp.text()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 return {'foo': 'bar'}
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
@@ -224,8 +224,18 @@ class Table:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, params=None,
-                            timeout=timeout)
+        # TODO: finish debugging
+        # resp = await s.post(url, data=payload, headers=headers, params=None,
+        #                     timeout=timeout)
+        # return await resp.json()
+        resp = await s.session.post(url, headers=headers, params=None,
+                                    data=payload, timeout=timeout)
+        try:
+            print(await resp.text())
+
+        except (AttributeError, TypeError):
+            print(resp.text)
+        resp.raise_for_status()
         return await resp.json()
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
