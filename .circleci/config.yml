@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@1
+  tester: talkiq/tester@1.2
 
 jobs:
   lint-rest:
@@ -238,6 +239,35 @@ workflows:
           requires:
             - build-rest
 
+      - tester/pipcheck:
+          name: pipcheck-auth
+          install_args: auth/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-bigquery
+          install_args: bigquery/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-datastore
+          install_args: datastore/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-kms
+          install_args: kms/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-pubsub
+          install_args: pubsub/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-storage
+          install_args: storage/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-taskqueue
+          install_args: taskqueue/
+          python_version: 3.6.6
+
       # build docs
       - docs:
           filters:
@@ -360,6 +390,13 @@ workflows:
           requires:
             - linter/pre-commit
             - lint-rest
+            - pipcheck-auth
+            - pipcheck-bigquery
+            - pipcheck-datastore
+            - pipcheck-kms
+            - pipcheck-pubsub
+            - pipcheck-storage
+            - pipcheck-taskqueue
             - test-auth
             - test-bigquery
             - test-datastore
