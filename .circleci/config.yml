@@ -160,7 +160,7 @@ jobs:
       - image: python:3.7.6-slim
     steps:
       - checkout
-      - run: pip install -r requirements.py3to2.txt
+      - run: pip install -r requirements.txt
 
       # Remove pubsub, its just an aio shim
       - run: rm -r ./pubsub
