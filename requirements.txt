@@ -1,4 +1,4 @@
 future==0.17.1
 future-fstrings[rewrite]==1.2.0
-pytest==2.3.1
+pytest==3.10.1
 strip-hints==0.1.7
