@@ -26,12 +26,19 @@ class Entity:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Entity':
-        return cls(cls.key_kind.from_repr(data['key']), data.get('properties'))
+        # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
+        # "for example, an entity in Value.entity_value may have no key"
+        if 'key' in data:
+            key = cls.key_kind.from_repr(data['key'])
+        else:
+            key = None
+        return cls(key, data.get('properties'))
 
     def to_repr(self) -> Dict[str, Any]:
         return {
-            'key': self.key.to_repr(),
-            'properties': self.properties,
+            'key': self.key.to_repr() if self.key else None,
+            'properties': {k: self.value_kind(v).to_repr()
+                           for k, v in self.properties.items()},
         }
 
 

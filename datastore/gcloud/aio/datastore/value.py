@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any
 from typing import Dict
 
+from gcloud.aio.datastore import entity
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.key import Key
@@ -35,6 +36,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             if json_key in data:
                 if json_key == 'nullValue':
                     value = None
+                elif value_type == entity.Entity:
+                    value = value_type.from_repr(data[json_key])
                 elif value_type == datetime:
                     value = datetime.strptime(data[json_key],
                                               '%Y-%m-%dT%H:%M:%S.%f000Z')
@@ -60,7 +63,7 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     def to_repr(self) -> Dict[str, Any]:
         value_type = self._infer_type(self.value)
-        if value_type in {TypeName.GEOPOINT, TypeName.KEY}:
+        if value_type in {TypeName.ENTITY, TypeName.GEOPOINT, TypeName.KEY}:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
@@ -88,5 +91,6 @@ class Value:  # pylint:disable=useless-object-inheritance
         supported_types = TYPES
         supported_types.update({
             cls.key_kind: TypeName.KEY,
+            entity.Entity: TypeName.ENTITY,
         })
         return supported_types
