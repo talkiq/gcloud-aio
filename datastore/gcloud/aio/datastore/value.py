@@ -5,7 +5,6 @@ from typing import Dict
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.lat_lng import LatLng
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
@@ -29,8 +28,6 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Value':
-        from gcloud.aio.datastore import entity
-
         supported_types = cls._get_supported_types()
         for value_type, type_name in supported_types.items():
             json_key = type_name.value
@@ -40,7 +37,7 @@ class Value:  # pylint:disable=useless-object-inheritance
                 elif value_type == datetime:
                     value = datetime.strptime(data[json_key],
                                               '%Y-%m-%dT%H:%M:%S.%f000Z')
-                elif value_type in {cls.key_kind, LatLng, entity.Entity}:
+                elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
                 else:
                     value = value_type(data[json_key])
@@ -60,7 +57,8 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     def to_repr(self) -> Dict[str, Any]:
         value_type = self._infer_type(self.value)
-        if value_type in {TypeName.ENTITY, TypeName.GEOPOINT, TypeName.KEY}:
+        if value_type in {TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
+                          TypeName.KEY}:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
@@ -85,11 +83,13 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     @classmethod
     def _get_supported_types(cls):
+        from gcloud.aio.datastore import array
         from gcloud.aio.datastore import entity
 
         supported_types = TYPES
         supported_types.update({
             cls.key_kind: TypeName.KEY,
+            array.Array: TypeName.ARRAY,
             entity.Entity: TypeName.ENTITY,
         })
         return supported_types
