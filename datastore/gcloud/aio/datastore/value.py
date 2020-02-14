@@ -36,15 +36,11 @@ class Value:  # pylint:disable=useless-object-inheritance
             if json_key in data:
                 if json_key == 'nullValue':
                     value = None
-                elif value_type == entity.Entity:
-                    value = value_type.from_repr(data[json_key])
                 elif value_type == datetime:
                     value = datetime.strptime(data[json_key],
                                               '%Y-%m-%dT%H:%M:%S.%f000Z')
-                elif value_type == cls.key_kind:
-                    value = cls.key_kind.from_repr(data[json_key])
-                elif value_type == LatLng:
-                    value = LatLng.from_repr(data[json_key])
+                elif value_type in {cls.key_kind, LatLng, entity.Entity}:
+                    value = value_type.from_repr(data[json_key])
                 else:
                     value = value_type(data[json_key])
                 break
