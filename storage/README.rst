@@ -13,45 +13,31 @@ Installation
 
     $ pip install --upgrade gcloud-{aio,rest}-storage
 
-
 Usage
 -----
 
-.. code:: python
+To upload a file, you might do something like the following:
 
-    import asyncio
+.. code-block:: python
+
     import aiohttp
-    # pip install aiofile
-    from aiofile import AIOFile
-    from gcloud.aio.storage import Storage 
-
-    BUCKET_NAME = '<bucket_name>'
-    FILE_NAME  = '<file_name>'
-    async def async_upload_to_bucket(blob_name, file_obj, folder='uploads'):
-        """ Upload files to bucket. """
-        async with aiohttp.ClientSession() as session:
-            storage = Storage(service_file='./creds.json', session=session) 
-            status = await storage.upload(BUCKET_NAME, f'{folder}/{blob_name}', file_obj)
-            #info of the uploaded file
-            # print(status)
-            return status['selfLink']
+    from gcloud.aio.storage import Storage
 
 
-    async def main():
-        async with AIOFile(FILE_NAME, mode='r') as afp:
-            f = await afp.read()
-            url = await async_upload_to_bucket(FILE_NAME, f)
-            print(url)
+    async with aiohttp.ClientSession() as session:
+        client = Storage(session=session)
 
+        async with open('/path/to/my/file', mode='r') as f:
+            status = await client.upload('my-bucket-name',
+                                         'path/to/gcs/folder',
+                                         f.read())
+            print(status)
 
-    # Python 3.6
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+Note that there are multiple ways to accomplish the above, ie,. by making use
+of the ``Bucket`` and ``Blob`` convenience classes if that better fits your
+use-case.
 
-    # Python 3.7+
-    # asyncio.run(main())
-    
-You can also refer `smoke test`_.
+You can also refer `smoke test`_ for more info and examples.
 
 Contributing
 ------------
