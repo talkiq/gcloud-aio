@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any
 from typing import Dict
 
-from gcloud.aio.datastore import entity
 from gcloud.aio.datastore.constants import TypeName
 from gcloud.aio.datastore.constants import TYPES
 from gcloud.aio.datastore.key import Key
@@ -30,6 +29,8 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Value':
+        from gcloud.aio.datastore import entity
+
         supported_types = cls._get_supported_types()
         for value_type, type_name in supported_types.items():
             json_key = type_name.value
@@ -84,6 +85,8 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     @classmethod
     def _get_supported_types(cls):
+        from gcloud.aio.datastore import entity
+
         supported_types = TYPES
         supported_types.update({
             cls.key_kind: TypeName.KEY,
