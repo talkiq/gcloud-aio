@@ -51,7 +51,7 @@ jobs:
 
   docs:
     docker:
-      - image: python:3.7.7
+      - image: python:3.8.2
     steps:
       - run: pip install pdoc3
       - run:
@@ -106,7 +106,7 @@ jobs:
 
   pypi:
     docker:
-      - image: python:3.7.7-slim
+      - image: python:3.8.2-slim
     steps:
       - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - checkout
@@ -119,7 +119,7 @@ jobs:
 
   pypi-rest:
     docker:
-      - image: python:3.7.7-slim
+      - image: python:3.8.2-slim
     steps:
       - run: pip install future==0.17.1 pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
@@ -133,7 +133,7 @@ jobs:
 
   github:
     docker:
-      - image: python:3.7.7-alpine
+      - image: python:3.8.2-alpine
     steps:
       - run: apk add --no-cache curl git openssh-client
       - checkout
@@ -157,7 +157,7 @@ jobs:
 
   py3to2:
     docker:
-      - image: python:3.7.7-slim
+      - image: python:3.8.2-slim
     steps:
       - checkout
       - run: pip install -r requirements.txt
