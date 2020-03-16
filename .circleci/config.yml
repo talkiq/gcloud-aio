@@ -57,7 +57,7 @@ jobs:
       - run:
           name: patch pdoc
           command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.7/site-packages/pdoc/__init__.py
+            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.8/site-packages/pdoc/__init__.py
       - checkout
       - attach_workspace:
           at: rest
@@ -207,9 +207,9 @@ jobs:
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
       ## unit tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.4', '3.5', '3.6'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
       ## integration tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.7'/python=\['2.7', '3.7'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.8'/python=\['2.7', '3.8'/g"
 
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
