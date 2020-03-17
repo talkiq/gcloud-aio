@@ -67,14 +67,14 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         gs_prefix = operation.metadata['outputUrlPrefix']
         gs_file = (f'{gs_prefix}/all_namespaces/kind_{kind}/'
                    f'all_namespaces_kind_{kind}.export_metadata')
-        await t.load([gs_file])
+        await t.insert_via_load([gs_file])
 
         await sleep(10)
 
         source_table = await t.get()
         assert int(source_table['numRows']) > 0
 
-        await t.copy(project, dataset, copy_entity_table)
+        await t.insert_via_copy(project, dataset, copy_entity_table)
         await sleep(10)
         t1 = Table(dataset, copy_entity_table, project=project,
                    service_file=creds, session=s)
