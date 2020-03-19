@@ -21,7 +21,7 @@ def require_creds(session):
         session.skip('credentials must be set via environment variable '
                      '$GOOGLE_APPLICATION_CREDENTIALS. Value does not point '
                      'to a file; skipping integration tests')
-    except json.decoder.JSONDecodeError:
+    except ValueError:
         session.skip('credentials must be set via environment variable '
                      '$GOOGLE_APPLICATION_CREDENTIALS. Value does not point '
                      'to a json-parseable file; skipping integration tests')
