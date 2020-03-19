@@ -1,3 +1,4 @@
+import json
 import os
 
 import nox
@@ -11,13 +12,19 @@ def require_creds(session):
                      'skipping integration tests')
 
     try:
-        if open(creds, 'r').read():
+        with open(creds, 'r') as f:
+            data = f.read()
+            _ = json.loads(data)
             # not necessarily _valid_ creds, but that'd probably be too hard
             return
     except IOError:
         session.skip('credentials must be set via environment variable '
                      '$GOOGLE_APPLICATION_CREDENTIALS. Value does not point '
                      'to a file; skipping integration tests')
+    except json.decoder.JSONDecodeError:
+        session.skip('credentials must be set via environment variable '
+                     '$GOOGLE_APPLICATION_CREDENTIALS. Value does not point '
+                     'to a json-parseable file; skipping integration tests')
 
     session.skip('credentials must be set via environment '
                  'variable $GOOGLE_APPLICATION_CREDENTIALS. Value points to '
