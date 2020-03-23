@@ -2,10 +2,8 @@ import sys
 from datetime import datetime
 
 import pytest
-from gcloud.aio.datastore import Key
-from gcloud.aio.datastore import LatLng
-from gcloud.aio.datastore import PathElement
-from gcloud.aio.datastore import Value
+
+from gcloud.aio.datastore import Key, LatLng, PathElement, Value
 
 
 class TestValue:
@@ -56,30 +54,25 @@ class TestValue:
         assert value.value is None
 
     @staticmethod
-    def test_from_repr_with_datetime_value():
+    @pytest.mark.parametrize('v,expected', [
+        ('1998-07-12T11:22:33.456789000Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456789)),
+        ('1998-07-12T11:22:33.456789Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456789)),
+        ('1998-07-12T11:22:33.456Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456000))
+    ])
+    def test_from_repr_with_datetime_value(v, expected):
         data = {
             'excludeFromIndexes': False,
-            'timestampValue': '1998-07-12T11:22:33.456789000Z'
+            'timestampValue': v
         }
 
         value = Value.from_repr(data)
-
-        expected_value = datetime(year=1998, month=7, day=12, hour=11,
-                                  minute=22, second=33, microsecond=456789)
-        assert value.value == expected_value
-
-    @staticmethod
-    def test_from_repr_with_legacy_datetime_value():
-        data = {
-            'excludeFromIndexes': False,
-            'timestampValue': '1998-07-12T11:22:33.456789Z'
-        }
-
-        value = Value.from_repr(data)
-
-        expected_value = datetime(year=1998, month=7, day=12, hour=11,
-                                  minute=22, second=33, microsecond=456789)
-        assert value.value == expected_value
+        assert value.value == expected
 
     @staticmethod
     def test_from_repr_with_key_value(key):
@@ -209,6 +202,7 @@ class TestValue:
     def test_to_repr_non_supported_type():
         class NonSupportedType:
             pass
+
         value = Value(NonSupportedType())
 
         with pytest.raises(Exception) as ex_info:
