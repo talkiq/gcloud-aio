@@ -69,6 +69,19 @@ class TestValue:
         assert value.value == expected_value
 
     @staticmethod
+    def test_from_repr_with_legacy_datetime_value():
+        data = {
+            'excludeFromIndexes': False,
+            'timestampValue': '1998-07-12T11:22:33.456789Z'
+        }
+
+        value = Value.from_repr(data)
+
+        expected_value = datetime(year=1998, month=7, day=12, hour=11,
+                                  minute=22, second=33, microsecond=456789)
+        assert value.value == expected_value
+
+    @staticmethod
     def test_from_repr_with_key_value(key):
         data = {
             'excludeFromIndexes': False,

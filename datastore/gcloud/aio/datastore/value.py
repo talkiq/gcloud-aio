@@ -35,7 +35,7 @@ class Value:  # pylint:disable=useless-object-inheritance
                 if json_key == 'nullValue':
                     value = None
                 elif value_type == datetime:
-                    value = datetime.strptime(data[json_key][:-4],
+                    value = datetime.strptime(data[json_key][:26],
                                               '%Y-%m-%dT%H:%M:%S.%f')
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
