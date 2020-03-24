@@ -2,7 +2,6 @@ import sys
 from datetime import datetime
 
 import pytest
-
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import LatLng
 from gcloud.aio.datastore import PathElement
