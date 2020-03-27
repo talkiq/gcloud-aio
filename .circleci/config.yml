@@ -136,7 +136,7 @@ jobs:
       - image: debian:buster-slim
     steps:
       - run: apt update -qy
-      - run: apt install hub git
+      - run: apt install -qy hub git
       - checkout
       - run:
           name: create changelog
