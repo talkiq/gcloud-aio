@@ -1,4 +1,5 @@
 import io
+import json
 import uuid
 from typing import Any
 from typing import Callable
@@ -11,16 +12,12 @@ from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
-try:
-    import ujson as json
-except ImportError:
-    import json  # type: ignore
-
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
     from aiohttp import ClientSession as Session
+
 
 API_ROOT = 'https://www.googleapis.com/bigquery/v2'
 SCOPES = [
