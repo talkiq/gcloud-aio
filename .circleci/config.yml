@@ -147,6 +147,7 @@ jobs:
             [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
 
             echo "${CIRCLE_TAG}" > CHANGELOG.md
+            echo "" > CHANGELOG.md
             git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' | grep "${PROJECT}" >> CHANGELOG.md
       - run: hub release create -FCHANGELOG.md "${CIRCLE_TAG}"
 
