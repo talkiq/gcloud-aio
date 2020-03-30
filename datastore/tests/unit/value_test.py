@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 
 import pytest
@@ -64,6 +65,9 @@ class TestValue:
         assert value.value == expected
 
     @staticmethod
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
     def test_from_repr_with_blob_value():
         data = {
             'excludedFromIndexed': False,
@@ -144,6 +148,9 @@ class TestValue:
 
         assert r['timestampValue'] == '2018-07-15T11:22:33.456789000Z'
 
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
     @staticmethod
     def test_to_repr_with_blob_value():
         value = Value(b'foobar')
