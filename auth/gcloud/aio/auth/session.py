@@ -99,6 +99,9 @@ if not BUILD_GCLOUD_REST:
                 resp.raise_for_status()
             return resp
 
+        async def close(self):
+            await self._session.close()
+
 if BUILD_GCLOUD_REST:
     import requests
 
