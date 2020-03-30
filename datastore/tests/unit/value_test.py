@@ -11,22 +11,10 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        pytest.param(
-            'blobValue', b'foobar',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        pytest.param(
-            'blobValue', b'',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
@@ -77,6 +65,19 @@ class TestValue:
         assert value.value == expected
 
     @staticmethod
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
+    def test_from_repr_with_blob_value():
+        data = {
+            'excludedFromIndexed': False,
+            'blobValue': 'Zm9vYmFy'
+        }
+
+        value = Value.from_repr(data)
+        assert value.value == b'foobar'
+
+    @staticmethod
     def test_from_repr_with_key_value(key):
         data = {
             'excludeFromIndexes': False,
@@ -111,22 +112,10 @@ class TestValue:
 
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
-        pytest.param(
-            b'foobar', 'blobValue',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
-        pytest.param(
-            b'', 'blobValue',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         (False, 'booleanValue'),
         (0.0, 'doubleValue'),
         (0, 'integerValue'),
@@ -158,6 +147,16 @@ class TestValue:
         r = value.to_repr()
 
         assert r['timestampValue'] == '2018-07-15T11:22:33.456789000Z'
+
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
+    @staticmethod
+    def test_to_repr_with_blob_value():
+        value = Value(b'foobar')
+
+        r = value.to_repr()
+        assert r['blobValue'] == 'Zm9vYmFy'
 
     @staticmethod
     def test_to_repr_with_key_value(key):

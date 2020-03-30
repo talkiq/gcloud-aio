@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 from typing import Any
 from typing import Dict
@@ -34,6 +35,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             if json_key in data:
                 if json_key == 'nullValue':
                     value = None
+                elif json_key == 'blobValue':
+                    value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
                     value = datetime.strptime(data[json_key][:-1][:26],
                                               '%Y-%m-%dT%H:%M:%S.%f')
@@ -62,6 +65,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
+        elif value_type == TypeName.BLOB:
+            value = base64.b64encode(self.value).decode('utf8')
         else:
             value = 'NULL_VALUE' if self.value is None else self.value
         return {
