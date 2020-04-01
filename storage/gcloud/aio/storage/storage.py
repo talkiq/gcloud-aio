@@ -368,8 +368,8 @@ class Storage:
     async def close(self):
         await self.session.close()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> 'Storage':
         return self
 
-    async def __aexit__(self, *args):
+    async def __aexit__(self, *args) -> None:
         await self.close()
