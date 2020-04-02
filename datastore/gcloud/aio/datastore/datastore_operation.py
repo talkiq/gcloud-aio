@@ -15,6 +15,9 @@ class DatastoreOperation:
         self.error = error
         self.response = response
 
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'DatastoreOperation':
         return cls(data['name'], data.get('done', False), data.get('metadata'),
