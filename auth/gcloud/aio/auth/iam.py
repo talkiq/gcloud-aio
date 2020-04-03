@@ -124,3 +124,12 @@ class IamClient:
         resp = await s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
         return await resp.json()
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'IamClient':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()
