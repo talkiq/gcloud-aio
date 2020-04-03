@@ -115,3 +115,12 @@ class PushQueue:
         }
 
         return await self._request('POST', url, json=body, session=session)
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'PushQueue':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()
