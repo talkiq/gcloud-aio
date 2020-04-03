@@ -39,6 +39,20 @@ use-case.
 
 You can also refer `smoke test`_ for more info and examples.
 
+Note that you can also let ``gcloud-aio-storage`` do its own session
+management, so long as you give us a hint when to close that session:
+
+.. code-block:: python
+
+    async with Storage() as client:
+        # closes the client.session on leaving the context manager
+
+    # OR
+
+    client = Storage()
+    # do stuff
+    await client.close()  # close the session explicitly
+
 Contributing
 ------------
 
