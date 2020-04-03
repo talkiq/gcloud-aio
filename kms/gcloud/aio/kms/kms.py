@@ -72,3 +72,12 @@ class KMS:
 
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'KMS':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()
