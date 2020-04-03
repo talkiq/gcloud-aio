@@ -104,7 +104,8 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def close(self) -> None:
-            await self._session.close()
+            if self._session:
+                await self._session.close()
 
 
 if BUILD_GCLOUD_REST:
@@ -168,4 +169,5 @@ if BUILD_GCLOUD_REST:
             return resp
 
         def close(self) -> None:
-            self._session.close()
+            if self._session:
+                self._session.close()
