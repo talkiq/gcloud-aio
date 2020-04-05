@@ -243,3 +243,12 @@ class Table:
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
         return await resp.json()
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'Table':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()

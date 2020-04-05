@@ -217,3 +217,12 @@ class Token:
         self.access_token_duration = int(content['expires_in'])
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'Token':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()

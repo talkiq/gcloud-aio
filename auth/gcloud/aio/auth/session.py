@@ -47,6 +47,10 @@ class BaseSession:
                 auto_raise_for_status: bool = True, **kwargs: Any):
         pass
 
+    @abstractmethod
+    async def close(self) -> None:
+        pass
+
 
 if not BUILD_GCLOUD_REST:
     import aiohttp
@@ -98,6 +102,11 @@ if not BUILD_GCLOUD_REST:
             if auto_raise_for_status:
                 resp.raise_for_status()
             return resp
+
+        async def close(self) -> None:
+            if self._session:
+                await self._session.close()
+
 
 if BUILD_GCLOUD_REST:
     import requests
@@ -158,3 +167,7 @@ if BUILD_GCLOUD_REST:
             if auto_raise_for_status:
                 resp.raise_for_status()
             return resp
+
+        def close(self) -> None:
+            if self._session:
+                self._session.close()
