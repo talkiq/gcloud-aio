@@ -46,7 +46,10 @@ arguments:
   stored in a file but in memory. If omitted, will attempt to find one on your
   path or fallback to generating a token from GCE metadata.
 * ``session``: an ``aiohttp.ClientSession`` instance to be used for all
-  requests. If omitted, a default session will be created.
+  requests. If omitted, a default session will be created. If you use the
+  default session, you may be interested in using ``Token()`` as a context
+  manager (``async with Token(..) as token:``) or explicitly calling the
+  ``Token.close()`` method to ensure the session is cleaned up appropriately.
 * ``scopes``: an optional list of GCP `scopes`_ for which to generate our
   token. Only valid (and required!) for `service account`_ authentication.
 

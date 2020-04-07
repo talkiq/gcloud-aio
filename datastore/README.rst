@@ -80,6 +80,12 @@ started:
                          named_bindings={'answer': 42})
     results = await ds.runQuery(gql_query, session=s)
 
+    # close the HTTP session
+    # Note that other options include:
+    # * providing your own session: `Datastore(.., session=session)`
+    # * using a context manager: `async with Datastore(..) as ds:`
+    await ds.close()
+
 Custom Subclasses
 ~~~~~~~~~~~~~~~~~
 

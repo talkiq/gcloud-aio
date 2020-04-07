@@ -379,3 +379,12 @@ class Storage:
                            timeout=timeout)
         data: dict = await resp.json()
         return data
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'Storage':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()

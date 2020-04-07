@@ -32,6 +32,12 @@ We're still working on more complete documentation, but roughly you can do:
     # decrypt
     assert decode(await kms.decrypt(ciphertext)) == plaintext
 
+    # close the HTTP session
+    # Note that other options include:
+    # * providing your own session: `KMS(.., session=session)`
+    # * using a context manager: `async with KMS(..) as kms:`
+    await kms.close()
+
 Contributing
 ------------
 

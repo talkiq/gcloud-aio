@@ -371,3 +371,12 @@ class Datastore:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'Datastore':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()
