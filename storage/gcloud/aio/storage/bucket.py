@@ -54,3 +54,8 @@ class Bucket:
 
     def new_blob(self, blob_name: str) -> Blob:
         return Blob(self, blob_name, {'size': 0})
+
+    async def get_metadata(self, params: dict = None,
+                           session: Optional[Session] = None) -> dict:
+        return await self.storage.get_bucket_metadata(self.name, params=params,
+                                                      session=session)
