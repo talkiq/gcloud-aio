@@ -46,20 +46,19 @@ class Bucket:
 
     async def list_blobs(self, prefix: str = '',
                          session: Optional[Session] = None) -> List[str]:
-        params = {'prefix': prefix}
-        content = await self.storage.list_objects(self.name,
-                                                  params=params,
-                                                  session=session)
-        next_content = {}
-        next_content['nextPageToken'] = content.get('nextPageToken')
-        while next_content.get('nextPageToken'):
-            params['pageToken'] = next_content['nextPageToken']
-            next_content = await self.storage.list_objects(self.name,
-                                                           params=params,
-                                                           session=session)
-            content['items'] = content['items']\
-                    + next_content.get('items', list())
-        return [x['name'] for x in content.get('items', list())]
+        params = {'prefix': prefix, 'pageToken': ''}
+        items = []
+        while True:
+            content = await self.storage.list_objects(self.name,
+                                                      params=params,
+                                                      session=session)
+            items.extend([x['name'] for x in content.get('items', list())])
+
+            params['pageToken'] = content.get('nextPageToken')
+            if not params['pageToken']:
+                break
+
+        return items
 
 
     def new_blob(self, blob_name: str) -> Blob:
