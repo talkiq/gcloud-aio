@@ -365,6 +365,21 @@ class Storage:
         data: dict = await resp.json()
         return data
 
+    async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
+                                  session: Optional[Session] = None,
+                                  timeout: int = 10) -> dict:
+        token = await self.token.get()
+        url = f'{API_ROOT}/{bucket}/'
+        headers = {
+            'Authorization': f'Bearer {token}',
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
     async def close(self):
         await self.session.close()
 
