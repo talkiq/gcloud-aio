@@ -96,9 +96,9 @@ class Table:
     @staticmethod
     def _make_insert_body(
             rows: List[Dict[str, Any]], *, skip_invalid: bool,
-            ignore_unknown: bool,
+            ignore_unknown: bool, template_suffix: Optional[str],
             insert_id_fn: Callable[[Dict[str, Any]], str]) -> Dict[str, Any]:
-        return {
+        body = {
             'kind': 'bigquery#tableDataInsertAllRequest',
             'skipInvalidRows': skip_invalid,
             'ignoreUnknownValues': ignore_unknown,
@@ -107,6 +107,11 @@ class Table:
                 'json': row,
             } for row in rows],
         }
+
+        if template_suffix is not None:
+            body['templateSuffix'] = template_suffix
+
+        return body
 
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
@@ -211,6 +216,7 @@ class Table:
     async def insert(
             self, rows: List[Dict[str, Any]], skip_invalid: bool = False,
             ignore_unknown: bool = True, session: Optional[Session] = None,
+            template_suffix: Optional[str] = None,
             timeout: int = 60, *,
             insert_id_fn: Optional[Callable[[Dict[str, Any]], str]] = None,
     ) -> Dict[str, Any]:
@@ -233,6 +239,7 @@ class Table:
 
         body = self._make_insert_body(
             rows, skip_invalid=skip_invalid, ignore_unknown=ignore_unknown,
+            template_suffix=template_suffix,
             insert_id_fn=insert_id_fn or self._mk_unique_insert_id)
         return await self._post_json(url, body, session, timeout)
 
