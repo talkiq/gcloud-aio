@@ -110,8 +110,8 @@ class Table:
 
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
-            source_format: SourceFormat, write_disposition: Disposition,
-    ) -> Dict[str, Any]:
+            source_format: SourceFormat,
+            write_disposition: Disposition) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
@@ -129,8 +129,8 @@ class Table:
         }
 
     def _make_query_body(
-            self, query: str, project: str, write_disposition: Disposition,
-    ) -> Dict[str, Any]:
+            self, query: str, project: str,
+            write_disposition: Disposition) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -152,9 +152,8 @@ class Table:
         }
 
     async def _post_json(
-            self, url: str, body: Dict[str, Any],
-            session: Optional[Session] = None,
-            timeout: int = 60) -> Dict[str, Any]:
+            self, url: str, body: Dict[str, Any], session: Optional[Session],
+            timeout: int) -> Dict[str, Any]:
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -164,25 +163,9 @@ class Table:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers, params=None, timeout=timeout,
-        )
+        resp = await s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
         return await resp.json()
-
-    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
-    async def insert_via_copy(
-            self, destination_project: str, destination_dataset: str,
-            destination_table: str, session: Optional[Session] = None,
-            timeout: int = 60,
-    ) -> Dict[str, Any]:
-        """Copy BQ table to another table in BQ"""
-        project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
-
-        body = self._make_copy_body(
-            project, destination_project,
-            destination_dataset, destination_table)
-        return await self._post_json(url, body, session, timeout)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     async def delete(self,
@@ -254,14 +237,28 @@ class Table:
         return await self._post_json(url, body, session, timeout)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#jobconfigurationtablecopy
+    async def insert_via_copy(
+            self, destination_project: str, destination_dataset: str,
+            destination_table: str, session: Optional[Session] = None,
+            timeout: int = 60) -> Dict[str, Any]:
+        """Copy BQ table to another table in BQ"""
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/jobs'
+
+        body = self._make_copy_body(
+            project, destination_project,
+            destination_dataset, destination_table)
+        return await self._post_json(url, body, session, timeout)
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     async def insert_via_load(
             self, source_uris: List[str], session: Optional[Session] = None,
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60,
-    ) -> Dict[str, Any]:
+            timeout: int = 60) -> Dict[str, Any]:
         """Loads entities from storage to BigQuery."""
         if not source_uris:
             return {}
@@ -279,8 +276,7 @@ class Table:
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60,
-    ) -> Dict[str, Any]:
+            timeout: int = 60) -> Dict[str, Any]:
         """Create table as a result of the query"""
         if not query:
             return {}
