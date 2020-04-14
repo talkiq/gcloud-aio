@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.bigquery import SourceFormat
 from gcloud.aio.bigquery import Table
 from gcloud.aio.datastore import Datastore  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Key  # pylint: disable=no-name-in-module
@@ -67,7 +68,8 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         gs_prefix = operation.metadata['outputUrlPrefix']
         gs_file = (f'{gs_prefix}/all_namespaces/kind_{kind}/'
                    f'all_namespaces_kind_{kind}.export_metadata')
-        await t.insert_via_load([gs_file])
+        await t.insert_via_load([gs_file],
+                                source_format=SourceFormat.DATASTORE_BACKUP)
 
         await sleep(10)
 
