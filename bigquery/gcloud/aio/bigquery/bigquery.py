@@ -80,7 +80,7 @@ class Table:
     @staticmethod
     def _make_insert_body(
             rows: List[Dict[str, Any]], *, skip_invalid: bool,
-            ignore_unknown: bool, template_suffix: str,
+            ignore_unknown: bool, template_suffix: Optional[str],
             insert_id_fn: Callable[[Dict[str, Any]], str]) -> Dict[str, Any]:
         body = {
             'kind': 'bigquery#tableDataInsertAllRequest',
@@ -93,7 +93,7 @@ class Table:
         }
 
         if template_suffix is not None:
-            body["templateSuffix"] = template_suffix
+            body['templateSuffix'] = template_suffix
 
         return body
 
