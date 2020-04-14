@@ -25,7 +25,7 @@ def test_make_insert_body_template_suffix():
     # pylint: disable=protected-access
     body = bigquery.Table._make_insert_body(
         [{'foo': 'herp', 'bar': 42}, {'foo': 'derp', 'bar': 13}],
-        skip_invalid=False, ignore_unknown=False, template_suffix="suffix",
+        skip_invalid=False, ignore_unknown=False, template_suffix='suffix',
         insert_id_fn=lambda b: b['bar'])
 
     expected = {
