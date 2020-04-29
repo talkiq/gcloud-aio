@@ -201,6 +201,9 @@ jobs:
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
 
+      # Add Python 2.7 specific dependency
+      - run: echo 'typing>=3.7.4.1,<4.0.0' >> auth/requirements.txt
+
       # Update the nox files
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
