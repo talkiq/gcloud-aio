@@ -39,9 +39,9 @@ class Value:  # pylint:disable=useless-object-inheritance
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
                     date_string = data[json_key].rstrip('Z')[:26]
-                    value = datetime.strptime(
-                        date_string, '%Y-%m-%dT%H:%M:%S.%f'
-                        if '.' in date_string else '%Y-%m-%dT%H:%M:%S')
+                    date_fmt = ('%Y-%m-%dT%H:%M:%S.%f'
+                                if '.' in date_string else '%Y-%m-%dT%H:%M:%S')
+                    value = datetime.strptime(date_string, date_fmt)
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
                 else:
