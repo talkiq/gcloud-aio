@@ -60,12 +60,12 @@ if not BUILD_GCLOUD_REST:
     import aiohttp
 
 
-    async def _raise_for_status(resp: aiohttp.ClientResponse):
+    async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
         try:
             resp.raise_for_status()
         except aiohttp.ClientResponseError:
-            log.exception('Error body: %s', await resp.json())
+            log.exception('Error body: %s', await resp.text())
             raise
 
 
