@@ -10,7 +10,7 @@ if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
     from requests import Session
 else:
-    from aiohttp import ClientResponseError as ResponseError
+    from aiohttp import ClientError as ResponseError
     from aiohttp import ClientSession as Session
 
 
