@@ -2,11 +2,12 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@1
+  tester: talkiq/tester@1.2
 
 jobs:
   lint-rest:
     docker:
-      - image: python:2.7.16
+      - image: python:2.7.18
     steps:
       - attach_workspace:
           at: rest
@@ -50,13 +51,13 @@ jobs:
 
   docs:
     docker:
-      - image: python:3.7.4
+      - image: python:3.8.3
     steps:
       - run: pip install pdoc3
       - run:
           name: patch pdoc
           command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.7/site-packages/pdoc/__init__.py
+            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.8/site-packages/pdoc/__init__.py
       - checkout
       - attach_workspace:
           at: rest
@@ -87,7 +88,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:8.16.2
+      - image: node:8.17.0
     steps:
       - checkout
       - attach_workspace:
@@ -105,7 +106,7 @@ jobs:
 
   pypi:
     docker:
-      - image: python:3.7.4-slim
+      - image: python:3.8.3-slim
     steps:
       - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - checkout
@@ -118,7 +119,7 @@ jobs:
 
   pypi-rest:
     docker:
-      - image: python:3.7.4-slim
+      - image: python:3.8.3-slim
     steps:
       - run: pip install future==0.17.1 pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
@@ -132,34 +133,30 @@ jobs:
 
   github:
     docker:
-      - image: python:3.7.4-alpine
+      - image: debian:buster-slim
     steps:
-      - run: apk add --no-cache curl git openssh-client
+      - run: apt update -qy
+      - run: apt install -qy hub git
       - checkout
       - run:
-          name: install github-release
-          command: |
-            curl -L https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2 > github-release.tar.bz2
-            tar xjf github-release.tar.bz2
-            rm -f github-release.tar.bz2
-      - deploy:
-          name: create GitHub release
+          name: create changelog
           command: |
             export PROJECT=$(echo "${CIRCLE_TAG}" | sed 's/-.*//')
             export PREV_RELEASE=$(git tag --sort=version:refname | grep ${PROJECT} | tail -n2 | head -n1)
             [ "${PREV_RELEASE}" = "${CIRCLE_TAG}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
             [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
 
-            git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' > release-description.md
-            ./bin/linux/amd64/github-release release -t "${CIRCLE_TAG}"
-            cat release-description.md | grep ${PROJECT} | ./bin/linux/amd64/github-release edit -t ${CIRCLE_TAG} -d -
+            echo "${CIRCLE_TAG}" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' | grep "${PROJECT}" >> CHANGELOG.md
+      - run: hub release create -FCHANGELOG.md "${CIRCLE_TAG}"
 
   py3to2:
     docker:
-      - image: python:3.7.4-slim
+      - image: python:3.8.3-slim
     steps:
       - checkout
-      - run: pip install -r requirements.py3to2.txt
+      - run: pip install -r requirements.txt
 
       # Remove pubsub, its just an aio shim
       - run: rm -r ./pubsub
@@ -201,14 +198,16 @@ jobs:
       - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
       - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/urllib/six.moves.urllib/g'
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
 
       # Update the nox files
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
       ## unit tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.4', '3.5', '3.6'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
       ## integration tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.7'/python=\['2.7', '3.7'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.8'/python=\['2.7', '3.8'/g"
 
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
@@ -237,6 +236,35 @@ workflows:
               only: /.*/
           requires:
             - build-rest
+
+      - tester/pipcheck:
+          name: pipcheck-auth
+          install_args: auth/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-bigquery
+          install_args: bigquery/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-datastore
+          install_args: datastore/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-kms
+          install_args: kms/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-pubsub
+          install_args: pubsub/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-storage
+          install_args: storage/
+          python_version: 3.6.6
+      - tester/pipcheck:
+          name: pipcheck-taskqueue
+          install_args: taskqueue/
+          python_version: 3.6.6
 
       # build docs
       - docs:
@@ -360,6 +388,13 @@ workflows:
           requires:
             - linter/pre-commit
             - lint-rest
+            - pipcheck-auth
+            - pipcheck-bigquery
+            - pipcheck-datastore
+            - pipcheck-kms
+            - pipcheck-pubsub
+            - pipcheck-storage
+            - pipcheck-taskqueue
             - test-auth
             - test-bigquery
             - test-datastore

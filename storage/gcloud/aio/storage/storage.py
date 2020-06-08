@@ -1,5 +1,6 @@
 import enum
 import io
+import json
 import logging
 import mimetypes
 import os
@@ -14,11 +15,6 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-modu
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
 
-try:
-    import ujson as json
-except ImportError:
-    import json  # type: ignore
-
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from time import sleep
@@ -28,6 +24,7 @@ else:
     from asyncio import sleep
     from aiohttp import ClientResponseError as ResponseError
     from aiohttp import ClientSession as Session
+
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -367,3 +364,27 @@ class Storage:
 
         data: dict = await resp.json()
         return data
+
+    async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
+                                  session: Optional[Session] = None,
+                                  timeout: int = 10) -> dict:
+        token = await self.token.get()
+        url = f'{API_ROOT}/{bucket}/'
+        headers = {
+            'Authorization': f'Bearer {token}',
+        }
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params or {},
+                           timeout=timeout)
+        data: dict = await resp.json()
+        return data
+
+    async def close(self):
+        await self.session.close()
+
+    async def __aenter__(self) -> 'Storage':
+        return self
+
+    async def __aexit__(self, *args) -> None:
+        await self.close()

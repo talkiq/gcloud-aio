@@ -60,9 +60,11 @@ class ResultType(enum.Enum):
 
 
 class TypeName(enum.Enum):
+    ARRAY = 'arrayValue'
     BLOB = 'blobValue'
     BOOLEAN = 'booleanValue'
     DOUBLE = 'doubleValue'
+    ENTITY = 'entityValue'
     INTEGER = 'integerValue'
     GEOPOINT = 'geoPointValue'
     KEY = 'keyValue'
@@ -71,7 +73,6 @@ class TypeName(enum.Enum):
     TIMESTAMP = 'timestampValue'
 
 
-# TODO: add type for arrayValue
 TYPES = {
     bool: TypeName.BOOLEAN,
     bytes: TypeName.BLOB,

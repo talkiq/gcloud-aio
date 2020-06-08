@@ -16,8 +16,42 @@ Installation
 Usage
 -----
 
-We're still working on documentation -- for now, you can use the `smoke test`_
-as an example.
+To upload a file, you might do something like the following:
+
+.. code-block:: python
+
+    import aiohttp
+    from gcloud.aio.storage import Storage
+
+
+    async with aiohttp.ClientSession() as session:
+        client = Storage(session=session)
+
+        async with open('/path/to/my/file', mode='r') as f:
+            status = await client.upload('my-bucket-name',
+                                         'path/to/gcs/folder',
+                                         f.read())
+            print(status)
+
+Note that there are multiple ways to accomplish the above, ie,. by making use
+of the ``Bucket`` and ``Blob`` convenience classes if that better fits your
+use-case.
+
+You can also refer `smoke test`_ for more info and examples.
+
+Note that you can also let ``gcloud-aio-storage`` do its own session
+management, so long as you give us a hint when to close that session:
+
+.. code-block:: python
+
+    async with Storage() as client:
+        # closes the client.session on leaving the context manager
+
+    # OR
+
+    client = Storage()
+    # do stuff
+    await client.close()  # close the session explicitly
 
 Contributing
 ------------

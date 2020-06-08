@@ -11,22 +11,10 @@ from gcloud.aio.datastore import Value
 class TestValue:
     @staticmethod
     @pytest.mark.parametrize('json_key,json_value', [
-        pytest.param(
-            'blobValue', b'foobar',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         ('booleanValue', True),
         ('doubleValue', 34.48),
         ('integerValue', 8483),
         ('stringValue', 'foobar'),
-        pytest.param(
-            'blobValue', b'',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         ('booleanValue', False),
         ('doubleValue', 0.0),
         ('integerValue', 0),
@@ -56,17 +44,41 @@ class TestValue:
         assert value.value is None
 
     @staticmethod
-    def test_from_repr_with_datetime_value():
+    @pytest.mark.parametrize('v,expected', [
+        ('1998-07-12T11:22:33.456789000Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456789)),
+        ('1998-07-12T11:22:33.456789Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456789)),
+        ('1998-07-12T11:22:33.456Z',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=456000)),
+        ('1998-07-12T11:22:33',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=0)),
+    ])
+    def test_from_repr_with_datetime_value(v, expected):
         data = {
             'excludeFromIndexes': False,
-            'timestampValue': '1998-07-12T11:22:33.456789000Z'
+            'timestampValue': v
         }
 
         value = Value.from_repr(data)
+        assert value.value == expected
 
-        expected_value = datetime(year=1998, month=7, day=12, hour=11,
-                                  minute=22, second=33, microsecond=456789)
-        assert value.value == expected_value
+    @staticmethod
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
+    def test_from_repr_with_blob_value():
+        data = {
+            'excludedFromIndexed': False,
+            'blobValue': 'Zm9vYmFy'
+        }
+
+        value = Value.from_repr(data)
+        assert value.value == b'foobar'
 
     @staticmethod
     def test_from_repr_with_key_value(key):
@@ -103,22 +115,10 @@ class TestValue:
 
     @staticmethod
     @pytest.mark.parametrize('v,expected_json_key', [
-        pytest.param(
-            b'foobar', 'blobValue',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         (True, 'booleanValue'),
         (34.48, 'doubleValue'),
         (8483, 'integerValue'),
         ('foobar', 'stringValue'),
-        pytest.param(
-            b'', 'blobValue',
-            marks=pytest.mark.skipif(sys.version_info[0] < 3,
-                                     reason='skipping because python2 has same '
-                                            'type for str and bytes')
-        ),
         (False, 'booleanValue'),
         (0.0, 'doubleValue'),
         (0, 'integerValue'),
@@ -150,6 +150,16 @@ class TestValue:
         r = value.to_repr()
 
         assert r['timestampValue'] == '2018-07-15T11:22:33.456789000Z'
+
+    @pytest.mark.skipif(sys.version_info[0] < 3,
+                        reason='skipping because python2 has same '
+                               'type for str and bytes')
+    @staticmethod
+    def test_to_repr_with_blob_value():
+        value = Value(b'foobar')
+
+        r = value.to_repr()
+        assert r['blobValue'] == 'Zm9vYmFy'
 
     @staticmethod
     def test_to_repr_with_key_value(key):
@@ -196,6 +206,7 @@ class TestValue:
     def test_to_repr_non_supported_type():
         class NonSupportedType:
             pass
+
         value = Value(NonSupportedType())
 
         with pytest.raises(Exception) as ex_info:

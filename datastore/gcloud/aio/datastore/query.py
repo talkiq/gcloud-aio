@@ -1,6 +1,7 @@
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from gcloud.aio.datastore.constants import MoreResultsType
 from gcloud.aio.datastore.constants import ResultType
@@ -33,7 +34,8 @@ class Query(BaseQuery):
 
     def __init__(self, kind: str = '', query_filter: Filter = None,
                  order: List[PropertyOrder] = None, start_cursor: str = '',
-                 end_cursor: str = '', offset: int = 0, limit: int = 0,
+                 end_cursor: str = '', offset: Optional[int] = None,
+                 limit: Optional[int] = None,
                  projection: List[Projection] = None,
                  distinct_on: List[str] = None) -> None:
         self.kind = kind
@@ -60,8 +62,8 @@ class Query(BaseQuery):
         orders = [PropertyOrder.from_repr(o) for o in data.get('order', [])]
         start_cursor = data.get('startCursor') or ''
         end_cursor = data.get('endCursor') or ''
-        offset = int(data.get('offset') or 0)
-        limit = int(data.get('limit') or 0)
+        offset = int(data['offset']) if 'offset' in data else None
+        limit = int(data['limit']) if 'limit' in data else None
         projection = [Projection.from_repr(p)
                       for p in data.get('projection', [])]
         distinct_on = [d['name'] for d in data.get('distinct_on', [])]
@@ -84,9 +86,9 @@ class Query(BaseQuery):
             data['startCursor'] = self.start_cursor
         if self.end_cursor:
             data['endCursor'] = self.end_cursor
-        if self.offset:
+        if self.offset is not None:
             data['offset'] = self.offset
-        if self.limit:
+        if self.limit is not None:
             data['limit'] = self.limit
         if self.projection:
             data['projection'] = [p.to_repr() for p in self.projection]

@@ -5,10 +5,6 @@ import gcloud.aio.auth.token as token
 import pytest
 
 
-def test_importable():
-    assert True
-
-
 @pytest.mark.asyncio
 async def test_service_as_io():
     # pylint: disable=line-too-long

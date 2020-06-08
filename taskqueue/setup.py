@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-taskqueue',
-    version='4.0.1',
+    version='4.1.0',
     description='Asyncio Python Client for Google Cloud Task Queue',
     long_description=README,
     namespace_packages=[
@@ -31,13 +31,14 @@ setuptools.setup(
     zip_safe=False,
     license='MIT License',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Internet',
     ],
 )

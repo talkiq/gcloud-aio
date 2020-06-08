@@ -46,11 +46,25 @@ class Bucket:
 
     async def list_blobs(self, prefix: str = '',
                          session: Optional[Session] = None) -> List[str]:
-        params = {'prefix': prefix}
-        content = await self.storage.list_objects(self.name, params=params,
-                                                  session=session)
+        params = {'prefix': prefix, 'pageToken': ''}
+        items = []
+        while True:
+            content = await self.storage.list_objects(self.name,
+                                                      params=params,
+                                                      session=session)
+            items.extend([x['name'] for x in content.get('items', list())])
 
-        return [x['name'] for x in content.get('items', list())]
+            params['pageToken'] = content.get('nextPageToken')
+            if not params['pageToken']:
+                break
+
+        return items
+
 
     def new_blob(self, blob_name: str) -> Blob:
         return Blob(self, blob_name, {'size': 0})
+
+    async def get_metadata(self, params: dict = None,
+                           session: Optional[Session] = None) -> dict:
+        return await self.storage.get_bucket_metadata(self.name, params=params,
+                                                      session=session)
