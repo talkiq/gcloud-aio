@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@1
-  tester: talkiq/tester@1.2
+  tester: talkiq/tester@1.3
 
 jobs:
   lint-rest:
