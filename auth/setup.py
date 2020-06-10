@@ -22,7 +22,6 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(exclude=('tests',)),
     install_requires=REQUIREMENTS,
-    extras_require={':python_version < "3.6.2"': ['typing']},
     python_requires='>= 3.6',
     author='Vi Engineering',
     author_email='voiceai-eng@dialpad.com',
