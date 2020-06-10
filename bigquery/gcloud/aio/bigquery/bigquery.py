@@ -227,8 +227,10 @@ class Table:
         customized by supplying an `insert_id_fn` which takes a row and
         returns an insertId.
 
-        The response payload will include an `insertErrors` key if a subset of
-        the rows failed to get inserted.
+        In cases where at least one row has successfully been inserted and at
+        least one row has failed to be inserted, the Google API will return a
+        2xx (successful) response along with an `insertErrors` key in the
+        response JSON containing details on the failing rows.
         """
         if not rows:
             return {}

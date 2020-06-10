@@ -53,7 +53,10 @@ class TestValue:
                   minute=22, second=33, microsecond=456789)),
         ('1998-07-12T11:22:33.456Z',
          datetime(year=1998, month=7, day=12, hour=11,
-                  minute=22, second=33, microsecond=456000))
+                  minute=22, second=33, microsecond=456000)),
+        ('1998-07-12T11:22:33',
+         datetime(year=1998, month=7, day=12, hour=11,
+                  minute=22, second=33, microsecond=0)),
     ])
     def test_from_repr_with_datetime_value(v, expected):
         data = {

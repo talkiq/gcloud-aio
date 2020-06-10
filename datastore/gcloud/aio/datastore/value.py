@@ -38,8 +38,10 @@ class Value:  # pylint:disable=useless-object-inheritance
                 elif json_key == 'blobValue':
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
-                    value = datetime.strptime(data[json_key][:-1][:26],
-                                              '%Y-%m-%dT%H:%M:%S.%f')
+                    date_string = data[json_key].rstrip('Z')[:26]
+                    date_fmt = ('%Y-%m-%dT%H:%M:%S.%f'
+                                if '.' in date_string else '%Y-%m-%dT%H:%M:%S')
+                    value = datetime.strptime(date_string, date_fmt)
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
                 else:
