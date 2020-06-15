@@ -1,5 +1,5 @@
 from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-pubsub').version
+__version__ = get_distribution('gcloud-aio-pubsub-fsg').version
 
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
 
