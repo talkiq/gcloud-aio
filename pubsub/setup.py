@@ -12,8 +12,8 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 
 setuptools.setup(
-    name='gcloud-aio-pubsub',
-    version='1.1.1',
+    name='gcloud-aio-pubsub-fsg',
+    version='1.1.2',
     description='Asyncio Python Client for Google Cloud Pub/Sub',
     long_description=README,
     namespace_packages=[
@@ -23,9 +23,8 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=('tests',)),
     python_requires='>= 3.6',
     install_requires=REQUIREMENTS,
-    author='Vi Engineering',
-    author_email='voiceai-eng@dialpad.com',
-    url='https://github.com/talkiq/gcloud-aio',
+    author='Facility Solutions Group',
+    url='https://github.com/fsgsmartbuildings/gcloud-aio',
     platforms='Posix; MacOS X; Windows',
     include_package_data=True,
     zip_safe=False,
