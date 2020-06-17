@@ -27,7 +27,7 @@ To upload a file, you might do something like the following:
     async with aiohttp.ClientSession() as session:
         client = Storage(session=session)
 
-        async with open('/path/to/my/file', mode='r') as f:
+        with open('/path/to/my/file', mode='r') as f:
             status = await client.upload('my-bucket-name',
                                          'path/to/gcs/folder',
                                          f.read())
@@ -36,6 +36,30 @@ To upload a file, you might do something like the following:
 Note that there are multiple ways to accomplish the above, ie,. by making use
 of the ``Bucket`` and ``Blob`` convenience classes if that better fits your
 use-case.
+
+Of course, the major benefit of using an async library is being able to
+parallelize operations like this. Since `gcloud-aio-storage` is fully
+asyncio-compatible, you can use any of the builtin asyncio method to perform
+more complicated operations:
+
+.. code-block:: python
+
+    my_files = {
+        '/local/path/to/file.1': 'path/in/gcs.1',
+        '/local/path/to/file.2': 'path/in/gcs.2',
+        '/local/path/to/file.3': 'different/gcs/path/filename.3',
+    }
+
+    async with Storage() as client:
+        # Prepare all our upload data
+        uploads = []
+        for local_name, gcs_name in my_files.items():
+            with open(local_name, mode='r') as f:
+                uploads.append((gcs_name, f.read()))
+
+        # Simultaneously upload all files
+        await asyncio.gather(*[client.upload('my-bucket-name', path, file_)
+                               for path, file_ in uploads])
 
 You can also refer `smoke test`_ for more info and examples.
 
