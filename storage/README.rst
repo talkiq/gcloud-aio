@@ -38,7 +38,7 @@ of the ``Bucket`` and ``Blob`` convenience classes if that better fits your
 use-case.
 
 Of course, the major benefit of using an async library is being able to
-parallelize operations like this. Since `gcloud-aio-storage` is fully
+parallelize operations like this. Since ``gcloud-aio-storage`` is fully
 asyncio-compatible, you can use any of the builtin asyncio method to perform
 more complicated operations:
 
@@ -77,11 +77,31 @@ management, so long as you give us a hint when to close that session:
     # do stuff
     await client.close()  # close the session explicitly
 
+File Encodings
+~~~~~~~~~~~~~~
+
+In some cases, ``aiohttp`` needs to transform the objects returned from GCS
+into strings, eg. for debug logging and other such issues. The built-in
+``await response.text()`` operation relies on `chardet`_ for guessing the
+character encoding in any cases where it can not be determined based on the
+file metadata.
+
+Unfortunately, this operation can be extremely slow, especially in cases where
+you might be working with particularly large files. If you notice odd latency
+issues when reading your results, you may want to set your character encoding
+more explicitly within GCS, eg. by ensuring you set the ``contentType`` of the
+relevant objects to something suffixed with ``; charset=utf-8``. For example,
+in the case of ``contentType='application/x-netcdf'`` files exhibiting latency,
+you could instead set ``contentType='application/x-netcdf; charset=utf-8``. See
+`#172`_ for more info!
+
 Contributing
 ------------
 
 Please see our `contributing guide`_.
 
+.. _#172: https://github.com/talkiq/gcloud-aio/issues/172
+.. _chardet: https://pypi.org/project/chardet/
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py
 
