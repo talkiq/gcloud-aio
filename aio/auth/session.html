@@ -45,10 +45,11 @@ class BaseSession:
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout: int = 10,
-                 read_timeout: int = 10):
+                 read_timeout: int = 10, verify_ssl: bool = True):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
         self._session = session
+        self._ssl = verify_ssl
 
     @abstractproperty
     def session(self):
@@ -101,8 +102,10 @@ if not BUILD_GCLOUD_REST:
     class AioSession(BaseSession):
         @property
         def session(self) -&gt; aiohttp.ClientSession:
+            connector = aiohttp.TCPConnector(ssl=self._ssl)
             self._session = self._session or aiohttp.ClientSession(
-                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+                connector=connector)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
@@ -164,6 +167,7 @@ if BUILD_GCLOUD_REST:
         @property
         def session(self) -&gt; requests.Session:
             self._session = self._session or requests.Session()
+            self._session.verify = self._ssl
             return self._session
 
         def post(self, url: str, headers: Dict[str, str], data: str = None,
@@ -227,7 +231,7 @@ if BUILD_GCLOUD_REST:
 <dl>
 <dt id="gcloud.aio.auth.session.AioSession"><code class="flex name class">
 <span>class <span class="ident">AioSession</span></span>
-<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10)</span>
+<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -238,8 +242,10 @@ if BUILD_GCLOUD_REST:
 <pre><code class="python">class AioSession(BaseSession):
     @property
     def session(self) -&gt; aiohttp.ClientSession:
+        connector = aiohttp.TCPConnector(ssl=self._ssl)
         self._session = self._session or aiohttp.ClientSession(
-            conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+            conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+            connector=connector)
         return self._session
 
     async def post(self, url: str, headers: Dict[str, str],
@@ -302,8 +308,10 @@ if BUILD_GCLOUD_REST:
 </summary>
 <pre><code class="python">@property
 def session(self) -&gt; aiohttp.ClientSession:
+    connector = aiohttp.TCPConnector(ssl=self._ssl)
     self._session = self._session or aiohttp.ClientSession(
-        conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+        conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+        connector=connector)
     return self._session</code></pre>
 </details>
 </dd>
@@ -419,7 +427,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </dd>
 <dt id="gcloud.aio.auth.session.BaseSession"><code class="flex name class">
 <span>class <span class="ident">BaseSession</span></span>
-<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10)</span>
+<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -431,10 +439,11 @@ def session(self) -&gt; aiohttp.ClientSession:
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout: int = 10,
-                 read_timeout: int = 10):
+                 read_timeout: int = 10, verify_ssl: bool = True):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
         self._session = session
+        self._ssl = verify_ssl
 
     @abstractproperty
     def session(self):

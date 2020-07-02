@@ -416,7 +416,7 @@ def service_account_email(self)                 :
 </dd>
 <dt id="gcloud.rest.auth.SyncSession"><code class="flex name class">
 <span>class <span class="ident">SyncSession</span></span>
-<span>(</span><span>session=None, conn_timeout=10, read_timeout=10)</span>
+<span>(</span><span>session=None, conn_timeout=10, read_timeout=10, verify_ssl=True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -434,6 +434,7 @@ def service_account_email(self)                 :
     @property
     def session(self)                    :
         self._session = self._session or requests.Session()
+        self._session.verify = self._ssl
         return self._session
 
     def post(self, url     , headers                , data      = None,
@@ -513,6 +514,7 @@ def google_api_lock(self)                   :
 <pre><code class="python">@property
 def session(self)                    :
     self._session = self._session or requests.Session()
+    self._session.verify = self._ssl
     return self._session</code></pre>
 </details>
 </dd>

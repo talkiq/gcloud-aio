@@ -133,7 +133,7 @@ standard Base64 are respectively replaced by - and _.</p>
 <dl>
 <dt id="gcloud.aio.auth.AioSession"><code class="flex name class">
 <span>class <span class="ident">AioSession</span></span>
-<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10)</span>
+<span>(</span><span>session=None, conn_timeout: int = 10, read_timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -144,8 +144,10 @@ standard Base64 are respectively replaced by - and _.</p>
 <pre><code class="python">class AioSession(BaseSession):
     @property
     def session(self) -&gt; aiohttp.ClientSession:
+        connector = aiohttp.TCPConnector(ssl=self._ssl)
         self._session = self._session or aiohttp.ClientSession(
-            conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+            conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+            connector=connector)
         return self._session
 
     async def post(self, url: str, headers: Dict[str, str],
@@ -208,8 +210,10 @@ standard Base64 are respectively replaced by - and _.</p>
 </summary>
 <pre><code class="python">@property
 def session(self) -&gt; aiohttp.ClientSession:
+    connector = aiohttp.TCPConnector(ssl=self._ssl)
     self._session = self._session or aiohttp.ClientSession(
-        conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+        conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+        connector=connector)
     return self._session</code></pre>
 </details>
 </dd>

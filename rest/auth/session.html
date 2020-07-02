@@ -52,10 +52,11 @@ class BaseSession(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout      = 10,
-                 read_timeout      = 10):
+                 read_timeout      = 10, verify_ssl       = True):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
         self._session = session
+        self._ssl = verify_ssl
 
     @abstractproperty
     def session(self):
@@ -108,8 +109,10 @@ if not BUILD_GCLOUD_REST:
     class AioSession(BaseSession):
         @property
         def session(self)                         :
+            connector = aiohttp.TCPConnector(ssl=self._ssl)
             self._session = self._session or aiohttp.ClientSession(
-                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+                connector=connector)
             return self._session
 
         def post(self, url     , headers                ,
@@ -171,6 +174,7 @@ if BUILD_GCLOUD_REST:
         @property
         def session(self)                    :
             self._session = self._session or requests.Session()
+            self._session.verify = self._ssl
             return self._session
 
         def post(self, url     , headers                , data      = None,
@@ -234,7 +238,7 @@ if BUILD_GCLOUD_REST:
 <dl>
 <dt id="gcloud.rest.auth.session.BaseSession"><code class="flex name class">
 <span>class <span class="ident">BaseSession</span></span>
-<span>(</span><span>session=None, conn_timeout=10, read_timeout=10)</span>
+<span>(</span><span>session=None, conn_timeout=10, read_timeout=10, verify_ssl=True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -246,10 +250,11 @@ if BUILD_GCLOUD_REST:
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout      = 10,
-                 read_timeout      = 10):
+                 read_timeout      = 10, verify_ssl       = True):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
         self._session = session
+        self._ssl = verify_ssl
 
     @abstractproperty
     def session(self):
@@ -398,7 +403,7 @@ def request(self, method     , url     , headers                ,
 </dd>
 <dt id="gcloud.rest.auth.session.SyncSession"><code class="flex name class">
 <span>class <span class="ident">SyncSession</span></span>
-<span>(</span><span>session=None, conn_timeout=10, read_timeout=10)</span>
+<span>(</span><span>session=None, conn_timeout=10, read_timeout=10, verify_ssl=True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -416,6 +421,7 @@ def request(self, method     , url     , headers                ,
     @property
     def session(self)                    :
         self._session = self._session or requests.Session()
+        self._session.verify = self._ssl
         return self._session
 
     def post(self, url     , headers                , data      = None,
@@ -495,6 +501,7 @@ def google_api_lock(self)                   :
 <pre><code class="python">@property
 def session(self)                    :
     self._session = self._session or requests.Session()
+    self._session.verify = self._ssl
     return self._session</code></pre>
 </details>
 </dd>
