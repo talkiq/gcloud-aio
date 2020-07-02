@@ -95,6 +95,26 @@ in the case of ``contentType='application/x-netcdf'`` files exhibiting latency,
 you could instead set ``contentType='application/x-netcdf; charset=utf-8``. See
 `#172`_ for more info!
 
+Emulators
+~~~~~~~~~
+
+For testing purposes, you may want to use ``gcloud-aio-storage`` along with a
+local GCS emulator. Setting the ``$STORAGE_EMULATOR_HOST`` environment variable
+to the address of your emulator should be enough to do the trick.
+
+For example, using `fsouza/fake-gcs-server`_, you can do:
+
+.. code-block:: console
+
+    docker run -d -p 4443:4443 -v $PWD/my-sample-data:/data fsouza/fake-gcs-server
+    export STORAGE_EMULATOR_HOST='0.0.0.0:4443'
+
+Any ``gcloud-aio-storage`` requests made with that environment variable set
+will query ``fake-gcs-server`` instead of the official GCS API.
+
+Note that some emulation systems require disabling SSL -- if you're using a
+custom http session, you may need to disable SSL verification.
+
 Contributing
 ------------
 
@@ -103,6 +123,7 @@ Please see our `contributing guide`_.
 .. _#172: https://github.com/talkiq/gcloud-aio/issues/172
 .. _chardet: https://pypi.org/project/chardet/
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+.. _fsouza/fake-gcs-server: https://github.com/fsouza/fake-gcs-server
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-storage.svg?style=flat-square

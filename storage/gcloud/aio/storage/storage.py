@@ -28,11 +28,19 @@ else:
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
+VERIFY_SSL = True
 SCOPES = [
     'https://www.googleapis.com/auth/devstorage.read_write',
 ]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
+
+
+STORAGE_EMULATOR_HOST = os.environ['STORAGE_EMULATOR_HOST']
+if STORAGE_EMULATOR_HOST:
+    API_ROOT = f'https://{STORAGE_EMULATOR_HOST}/storage/v1/b'
+    API_ROOT_UPLOAD = 'https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
+    VERIFY_SSL = False
 
 
 log = logging.getLogger(__name__)
@@ -47,7 +55,7 @@ class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
-        self.session = AioSession(session)
+        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -103,13 +111,13 @@ class Storage:
         resp = await s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data: dict = await resp.json()
+        data: dict = await resp.json(content_type=None)
 
         while not data.get('done') and data.get('rewriteToken'):
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = await resp.json()
+            data = await resp.json(content_type=None)
 
         return data
 
@@ -146,7 +154,7 @@ class Storage:
                                 session: Optional[Session] = None) -> dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata: dict = json.loads(data.decode())
+        metadata: dict = json.loads(data.decode(), content_type=None)
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
@@ -161,7 +169,7 @@ class Storage:
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data: dict = await resp.json()
+        data: dict = await resp.json(content_type=None)
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -304,7 +312,7 @@ class Storage:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data: dict = await resp.json()
+        data: dict = await resp.json(content_type=None)
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
@@ -362,14 +370,14 @@ class Storage:
 
             break
 
-        data: dict = await resp.json()
+        data: dict = await resp.json(content_type=None)
         return data
 
     async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
                                   session: Optional[Session] = None,
                                   timeout: int = 10) -> dict:
         token = await self.token.get()
-        url = f'{API_ROOT}/{bucket}/'
+        url = f'{API_ROOT}/{bucket}'
         headers = {
             'Authorization': f'Bearer {token}',
         }
@@ -377,7 +385,7 @@ class Storage:
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data: dict = await resp.json()
+        data: dict = await resp.json(content_type=None)
         return data
 
     async def close(self):
