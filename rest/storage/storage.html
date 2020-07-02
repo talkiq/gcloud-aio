@@ -65,11 +65,19 @@ else:
 
 API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
 API_ROOT_UPLOAD = &#39;https://www.googleapis.com/upload/storage/v1/b&#39;
+VERIFY_SSL = True
 SCOPES = [
     &#39;https://www.googleapis.com/auth/devstorage.read_write&#39;,
 ]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
+
+
+STORAGE_EMULATOR_HOST = os.environ.get(&#39;STORAGE_EMULATOR_HOST&#39;)
+if STORAGE_EMULATOR_HOST:
+    API_ROOT = &#39;https://{}/storage/v1/b&#39;.format((STORAGE_EMULATOR_HOST))
+    API_ROOT_UPLOAD = &#39;https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b&#39;
+    VERIFY_SSL = False
 
 
 log = logging.getLogger(__name__)
@@ -88,7 +96,7 @@ class Storage(object):
         else: token =  None
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
-        self.session = SyncSession(session)
+        self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -151,13 +159,13 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json()
+        data       = resp.json(content_type=None)
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = resp.json()
+            data = resp.json(content_type=None)
 
         return data
 
@@ -202,7 +210,7 @@ class Storage(object):
         else: timeout =  10
         data = self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata       = json.loads(data.decode())
+        metadata       = json.loads(data.decode(), content_type=None)
         return metadata
 
     def list_objects(self, bucket     , **_3to2kwargs)        :
@@ -221,7 +229,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -380,7 +388,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def _upload_resumable(self, url     , object_name     ,
@@ -449,7 +457,7 @@ class Storage(object):
 
             break
 
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
@@ -460,7 +468,7 @@ class Storage(object):
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         token = self.token.get()
-        url = &#39;{}/{}/&#39;.format((API_ROOT), (bucket))
+        url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
         headers = {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         }
@@ -468,7 +476,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def close(self):
@@ -508,7 +516,7 @@ class Storage(object):
         else: token =  None
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
-        self.session = SyncSession(session)
+        self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -571,13 +579,13 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json()
+        data       = resp.json(content_type=None)
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = resp.json()
+            data = resp.json(content_type=None)
 
         return data
 
@@ -622,7 +630,7 @@ class Storage(object):
         else: timeout =  10
         data = self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata       = json.loads(data.decode())
+        metadata       = json.loads(data.decode(), content_type=None)
         return metadata
 
     def list_objects(self, bucket     , **_3to2kwargs)        :
@@ -641,7 +649,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -800,7 +808,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def _upload_resumable(self, url     , object_name     ,
@@ -869,7 +877,7 @@ class Storage(object):
 
             break
 
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
@@ -880,7 +888,7 @@ class Storage(object):
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         token = self.token.get()
-        url = &#39;{}/{}/&#39;.format((API_ROOT), (bucket))
+        url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
         headers = {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         }
@@ -888,7 +896,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data       = resp.json(content_type=None)
         return data
 
     def close(self):
@@ -980,13 +988,13 @@ class Storage(object):
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout)
 
-    data       = resp.json()
+    data       = resp.json(content_type=None)
 
     while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
         params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
-        data = resp.json()
+        data = resp.json(content_type=None)
 
     return data</code></pre>
 </details>
@@ -1061,7 +1069,7 @@ class Storage(object):
     else: timeout =  10
     data = self._download(bucket, object_name, timeout=timeout,
                                 session=session)
-    metadata       = json.loads(data.decode())
+    metadata       = json.loads(data.decode(), content_type=None)
     return metadata</code></pre>
 </details>
 </dd>
@@ -1095,7 +1103,7 @@ class Storage(object):
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
     token = self.token.get()
-    url = &#39;{}/{}/&#39;.format((API_ROOT), (bucket))
+    url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
     headers = {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
     }
@@ -1103,7 +1111,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data       = resp.json(content_type=None)
     return data</code></pre>
 </details>
 </dd>
@@ -1132,7 +1140,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data       = resp.json(content_type=None)
     return data</code></pre>
 </details>
 </dd>
