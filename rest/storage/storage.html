@@ -159,13 +159,13 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = resp.json(content_type=None)
+            data = resp.json()
 
         return data
 
@@ -229,7 +229,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -388,7 +388,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
@@ -457,7 +457,7 @@ class Storage(object):
 
             break
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
@@ -476,7 +476,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def close(self):
@@ -579,13 +579,13 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = resp.json(content_type=None)
+            data = resp.json()
 
         return data
 
@@ -649,7 +649,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -808,7 +808,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
@@ -877,7 +877,7 @@ class Storage(object):
 
             break
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
@@ -896,7 +896,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def close(self):
@@ -988,13 +988,13 @@ class Storage(object):
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout)
 
-    data       = resp.json(content_type=None)
+    data       = resp.json()
 
     while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
         params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
-        data = resp.json(content_type=None)
+        data = resp.json()
 
     return data</code></pre>
 </details>
@@ -1111,7 +1111,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json(content_type=None)
+    data       = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1140,7 +1140,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json(content_type=None)
+    data       = resp.json()
     return data</code></pre>
 </details>
 </dd>

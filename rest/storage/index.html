@@ -561,13 +561,13 @@ with the link.</p>
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = resp.json(content_type=None)
+            data = resp.json()
 
         return data
 
@@ -631,7 +631,7 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
@@ -790,7 +790,7 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
@@ -859,7 +859,7 @@ with the link.</p>
 
             break
 
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
@@ -878,7 +878,7 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json(content_type=None)
+        data       = resp.json()
         return data
 
     def close(self):
@@ -970,13 +970,13 @@ with the link.</p>
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout)
 
-    data       = resp.json(content_type=None)
+    data       = resp.json()
 
     while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
         params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
-        data = resp.json(content_type=None)
+        data = resp.json()
 
     return data</code></pre>
 </details>
@@ -1093,7 +1093,7 @@ with the link.</p>
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json(content_type=None)
+    data       = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1122,7 +1122,7 @@ with the link.</p>
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json(content_type=None)
+    data       = resp.json()
     return data</code></pre>
 </details>
 </dd>
