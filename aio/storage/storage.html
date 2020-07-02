@@ -182,7 +182,7 @@ class Storage:
                                 session: Optional[Session] = None) -&gt; dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata: dict = json.loads(data.decode(), content_type=None)
+        metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
@@ -548,7 +548,7 @@ class Storage:
                                 session: Optional[Session] = None) -&gt; dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata: dict = json.loads(data.decode(), content_type=None)
+        metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
@@ -947,7 +947,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
                             session: Optional[Session] = None) -&gt; dict:
     data = await self._download(bucket, object_name, timeout=timeout,
                                 session=session)
-    metadata: dict = json.loads(data.decode(), content_type=None)
+    metadata: dict = json.loads(data.decode())
     return metadata</code></pre>
 </details>
 </dd>
