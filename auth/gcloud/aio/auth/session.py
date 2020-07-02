@@ -17,10 +17,11 @@ class BaseSession:
     __metaclass__ = ABCMeta
 
     def __init__(self, session=None, conn_timeout: int = 10,
-                 read_timeout: int = 10):
+                 read_timeout: int = 10, verify_ssl: bool = True):
         self.conn_timeout = conn_timeout
         self.read_timeout = read_timeout
         self._session = session
+        self._ssl = verify_ssl
 
     @abstractproperty
     def session(self):
@@ -73,8 +74,10 @@ if not BUILD_GCLOUD_REST:
     class AioSession(BaseSession):
         @property
         def session(self) -> aiohttp.ClientSession:
+            connector = aiohttp.TCPConnector(ssl=self._ssl)
             self._session = self._session or aiohttp.ClientSession(
-                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout)
+                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
+                connector=connector)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
@@ -136,6 +139,7 @@ if BUILD_GCLOUD_REST:
         @property
         def session(self) -> requests.Session:
             self._session = self._session or requests.Session()
+            self._session.verify = self._ssl
             return self._session
 
         def post(self, url: str, headers: Dict[str, str], data: str = None,
