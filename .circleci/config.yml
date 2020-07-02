@@ -201,7 +201,7 @@ jobs:
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
       # aiohttp vs requests
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/, content_type=None//g'
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/content_type=None//g'
 
       # Update the nox files
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
