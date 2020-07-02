@@ -154,7 +154,7 @@ class Storage:
                                 session: Optional[Session] = None) -> dict:
         data = await self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata: dict = json.loads(data.decode(), content_type=None)
+        metadata: dict = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *, params: dict = None,
