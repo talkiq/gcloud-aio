@@ -502,6 +502,15 @@ with the link.</p>
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
+    def _headers(self)                  :
+        if STORAGE_EMULATOR_HOST:
+            return {}
+
+        token = self.token.get()
+        return {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
     def get_bucket(self, bucket_name     )          :
         return Bucket(self, bucket_name)
 
@@ -534,8 +543,6 @@ with the link.</p>
 
         https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         &#34;&#34;&#34;
-        token = self.token.get()
-
         if not new_name:
             new_name = object_name
 
@@ -549,8 +556,8 @@ with the link.</p>
         #
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
+        headers.update(self._headers())
         headers.update({
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
             &#39;Content-Length&#39;: &#39;0&#39;,
             &#39;Content-Type&#39;: &#39;&#39;,
         })
@@ -572,19 +579,16 @@ with the link.</p>
         return data
 
     def delete(self, bucket     , object_name     , **_3to2kwargs)       :
+        # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        token = self.token.get()
-        # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-        }
+        headers = self._headers()
 
         s = SyncSession(session) if session else self.session
         resp = s.delete(url, headers=headers, params=params or {},
@@ -622,11 +626,8 @@ with the link.</p>
         else: session =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        token = self.token.get()
         url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
-        headers = {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-        }
+        headers = self._headers()
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -652,7 +653,6 @@ with the link.</p>
         else: parameters =  None
         if &#39;content_type&#39; in _3to2kwargs: content_type = _3to2kwargs[&#39;content_type&#39;]; del _3to2kwargs[&#39;content_type&#39;]
         else: content_type =  None
-        token = self.token.get()
         url = &#39;{}/{}/o&#39;.format((API_ROOT_UPLOAD), (bucket))
 
         stream = self._preprocess_data(file_data)
@@ -670,8 +670,8 @@ with the link.</p>
         parameters = parameters or {}
 
         headers = headers or {}
+        headers.update(self._headers())
         headers.update({
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
             &#39;Content-Length&#39;: str(content_length),
             &#39;Content-Type&#39;: content_type or &#39;&#39;,
         })
@@ -746,19 +746,16 @@ with the link.</p>
         return content_type, encoding
 
     def _download(self, bucket     , object_name     , **_3to2kwargs)         :
+        # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        token = self.token.get()
-        # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-        }
+        headers = self._headers()
 
         s = SyncSession(session) if session else self.session
         response = s.get(url, headers=headers, params=params or {},
@@ -783,9 +780,7 @@ with the link.</p>
         params[&#39;name&#39;] = object_name
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
-        headers.update({
-            &#39;Accept&#39;: &#39;application/json&#39;,
-        })
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
@@ -869,11 +864,8 @@ with the link.</p>
         else: session =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        token = self.token.get()
         url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
-        headers = {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-        }
+        headers = self._headers()
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -943,8 +935,6 @@ with the link.</p>
 
     https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
     &#34;&#34;&#34;
-    token = self.token.get()
-
     if not new_name:
         new_name = object_name
 
@@ -958,8 +948,8 @@ with the link.</p>
     #
     # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
     headers = headers or {}
+    headers.update(self._headers())
     headers.update({
-        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         &#39;Content-Length&#39;: &#39;0&#39;,
         &#39;Content-Type&#39;: &#39;&#39;,
     })
@@ -991,19 +981,16 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, bucket     , object_name     , **_3to2kwargs)       :
+    # https://cloud.google.com/storage/docs/json_api/#encoding
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
-    token = self.token.get()
-    # https://cloud.google.com/storage/docs/json_api/#encoding
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-    headers = {
-        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-    }
+    headers = self._headers()
 
     s = SyncSession(session) if session else self.session
     resp = s.delete(url, headers=headers, params=params or {},
@@ -1084,11 +1071,8 @@ with the link.</p>
     else: session =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
-    token = self.token.get()
     url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
-    headers = {
-        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-    }
+    headers = self._headers()
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
@@ -1113,11 +1097,8 @@ with the link.</p>
     else: session =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
-    token = self.token.get()
     url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
-    headers = {
-        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-    }
+    headers = self._headers()
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
@@ -1150,7 +1131,6 @@ with the link.</p>
     else: parameters =  None
     if &#39;content_type&#39; in _3to2kwargs: content_type = _3to2kwargs[&#39;content_type&#39;]; del _3to2kwargs[&#39;content_type&#39;]
     else: content_type =  None
-    token = self.token.get()
     url = &#39;{}/{}/o&#39;.format((API_ROOT_UPLOAD), (bucket))
 
     stream = self._preprocess_data(file_data)
@@ -1168,8 +1148,8 @@ with the link.</p>
     parameters = parameters or {}
 
     headers = headers or {}
+    headers.update(self._headers())
     headers.update({
-        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         &#39;Content-Length&#39;: str(content_length),
         &#39;Content-Type&#39;: content_type or &#39;&#39;,
     })
