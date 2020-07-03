@@ -5,6 +5,7 @@ import logging
 import mimetypes
 import os
 from typing import Any
+from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -59,6 +60,15 @@ class Storage:
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
+    async def _headers(self) -> Dict[str, str]:
+        if STORAGE_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
+
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
@@ -84,8 +94,6 @@ class Storage:
 
         https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         """
-        token = await self.token.get()
-
         if not new_name:
             new_name = object_name
 
@@ -99,8 +107,8 @@ class Storage:
         #
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
+        headers.update(await self._headers())
         headers.update({
-            'Authorization': f'Bearer {token}',
             'Content-Length': '0',
             'Content-Type': '',
         })
@@ -124,13 +132,10 @@ class Storage:
     async def delete(self, bucket: str, object_name: str, *,
                      params: dict = None, timeout: int = 10,
                      session: Optional[Session] = None) -> str:
-        token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
+        headers = await self._headers()
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
@@ -160,11 +165,8 @@ class Storage:
     async def list_objects(self, bucket: str, *, params: dict = None,
                            session: Optional[Session] = None,
                            timeout: int = 10) -> dict:
-        token = await self.token.get()
         url = f'{API_ROOT}/{bucket}/o'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
+        headers = await self._headers()
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
@@ -180,7 +182,6 @@ class Storage:
                      headers: dict = None, metadata: dict = None,
                      session: Optional[Session] = None, timeout: int = 30,
                      force_resumable_upload: bool = None) -> dict:
-        token = await self.token.get()
         url = f'{API_ROOT_UPLOAD}/{bucket}/o'
 
         stream = self._preprocess_data(file_data)
@@ -198,8 +199,8 @@ class Storage:
         parameters = parameters or {}
 
         headers = headers or {}
+        headers.update(await self._headers())
         headers.update({
-            'Authorization': f'Bearer {token}',
             'Content-Length': str(content_length),
             'Content-Type': content_type or '',
         })
@@ -276,13 +277,10 @@ class Storage:
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
-        token = await self.token.get()
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
+        headers = await self._headers()
 
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
@@ -305,9 +303,7 @@ class Storage:
         params['name'] = object_name
         params['uploadType'] = 'media'
 
-        headers.update({
-            'Accept': 'application/json',
-        })
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
@@ -376,11 +372,8 @@ class Storage:
     async def get_bucket_metadata(self, bucket: str, *, params: dict = None,
                                   session: Optional[Session] = None,
                                   timeout: int = 10) -> dict:
-        token = await self.token.get()
         url = f'{API_ROOT}/{bucket}'
-        headers = {
-            'Authorization': f'Bearer {token}',
-        }
+        headers = await self._headers()
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
