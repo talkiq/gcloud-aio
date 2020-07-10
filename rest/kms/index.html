@@ -30,7 +30,10 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from future import standard_library
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter(&#34;ignore&#34;)
+    from future import standard_library
 standard_library.install_aliases()
 from pkg_resources import get_distribution
 __version__ = get_distribution(&#39;gcloud-rest-kms&#39;).version

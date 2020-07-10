@@ -32,7 +32,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 # Internal build variable to help choose the correct target code for
 # syntactically differing code in AIO and REST builds
-from future import standard_library
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter(&#34;ignore&#34;)
+    from future import standard_library
 standard_library.install_aliases()
 BUILD_GCLOUD_REST = not __package__ or &#39;rest&#39; in __package__</code></pre>
 </details>

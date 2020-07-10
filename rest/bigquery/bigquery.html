@@ -31,7 +31,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
-from future import standard_library
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter(&#34;ignore&#34;)
+    from future import standard_library
 standard_library.install_aliases()
 from builtins import object
 import io
