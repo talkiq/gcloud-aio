@@ -183,6 +183,8 @@ jobs:
 
       # Backport other things like type hints, exception handling, etc.
       - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
+      # https://github.com/PythonCharmers/python-future/issues/551
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
 
       # Add object class inheritence where needed for python2
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
