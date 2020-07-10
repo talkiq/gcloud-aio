@@ -79,6 +79,7 @@ jobs:
             pip install ./bigquery
             pip install ./datastore
             pip install ./kms
+            pip install ./pubsub
             pip install ./storage
             pip install ./taskqueue
       - run: pdoc --html -o ./docs gcloud
@@ -158,9 +159,6 @@ jobs:
       - checkout
       - run: pip install -r requirements.txt
 
-      # Remove pubsub, its just an aio shim
-      - run: rm -r ./pubsub
-
       # Remove caches and config directories
       - run: find . -exec dirname {} \; | sort -u | grep -E '/\..*' | xargs -L1 rm -rf
 
@@ -216,6 +214,19 @@ jobs:
           root: .
           paths:
           - ./*
+
+      # Store tarballs of each ``rest`` package for local verification
+      - run: |
+          mkdir rest
+          tar cf rest/auth.tgz auth
+          tar cf rest/bigquery.tgz bigquery
+          tar cf rest/datastore.tgz datastore
+          tar cf rest/kms.tgz kms
+          tar cf rest/pubsub.tgz pubsub
+          tar cf rest/storage.tgz storage
+          tar cf rest/taskqueue.tgz taskqueue
+      - store_artifacts:
+          path: ./rest/
 
 workflows:
   run-jobs:
@@ -364,6 +375,14 @@ workflows:
           requires:
             - build-rest
       - nox-rest:
+          name: test-rest-pubsub
+          folder: pubsub
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
+      - nox-rest:
           name: test-rest-storage
           folder: storage
           filters:
@@ -408,6 +427,7 @@ workflows:
             - test-rest-bigquery
             - test-rest-datastore
             - test-rest-kms
+            - test-rest-pubsub
             - test-rest-storage
             - test-rest-taskqueue
 
@@ -437,6 +457,5 @@ workflows:
               ignore: /.*/
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-              ignore: /pubsub-*/
           requires:
             - hold

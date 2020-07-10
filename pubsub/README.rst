@@ -1,25 +1,37 @@
-Asyncio Python Client for Google Cloud Pub/Sub
-==============================================
+(Asyncio OR Threadsafe) Python Client for Google Cloud Pub/Sub
+==============================================================
 
-|pypi| |pythons-aio|
+    This is a shared codebase for ``gcloud-aio-pubsub`` and
+    ``gcloud-rest-pubsub``
+
+|pypi| |pythons-aio| |pythons-rest|
 
 Installation
 ------------
 
 .. code-block:: console
 
-    $ pip install --upgrade gcloud-aio-pubsub
+    $ pip install --upgrade gcloud-{aio,rest}-pubsub
 
 Usage
 -----
 
-This Pub/Sub implementation is based on ``google-cloud-pubsub >= 0.29.4``
+Subscriber
+~~~~~~~~~~
 
 Currently we have only implemented an asyncio version of ``SubscriberClient``
 as the subscription pattern does not work with asyncio by default. The official
-Google publisher returns a future which is mostly useable as-is. We've not yet
-seen a need to build a non-asyncio threadsafe version of the library -- the
-upstream Google libraries have this well-handled.
+Google publisher returns a future which is mostly useable as-is. This patch is
+a noop under ``gcloud-rest`` (ie. when not using ``asyncio``) -- in that case,
+using the official library is preferred.
+
+An HTTP-oriented version, in keeping with the other ``gcloud-aio-*`` libraries,
+will likely be coming soon -- though our current approach works reasonably well
+for allowing the official ``grpc`` client to be used under ``asyncio``, we
+continue to see threading oddities now and again which we've not been able to
+solve. As such, we do not wholeheartedly recommend using the
+``SubscriberClient`` of this library in production, though a resilient enough
+environment for your use-case may be possible.
 
 Here's the rough usage pattern for subscribing:
 
@@ -51,7 +63,7 @@ Here's the rough usage pattern for subscribing:
     client.run_forever(keep_alive)
 
 Configuration
--------------
+^^^^^^^^^^^^^
 
 Our create_subscription method is a thing wrapper and thus supports all keyword
 configuration arguments from the official pubsub client which you can find in
@@ -88,7 +100,7 @@ that configuration object ``f`` gets used by the Subscriber in the following
 ways:
 
 Max Concurrency
-~~~~~~~~~~~~~~~
+_______________
 
 The subscriber is allowed to lease new tasks whenever its currently leased
 tasks ``x`` satisfy:
@@ -115,7 +127,7 @@ restrictions:
 Aside: it seems like OCNs on Pubsub are ~1538 bytes each
 
 Leasing Requests
-~~~~~~~~~~~~~~~~
+________________
 
 When leasing new tasks, the ``Subscriber`` uses the following algorithm:
 
@@ -151,7 +163,7 @@ Note that leasing occurs based on ``f.resume_threshold``, so some of this
 latency is concurrent with task execution.
 
 Task Expiry
-~~~~~~~~~~~
+___________
 
 Any task which has not been acked or nacked counts against the current leased
 task count. Our worker thread should ensure all tasks are acked or nacked, but
@@ -182,9 +194,65 @@ our 95% percentile task latency at high load. The lower this value is,
 the better our throughput will be in extreme cases.
 
 Confusion
-~~~~~~~~~
+_________
 
 ``f.max_requests`` is defined, but seems to be unused.
+
+Publisher
+~~~~~~~~~
+
+The ``PublisherClient`` is a dead-simple alternative to the official Google
+Cloud Pub/Sub publisher client. The main design goal was to eliminate all the
+additional gRPC overhead implemented by the upstream client.
+
+If migrating between this library and the official one, the main difference is
+this: the ``gcloud-aio-pubsub`` publisher's ``.publish()`` method *immediately*
+publishes the messages you've provided, rather than maintaining our own
+publishing queue, implementing batching and flow control, etc. If you're
+looking for a full-featured publishing library with all the bells and whistles
+built in, you may be interested in the upstream provider. If you're looking to
+manage your own batching / timeouts / retry / threads / etc, this library
+should be a bit easier to work with.
+
+Sample usage:
+
+.. code-block:: python
+
+    from gcloud.aio.pubsub import PubsubMessage
+    from gcloud.aio.pubsub import PublisherClient
+
+    async with aiohttp.ClientSession() as session:
+        client = PublisherClient(session=session)
+
+        topic = client.topic_path('my-gcp-project', 'my-topic-name')
+
+        messages = [
+            PubsubMessage(b'payload', attribute='value'),
+            PubsubMessage(b'other payload', other_attribute='whatever',
+                          more_attributes='something else'),
+        ]
+        response = await client.publish(topic, messages)
+        # response == {'messageIds': ['1', '2']}
+
+Emulators
+^^^^^^^^^
+
+For testing purposes, you may want to use ``gcloud-aio-pubsub`` along with a
+local GCS emulator. Setting the ``$PUBSUB_EMULATOR_HOST`` environment variable
+to the local address of your emulator should be enough to do the trick.
+
+For example, using the official Google Pubsub emulator:
+
+.. code-block:: console
+
+    gcloud beta emulators pubsub start --host-port=0.0.0.0:8681
+    export PUBSUB_EMULATOR_HOST='0.0.0.0:8681'
+
+Any ``gcloud-aio-pubsub`` Publisher requests made with that environment
+variable set will query the emulator instead of the official GCS APIs.
+
+For easier ergonomics, you may be interested in
+`messagebird/gcloud-pubsub-emulator`_.
 
 Contributing
 ------------
@@ -192,12 +260,17 @@ Contributing
 Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+.. _messagebird/gcloud-pubsub-emulator: https://github.com/marcelcorso/gcloud-pubsub-emulator#gcloud-pubsub-emulator
 .. _official Google documentation: https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-pubsub.svg?style=flat-square
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-pubsub/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square
-    :alt: Python Version Support
+.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square&label=python (aio)
+    :alt: Python Version Support (gcloud-aio-pubsub)
     :target: https://pypi.org/project/gcloud-aio-pubsub/
+
+.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-pubsub.svg?style=flat-square&label=python (rest)
+    :alt: Python Version Support (gcloud-rest-pubsub)
+    :target: https://pypi.org/project/gcloud-rest-pubsub/

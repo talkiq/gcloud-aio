@@ -13,8 +13,8 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-pubsub',
-    version='1.1.2',
-    description='Asyncio Python Client for Google Cloud Pub/Sub',
+    version='1.2.0',
+    description='Python Client for Google Cloud Pub/Sub',
     long_description=README,
     namespace_packages=[
         'gcloud',
