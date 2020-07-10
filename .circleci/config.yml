@@ -46,7 +46,7 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: rest
-      - run: python3 -m pip install future==0.17.1
+      - run: python3 -m pip install future==0.18.2
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
   docs:
@@ -122,7 +122,7 @@ jobs:
     docker:
       - image: python:3.8.3-slim
     steps:
-      - run: pip install future==0.17.1 pyopenssl==19.0.0 twine==1.14.0
+      - run: pip install future==0.18.2 pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
           at: rest
       - deploy:
