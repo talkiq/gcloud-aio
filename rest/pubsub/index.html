@@ -106,6 +106,9 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
         return &#39;{}/topics/{}&#39;.format((cls.project_path(project)), (topic))
 
     def _headers(self)                  :
+        if PUBSUB_EMULATOR_HOST:
+            return {}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
