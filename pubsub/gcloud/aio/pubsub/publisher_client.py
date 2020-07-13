@@ -54,6 +54,9 @@ class PublisherClient:
         return f'{cls.project_path(project)}/topics/{topic}'
 
     async def _headers(self) -> Dict[str, str]:
+        if PUBSUB_EMULATOR_HOST:
+            return {}
+
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',
