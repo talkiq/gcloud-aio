@@ -1,13 +1,16 @@
+import binascii
 import enum
 import io
 import json
 import logging
 import mimetypes
 import os
+import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
 from typing import IO
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -49,9 +52,58 @@ if STORAGE_EMULATOR_HOST:
 log = logging.getLogger(__name__)
 
 
+def choose_boundary() -> str:
+    """Stolen from urllib3.filepost.choose_boundary() as of v1.26.2."""
+    boundary = binascii.hexlify(os.urandom(16))
+    if sys.version_info.major == 2:
+        return boundary  # type: ignore[return-value]
+    return boundary.decode('ascii')
+
+
+def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
+                              boundary: str) -> Tuple[bytes, str]:
+    """
+    Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
+
+    Very heavily modified to be compatible with our gcloud-rest converter and
+    to avboid unnecessary urllib3 dependencies (since that's only included with
+    requests, not aiohttp).
+    """
+    body: List[bytes] = []
+    for headers, data in fields:
+        body.append(f'--{boundary}\r\n'.encode('utf-8'))
+
+        # The below is from RequestFields.render_headers()
+        # Since we only use Content-Type, we could simplify the below to a
+        # single line... but probably best to be safe for future modifications.
+        for field in ['Content-Disposition', 'Content-Type',
+                      'Content-Location']:
+            value = headers.pop(field, None)
+            if value:
+                body.append(f'{field}: {value}\r\n'.encode('utf-8'))
+        for field, value in headers.items():
+            # N.B. potential bug copied from urllib3 code; zero values should
+            # be sent! Keeping it for now, since Google libs use urllib3 for
+            # their examples.
+            if value:
+                body.append(f'{field}: {value}\r\n'.encode('utf-8'))
+
+        body.append(b'\r\n')
+        body.append(data)
+        body.append(b'\r\n')
+
+    body.append(f'--{boundary}--\r\n'.encode('utf-8'))
+
+    # N.B. 'multipart/form-data' in upstream, but Google wants 'related'
+    content_type = f'multipart/related; boundary={boundary}'
+
+    return b''.join(body), content_type
+
+
 class UploadType(enum.Enum):
     SIMPLE = 1
     RESUMABLE = 2
+    MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
 class Storage:
@@ -191,7 +243,6 @@ class Storage:
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
@@ -229,17 +280,18 @@ class Storage:
                                                content_length)
         log.debug('using %r gcloud storage upload method', upload_type)
 
-        if upload_type == UploadType.SIMPLE:
-            if metadata:
-                log.warning('metadata will be ignored for upload_type=Simple')
-            return await self._upload_simple(url, object_name, stream,
-                                             parameters, headers,
-                                             session=session, timeout=timeout)
-
         if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(
                 url, object_name, stream, parameters, headers,
                 metadata=metadata, session=session, timeout=timeout)
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                return await self._upload_multipart(
+                    url, object_name, stream, parameters, headers, metadata,
+                    session=session, timeout=timeout)
+            return await self._upload_simple(
+                url, object_name, stream, parameters, headers, session=session,
+                timeout=timeout)
 
         raise TypeError(f'upload type {upload_type} not supported')
 
@@ -301,6 +353,17 @@ class Storage:
 
         return content_type, encoding
 
+    @staticmethod
+    def _format_metadata_key(key: str) -> str:
+        """
+        Formats the fixed-key metadata keys as wanted by the multipart API.
+
+        Ex: Content-Disposition --> contentDisposition
+        """
+        parts = key.split('-')
+        parts = [parts[0].lower()] + [p.capitalize() for p in parts[1:]]
+        return ''.join(parts)
+
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
@@ -334,10 +397,46 @@ class Storage:
         params['name'] = object_name
         params['uploadType'] = 'media'
 
-        headers.update(await self._headers())
-
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
+    async def _upload_multipart(self, url: str, object_name: str,
+                                stream: IO[AnyStr], params: Dict[str, str],
+                                headers: Dict[str, str],
+                                metadata: Dict[str, str], *,
+                                session: Optional[Session] = None,
+                                timeout: int = 30) -> Dict[str, Any]:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+        params['uploadType'] = 'multipart'
+
+        metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+        metadata = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata['name'] = object_name
+
+        raw_body: AnyStr = stream.read()
+        if isinstance(raw_body, str):
+            bytes_body: bytes = raw_body.encode('utf-8')
+        else:
+            bytes_body = raw_body
+
+        parts = [
+            (metadata_headers, json.dumps(metadata).encode('utf-8')),
+            ({'Content-Type': headers['Content-Type']}, bytes_body),
+        ]
+        boundary = choose_boundary()
+        body, content_type = encode_multipart_formdata(parts, boundary)
+        headers.update({
+            'Content-Type': content_type,
+            'Content-Length': str(len(body)),
+            'Accept': 'application/json'
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=body, headers=headers, params=params,
                             timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
