@@ -10,6 +10,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 from urllib.parse import quote
+from urllib3.filepost import encode_multipart_formdata, choose_boundary
+from urllib3.fields import RequestField
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -50,7 +52,7 @@ log = logging.getLogger(__name__)
 class UploadType(enum.Enum):
     SIMPLE = 1
     RESUMABLE = 2
-
+    MULTIPART = 3
 
 class Storage:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
@@ -174,7 +176,6 @@ class Storage:
         data: dict = await resp.json(content_type=None)
         return data
 
-    # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
@@ -206,7 +207,7 @@ class Storage:
         })
 
         upload_type = self._decide_upload_type(force_resumable_upload,
-                                               content_length)
+                                               content_length, metadata)
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.SIMPLE:
@@ -215,7 +216,10 @@ class Storage:
             return await self._upload_simple(url, object_name, stream,
                                              parameters, headers,
                                              session=session, timeout=timeout)
-
+        if upload_type == UploadType.MULTIPART:
+            return await self._upload_multipart(url, object_name, stream, content_type,
+                                                parameters, headers, metadata,
+                                                session=session, timeout=timeout)
         if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(
                 url, object_name, stream, parameters, headers,
@@ -247,20 +251,25 @@ class Storage:
 
     @staticmethod
     def _decide_upload_type(force_resumable_upload: Optional[bool],
-                            content_length: int) -> UploadType:
+                            content_length: int, metadata: dict) -> UploadType:
+        if metadata:
+            non_resumable_type = UploadType.MULTIPART
+        else:
+            non_resumable_type = UploadType.SIMPLE
+        
         # force resumable
         if force_resumable_upload is True:
             return UploadType.RESUMABLE
 
         # force simple
         if force_resumable_upload is False:
-            return UploadType.SIMPLE
+            return non_resumable_type
 
         # decide based on Content-Length
         if content_length > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
             return UploadType.RESUMABLE
 
-        return UploadType.SIMPLE
+        return non_resumable_type
 
     @staticmethod
     def _split_content_type(content_type: str) -> Tuple[str, str]:
@@ -274,6 +283,17 @@ class Storage:
 
         return content_type, encoding
 
+    @staticmethod
+    def _format_metadata_key(key: str) -> str:
+        """
+        Formats the fixed-key metadata keys as wanted by the multipart upload API.
+        Ex: Content-Disposition --> contentDisposition
+        """
+        parts = key.split('-')
+        parts = [p.capitalize() for p in parts]
+        parts[0] = parts[0].lower()
+        return ''.join(parts)
+    
     async def _download(self, bucket: str, object_name: str, *,
                         params: dict = None, timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
@@ -310,7 +330,38 @@ class Storage:
                             timeout=timeout)
         data: dict = await resp.json(content_type=None)
         return data
-
+  
+    async def _upload_multipart(self, url: str, object_name: str, stream: io.IOBase, 
+                                content_type: str, params: dict,
+                                headers: dict, metadata: dict, *,
+                                session: Session = None,
+                                timeout: int = 30) -> dict:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+        params['uploadType'] = 'multipart'
+        
+        metadata = metadata or {}
+        metadata = {self._format_metadata_key(k):v for k,v in metadata.items()}
+        metadata['name'] = object_name
+        
+        parts = [
+            RequestField(name='metadata', data=json.dumps(metadata),
+                         headers={'Content-Type': 'application/json; charset=UTF-8'}),
+            RequestField(name='media', data=stream.read(),
+                         headers={'Content-Type': content_type})
+        ]
+        boundary = choose_boundary()
+        body, _ = encode_multipart_formdata(parts, boundary)
+        headers.update({
+            'Content-Type': f'multipart/related; boundary={boundary}',
+            'Content-Length': f'{len(body)}',
+            'Accept': 'application/json'
+        })
+        
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=body, headers=headers, params=params,
+                            timeout=timeout)
+        return await resp.json()
+    
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: io.IOBase, params: dict,
                                 headers: dict, *, metadata: dict = None,
