@@ -6,3 +6,7 @@ pyjwt>=1.5.3,<2.0.0
 # requests>=2.20.0,<3.0.0
 six>=1.11.0,<2.0.0
 typing>=3.7.4.1,<4.0.0; python_version<"3.6" or python_full_version<"3.6.2"
+# yarl is a shared requirement via aiohttp with google cloud functions;
+# pinned version allows cloud functions to deploy when using gcloud-aio
+# the yarl requirement is removed for python2 -rest by .circleci/config.yaml
+yarl<1.4.3
