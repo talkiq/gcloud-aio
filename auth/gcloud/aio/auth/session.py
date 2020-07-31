@@ -63,13 +63,31 @@ if not BUILD_GCLOUD_REST:
 
     async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
-        body = await resp.text(errors='replace')
-        try:
-            resp.raise_for_status()
-        except aiohttp.ClientResponseError:
-            log.exception('got http error response: %s', body)
-            raise
-
+        # Copied from aiohttp's raise_for_status() -- since it releases the
+        # response payload, we need to grab the `resp.text` first to help users
+        # debug.
+        #
+        # Useability/performance notes:
+        # * grabbing the response can be slow for large files, only do it as
+        #   needed
+        # * we can't know in advance what encoding the files might have unless
+        #   we're certain in advance that the result is an error payload from
+        #   Google (otherwise, it could be a binary blob from GCS, for example)
+        # * sometimes, errors are expected, so we should try to avoid polluting
+        #   logs in that case
+        #
+        # https://github.com/aio-libs/aiohttp/blob/
+        # 385b03ef21415d062886e1caab74eb5b93fdb887/aiohttp/
+        # client_reqrep.py#L892-L902
+        if resp.status >= 400:
+            assert resp.reason is not None
+            # Google's error messages are useful, pass 'em through
+            body = await resp.text(errors='replace')
+            resp.release()
+            raise aiohttp.ClientResponseError(resp.request_info, resp.history,
+                                              status=resp.status,
+                                              message=f'{resp.reason}: {body}',
+                                              headers=resp.headers)
 
     class AioSession(BaseSession):
         @property
