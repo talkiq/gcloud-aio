@@ -9,4 +9,4 @@ typing>=3.7.4.1,<4.0.0; python_version<"3.6" or python_full_version<"3.6.2"
 # yarl is a shared requirement via aiohttp with google cloud functions;
 # pinned version allows cloud functions to deploy when using gcloud-aio
 # the yarl requirement is removed for python2 -rest by .circleci/config.yaml
-yarl==1.4.2
+yarl<1.4.3
