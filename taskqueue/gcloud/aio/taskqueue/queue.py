@@ -47,14 +47,13 @@ class PushQueue:
                                     session=self.session.session)
 
     async def headers(self) -> Dict[str, str]:
-        headers = {'Content-Type': 'application/json'}
         if CLOUDTASKS_EMULATOR_HOST:
-            return headers
+            return {'Content-Type': 'application/json'}
 
         token = await self.token.get()
         return {
-            **headers,
             'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
         }
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore

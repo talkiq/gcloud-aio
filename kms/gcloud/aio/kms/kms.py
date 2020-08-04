@@ -43,16 +43,13 @@ class KMS:
                                     session=self.session.session)
 
     async def headers(self) -> Dict[str, str]:
-        headers = {
-            'Content-Type': 'application/json'
-        }
         if KMS_EMULATOR_HOST:
-            return headers
+            return {'Content-Type': 'application/json'}
 
         token = await self.token.get()
         return {
-            **headers,
             'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
         }
 
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt
