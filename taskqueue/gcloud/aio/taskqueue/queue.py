@@ -3,6 +3,7 @@ An asynchronous push queue for Google Appengine Task Queues
 """
 import io
 import logging
+import os
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -25,6 +26,10 @@ SCOPES = [
     'https://www.googleapis.com/auth/cloud-tasks',
 ]
 
+CLOUDTASKS_EMULATOR_HOST = os.environ.get('CLOUDTASKS_EMULATOR_HOST')
+if CLOUDTASKS_EMULATOR_HOST:
+    API_ROOT = f'http://{CLOUDTASKS_EMULATOR_HOST}'
+
 log = logging.getLogger(__name__)
 
 
@@ -42,10 +47,14 @@ class PushQueue:
                                     session=self.session.session)
 
     async def headers(self) -> Dict[str, str]:
+        headers = {'Content-Type': 'application/json'}
+        if CLOUDTASKS_EMULATOR_HOST:
+            return headers
+
         token = await self.token.get()
         return {
+            **headers,
             'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
         }
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
