@@ -3,6 +3,7 @@ An asynchronous client for Google Cloud KMS
 """
 import io
 import json
+import os
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -24,6 +25,9 @@ SCOPES = [
     'https://www.googleapis.com/auth/cloudkms',
 ]
 
+KMS_EMULATOR_HOST = os.environ.get('KMS_EMULATOR_HOST')
+if KMS_EMULATOR_HOST:
+    API_ROOT = f'http://{KMS_EMULATOR_HOST}/v1'
 
 class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
@@ -39,6 +43,9 @@ class KMS:
                                     session=self.session.session)
 
     async def headers(self) -> Dict[str, str]:
+        if KMS_EMULATOR_HOST:
+            return {'Content-Type': 'application/json'}
+
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',

@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import uuid
 from enum import Enum
 from typing import Any
@@ -26,6 +27,9 @@ SCOPES = [
     'https://www.googleapis.com/auth/bigquery',
 ]
 
+BIGQUERY_EMULATOR_HOST = os.environ.get('BIGQUERY_EMULATOR_HOST')
+if BIGQUERY_EMULATOR_HOST:
+    API_ROOT = f'http://{BIGQUERY_EMULATOR_HOST}/bigquery/v2'
 
 class SourceFormat(Enum):
     AVRO = 'AVRO'
@@ -151,6 +155,9 @@ class Table:
         }
 
     async def headers(self) -> Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',

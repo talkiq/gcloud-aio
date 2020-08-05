@@ -38,6 +38,13 @@ We're still working on more complete documentation, but roughly you can do:
     # * using a context manager: `async with KMS(..) as kms:`
     await kms.close()
 
+Emulators
+~~~~~~~~~
+
+For testing purposes, you may want to use ``gcloud-aio-kms`` along with a
+local emulator. Setting the ``$KMS_EMULATOR_HOST`` environment variable
+to the address of your emulator should be enough to do the trick.
+
 Contributing
 ------------
 

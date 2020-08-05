@@ -19,6 +19,13 @@ Usage
 We're still working on documentation -- for now, you can use the `smoke test`_
 as an example.
 
+Emulators
+~~~~~~~~~
+
+For testing purposes, you may want to use ``gcloud-aio-bigquery`` along with a
+local emulator. Setting the ``$BIGQUERY_EMULATOR_HOST`` environment variable
+to the address of your emulator should be enough to do the trick.
+
 Contributing
 ------------
 
