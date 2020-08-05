@@ -42,6 +42,7 @@ standard_library.install_aliases()
 from builtins import object
 import io
 import json
+import os
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -63,6 +64,9 @@ SCOPES = [
     &#39;https://www.googleapis.com/auth/cloudkms&#39;,
 ]
 
+KMS_EMULATOR_HOST = os.environ.get(&#39;KMS_EMULATOR_HOST&#39;)
+if KMS_EMULATOR_HOST:
+    API_ROOT = &#39;http://{}/v1&#39;.format((KMS_EMULATOR_HOST))
 
 class KMS(object):
     def __init__(self, keyproject     , keyring     , keyname     ,
@@ -78,6 +82,9 @@ class KMS(object):
                                     session=self.session.session)
 
     def headers(self)                  :
+        if KMS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -155,6 +162,9 @@ class KMS(object):
                                     session=self.session.session)
 
     def headers(self)                  :
+        if KMS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -269,6 +279,9 @@ class KMS(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
+    if KMS_EMULATOR_HOST:
+        return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
     token = self.token.get()
     return {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),

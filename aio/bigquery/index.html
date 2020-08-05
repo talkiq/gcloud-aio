@@ -258,6 +258,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         }
 
     async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -495,6 +498,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
     token = await self.token.get()
     return {
         &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,

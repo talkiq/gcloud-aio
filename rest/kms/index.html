@@ -139,6 +139,9 @@ Base64 are respectively replaced by - and _</p></div>
                                     session=self.session.session)
 
     def headers(self)                  :
+        if KMS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -253,6 +256,9 @@ Base64 are respectively replaced by - and _</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
+    if KMS_EMULATOR_HOST:
+        return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
     token = self.token.get()
     return {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),

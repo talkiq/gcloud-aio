@@ -39,6 +39,7 @@ standard_library.install_aliases()
 from builtins import object
 import io
 import json
+import os
 import uuid
 from enum import Enum
 from typing import Any
@@ -65,6 +66,9 @@ SCOPES = [
     &#39;https://www.googleapis.com/auth/bigquery&#39;,
 ]
 
+BIGQUERY_EMULATOR_HOST = os.environ.get(&#39;BIGQUERY_EMULATOR_HOST&#39;)
+if BIGQUERY_EMULATOR_HOST:
+    API_ROOT = &#39;http://{}/bigquery/v2&#39;.format((BIGQUERY_EMULATOR_HOST))
 
 class SourceFormat(Enum):
     AVRO = &#39;AVRO&#39;
@@ -192,6 +196,9 @@ class Table(object):
         }
 
     def headers(self)                  :
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -563,6 +570,9 @@ class Table(object):
         }
 
     def headers(self)                  :
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -801,6 +811,9 @@ class Table(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
     token = self.token.get()
     return {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),

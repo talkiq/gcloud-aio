@@ -32,6 +32,7 @@ An asynchronous client for Google Cloud KMS
 &#34;&#34;&#34;
 import io
 import json
+import os
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -53,6 +54,9 @@ SCOPES = [
     &#39;https://www.googleapis.com/auth/cloudkms&#39;,
 ]
 
+KMS_EMULATOR_HOST = os.environ.get(&#39;KMS_EMULATOR_HOST&#39;)
+if KMS_EMULATOR_HOST:
+    API_ROOT = f&#39;http://{KMS_EMULATOR_HOST}/v1&#39;
 
 class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
@@ -68,6 +72,9 @@ class KMS:
                                     session=self.session.session)
 
     async def headers(self) -&gt; Dict[str, str]:
+        if KMS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -145,6 +152,9 @@ class KMS:
                                     session=self.session.session)
 
     async def headers(self) -&gt; Dict[str, str]:
+        if KMS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -259,6 +269,9 @@ class KMS:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
+    if KMS_EMULATOR_HOST:
+        return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
     token = await self.token.get()
     return {
         &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,

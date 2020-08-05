@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import io
 import json
+import os
 import uuid
 from enum import Enum
 from typing import Any
@@ -54,6 +55,9 @@ SCOPES = [
     &#39;https://www.googleapis.com/auth/bigquery&#39;,
 ]
 
+BIGQUERY_EMULATOR_HOST = os.environ.get(&#39;BIGQUERY_EMULATOR_HOST&#39;)
+if BIGQUERY_EMULATOR_HOST:
+    API_ROOT = f&#39;http://{BIGQUERY_EMULATOR_HOST}/bigquery/v2&#39;
 
 class SourceFormat(Enum):
     AVRO = &#39;AVRO&#39;
@@ -179,6 +183,9 @@ class Table:
         }
 
     async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -547,6 +554,9 @@ class Table:
         }
 
     async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -784,6 +794,9 @@ class Table:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
     token = await self.token.get()
     return {
         &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,

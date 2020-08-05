@@ -269,6 +269,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         }
 
     def headers(self)                  :
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
         token = self.token.get()
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
@@ -507,6 +510,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
     token = self.token.get()
     return {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),

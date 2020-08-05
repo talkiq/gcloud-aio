@@ -130,6 +130,9 @@ Base64 are respectively replaced by - and _</p></div>
                                     session=self.session.session)
 
     async def headers(self) -&gt; Dict[str, str]:
+        if CLOUDTASKS_EMULATOR_HOST:
+            return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
         token = await self.token.get()
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
@@ -293,6 +296,9 @@ Base64 are respectively replaced by - and _</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
+    if CLOUDTASKS_EMULATOR_HOST:
+        return {&#39;Content-Type&#39;: &#39;application/json&#39;}
+
     token = await self.token.get()
     return {
         &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
