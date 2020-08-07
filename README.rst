@@ -29,9 +29,9 @@ Installation
 Compatibility
 -------------
 
-These libraries are used with Google projects. Here are notes on compatibility
-issues. While we cannot offer specific support for issues originating from
-other projects, we can point toward known resolutions.
+Here are notes on compatibility issues. While we cannot offer specific support
+for issues originating from other projects, we can point toward known
+resolutions.
 
 - Google Cloud Functions pins ``yarl``; ``gcloud-aio-*`` indirectly requires
   ``yarl`` via ``aiohttp`` and an unpinned version of ``yarl`` can cause your
