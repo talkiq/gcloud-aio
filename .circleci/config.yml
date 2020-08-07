@@ -20,7 +20,7 @@ jobs:
 
   nox:
     docker:
-      - image: thekevjames/nox:2019.11.9
+      - image: thekevjames/nox:2020.5.24
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -32,12 +32,11 @@ jobs:
           apt-get -qy install libssl-dev
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - checkout
-      - run: python3 -m pip install -U pip  # TODO: remove after nox base image updated
       - run: nox -f <<parameters.folder>>/noxfile.py
 
   nox-rest:
     docker:
-      - image: thekevjames/nox:2019.11.9
+      - image: thekevjames/nox:2020.5.24
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -47,7 +46,6 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: rest
-      - run: python3 -m pip install -U pip  # TODO: remove after nox base image updated
       - run: python3 -m pip install future==0.18.2
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
