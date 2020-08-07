@@ -46,6 +46,7 @@ jobs:
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
       - attach_workspace:
           at: rest
+      - run: python3 -m pip install -U pip  # TODO: remove after nox base image updated
       - run: python3 -m pip install future==0.18.2
       - run: nox -f rest/<<parameters.folder>>/noxfile.py
 
