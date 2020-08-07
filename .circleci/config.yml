@@ -32,6 +32,7 @@ jobs:
           apt-get -qy install libssl-dev
       - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
       - checkout
+      - run: python3 -m pip install -U pip  # TODO: remove after nox base image updated
       - run: nox -f <<parameters.folder>>/noxfile.py
 
   nox-rest:
