@@ -26,6 +26,20 @@ Installation
 
     $ pip install --upgrade gcloud-{aio,rest}-{client_name}
 
+Compatibility
+-------------
+
+These libraries are used with Google projects. Here are notes on compatibility
+issues. While we cannot offer specific support for issues originating from
+other projects, we can point toward known resolutions.
+
+- Google Cloud Functions pins ``yarl``; ``gcloud-aio-*`` indirectly requires
+  ``yarl`` via ``aiohttp`` and an unpinned version of ``yarl`` can cause your
+  cloud functions to stop building. Please pin your requirements as described
+  here: `Google Cloud Function Dependencies`_.
+
+.. gcloud-aio links
+
 .. _Google Cloud Auth: https://github.com/talkiq/gcloud-aio/blob/master/auth/README.rst
 .. _Google Cloud BigQuery: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/README.rst
 .. _Google Cloud Datastore: https://github.com/talkiq/gcloud-aio/blob/master/datastore/README.rst
@@ -73,3 +87,7 @@ Installation
 .. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-auth.svg?style=flat-square&label=python (rest)
     :alt: Python Version Support (rest)
     :target: https://pypi.org/project/gcloud-rest-auth/
+
+.. external links
+
+.. _Google Cloud Function Dependencies: https://cloud.google.com/functions/docs/writing/specifying-dependencies-python
