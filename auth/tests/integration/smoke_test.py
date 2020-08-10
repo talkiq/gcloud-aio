@@ -74,7 +74,7 @@ async def verify_signature(data, signature, key_name, iam_client):
 async def test_sign_blob(creds: str) -> None:
     data = 'Testing Can be confidential!'
 
-    async with Session(conn_timeout=10, read_timeout=10) as s:
+    async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.sign_blob(data)
         signed_data = resp['signedBlob']
@@ -83,7 +83,7 @@ async def test_sign_blob(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key_names(creds: str) -> None:
-    async with Session(conn_timeout=10, read_timeout=10) as s:
+    async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.list_public_keys()
         assert len(resp) >= 1, '0 public keys found.'
@@ -91,7 +91,7 @@ async def test_get_service_account_public_key_names(creds: str) -> None:
 
 @pytest.mark.asyncio  # type: ignore
 async def test_get_service_account_public_key(creds: str) -> None:
-    async with Session(conn_timeout=10, read_timeout=10) as s:
+    async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.list_public_keys(session=s)
         pub_key_data = await iam_client.get_public_key(key=resp[0]['name'],

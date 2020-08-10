@@ -16,12 +16,11 @@ log = logging.getLogger(__name__)
 class BaseSession:
     __metaclass__ = ABCMeta
 
-    def __init__(self, session=None, conn_timeout: int = 10,
-                 read_timeout: int = 10, verify_ssl: bool = True):
-        self.conn_timeout = conn_timeout
-        self.read_timeout = read_timeout
+    def __init__(self, session=None, timeout: int = 10,
+                 verify_ssl: bool = True):
         self._session = session
         self._ssl = verify_ssl
+        self._timeout = timeout
 
     @abstractproperty
     def session(self):
@@ -94,8 +93,7 @@ if not BUILD_GCLOUD_REST:
         def session(self) -> aiohttp.ClientSession:
             connector = aiohttp.TCPConnector(ssl=self._ssl)
             self._session = self._session or aiohttp.ClientSession(
-                conn_timeout=self.conn_timeout, read_timeout=self.read_timeout,
-                connector=connector)
+                connector=connector, timeout=self._timeout)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
