@@ -241,7 +241,7 @@ workflows:
               only: /.*/
 
       - linter/pre-commit:
-          python_version: 3.6.6
+          python_version: 3.7.8
           filters:
             tags:
               only: /.*/
@@ -255,31 +255,31 @@ workflows:
       - tester/pipcheck:
           name: pipcheck-auth
           install_args: auth/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-bigquery
           install_args: bigquery/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-datastore
           install_args: datastore/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-kms
           install_args: kms/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-pubsub
           install_args: pubsub/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-storage
           install_args: storage/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-taskqueue
           install_args: taskqueue/
-          python_version: 3.6.6
+          python_version: 3.7.8
 
       # build docs
       - docs:
