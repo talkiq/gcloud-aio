@@ -20,7 +20,7 @@ jobs:
 
   nox:
     docker:
-      - image: thekevjames/nox:2019.11.9
+      - image: thekevjames/nox:2020.5.24
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -36,7 +36,7 @@ jobs:
 
   nox-rest:
     docker:
-      - image: thekevjames/nox:2019.11.9
+      - image: thekevjames/nox:2020.5.24
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -202,7 +202,6 @@ jobs:
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
       # aiohttp vs requests
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/content_type=None//g'
-      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/yarl/# yarl/g'
 
       # Update the nox files
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
@@ -242,7 +241,7 @@ workflows:
               only: /.*/
 
       - linter/pre-commit:
-          python_version: 3.6.6
+          python_version: 3.7.8
           filters:
             tags:
               only: /.*/
@@ -256,31 +255,31 @@ workflows:
       - tester/pipcheck:
           name: pipcheck-auth
           install_args: auth/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-bigquery
           install_args: bigquery/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-datastore
           install_args: datastore/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-kms
           install_args: kms/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-pubsub
           install_args: pubsub/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-storage
           install_args: storage/
-          python_version: 3.6.6
+          python_version: 3.7.8
       - tester/pipcheck:
           name: pipcheck-taskqueue
           install_args: taskqueue/
-          python_version: 3.6.6
+          python_version: 3.7.8
 
       # build docs
       - docs:
