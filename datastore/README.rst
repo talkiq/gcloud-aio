@@ -54,7 +54,7 @@ started:
             ds.make_mutation(Operation.UPSERT, key1, properties={'animal': 'aardvark'}),
             ds.make_mutation(Operation.INSERT, key2, properties={'animal': 'aardvark'}),
         ]
-        await ds.commit(transaction, mutations=[mutation])
+        await ds.commit(transaction, mutations=mutations)
     except Exception:
         await ds.rollback(transaction)
 
