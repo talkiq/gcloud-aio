@@ -20,7 +20,7 @@ jobs:
 
   nox:
     docker:
-      - image: thekevjames/nox:2020.5.24
+      - image: thekevjames/nox:2020.8.22
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -36,7 +36,7 @@ jobs:
 
   nox-rest:
     docker:
-      - image: thekevjames/nox:2020.5.24
+      - image: thekevjames/nox:2020.8.22
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
