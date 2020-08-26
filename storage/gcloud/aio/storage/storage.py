@@ -223,6 +223,12 @@ class Storage:
 
         raise TypeError(f'upload type {upload_type} not supported')
 
+    async def upload_from_filename(self, bucket: str, object_name: str,
+                                   filename: str, **kwargs) -> dict:
+        with open(filename, 'rb') as file_object:
+            return await self.upload(bucket, object_name, file_object,
+                                     **kwargs)
+
     @staticmethod
     def _get_stream_len(stream: io.IOBase) -> int:
         current = stream.tell()
