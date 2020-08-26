@@ -154,6 +154,13 @@ class Storage:
         return await self._download(bucket, object_name, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
+    async def download_to_filename(self, bucket: str, object_name: str,
+                                   filename: str, **kwargs) -> None:
+        with open(filename, 'wb+') as file_object:
+            file_object.write(
+                await self.download(bucket, object_name, **kwargs))
+
+
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 timeout: int = 10,
                                 session: Optional[Session] = None) -> dict:
