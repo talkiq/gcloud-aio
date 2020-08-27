@@ -155,7 +155,8 @@ class Storage:
                                     params={'alt': 'media'}, session=session)
 
     async def download_to_filename(self, bucket: str, object_name: str,
-                                   filename: str, **kwargs) -> None:
+                                   filename: str,
+                                   **kwargs: Dict[str, Any]) -> None:
         with open(filename, 'wb+') as file_object:
             file_object.write(
                 await self.download(bucket, object_name, **kwargs))
@@ -231,7 +232,8 @@ class Storage:
         raise TypeError(f'upload type {upload_type} not supported')
 
     async def upload_from_filename(self, bucket: str, object_name: str,
-                                   filename: str, **kwargs) -> dict:
+                                   filename: str,
+                                   **kwargs: Dict[str, Any]) -> dict:
         with open(filename, 'rb') as file_object:
             return await self.upload(bucket, object_name, file_object,
                                      **kwargs)
