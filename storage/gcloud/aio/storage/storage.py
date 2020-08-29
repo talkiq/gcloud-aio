@@ -77,8 +77,8 @@ class Storage:
 
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
-                   headers: Optional[Dict[str, str]] = None,
-                   params: Optional[Dict[str, str]] = None, timeout: int = 10,
+                   params: Optional[Dict[str, str]] = None,
+                   headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                    session: Optional[Session] = None) -> Dict[str, Any]:
 
         """
@@ -134,11 +134,13 @@ class Storage:
 
     async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                      params: Optional[Dict[str, str]] = None,
+                     headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -> str:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
@@ -152,32 +154,36 @@ class Storage:
         return data
 
     async def download(self, bucket: str, object_name: str, *,
+                       headers: Optional[Dict[str, Any]] = None,
                        timeout: int = 10,
                        session: Optional[Session] = None) -> bytes:
-        return await self._download(bucket, object_name, timeout=timeout,
-                                    params={'alt': 'media'}, session=session)
+        return await self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, params={'alt': 'media'},
+                                    session=session)
 
     async def download_to_filename(self, bucket: str, object_name: str,
-                                   filename: str,
-                                   **kwargs: Any) -> None:
+                                   filename: str, **kwargs: Any) -> None:
         with open(filename, 'wb+') as file_object:
-            file_object.write(
-                await self.download(bucket, object_name, **kwargs))
+            file_object.write(await self.download(bucket, object_name,
+                                                  **kwargs))
 
     async def download_metadata(self, bucket: str, object_name: str, *,
+                                headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
                                 timeout: int = 10) -> Dict[str, Any]:
-        data = await self._download(bucket, object_name, timeout=timeout,
-                                    session=session)
+        data = await self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
+                           headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
                            timeout: int = 10) -> Dict[str, Any]:
         url = f'{API_ROOT}/{bucket}/o'
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
@@ -297,12 +303,14 @@ class Storage:
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
+                        headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
@@ -394,10 +402,12 @@ class Storage:
 
     async def get_bucket_metadata(self, bucket: str, *,
                                   params: Optional[Dict[str, str]] = None,
+                                  headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
                                   timeout: int = 10) -> Dict[str, Any]:
         url = f'{API_ROOT}/{bucket}'
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
