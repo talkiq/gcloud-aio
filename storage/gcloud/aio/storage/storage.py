@@ -149,9 +149,11 @@ class Storage:
         return data
 
     async def download(self, bucket: str, object_name: str, *,
+                       headers: dict = {},
                        timeout: int = 10,
                        session: Optional[Session] = None) -> bytes:
-        return await self._download(bucket, object_name, timeout=timeout,
+        return await self._download(bucket, object_name, 
+                                    override_headers=headers, timeout=timeout,
                                     params={'alt': 'media'}, session=session)
 
     async def download_to_filename(self, bucket: str, object_name: str,
@@ -290,12 +292,14 @@ class Storage:
         return content_type, encoding
 
     async def _download(self, bucket: str, object_name: str, *,
-                        params: dict = None, timeout: int = 10,
+                        override_headers: dict = {}, params: dict = None, 
+                        timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = await self._headers()
+        headers.update(override_headers)
 
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
