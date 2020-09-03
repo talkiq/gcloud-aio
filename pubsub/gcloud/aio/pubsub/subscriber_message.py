@@ -5,6 +5,8 @@ if BUILD_GCLOUD_REST:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 else:
+    import datetime
+
     from typing import Any
     from typing import Dict
     from typing import Optional
@@ -13,23 +15,23 @@ else:
         as GoogleMessage
 
     class Message:
-        def __init__(self, **kwargs: Dict[str, Any]) -> None:
-            self._message = GoogleMessage(**kwargs)
+        def __init__(self, *args, **kwargs: Dict[str, Any]) -> None:
+            self._message = GoogleMessage(*args, **kwargs)
 
         @property
-        def google_message(self):
+        def google_message(self) -> GoogleMessage:
             return self._message
 
         @property
-        def message_id(self):
-            return self._message.message_id  # indirects: protocol buffer field
+        def message_id(self) -> str:  # indirects to a Google protobuff field
+            return str(self._message.message_id)
 
         @property
         def __repr__(self) -> str:
             return repr(self._message)
 
         @property
-        def attributes(self) -> Any:  # ScalarMapContainer
+        def attributes(self) -> Any:  # Google .ScalarMapContainer
             return self._message.attributes
 
         @property
@@ -37,8 +39,9 @@ else:
             return bytes(self._message.data)
 
         @property
-        def publish_time(self):  # datetime
-            return self._message.publish_time
+        def publish_time(self) -> datetime.datetime:
+            published: datetime.datetime = self._message.publish_time
+            return published
 
         @property
         def ordering_key(self) -> str:
