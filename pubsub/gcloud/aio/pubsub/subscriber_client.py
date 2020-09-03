@@ -4,6 +4,10 @@ if BUILD_GCLOUD_REST:
     class SubscriberClient:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
+
+    class FlowControl:
+        def __init__(self, **kwargs) -> None:
+            raise NotImplementedError('this class is only implemented in aio')
 else:
     import asyncio
     import concurrent.futures
@@ -14,10 +18,9 @@ else:
 
     from google.api_core import exceptions
     from google.cloud import pubsub
-    from google.cloud.pubsub_v1.subscriber.message import Message \
-        as GoogleMessage
+    from google.cloud.pubsub_v1.subscriber.message import Message
 
-    from .subscriber_message import Message
+    from .subscriber_message import SubscriberMessage
     from .subscriber_message import FlowControl
     from .utils import convert_google_future_to_concurrent_future
 
@@ -49,7 +52,7 @@ else:
 
         def subscribe(self,
                       subscription: str,
-                      callback: Callable[[Message], None],
+                      callback: Callable[[SubscriberMessage], None],
                       *,
                       flow_control: FlowControl = ()
                       ) -> asyncio.Future:
@@ -99,10 +102,10 @@ else:
                 self.loop.stop()
 
         def _wrap_callback(self,
-                           callback: Callable[[Message], None]
-                           ) -> Callable[[GoogleMessage], None]:
+                           callback: Callable[[SubscriberMessage], None]
+                           ) -> Callable[[Message], None]:
             """Schedule callback to be called from the event loop"""
-            def _callback_wrapper(message: Message) -> None:
+            def _callback_wrapper(message: SubscriberMessage) -> None:
                 asyncio.run_coroutine_threadsafe(
                     callback(message.google_message), self.loop)
 

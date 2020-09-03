@@ -1,11 +1,11 @@
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
 if BUILD_GCLOUD_REST:
-    class Message:
+    class FlowControl:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
-    class FlowControl:
+    class SubscriberMessage:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
@@ -16,8 +16,7 @@ else:
     from typing import Dict
     from typing import Optional
 
-    from google.cloud.pubsub_v1.subscriber.message import Message \
-        as GoogleMessage
+    from google.cloud.pubsub_v1.subscriber.message import Message
 
 
     class FlowControl:
@@ -33,12 +32,12 @@ else:
                 max_duration_per_lease_extension)
 
 
-    class Message:
+    class SubscriberMessage:
         def __init__(self, *args, **kwargs: Dict[str, Any]) -> None:
-            self._message = GoogleMessage(*args, **kwargs)
+            self._message = Message(*args, **kwargs)
 
         @property
-        def google_message(self) -> GoogleMessage:
+        def google_message(self) -> Message:
             return self._message
 
         @property
