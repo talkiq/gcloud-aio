@@ -10,9 +10,10 @@ if BUILD_GCLOUD_REST:
 
 
 else:
+    from gcloud.aio.pubsub.subscriber_client import FlowControl
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
     from gcloud.aio.pubsub.subscriber_message import SubscriberMessage  # pylint: disable=unused-import
-    from gcloud.aio.pubsub.subscriber_message import FlowControl
+
 
     def test_construct_subscriber_client():
         SubscriberClient()
