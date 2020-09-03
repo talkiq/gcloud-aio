@@ -14,10 +14,12 @@ else:
 
     from google.api_core import exceptions
     from google.cloud import pubsub
-    from google.cloud.pubsub_v1.subscriber.message import Message
+    from google.cloud.pubsub_v1.subscriber.message import Message \
+        as GoogleMessage
     from google.cloud.pubsub_v1.subscriber.scheduler import Scheduler
     from google.cloud.pubsub_v1.types import FlowControl
 
+    from .message import Message
     from .utils import convert_google_future_to_concurrent_future
 
 
@@ -101,9 +103,10 @@ else:
 
         def _wrap_callback(self,
                            callback: Callable[[Message], None]
-                           ) -> Callable[[Message], None]:
+                           ) -> Callable[[GoogleMessage], None]:
             """Schedule callback to be called from the event loop"""
             def _callback_wrapper(message: Message) -> None:
-                asyncio.run_coroutine_threadsafe(callback(message), self.loop)
+                asyncio.run_coroutine_threadsafe(
+                    callback(message.google_message), self.loop)
 
             return _callback_wrapper
