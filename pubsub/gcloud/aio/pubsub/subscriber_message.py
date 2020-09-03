@@ -1,63 +1,71 @@
-from typing import Any
-from typing import Dict
-from typing import Optional
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
-from google.cloud.pubsub_v1.subscriber.message import Message as GoogleMessage
+if BUILD_GCLOUD_REST:
+    class Message:
+        def __init__(self, **kwargs) -> None:
+            raise NotImplementedError('this class is only implemented in aio')
+else:
+    from typing import Any
+    from typing import Dict
+    from typing import Optional
 
-class Message:
-    def __init__(self, **kwargs: Dict[str, Any]) -> None:
-        self._message = GoogleMessage(**kwargs)
+    from google.cloud.pubsub_v1.subscriber.message import Message \
+        as GoogleMessage
 
-    @property
-    def google_message(self):
-        return self._message
+    class Message:
+        def __init__(self, **kwargs: Dict[str, Any]) -> None:
+            self._message = GoogleMessage(**kwargs)
 
-    @property
-    def message_id(self):
-        return self._message.message_id  # indirects to: protocol buffer field
+        @property
+        def google_message(self):
+            return self._message
 
-    @property
-    def __repr__(self) -> str:
-        return repr(self._message)
+        @property
+        def message_id(self):
+            return self._message.message_id  # indirects: protocol buffer field
 
-    @property
-    def attributes(self) -> Any:  # ScalarMapContainer
-        return self._message.attributes
+        @property
+        def __repr__(self) -> str:
+            return repr(self._message)
 
-    @property
-    def data(self) -> bytes:
-        return bytes(self._message.data)
+        @property
+        def attributes(self) -> Any:  # ScalarMapContainer
+            return self._message.attributes
 
-    @property
-    def publish_time(self):  # datetime
-        return self._message.publish_time
+        @property
+        def data(self) -> bytes:
+            return bytes(self._message.data)
 
-    @property
-    def ordering_key(self) -> str:
-        return str(self._message.ordering_key)
+        @property
+        def publish_time(self):  # datetime
+            return self._message.publish_time
 
-    @property
-    def size(self) -> int:
-        return int(self._message.size)
+        @property
+        def ordering_key(self) -> str:
+            return str(self._message.ordering_key)
 
-    @property
-    def ack_id(self) -> str:
-        return str(self._message.ack_id)
+        @property
+        def size(self) -> int:
+            return int(self._message.size)
 
-    @property
-    def delivery_attempt(self) -> Optional[int]:
-        if self._message.delivery_attempt:
-            return int(self._message.delivery_attempt)
-        return None
+        @property
+        def ack_id(self) -> str:
+            return str(self._message.ack_id)
 
-    def ack(self) -> None:
-        self._message.ack()
+        @property
+        def delivery_attempt(self) -> Optional[int]:
+            if self._message.delivery_attempt:
+                return int(self._message.delivery_attempt)
+            return None
 
-    def drop(self) -> None:
-        self._message.drop()
+        def ack(self) -> None:
+            self._message.ack()
 
-    def modify_ack_deadline(self, seconds: int) -> None:
-        self._message.modify_ack_deadline(seconds)
+        def drop(self) -> None:
+            self._message.drop()
 
-    def nack(self) -> None:
-        self._message.nack()
+        def modify_ack_deadline(self, seconds: int) -> None:
+            self._message.modify_ack_deadline(seconds)
+
+        def nack(self) -> None:
+            self._message.nack()
