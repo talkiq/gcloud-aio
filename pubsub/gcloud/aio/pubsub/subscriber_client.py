@@ -16,7 +16,6 @@ else:
     from google.cloud import pubsub
     from google.cloud.pubsub_v1.subscriber.message import Message \
         as GoogleMessage
-    from google.cloud.pubsub_v1.subscriber.scheduler import Scheduler
     from google.cloud.pubsub_v1.types import FlowControl
 
     from .message import Message
@@ -52,8 +51,7 @@ else:
                       subscription: str,
                       callback: Callable[[Message], None],
                       *,
-                      flow_control: FlowControl = (),
-                      scheduler: Optional[Scheduler] = None
+                      flow_control: FlowControl = ()
                       ) -> asyncio.Future:
             """
             Create subscription through pubsub client, hijack the returned
@@ -63,8 +61,7 @@ else:
             sub_keepalive: asyncio.Future = self._subscriber.subscribe(
                 subscription,
                 self._wrap_callback(callback),
-                flow_control=flow_control,
-                scheduler=scheduler
+                flow_control=flow_control
             )
 
             convert_google_future_to_concurrent_future(
