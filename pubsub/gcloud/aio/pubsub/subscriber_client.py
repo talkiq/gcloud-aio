@@ -16,9 +16,9 @@ else:
     from google.cloud import pubsub
     from google.cloud.pubsub_v1.subscriber.message import Message \
         as GoogleMessage
-    from google.cloud.pubsub_v1.types import FlowControl
 
-    from .message import Message
+    from .subscriber_message import Message
+    from .subscriber_message import FlowControl
     from .utils import convert_google_future_to_concurrent_future
 
 
