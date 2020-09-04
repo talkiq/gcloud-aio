@@ -31,7 +31,7 @@ else:
                      max_messages: int = 1000,
                      max_lease_duration: int = 1 * 60 * 60,
                      max_duration_per_lease_extension: int = 0) -> None:
-            super().__init__()
+            super(FlowControl, self).__init__()
             self.max_bytes = max_bytes
             self.max_messages = max_messages
             self.max_lease_duration = max_lease_duration
