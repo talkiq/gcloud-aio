@@ -25,18 +25,23 @@ else:
     from .utils import convert_google_future_to_concurrent_future
 
 
-    class FlowControl(tuple):
+    class FlowControl():
         def __init__(self,
                      max_bytes: int = 100 * 1024 * 1024,
                      max_messages: int = 1000,
                      max_lease_duration: int = 1 * 60 * 60,
                      max_duration_per_lease_extension: int = 0) -> None:
-            super(FlowControl, self).__init__()
             self.max_bytes = max_bytes
             self.max_messages = max_messages
             self.max_lease_duration = max_lease_duration
             self.max_duration_per_lease_extension = (
                 max_duration_per_lease_extension)
+
+        def __getitem__(self, index: int):
+            return (self.max_bytes,
+                    self.max_messages,
+                    self.max_lease_duration,
+                    self.max_duration_per_lease_extension)[index]
 
 
     class SubscriberClient:
