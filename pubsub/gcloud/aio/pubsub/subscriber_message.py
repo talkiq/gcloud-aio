@@ -9,17 +9,27 @@ else:
 
     from typing import Any
     from typing import Dict
+    from typing import List
     from typing import Optional
 
     from google.cloud.pubsub_v1.subscriber.message import Message
 
 
     class SubscriberMessage:
-        def __init__(self, *args, **kwargs: Dict[str, Any]) -> None:
+        def __init__(self, *args: List[Any],
+                     google_cloud_message: Message = None,
+                     **kwargs: Dict[str, Any]) -> None:
+            if google_cloud_message:
+                self._message = google_cloud_message
+                return
             self._message = Message(*args, **kwargs)
 
+        @staticmethod
+        def from_google_cloud(message: Message) -> 'SubscriberMessage':
+            return SubscriberMessage(google_cloud_message=message)
+
         @property
-        def google_message(self) -> Message:
+        def google_cloud_message(self) -> Message:
             return self._message
 
         @property
