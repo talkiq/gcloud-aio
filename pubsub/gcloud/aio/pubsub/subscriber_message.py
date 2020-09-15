@@ -36,7 +36,6 @@ else:
         def message_id(self) -> str:  # indirects to a Google protobuff field
             return str(self._message.message_id)
 
-        @property
         def __repr__(self) -> str:
             return repr(self._message)
 
