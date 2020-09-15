@@ -30,7 +30,7 @@ else:
     from .utils import convert_google_future_to_concurrent_future
 
 
-    class FlowControl():
+    class FlowControl:
         def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
             """
             FlowControl transitional wrapper.
