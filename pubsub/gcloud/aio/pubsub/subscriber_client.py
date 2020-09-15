@@ -15,7 +15,10 @@ else:
     import signal
     from typing import Any
     from typing import Callable
+    from typing import Dict
     from typing import Optional
+    from typing import Tuple
+    from typing import Union
 
     from google.api_core import exceptions
     from google.cloud import pubsub
@@ -37,7 +40,7 @@ else:
             self.max_duration_per_lease_extension = (
                 max_duration_per_lease_extension)
 
-        def __getitem__(self, index: int):
+        def __getitem__(self, index: int) -> int:
             return (self.max_bytes,
                     self.max_messages,
                     self.max_lease_duration,
@@ -46,14 +49,14 @@ else:
 
     class SubscriberClient:
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
-                     **kwargs: Any) -> None:
+                     **kwargs: Dict[str, Any]) -> None:
             self._subscriber = pubsub.SubscriberClient(**kwargs)
             self.loop = loop or asyncio.get_event_loop()
 
         def create_subscription(self,
                                 subscription: str,
                                 topic: str,
-                                **kwargs
+                                **kwargs: Dict[str, Any]
                                 ) -> None:
             """
             Create subscription if it does not exist. Check out the official
@@ -71,30 +74,31 @@ else:
 
         def subscribe(self,
                       subscription: str,
-                      callback: Callable[[SubscriberMessage], None],
+                      callback: Callable[[SubscriberMessage], Any],
                       *,
-                      flow_control: FlowControl = ()
-                      ) -> asyncio.Future:
+                      flow_control: Union[FlowControl, Tuple[int, ...]] = ()
+                      ) -> asyncio.Future:  # type: ignore
             """
             Create subscription through pubsub client, hijack the returned
             "non-concurrent Future" and coerce it into being a "concurrent
             Future", wrap it into a asyncio Future and return it.
             """
-            sub_keepalive: asyncio.Future = self._subscriber.subscribe(
-                subscription,
-                self._wrap_callback(callback),
-                flow_control=flow_control
-            )
+            sub_keepalive: asyncio.Future = (  # type: ignore
+                self._subscriber.subscribe(
+                    subscription,
+                    self._wrap_callback(callback),
+                    flow_control=flow_control))
 
             convert_google_future_to_concurrent_future(
-                sub_keepalive, loop=self.loop
-            )
+                sub_keepalive, loop=self.loop)
+
             _ = asyncio.wrap_future(sub_keepalive)
             self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
             return sub_keepalive
 
-        def run_forever(self, sub_keepalive: asyncio.Future) -> None:
+        def run_forever(self,
+                        sub_keepalive: asyncio.Future) -> None:  # type: ignore
             """
             Start the asyncio loop, running until it is either SIGTERM-ed or
             killed by keyboard interrupt. The Future parameter is used to
@@ -126,7 +130,9 @@ else:
             """Schedule callback to be called from the event loop"""
             def _callback_wrapper(message: Message) -> None:
                 asyncio.run_coroutine_threadsafe(
-                    callback(SubscriberMessage.from_google_cloud(message)),
+                    callback(  # type: ignore
+                        SubscriberMessage.from_google_cloud(
+                            message)),
                     self.loop)
 
             return _callback_wrapper
