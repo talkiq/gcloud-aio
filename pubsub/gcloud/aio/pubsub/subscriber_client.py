@@ -16,12 +16,14 @@ else:
     from typing import Any
     from typing import Callable
     from typing import Dict
+    from typing import List
     from typing import Optional
     from typing import Tuple
     from typing import Union
 
     from google.api_core import exceptions
     from google.cloud import pubsub
+    from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
     from google.cloud.pubsub_v1.subscriber.message import Message
 
     from .subscriber_message import SubscriberMessage
@@ -29,22 +31,20 @@ else:
 
 
     class FlowControl():
-        def __init__(self,
-                     max_bytes: int = 100 * 1024 * 1024,
-                     max_messages: int = 1000,
-                     max_lease_duration: int = 1 * 60 * 60,
-                     max_duration_per_lease_extension: int = 0) -> None:
-            self.max_bytes = max_bytes
-            self.max_messages = max_messages
-            self.max_lease_duration = max_lease_duration
-            self.max_duration_per_lease_extension = (
-                max_duration_per_lease_extension)
+        def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
+            """
+            FlowControl transitional wrapper.
+            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]  # pylint: disable=line-too-long
+            Google uses a named tuple; here are the fields, defaults:
+            - max_bytes: int = 100 * 1024 * 1024
+            - max_messages: int = 1000
+            - max_lease_duration: int = 1 * 60 * 60
+            - max_duration_per_lease_extension: int = 0
+            """
+            self._flow_control = _FlowControl(*args, **kwargs)
 
         def __getitem__(self, index: int) -> int:
-            return (self.max_bytes,
-                    self.max_messages,
-                    self.max_lease_duration,
-                    self.max_duration_per_lease_extension)[index]
+            return self._flow_control[index]
 
 
     class SubscriberClient:
