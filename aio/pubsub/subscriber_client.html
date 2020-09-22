@@ -29,36 +29,62 @@
 <pre><code class="python">from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
 if BUILD_GCLOUD_REST:
+    class FlowControl:
+        def __init__(self, **kwargs) -&gt; None:
+            raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
     class SubscriberClient:
         def __init__(self, **kwargs) -&gt; None:
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
 else:
     import asyncio
     import concurrent.futures
     import signal
     from typing import Any
     from typing import Callable
+    from typing import Dict
+    from typing import List
     from typing import Optional
+    from typing import Tuple
+    from typing import Union
 
     from google.api_core import exceptions
     from google.cloud import pubsub
+    from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
     from google.cloud.pubsub_v1.subscriber.message import Message
-    from google.cloud.pubsub_v1.subscriber.scheduler import Scheduler
-    from google.cloud.pubsub_v1.types import FlowControl
 
+    from .subscriber_message import SubscriberMessage
     from .utils import convert_google_future_to_concurrent_future
+
+
+    class FlowControl:
+        def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -&gt; None:
+            &#34;&#34;&#34;
+            FlowControl transitional wrapper.
+            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]  # pylint: disable=line-too-long
+            Google uses a named tuple; here are the fields, defaults:
+            - max_bytes: int = 100 * 1024 * 1024
+            - max_messages: int = 1000
+            - max_lease_duration: int = 1 * 60 * 60
+            - max_duration_per_lease_extension: int = 0
+            &#34;&#34;&#34;
+            self._flow_control = _FlowControl(*args, **kwargs)
+
+        def __getitem__(self, index: int) -&gt; int:
+            return self._flow_control[index]
 
 
     class SubscriberClient:
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
-                     **kwargs: Any) -&gt; None:
+                     **kwargs: Dict[str, Any]) -&gt; None:
             self._subscriber = pubsub.SubscriberClient(**kwargs)
             self.loop = loop or asyncio.get_event_loop()
 
         def create_subscription(self,
                                 subscription: str,
                                 topic: str,
-                                **kwargs
+                                **kwargs: Dict[str, Any]
                                 ) -&gt; None:
             &#34;&#34;&#34;
             Create subscription if it does not exist. Check out the official
@@ -76,32 +102,31 @@ else:
 
         def subscribe(self,
                       subscription: str,
-                      callback: Callable[[Message], None],
+                      callback: Callable[[SubscriberMessage], Any],
                       *,
-                      flow_control: FlowControl = (),
-                      scheduler: Optional[Scheduler] = None
-                      ) -&gt; asyncio.Future:
+                      flow_control: Union[FlowControl, Tuple[int, ...]] = ()
+                      ) -&gt; asyncio.Future:  # type: ignore
             &#34;&#34;&#34;
             Create subscription through pubsub client, hijack the returned
             &#34;non-concurrent Future&#34; and coerce it into being a &#34;concurrent
             Future&#34;, wrap it into a asyncio Future and return it.
             &#34;&#34;&#34;
-            sub_keepalive: asyncio.Future = self._subscriber.subscribe(
-                subscription,
-                self._wrap_callback(callback),
-                flow_control=flow_control,
-                scheduler=scheduler
-            )
+            sub_keepalive: asyncio.Future = (  # type: ignore
+                self._subscriber.subscribe(
+                    subscription,
+                    self._wrap_callback(callback),
+                    flow_control=flow_control))
 
             convert_google_future_to_concurrent_future(
-                sub_keepalive, loop=self.loop
-            )
+                sub_keepalive, loop=self.loop)
+
             _ = asyncio.wrap_future(sub_keepalive)
             self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
             return sub_keepalive
 
-        def run_forever(self, sub_keepalive: asyncio.Future) -&gt; None:
+        def run_forever(self,
+                        sub_keepalive: asyncio.Future) -&gt; None:  # type: ignore
             &#34;&#34;&#34;
             Start the asyncio loop, running until it is either SIGTERM-ed or
             killed by keyboard interrupt. The Future parameter is used to
@@ -128,11 +153,15 @@ else:
                 self.loop.stop()
 
         def _wrap_callback(self,
-                           callback: Callable[[Message], None]
+                           callback: Callable[[SubscriberMessage], None]
                            ) -&gt; Callable[[Message], None]:
             &#34;&#34;&#34;Schedule callback to be called from the event loop&#34;&#34;&#34;
             def _callback_wrapper(message: Message) -&gt; None:
-                asyncio.run_coroutine_threadsafe(callback(message), self.loop)
+                asyncio.run_coroutine_threadsafe(
+                    callback(  # type: ignore
+                        SubscriberMessage.from_google_cloud(
+                            message)),
+                    self.loop)
 
             return _callback_wrapper</code></pre>
 </details>
@@ -146,9 +175,31 @@ else:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="gcloud.aio.pubsub.subscriber_client.FlowControl"><code class="flex name class">
+<span>class <span class="ident">FlowControl</span></span>
+<span>(</span><span>*args: List[Any], **kwargs: Dict[str, Any])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>FlowControl transitional wrapper.
+(FlowControl fields docs)[<a href="https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]">https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]</a>
+# pylint: disable=line-too-long
+Google uses a named tuple; here are the fields, defaults:
+- max_bytes: int = 100 * 1024 * 1024
+- max_messages: int = 1000
+- max_lease_duration: int = 1 * 60 * 60
+- max_duration_per_lease_extension: int = 0</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FlowControl:
+    def __init__(self, **kwargs) -&gt; None:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.pubsub.subscriber_client.SubscriberClient"><code class="flex name class">
 <span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>*, loop: Union[asyncio.events.AbstractEventLoop, NoneType] = None, **kwargs: Any)</span>
+<span>(</span><span>*, loop: Union[asyncio.events.AbstractEventLoop, NoneType] = None, **kwargs: Dict[str, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -163,7 +214,7 @@ else:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.subscriber_client.SubscriberClient.create_subscription"><code class="name flex">
-<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription: str, topic: str, **kwargs) ‑> NoneType</span>
+<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription: str, topic: str, **kwargs: Dict[str, Any]) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create subscription if it does not exist. Check out the official
@@ -177,7 +228,7 @@ for more details</p></div>
 <pre><code class="python">def create_subscription(self,
                         subscription: str,
                         topic: str,
-                        **kwargs
+                        **kwargs: Dict[str, Any]
                         ) -&gt; None:
     &#34;&#34;&#34;
     Create subscription if it does not exist. Check out the official
@@ -208,7 +259,8 @@ sub.run_forever(sub.subscribe(callback))</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_forever(self, sub_keepalive: asyncio.Future) -&gt; None:
+<pre><code class="python">def run_forever(self,
+                sub_keepalive: asyncio.Future) -&gt; None:  # type: ignore
     &#34;&#34;&#34;
     Start the asyncio loop, running until it is either SIGTERM-ed or
     killed by keyboard interrupt. The Future parameter is used to
@@ -236,7 +288,7 @@ sub.run_forever(sub.subscribe(callback))</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber_client.SubscriberClient.subscribe"><code class="name flex">
-<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[google.cloud.pubsub_v1.subscriber.message.Message], NoneType], *, flow_control: google.cloud.pubsub_v1.types.FlowControl = (), scheduler: Union[google.cloud.pubsub_v1.subscriber.scheduler.Scheduler, NoneType] = None) ‑> _asyncio.Future</span>
+<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Any], *, flow_control: Union[<a title="gcloud.aio.pubsub.subscriber_client.FlowControl" href="#gcloud.aio.pubsub.subscriber_client.FlowControl">FlowControl</a>, Tuple[int, ...]] = ()) ‑> _asyncio.Future</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create subscription through pubsub client, hijack the returned
@@ -248,26 +300,24 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 </summary>
 <pre><code class="python">def subscribe(self,
               subscription: str,
-              callback: Callable[[Message], None],
+              callback: Callable[[SubscriberMessage], Any],
               *,
-              flow_control: FlowControl = (),
-              scheduler: Optional[Scheduler] = None
-              ) -&gt; asyncio.Future:
+              flow_control: Union[FlowControl, Tuple[int, ...]] = ()
+              ) -&gt; asyncio.Future:  # type: ignore
     &#34;&#34;&#34;
     Create subscription through pubsub client, hijack the returned
     &#34;non-concurrent Future&#34; and coerce it into being a &#34;concurrent
     Future&#34;, wrap it into a asyncio Future and return it.
     &#34;&#34;&#34;
-    sub_keepalive: asyncio.Future = self._subscriber.subscribe(
-        subscription,
-        self._wrap_callback(callback),
-        flow_control=flow_control,
-        scheduler=scheduler
-    )
+    sub_keepalive: asyncio.Future = (  # type: ignore
+        self._subscriber.subscribe(
+            subscription,
+            self._wrap_callback(callback),
+            flow_control=flow_control))
 
     convert_google_future_to_concurrent_future(
-        sub_keepalive, loop=self.loop
-    )
+        sub_keepalive, loop=self.loop)
+
     _ = asyncio.wrap_future(sub_keepalive)
     self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
@@ -292,6 +342,9 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="gcloud.aio.pubsub.subscriber_client.FlowControl" href="#gcloud.aio.pubsub.subscriber_client.FlowControl">FlowControl</a></code></h4>
+</li>
 <li>
 <h4><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a></code></h4>
 <ul class="">

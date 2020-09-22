@@ -32,10 +32,12 @@ __version__ = get_distribution(&#39;gcloud-aio-pubsub&#39;).version
 from gcloud.aio.pubsub.publisher_client import PublisherClient
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
 from gcloud.aio.pubsub.utils import PubsubMessage
+from gcloud.aio.pubsub.subscriber_client import FlowControl
+from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
 
 
-__all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
-           &#39;SubscriberClient&#39;]</code></pre>
+__all__ = [&#39;__version__&#39;, &#39;FlowControl&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
+           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -46,6 +48,10 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="gcloud.aio.pubsub.subscriber_client" href="subscriber_client.html">gcloud.aio.pubsub.subscriber_client</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.aio.pubsub.subscriber_message" href="subscriber_message.html">gcloud.aio.pubsub.subscriber_message</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -62,6 +68,28 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="gcloud.aio.pubsub.FlowControl"><code class="flex name class">
+<span>class <span class="ident">FlowControl</span></span>
+<span>(</span><span>*args: List[Any], **kwargs: Dict[str, Any])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>FlowControl transitional wrapper.
+(FlowControl fields docs)[<a href="https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]">https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]</a>
+# pylint: disable=line-too-long
+Google uses a named tuple; here are the fields, defaults:
+- max_bytes: int = 100 * 1024 * 1024
+- max_messages: int = 1000
+- max_lease_duration: int = 1 * 60 * 60
+- max_duration_per_lease_extension: int = 0</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FlowControl:
+    def __init__(self, **kwargs) -&gt; None:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.pubsub.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
 <span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
@@ -232,7 +260,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.PubsubMessage"><code class="flex name class">
 <span>class <span class="ident">PubsubMessage</span></span>
-<span>(</span><span>data: Union[bytes, str], **kwargs: Dict[str, str])</span>
+<span>(</span><span>data: Union[bytes, str], **kwargs: Dict[str, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -242,14 +270,14 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </summary>
 <pre><code class="python">class PubsubMessage:
     def __init__(self, data: Union[bytes, str],
-                 **kwargs: Dict[str, str]) -&gt; None:
+                 **kwargs: Dict[str, Any]) -&gt; None:
         self.data = data
         self.attributes = kwargs
 
     def __repr__(self) -&gt; str:
         return str(self.to_repr())
 
-    def to_repr(self) -&gt; Dict[str, str]:
+    def to_repr(self) -&gt; Dict[str, Any]:
         return {
             &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
             &#39;attributes&#39;: self.attributes,
@@ -258,7 +286,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.PubsubMessage.to_repr"><code class="name flex">
-<span>def <span class="ident">to_repr</span></span>(<span>self) ‑> Dict[str, str]</span>
+<span>def <span class="ident">to_repr</span></span>(<span>self) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -266,7 +294,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def to_repr(self) -&gt; Dict[str, str]:
+<pre><code class="python">def to_repr(self) -&gt; Dict[str, Any]:
     return {
         &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
         &#39;attributes&#39;: self.attributes,
@@ -277,7 +305,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient"><code class="flex name class">
 <span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>*, loop: Union[asyncio.events.AbstractEventLoop, NoneType] = None, **kwargs: Any)</span>
+<span>(</span><span>*, loop: Union[asyncio.events.AbstractEventLoop, NoneType] = None, **kwargs: Dict[str, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -292,7 +320,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.SubscriberClient.create_subscription"><code class="name flex">
-<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription: str, topic: str, **kwargs) ‑> NoneType</span>
+<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription: str, topic: str, **kwargs: Dict[str, Any]) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create subscription if it does not exist. Check out the official
@@ -306,7 +334,7 @@ for more details</p></div>
 <pre><code class="python">def create_subscription(self,
                         subscription: str,
                         topic: str,
-                        **kwargs
+                        **kwargs: Dict[str, Any]
                         ) -&gt; None:
     &#34;&#34;&#34;
     Create subscription if it does not exist. Check out the official
@@ -337,7 +365,8 @@ sub.run_forever(sub.subscribe(callback))</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_forever(self, sub_keepalive: asyncio.Future) -&gt; None:
+<pre><code class="python">def run_forever(self,
+                sub_keepalive: asyncio.Future) -&gt; None:  # type: ignore
     &#34;&#34;&#34;
     Start the asyncio loop, running until it is either SIGTERM-ed or
     killed by keyboard interrupt. The Future parameter is used to
@@ -365,7 +394,7 @@ sub.run_forever(sub.subscribe(callback))</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.subscribe"><code class="name flex">
-<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[google.cloud.pubsub_v1.subscriber.message.Message], NoneType], *, flow_control: google.cloud.pubsub_v1.types.FlowControl = (), scheduler: Union[google.cloud.pubsub_v1.subscriber.scheduler.Scheduler, NoneType] = None) ‑> _asyncio.Future</span>
+<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Any], *, flow_control: Union[<a title="gcloud.aio.pubsub.subscriber_client.FlowControl" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.FlowControl">FlowControl</a>, Tuple[int, ...]] = ()) ‑> _asyncio.Future</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create subscription through pubsub client, hijack the returned
@@ -377,30 +406,229 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 </summary>
 <pre><code class="python">def subscribe(self,
               subscription: str,
-              callback: Callable[[Message], None],
+              callback: Callable[[SubscriberMessage], Any],
               *,
-              flow_control: FlowControl = (),
-              scheduler: Optional[Scheduler] = None
-              ) -&gt; asyncio.Future:
+              flow_control: Union[FlowControl, Tuple[int, ...]] = ()
+              ) -&gt; asyncio.Future:  # type: ignore
     &#34;&#34;&#34;
     Create subscription through pubsub client, hijack the returned
     &#34;non-concurrent Future&#34; and coerce it into being a &#34;concurrent
     Future&#34;, wrap it into a asyncio Future and return it.
     &#34;&#34;&#34;
-    sub_keepalive: asyncio.Future = self._subscriber.subscribe(
-        subscription,
-        self._wrap_callback(callback),
-        flow_control=flow_control,
-        scheduler=scheduler
-    )
+    sub_keepalive: asyncio.Future = (  # type: ignore
+        self._subscriber.subscribe(
+            subscription,
+            self._wrap_callback(callback),
+            flow_control=flow_control))
 
     convert_google_future_to_concurrent_future(
-        sub_keepalive, loop=self.loop
-    )
+        sub_keepalive, loop=self.loop)
+
     _ = asyncio.wrap_future(sub_keepalive)
     self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
     return sub_keepalive</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage"><code class="flex name class">
+<span>class <span class="ident">SubscriberMessage</span></span>
+<span>(</span><span>*args: List[Any], google_cloud_message: google.cloud.pubsub_v1.subscriber.message.Message = None, **kwargs: Dict[str, Any])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SubscriberMessage:
+    def __init__(self, **kwargs) -&gt; None:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud"><code class="name flex">
+<span>def <span class="ident">from_google_cloud</span></span>(<span>message: google.cloud.pubsub_v1.subscriber.message.Message) ‑> <a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
+    return SubscriberMessage(google_cloud_message=message)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.ack_id"><code class="name">var <span class="ident">ack_id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ack_id(self) -&gt; str:
+    return str(self._message.ack_id)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.attributes"><code class="name">var <span class="ident">attributes</span> : Any</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def attributes(self) -&gt; Any:  # Google .ScalarMapContainer
+    return self._message.attributes</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.data"><code class="name">var <span class="ident">data</span> : bytes</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data(self) -&gt; bytes:
+    return bytes(self._message.data)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt"><code class="name">var <span class="ident">delivery_attempt</span> : Union[int, NoneType]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def delivery_attempt(self) -&gt; Optional[int]:
+    if self._message.delivery_attempt:
+        return int(self._message.delivery_attempt)
+    return None</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.google_cloud_message"><code class="name">var <span class="ident">google_cloud_message</span> : google.cloud.pubsub_v1.subscriber.message.Message</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def google_cloud_message(self) -&gt; Message:
+    return self._message</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.message_id"><code class="name">var <span class="ident">message_id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def message_id(self) -&gt; str:  # indirects to a Google protobuff field
+    return str(self._message.message_id)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.ordering_key"><code class="name">var <span class="ident">ordering_key</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ordering_key(self) -&gt; str:
+    return str(self._message.ordering_key)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.publish_time"><code class="name">var <span class="ident">publish_time</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def publish_time(self) -&gt; datetime.datetime:
+    published: datetime.datetime = self._message.publish_time
+    return published</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.size"><code class="name">var <span class="ident">size</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def size(self) -&gt; int:
+    return int(self._message.size)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.ack"><code class="name flex">
+<span>def <span class="ident">ack</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ack(self) -&gt; None:
+    self._message.ack()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.drop"><code class="name flex">
+<span>def <span class="ident">drop</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drop(self) -&gt; None:
+    self._message.drop()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline"><code class="name flex">
+<span>def <span class="ident">modify_ack_deadline</span></span>(<span>self, seconds: int) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def modify_ack_deadline(self, seconds: int) -&gt; None:
+    self._message.modify_ack_deadline(seconds)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.nack"><code class="name flex">
+<span>def <span class="ident">nack</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nack(self) -&gt; None:
+    self._message.nack()</code></pre>
 </details>
 </dd>
 </dl>
@@ -423,11 +651,15 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 <ul>
 <li><code><a title="gcloud.aio.pubsub.publisher_client" href="publisher_client.html">gcloud.aio.pubsub.publisher_client</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client" href="subscriber_client.html">gcloud.aio.pubsub.subscriber_client</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber_message" href="subscriber_message.html">gcloud.aio.pubsub.subscriber_message</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.utils" href="utils.html">gcloud.aio.pubsub.utils</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="gcloud.aio.pubsub.FlowControl" href="#gcloud.aio.pubsub.FlowControl">FlowControl</a></code></h4>
+</li>
 <li>
 <h4><code><a title="gcloud.aio.pubsub.PublisherClient" href="#gcloud.aio.pubsub.PublisherClient">PublisherClient</a></code></h4>
 <ul class="">
@@ -450,6 +682,25 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.create_subscription" href="#gcloud.aio.pubsub.SubscriberClient.create_subscription">create_subscription</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.run_forever" href="#gcloud.aio.pubsub.SubscriberClient.run_forever">run_forever</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.subscribe" href="#gcloud.aio.pubsub.SubscriberClient.subscribe">subscribe</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.pubsub.SubscriberMessage" href="#gcloud.aio.pubsub.SubscriberMessage">SubscriberMessage</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.ack" href="#gcloud.aio.pubsub.SubscriberMessage.ack">ack</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.ack_id" href="#gcloud.aio.pubsub.SubscriberMessage.ack_id">ack_id</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.attributes" href="#gcloud.aio.pubsub.SubscriberMessage.attributes">attributes</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.data" href="#gcloud.aio.pubsub.SubscriberMessage.data">data</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt" href="#gcloud.aio.pubsub.SubscriberMessage.delivery_attempt">delivery_attempt</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.drop" href="#gcloud.aio.pubsub.SubscriberMessage.drop">drop</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud" href="#gcloud.aio.pubsub.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.google_cloud_message" href="#gcloud.aio.pubsub.SubscriberMessage.google_cloud_message">google_cloud_message</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.message_id" href="#gcloud.aio.pubsub.SubscriberMessage.message_id">message_id</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline" href="#gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline">modify_ack_deadline</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.nack" href="#gcloud.aio.pubsub.SubscriberMessage.nack">nack</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.ordering_key" href="#gcloud.aio.pubsub.SubscriberMessage.ordering_key">ordering_key</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.publish_time" href="#gcloud.aio.pubsub.SubscriberMessage.publish_time">publish_time</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.size" href="#gcloud.aio.pubsub.SubscriberMessage.size">size</a></code></li>
 </ul>
 </li>
 </ul>

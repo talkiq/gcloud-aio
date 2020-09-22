@@ -41,10 +41,12 @@ __version__ = get_distribution(&#39;gcloud-rest-pubsub&#39;).version
 from gcloud.rest.pubsub.publisher_client import PublisherClient
 from gcloud.rest.pubsub.subscriber_client import SubscriberClient
 from gcloud.rest.pubsub.utils import PubsubMessage
+from gcloud.rest.pubsub.subscriber_client import FlowControl
+from gcloud.rest.pubsub.subscriber_message import SubscriberMessage
 
 
-__all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
-           &#39;SubscriberClient&#39;]</code></pre>
+__all__ = [&#39;__version__&#39;, &#39;FlowControl&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
+           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -55,6 +57,10 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="gcloud.rest.pubsub.subscriber_client" href="subscriber_client.html">gcloud.rest.pubsub.subscriber_client</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.pubsub.subscriber_message" href="subscriber_message.html">gcloud.rest.pubsub.subscriber_message</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -71,6 +77,21 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="gcloud.rest.pubsub.FlowControl"><code class="flex name class">
+<span>class <span class="ident">FlowControl</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FlowControl(object):
+    def __init__(self, **kwargs)        :
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.pubsub.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
 <span>(</span><span>**_3to2kwargs)</span>
@@ -303,6 +324,21 @@ def topic_path(cls, project     , topic     )       :
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.pubsub.SubscriberMessage"><code class="flex name class">
+<span>class <span class="ident">SubscriberMessage</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SubscriberMessage(object):
+    def __init__(self, **kwargs)        :
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 </article>
@@ -321,11 +357,15 @@ def topic_path(cls, project     , topic     )       :
 <ul>
 <li><code><a title="gcloud.rest.pubsub.publisher_client" href="publisher_client.html">gcloud.rest.pubsub.publisher_client</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client" href="subscriber_client.html">gcloud.rest.pubsub.subscriber_client</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.subscriber_message" href="subscriber_message.html">gcloud.rest.pubsub.subscriber_message</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.utils" href="utils.html">gcloud.rest.pubsub.utils</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="gcloud.rest.pubsub.FlowControl" href="#gcloud.rest.pubsub.FlowControl">FlowControl</a></code></h4>
+</li>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.PublisherClient" href="#gcloud.rest.pubsub.PublisherClient">PublisherClient</a></code></h4>
 <ul class="">
@@ -344,6 +384,9 @@ def topic_path(cls, project     , topic     )       :
 </li>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.SubscriberClient" href="#gcloud.rest.pubsub.SubscriberClient">SubscriberClient</a></code></h4>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.pubsub.SubscriberMessage" href="#gcloud.rest.pubsub.SubscriberMessage">SubscriberMessage</a></code></h4>
 </li>
 </ul>
 </li>

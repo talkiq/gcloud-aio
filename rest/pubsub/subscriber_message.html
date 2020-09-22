@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>gcloud.rest.pubsub.subscriber_client API documentation</title>
+<title>gcloud.rest.pubsub.subscriber_message API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>gcloud.rest.pubsub.subscriber_client</code></h1>
+<h1 class="title">Module <code>gcloud.rest.pubsub.subscriber_message</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -30,6 +30,9 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+from builtins import bytes
+from builtins import str
+from builtins import int
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter(&#34;ignore&#34;)
@@ -39,143 +42,87 @@ from builtins import object
 from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
 if BUILD_GCLOUD_REST:
-    class FlowControl(object):
+    class SubscriberMessage(object):
         def __init__(self, **kwargs)        :
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
-
-    class SubscriberClient(object):
-        def __init__(self, **kwargs)        :
-            raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
-
 else:
-    import asyncio
-    import concurrent.futures
-    import signal
+    import datetime
+
     from typing import Any
-    from typing import Callable
     from typing import Dict
     from typing import List
     from typing import Optional
-    from typing import Tuple
-    from typing import Union
 
-    from google.api_core import exceptions
-    from google.cloud import pubsub
-    from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
     from google.cloud.pubsub_v1.subscriber.message import Message
 
-    from .subscriber_message import SubscriberMessage
-    from .utils import convert_google_future_to_concurrent_future
 
-
-    class FlowControl(object):
-        def __init__(self, *args           , **kwargs                )        :
-            &#34;&#34;&#34;
-            FlowControl transitional wrapper.
-            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]  # pylint: disable=line-too-long
-            Google uses a named tuple; here are the fields, defaults:
-            - max_bytes: int = 100 * 1024 * 1024
-            - max_messages: int = 1000
-            - max_lease_duration: int = 1 * 60 * 60
-            - max_duration_per_lease_extension: int = 0
-            &#34;&#34;&#34;
-            self._flow_control = _FlowControl(*args, **kwargs)
-
-        def __getitem__(self, index     )       :
-            return self._flow_control[index]
-
-
-    class SubscriberClient(object):
-        def __init__(self,
+    class SubscriberMessage(object):
+        def __init__(self, *args           ,
                      **kwargs                )        :
-            if &#39;loop&#39; in kwargs: loop = kwargs[&#39;loop&#39;]; del kwargs[&#39;loop&#39;]
-            else: loop =  None
-            self._subscriber = pubsub.SubscriberClient(**kwargs)
-            self.loop = loop or asyncio.get_event_loop()
+            if &#39;google_cloud_message&#39; in kwargs: google_cloud_message = kwargs[&#39;google_cloud_message&#39;]; del kwargs[&#39;google_cloud_message&#39;]
+            else: google_cloud_message =  None
+            if google_cloud_message:
+                self._message = google_cloud_message
+                return
+            self._message = Message(*args, **kwargs)
 
-        def create_subscription(self,
-                                subscription     ,
-                                topic     ,
-                                **kwargs                
-                                )        :
-            &#34;&#34;&#34;
-            Create subscription if it does not exist. Check out the official
-            [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
-            for more details
-            &#34;&#34;&#34;
-            try:
-                self._subscriber.create_subscription(
-                    subscription,
-                    topic,
-                    **kwargs
-                )
-            except exceptions.AlreadyExists:
-                pass
+        @staticmethod
+        def from_google_cloud(message         )                       :
+            return SubscriberMessage(google_cloud_message=message)
 
-        def subscribe(self,
-                      subscription     ,
-                      callback                                    , **_3to2kwargs
-                      )                  :  # type: ignore
-            if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
-            else: flow_control =  ()
-            &#34;&#34;&#34;
-            Create subscription through pubsub client, hijack the returned
-            &#34;non-concurrent Future&#34; and coerce it into being a &#34;concurrent
-            Future&#34;, wrap it into a asyncio Future and return it.
-            &#34;&#34;&#34;
-            sub_keepalive                 = (  # type: ignore
-                self._subscriber.subscribe(
-                    subscription,
-                    self._wrap_callback(callback),
-                    flow_control=flow_control))
+        @property
+        def google_cloud_message(self)           :
+            return self._message
 
-            convert_google_future_to_concurrent_future(
-                sub_keepalive, loop=self.loop)
+        @property
+        def message_id(self)       :  # indirects to a Google protobuff field
+            return str(self._message.message_id)
 
-            _ = asyncio.wrap_future(sub_keepalive)
-            self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
+        def __repr__(self)       :
+            return repr(self._message)
 
-            return sub_keepalive
+        @property
+        def attributes(self)       :  # Google .ScalarMapContainer
+            return self._message.attributes
 
-        def run_forever(self,
-                        sub_keepalive                )        :  # type: ignore
-            &#34;&#34;&#34;
-            Start the asyncio loop, running until it is either SIGTERM-ed or
-            killed by keyboard interrupt. The Future parameter is used to
-            cancel subscription Future in the case that an unexpected exception
-            is thrown. You can also directly pass the `.subscribe()` method
-            call instead like so:
-                sub.run_forever(sub.subscribe(callback))
-            &#34;&#34;&#34;
-            try:
-                self.loop.run_forever()
-            except (KeyboardInterrupt, concurrent.futures.CancelledError):
-                pass
-            finally:
-                # 1. stop the `SubscriberClient` future, which will prevent
-                #    more tasks from being leased
-                if not sub_keepalive.cancelled():
-                    sub_keepalive.cancel()
-                # 2. cancel the tasks we already have, which should just be
-                #    `worker` instances; note they have
-                #    `except CancelledError: pass`
-                for task in asyncio.Task.all_tasks(loop=self.loop):
-                    task.cancel()
-                # 3. stop the `asyncio` event loop
-                self.loop.stop()
+        @property
+        def data(self)         :
+            return bytes(self._message.data)
 
-        def _wrap_callback(self,
-                           callback                                     
-                           )                             :
-            &#34;&#34;&#34;Schedule callback to be called from the event loop&#34;&#34;&#34;
-            def _callback_wrapper(message         )        :
-                asyncio.run_coroutine_threadsafe(
-                    callback(  # type: ignore
-                        SubscriberMessage.from_google_cloud(
-                            message)),
-                    self.loop)
+        @property
+        def publish_time(self)                     :
+            published                    = self._message.publish_time
+            return published
 
-            return _callback_wrapper</code></pre>
+        @property
+        def ordering_key(self)       :
+            return str(self._message.ordering_key)
+
+        @property
+        def size(self)       :
+            return int(self._message.size)
+
+        @property
+        def ack_id(self)       :
+            return str(self._message.ack_id)
+
+        @property
+        def delivery_attempt(self)                 :
+            if self._message.delivery_attempt:
+                return int(self._message.delivery_attempt)
+            return None
+
+        def ack(self)        :
+            self._message.ack()
+
+        def drop(self)        :
+            self._message.drop()
+
+        def modify_ack_deadline(self, seconds     )        :
+            self._message.modify_ack_deadline(seconds)
+
+        def nack(self)        :
+            self._message.nack()</code></pre>
 </details>
 </section>
 <section>
@@ -187,8 +134,8 @@ else:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gcloud.rest.pubsub.subscriber_client.FlowControl"><code class="flex name class">
-<span>class <span class="ident">FlowControl</span></span>
+<dt id="gcloud.rest.pubsub.subscriber_message.SubscriberMessage"><code class="flex name class">
+<span>class <span class="ident">SubscriberMessage</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
@@ -197,22 +144,7 @@ else:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class FlowControl(object):
-    def __init__(self, **kwargs)        :
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient"><code class="flex name class">
-<span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SubscriberClient(object):
+<pre><code class="python">class SubscriberMessage(object):
     def __init__(self, **kwargs)        :
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
@@ -234,10 +166,7 @@ else:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="gcloud.rest.pubsub.subscriber_client.FlowControl" href="#gcloud.rest.pubsub.subscriber_client.FlowControl">FlowControl</a></code></h4>
-</li>
-<li>
-<h4><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a></code></h4>
+<h4><code><a title="gcloud.rest.pubsub.subscriber_message.SubscriberMessage" href="#gcloud.rest.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></code></h4>
 </li>
 </ul>
 </li>
