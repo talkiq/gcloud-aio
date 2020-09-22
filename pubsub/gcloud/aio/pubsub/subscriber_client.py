@@ -34,7 +34,7 @@ else:
         def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
             """
             FlowControl transitional wrapper.
-            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]  # pylint: disable=line-too-long
+            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
             Google uses a named tuple; here are the fields, defaults:
             - max_bytes: int = 100 * 1024 * 1024
             - max_messages: int = 1000
@@ -43,8 +43,27 @@ else:
             """
             self._flow_control = _FlowControl(*args, **kwargs)
 
+        def __repr__(self) -> str:
+            return self._flow_control.__repr__()
+
         def __getitem__(self, index: int) -> int:
             return self._flow_control[index]
+
+        @property
+        def max_bytes(self) -> int:
+            return self._flow_control.max_bytes
+
+        @property
+        def max_messages(self) -> int:
+            return self._flow_control.max_messages
+
+        @property
+        def max_lease_duration(self) -> int:
+            return self._flow_control.max_lease_duration
+
+        @property
+        def max_duration_per_lease_extension(self) -> int:
+            return self._flow_control.max_duration_per_lease_extension
 
 
     class SubscriberClient:

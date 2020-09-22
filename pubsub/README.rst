@@ -38,13 +38,15 @@ Here's the rough usage pattern for subscribing:
 .. code-block:: python
 
     from gcloud.aio.pubsub import SubscriberClient
-    from google.cloud.pubsub_v1.subscriber.message import Message
+    from gcloud.aio.pubsub import SubscriberMessage
 
     client = SubscriberClient()
     # create subscription if it doesn't already exist
-    client.create_subscription('subscription_name', 'topic_name')
+    client.create_subscription(
+        'projects/<project_name>/subscriptions/<subscription_name>',
+        'projects/<project_name>/topics/<topic_name>')
 
-    async def message_callback(message: Message) -> None:
+    async def message_callback(message: SubscriberMessage) -> None:
         try:
             # just an example: process the message however you need to here...
             result = handle(message)
@@ -55,7 +57,9 @@ Here's the rough usage pattern for subscribing:
             message.ack()
 
     # subscribe to the subscription, receiving a Future that acts as a keepalive
-    keep_alive = client.subscribe('subscription_name', message_callback)
+    keep_alive = client.subscribe(
+        'projects/<project_name>/subscriptions/<subscription_name>',
+        message_callback)
 
     # have the client run forever, pulling messages from this subscription,
     # passing them to the specified callback function, and wrapping it in an
@@ -65,25 +69,30 @@ Here's the rough usage pattern for subscribing:
 Configuration
 ^^^^^^^^^^^^^
 
-Our create_subscription method is a thing wrapper and thus supports all keyword
-configuration arguments from the official pubsub client which you can find in
-the `official Google documentation`_.
+Our create_subscription method is a thin wrapper and thus supports almost all
+keyword configuration arguments from the official pubsub client which you can
+find in the `official Google documentation`_.
+
+Since the underlying Google implementation of ``Scheduler`` only allows for the
+concrete ``ThreadScheduler`` which is also the default, we have opted not to
+expose this configuration option. Additionally, we would like to fully
+deprecate said Google implementation in favour of a fully `asyncio`
+implementation which uses the event loop as the scheduler.
 
 When subscribing to a subscription you can optionally pass in a ``FlowControl``
-and/or ``Scheduler`` instance.
+instance.
 
 .. code-block:: python
 
     example_flow_control = FlowControl(
+        max_bytes=100*1024*1024,
         max_messages=1,
-        resume_threshold=0.8,
-        max_request_batch_size=1,
-        max_request_batch_latency=0.1,
         max_lease_duration=10,
+        max_duration_per_lease_extension=0,
     )
 
     keep_alive = client.subscribe(
-        'subscription_name',
+        'projects/<project_name>/subscriptions/<subscription_name>',
         message_callback,
         flow_control=example_flow_control
     )
@@ -91,76 +100,65 @@ and/or ``Scheduler`` instance.
 Understanding how modifying ``FlowControl`` affects how your pubsub runtime
 will operate can be confusing so here's a handy dandy guide!
 
-Welcome to @TheKevJames's guide to configuring Google Pubsub Subscription
-policies! Settle in, grab a drink, and stay a while.
+Welcome to @TheKevJames and @jonathan-johnston's guide to configuring Google
+Pubsub Subscription policies! Settle in, grab a drink, and stay a while.
 
-The Subscriber is controlled by a FlowControl configuration tuple defined
-`here <https://github.com/GoogleCloudPlatform/google-cloud-python/blob/de5b775811d914270df3249ac24e165964c10dd2/pubsub/google/cloud/pubsub_v1/types.py#L53-L67>`_:
-that configuration object ``f`` gets used by the Subscriber in the following
-ways:
+The Subscriber is controlled by a ``FlowControl`` configuration tuple defined `in gcloud-aio <https://github.com/talkiq/gcloud-aio/blob/pubsub-2.0.0/pubsub/gcloud/aio/pubsub/subscriber_client.py#L33>`_ and subsequently in
+`google-cloud-pubsub <https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166>`_.
+
+That configuration object ``f`` gets used by the ``Subscriber`` in the
+following ways:
 
 Max Concurrency
 _______________
 
-The subscriber is allowed to lease new tasks whenever its currently leased
-tasks ``x`` satisfy:
+The subscriber stops leasing new tasks whenever too many messages or too many
+message bytes have been leased for currently leased tasks ``x``:
 
 .. code-block:: python
 
-    (
-        (len(x) < f.resume_threshold * f.max_messages)
-        and (sum(x.bytes) < f.resume_threshold * f.max_bytes)
-    )
+    max(
+        len(x) / f.max_messages,
+        sum(x.bytes) / f.max_bytes
+    ) >= 1.0
+
+And leasing is resumed when there is some breathing room in terms of message
+counts or byte counts:
+
+.. code-block:: python
+
+    max(
+        len(x) / f.max_messages,
+        sum(x.bytes) / f.max_bytes
+    ) < 0.8
 
 In practice, this means we should set these values with the following
 restrictions:
 
-- the maximum number of concurrently leased tasks at peak is:
-  ``= (f.max_messages * f.resume_threshold) + f.max_request_batch_size``
-- the maximum memory usage of our leased tasks at peak is:
-  ``= (f.max_bytes * f.resume_threshold) + (f.max_request_batch_size *
-  bytes_per_task)``
+- the maximum number of concurrently leased messages at peak is:
+  ``= f.max_messages + f.max_messages mod batch_size``
+- the maximum memory usage of our leased messages at peak is:
+  ``= f.max_bytes + f.max_bytes mod (batch_size * bytes_per_messages)``
 - these values are constrain each other, ie. we limit ourselves to the lesser
-  of these values given:
-  ``max_tasks * bytes_per_task <> max_memory``
+  of these values, with ``batch_size`` calculated dynamically in PubSub itself
 
-Aside: it seems like OCNs on Pubsub are ~1538 bytes each
+Aside: it seems like OCNs on Pubsub are ~1538 bytes each.
 
 Leasing Requests
 ________________
 
-When leasing new tasks, the ``Subscriber`` uses the following algorithm:
+When leasing new tasks, the ``Subscriber`` simply continues to request messages
+from the PubSub subscription until the aforementioned message concurrency or
+total message bytes limits are hit. At that point, the message consumer is
+paused while the messages are processed and resumed when the resume condition
+is met.
 
-.. code-block:: python
-
-    def lease_more_tasks():
-        start = time.now()
-        yield queue.Queue.get(block=True)  # always returns >=1
-
-        for _ in range(f.max_request_batch_size - 1):
-            elapsed = time.now() - start
-            yield queue.Queue.get(
-                block=False,
-                timeout=f.max_request_batch_latency-elapsed)
-            if elapsed >= f.max_request_batch_latency:
-                break
-
-In practice, this means we should set ``f.max_request_batch_size`` given the
-above concurrent concerns and set ``f.max_request_batch_latency`` given
-whatever latency ratio we are willing to accept.
-
-The expected best-case time for ``Queue.get()`` off a full queue is no worse
-than 0.3ms. This Queue should be filling up as fast as grpc can make requests
-to Google Pubsub, which should be Fast Enough(tm) to keep it filled, given
-*those* requests are batched.
-
-Therefore, we can expect:
-
-- avg_lease_latency: ``~= f.max_request_batch_size * 0.0003``
-- worst_case_latency: ``~= f.max_request_batch_latency``
-
-Note that leasing occurs based on ``f.resume_threshold``, so some of this
-latency is concurrent with task execution.
+Message processing and message leasing are carried out in parallel. When a
+message batch is received from the PubSub subscription the messages are
+scheduled for processing immediately on a
+``concurrent.futures.ThreadPoolExecutor``. This ``Scheduler`` should be filling
+up as fast as grpc can make requests to Google Pubsub, which should be Fast
+Enough(tm) to keep it filled, given *those* requests are batched.
 
 Task Expiry
 ___________
@@ -192,11 +190,6 @@ Notes:
 In practice, we should thus set ``f.max_lease_duration`` to no lower than
 our 95% percentile task latency at high load. The lower this value is,
 the better our throughput will be in extreme cases.
-
-Confusion
-_________
-
-``f.max_requests`` is defined, but seems to be unused.
 
 Publisher
 ~~~~~~~~~
