@@ -76,7 +76,7 @@ find in the `official Google documentation`_.
 Since the underlying Google implementation of ``Scheduler`` only allows for the
 concrete ``ThreadScheduler`` which is also the default, we have opted not to
 expose this configuration option. Additionally, we would like to fully
-deprecate said Google implementation in favour of a fully `asyncio`
+deprecate said Google implementation in favour of a fully ``asyncio``
 implementation which uses the event loop as the scheduler.
 
 When subscribing to a subscription you can optionally pass in a ``FlowControl``

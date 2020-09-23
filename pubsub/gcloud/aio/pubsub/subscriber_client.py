@@ -5,6 +5,13 @@ if BUILD_GCLOUD_REST:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
+        def __getattr__(self, attr: str) -> Any:
+            # N.B. Minimal interface required for unit testing aio version of
+            # FlowControl. Pylint sees unit tests' use of attributes on
+            # FlowControl but does not see those attributes in this (unused)
+            # REST definition and therefore fails.
+            pass
+
     class SubscriberClient:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
@@ -49,21 +56,8 @@ else:
         def __getitem__(self, index: int) -> int:
             return self._flow_control[index]
 
-        @property
-        def max_bytes(self) -> int:
-            return self._flow_control.max_bytes
-
-        @property
-        def max_messages(self) -> int:
-            return self._flow_control.max_messages
-
-        @property
-        def max_lease_duration(self) -> int:
-            return self._flow_control.max_lease_duration
-
-        @property
-        def max_duration_per_lease_extension(self) -> int:
-            return self._flow_control.max_duration_per_lease_extension
+        def __getattr__(self, attr: str) -> Any:
+            return getattr(self._flow_control, attr)
 
 
     class SubscriberClient:
