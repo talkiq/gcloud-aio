@@ -68,9 +68,7 @@ if BUILD_GCLOUD_REST:
                       flow_control: Union[FlowControl, Tuple[int, ...]] = ()
                       ) -> StreamingPullFuture:
             """
-            Create subscription through pubsub client, hijack the returned
-            "non-concurrent Future" and coerce it into being a "concurrent
-            Future", wrap it into a asyncio Future and return it.
+            Pass call to the google-cloud-pubsub SubscriberClient class
             """
             sub_keepalive: StreamingPullFuture = (
                 self._subscriber.subscribe(
