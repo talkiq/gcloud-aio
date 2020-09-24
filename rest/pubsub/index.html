@@ -89,7 +89,14 @@ __all__ = [&#39;__version__&#39;, &#39;FlowControl&#39;, &#39;PublisherClient&#3
 </summary>
 <pre><code class="python">class FlowControl(object):
     def __init__(self, **kwargs)        :
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+    def __getattr__(self, attr     )       :
+        # N.B. Minimal interface required for unit testing aio version of
+        # FlowControl. Pylint sees unit tests&#39; use of attributes on
+        # FlowControl but does not see those attributes in this (unused)
+        # REST definition and therefore fails.
+        pass</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.PublisherClient"><code class="flex name class">
