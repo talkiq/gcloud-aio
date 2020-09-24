@@ -5,6 +5,13 @@ if BUILD_GCLOUD_REST:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
+        def __getattr__(self, attr: str) -> Any:
+            # N.B. Minimal interface required for unit testing aio version of
+            # FlowControl. Pylint sees unit tests' use of attributes on
+            # FlowControl but does not see those attributes in this (unused)
+            # REST definition and therefore fails.
+            pass
+
     class SubscriberClient:
         def __init__(self, **kwargs) -> None:
             raise NotImplementedError('this class is only implemented in aio')
@@ -34,7 +41,7 @@ else:
         def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
             """
             FlowControl transitional wrapper.
-            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/6b9eec81ccee81ab93646eaf7652139fc218ed36/google/cloud/pubsub_v1/types.py#L139-L159]  # pylint: disable=line-too-long
+            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
             Google uses a named tuple; here are the fields, defaults:
             - max_bytes: int = 100 * 1024 * 1024
             - max_messages: int = 1000
@@ -43,8 +50,14 @@ else:
             """
             self._flow_control = _FlowControl(*args, **kwargs)
 
+        def __repr__(self) -> str:
+            return self._flow_control.__repr__()
+
         def __getitem__(self, index: int) -> int:
             return self._flow_control[index]
+
+        def __getattr__(self, attr: str) -> Any:
+            return getattr(self._flow_control, attr)
 
 
     class SubscriberClient:
