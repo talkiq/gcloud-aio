@@ -1,21 +1,26 @@
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+
 
 if BUILD_GCLOUD_REST:
     class SubscriberMessage:
-        def __init__(self, **kwargs) -> None:
+        def __init__(self, **kwargs: Any) -> None:
             raise NotImplementedError('this class is only implemented in aio')
+
+        @staticmethod
+        def from_google_cloud(message: Message) -> 'SubscriberMessage':
+            return SubscriberMessage(google_cloud_message=message)
 else:
     import datetime
-
-    from typing import Any
-    from typing import Dict
-    from typing import List
-    from typing import Optional
 
     from google.cloud.pubsub_v1.subscriber.message import Message
 
 
-    class SubscriberMessage:
+    class SubscriberMessage:  # type: ignore[no-redef]
         def __init__(self, *args: List[Any],
                      google_cloud_message: Message = None,
                      **kwargs: Dict[str, Any]) -> None:
@@ -23,10 +28,6 @@ else:
                 self._message = google_cloud_message
                 return
             self._message = Message(*args, **kwargs)
-
-        @staticmethod
-        def from_google_cloud(message: Message) -> 'SubscriberMessage':
-            return SubscriberMessage(google_cloud_message=message)
 
         @property
         def google_cloud_message(self) -> Message:
