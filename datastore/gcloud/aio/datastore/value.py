@@ -34,7 +34,7 @@ class Value:  # pylint:disable=useless-object-inheritance
             json_key = type_name.value
             if json_key in data:
                 if json_key == 'nullValue':
-                    value = None
+                    value: Any = None
                 elif json_key == 'blobValue':
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
@@ -89,7 +89,7 @@ class Value:  # pylint:disable=useless-object-inheritance
                 '{})'.format(kind, supported_types))
 
     @classmethod
-    def _get_supported_types(cls):
+    def _get_supported_types(cls) -> Dict[Any, TypeName]:
         from gcloud.aio.datastore import array
         from gcloud.aio.datastore import entity
 
