@@ -64,3 +64,37 @@ repos:
     rev: v1.0.0
     hooks:
     -   id: rst-linter
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.782
+    hooks:
+    -   &mypy
+        id: mypy
+        name: mypy-auth
+        require_serial: True
+        args:
+        - --ignore-missing-imports
+        - --follow-imports=silent
+        - --show-error-codes
+        - --strict
+        - --strict-equality
+        - --warn-unreachable
+        files: auth/
+        exclude: (tests/.*)|(noxfile.py)
+    -   <<: *mypy
+        name: mypy-bigquery
+        files: bigquery/
+    -   <<: *mypy
+        name: mypy-datastore
+        files: datastore/
+    -   <<: *mypy
+        name: mypy-kms
+        files: kms/
+    -   <<: *mypy
+        name: mypy-pubsub
+        files: pubsub/
+    -   <<: *mypy
+        name: mypy-storage
+        files: storage/
+    -   <<: *mypy
+        name: mypy-taskqueue
+        files: taskqueue/
