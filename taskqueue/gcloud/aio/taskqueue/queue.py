@@ -18,7 +18,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT = 'https://cloudtasks.googleapis.com'
 LOCATION = 'us-central1'
@@ -124,11 +124,11 @@ class PushQueue:
 
         return await self._request('POST', url, json=body, session=session)
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'PushQueue':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()
