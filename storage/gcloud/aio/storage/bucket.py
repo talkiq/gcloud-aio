@@ -1,6 +1,9 @@
 import logging
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import TYPE_CHECKING
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 
@@ -11,14 +14,18 @@ if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
     from requests import Session
 else:
-    from aiohttp import ClientResponseError as ResponseError
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+
+if TYPE_CHECKING:
+    from .storage import Storage
+
 
 log = logging.getLogger(__name__)
 
 
 class Bucket:
-    def __init__(self, storage, name: str) -> None:
+    def __init__(self, storage: 'Storage', name: str) -> None:
         self.storage = storage
         self.name = name
 
@@ -36,10 +43,10 @@ class Bucket:
             return True
         except ResponseError as e:
             try:
-                if e.status in {404, 410}:
+                if e.status in {404, 410}:  # type: ignore[attr-defined]
                     return False
             except AttributeError:
-                if e.code in {404, 410}:
+                if e.code in {404, 410}:  # type: ignore[attr-defined]
                     return False
 
             raise e
@@ -54,7 +61,7 @@ class Bucket:
                                                       session=session)
             items.extend([x['name'] for x in content.get('items', list())])
 
-            params['pageToken'] = content.get('nextPageToken')
+            params['pageToken'] = content.get('nextPageToken', '')
             if not params['pageToken']:
                 break
 
@@ -64,7 +71,9 @@ class Bucket:
     def new_blob(self, blob_name: str) -> Blob:
         return Blob(self, blob_name, {'size': 0})
 
-    async def get_metadata(self, params: dict = None,
-                           session: Optional[Session] = None) -> dict:
+    async def get_metadata(
+            self, params: Optional[Dict[str, Any]] = None,
+            session: Optional[Session] = None
+    ) -> Dict[str, Any]:
         return await self.storage.get_bucket_metadata(self.name, params=params,
                                                       session=session)
