@@ -155,8 +155,6 @@ if not BUILD_GCLOUD_REST:
 
 
 if BUILD_GCLOUD_REST:
-    import requests
-
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
 
@@ -165,8 +163,8 @@ if BUILD_GCLOUD_REST:
             return SyncSession._google_api_lock  # pylint: disable=protected-access
 
         @property
-        def session(self) -> requests.Session:
-            self._session = self._session or requests.Session()
+        def session(self) -> Session:
+            self._session = self._session or Session()
             self._session.verify = self._ssl
             return self._session
 
@@ -175,8 +173,7 @@ if BUILD_GCLOUD_REST:
         # analysis.
         async def post(self, url: str, headers: Dict[str, str],
                        data: Optional[str] = None, timeout: int = 10,
-                       params: Optional[Dict[str, str]] = None
-                       ) -> requests.Response:
+                       params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
                                          timeout=timeout, params=params)
@@ -185,8 +182,7 @@ if BUILD_GCLOUD_REST:
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None
-                      ) -> requests.Response:
+                      params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
@@ -194,7 +190,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> requests.Response:
+                      timeout: int = 10) -> Response:
             with self.google_api_lock:
                 resp = self.session.put(url, data=data, headers=headers,
                                         timeout=timeout)
@@ -203,7 +199,7 @@ if BUILD_GCLOUD_REST:
 
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Dict[str, str], timeout: int = 10
-                         ) -> requests.Response:
+                         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
                                            timeout=timeout)
@@ -212,7 +208,7 @@ if BUILD_GCLOUD_REST:
 
         async def request(self, method: str, url: str, headers: Dict[str, str],
                           auto_raise_for_status: bool = True, **kwargs: Any
-                          ) -> requests.Response:
+                          ) -> Response:
             with self.google_api_lock:
                 resp = self.session.request(method, url, headers=headers,
                                             **kwargs)
