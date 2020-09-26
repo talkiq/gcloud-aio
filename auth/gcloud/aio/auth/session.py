@@ -3,11 +3,20 @@ import threading
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
-from io import IOBase
 from typing import Any
 from typing import Dict
+from typing import IO
+from typing import Optional
 
 from .build_constants import BUILD_GCLOUD_REST
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Response
+    from requests import Session
+else:
+    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 log = logging.getLogger(__name__)
@@ -16,39 +25,41 @@ log = logging.getLogger(__name__)
 class BaseSession:
     __metaclass__ = ABCMeta
 
-    def __init__(self, session=None, timeout: int = 10,
-                 verify_ssl: bool = True):
+    def __init__(self, session: Optional[Session] = None, timeout: int = 10,
+                 verify_ssl: bool = True) -> None:
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
 
     @abstractproperty
-    def session(self):
+    def session(self) -> Optional[Session]:
         return self._session
 
     @abstractmethod
-    def post(self, url: str, headers: Dict[str, str], data: str, timeout: int,
-             params: Dict[str, str]):
+    async def post(self, url: str, headers: Dict[str, str],
+                   data: Optional[str], timeout: int,
+                   params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
-    def get(self, url: str, headers: Dict[str, str], timeout: int,
-            params: Dict[str, str]):
+    async def get(self, url: str, headers: Optional[Dict[str, str]],
+                  timeout: int, params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
-    def put(self, url: str, headers: Dict[str, str], data: IOBase,
-            timeout: int):
+    async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
+                  timeout: int) -> Response:
         pass
 
     @abstractmethod
-    def delete(self, url: str, headers: Dict[str, str], params: Dict[str, str],
-               timeout: int):
+    async def delete(self, url: str, headers: Dict[str, str],
+                     params: Dict[str, str], timeout: int) -> Response:
         pass
 
     @abstractmethod
-    def request(self, method: str, url: str, headers: Dict[str, str],
-                auto_raise_for_status: bool = True, **kwargs: Any):
+    async def request(self, method: str, url: str, headers: Dict[str, str],
+                      auto_raise_for_status: bool = True,
+                      **kwargs: Any) -> Response:
         pass
 
     @abstractmethod
@@ -97,23 +108,24 @@ if not BUILD_GCLOUD_REST:
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
-                       data: str = None, timeout: int = 10,
-                       params: Dict[str, str] = None
+                       data: Optional[str] = None, timeout: int = 10,
+                       params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
             resp = await self.session.post(url, data=data, headers=headers,
                                            timeout=timeout, params=params)
             await _raise_for_status(resp)
             return resp
 
-        async def get(self, url: str, headers: Dict[str, str] = None,
-                      timeout: int = 10, params: Dict[str, str] = None
+        async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+                      timeout: int = 10,
+                      params: Optional[Dict[str, str]] = None
                       ) -> aiohttp.ClientResponse:
             resp = await self.session.get(url, headers=headers, timeout=timeout,
                                           params=params)
             await _raise_for_status(resp)
             return resp
 
-        async def put(self, url: str, headers: Dict[str, str], data: IOBase,
+        async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: int = 10) -> aiohttp.ClientResponse:
             resp = await self.session.put(url, data=data, headers=headers,
                                           timeout=timeout)
@@ -139,7 +151,7 @@ if not BUILD_GCLOUD_REST:
 
         async def close(self) -> None:
             if self._session:
-                await self._session.close()
+                await self._session.close()  # type: ignore[func-returns-value]
 
 
 if BUILD_GCLOUD_REST:
@@ -158,44 +170,49 @@ if BUILD_GCLOUD_REST:
             self._session.verify = self._ssl
             return self._session
 
-        def post(self, url: str, headers: Dict[str, str], data: str = None,
-                 timeout: int = 10, params: Dict[str, str] = None
-                 ) -> requests.Response:
+        # N.B.: none of these will be `async` in compiled form, but adding the
+        # symbol ensures we match the base class's definition for static
+        # analysis.
+        async def post(self, url: str, headers: Dict[str, str],
+                       data: Optional[str] = None, timeout: int = 10,
+                       params: Optional[Dict[str, str]] = None
+                       ) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
                                          timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
-        def get(self, url: str, headers: Dict[str, str] = None,
-                timeout: int = 10, params: Dict[str, str] = None
-                ) -> requests.Response:
+        async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+                      timeout: int = 10,
+                      params: Optional[Dict[str, str]] = None
+                      ) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
             resp.raise_for_status()
             return resp
 
-        def put(self, url: str, headers: Dict[str, str], data: IOBase,
-                timeout: int = 10) -> requests.Response:
+        async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
+                      timeout: int = 10) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.put(url, data=data, headers=headers,
                                         timeout=timeout)
             resp.raise_for_status()
             return resp
 
-        def delete(self, url: str, headers: Dict[str, str],
-                   params: Dict[str, str], timeout: int = 10
-                   ) -> requests.Response:
+        async def delete(self, url: str, headers: Dict[str, str],
+                         params: Dict[str, str], timeout: int = 10
+                         ) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
                                            timeout=timeout)
             resp.raise_for_status()
             return resp
 
-        def request(self, method: str, url: str, headers: Dict[str, str],
-                    auto_raise_for_status: bool = True, **kwargs: Any
-                    ) -> requests.Response:
+        async def request(self, method: str, url: str, headers: Dict[str, str],
+                          auto_raise_for_status: bool = True, **kwargs: Any
+                          ) -> requests.Response:
             with self.google_api_lock:
                 resp = self.session.request(method, url, headers=headers,
                                             **kwargs)
@@ -203,6 +220,6 @@ if BUILD_GCLOUD_REST:
                 resp.raise_for_status()
             return resp
 
-        def close(self) -> None:
+        async def close(self) -> None:
             if self._session:
                 self._session.close()
