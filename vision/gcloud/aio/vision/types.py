@@ -19,25 +19,47 @@ TYPES = Literal[
 MODELS = Literal["builtin/stable", "builtin/latest"]
 
 
+# https://cloud.google.com/vision/docs/reference/rest/v1/AnnotateImageRequest#imagesource
+class ImageSource:
+    def __init__(self, imageUri: str) -> None:
+        self.gcsImageUri: Union[str, None] = None
+        self.imageUri: str = imageUri
+
+    def to_dict(self) -> Dict[str, str]:
+        return {"gcsImageUri": self.gcsImageUri, "imageUri": self.imageUri}
+
+    def from_dict(self, data: Dict, use_gcsImageUri=False) -> None:
+        if use_gcsImageUri:
+            self.gcsImageUri = data.get("gcsImageUri")
+            self.imageUri = data.get("imageUri")
+        else:
+            self.gcsImageUri = None
+            self.imageUri = data.get("imageUri", data.get("gcsImageUri"))
+
+
 # https://cloud.google.com/vision/docs/reference/rest/v1/AnnotateImageRequest#Image
 class Image:
     def __init__(
-        self, image_uri: Optional[str] = None, image_content: Optional[Any] = None
+        self,
+        content: Optional[bytes] = None,
+        source: Optional[str, ImageSource] = None,
     ) -> None:
-        self.image_content = image_content
-        self.image_uri = image_uri
-
-    @property
-    def source(self) -> str:
-        return self.image_uri
-
-    @property
-    def content(self) -> str:
-        """Not yet implemented"""
-        return ""
+        self.content: bytes = content
+        self.source: ImageSource = source if isinstance(
+            source, ImageSource
+        ) else ImageSource(source)
 
     def to_dict(self) -> Dict[str, str]:
-        return {"content": self.content, "source": self.source}
+        return {
+            "content": self.content.encode("ascii"),
+            "source": self.source.to_dict(),
+        }
+
+    def from_dict(self, data: Dict) -> None:
+        self.content: bytes = data.get("content").encode("ascii") if data.get(
+            "content"
+        ) else None
+        self.source: ImageSource = ImageSource.from_dict(data.get("source", {}))
 
 
 # https://cloud.google.com/vision/docs/reference/rest/v1/Feature
@@ -97,10 +119,7 @@ class LatLongRect:
 
 # https://cloud.google.com/vision/docs/reference/rest/v1/ImageContext#CropHintsParams
 class CropHintsParams:
-    def __init__(
-        self,
-        aspect_ratios: List[float],
-    ) -> None:
+    def __init__(self, aspect_ratios: List[float],) -> None:
         self.aspect_ratios = aspect_ratios
 
     def to_dict(self) -> Dict[str, bool]:
@@ -180,10 +199,7 @@ class ProductSearchParams:
 
 # https://cloud.google.com/vision/docs/reference/rest/v1/ImageContext#WebDetectionParams
 class WebDetectionParams:
-    def __init__(
-        self,
-        include_geo_results: bool,
-    ) -> None:
+    def __init__(self, include_geo_results: bool,) -> None:
         self.include_geo_results = include_geo_results
 
     def to_dict(self) -> Dict[str, bool]:
@@ -218,7 +234,7 @@ class ImageContext:
         }
 
 
-# https://cloud.google.com/vision/docs/reference/rest/v1/images/annotate
+# https://cloud.google.com/vision/docs/reference/rest/v1/AnnotateImageRequest
 class AnnotateImageRequest:
     def __init__(
         self, image: Image, features: List[Feature], image_context: ImageContext

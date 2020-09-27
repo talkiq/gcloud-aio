@@ -1,7 +1,6 @@
 import io
 import json
 import logging
-import os
 from typing import Dict, List, Optional, Union
 
 from gcloud.aio.auth import (
@@ -56,17 +55,12 @@ class Vision:
         url = f"{API_ROOT}/images:annotate"
 
         payload = json.dumps(
-            {
-                "requests": [request.to_dict() for request in requests],
-            }
+            {"requests": [request.to_dict() for request in requests]}
         ).encode("utf-8")
 
         headers = await self.headers()
         headers.update(
-            {
-                "Content-Length": str(len(payload)),
-                "Content-Type": "application/json",
-            }
+            {"Content-Length": str(len(payload)), "Content-Type": "application/json"}
         )
 
         s = AioSession(session) if session else self.session
