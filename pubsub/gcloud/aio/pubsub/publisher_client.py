@@ -17,7 +17,7 @@ from gcloud.aio.pubsub.utils import PubsubMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = 'https://pubsub.googleapis.com/v1'
@@ -86,13 +86,14 @@ class PublisherClient:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'PublisherClient':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()

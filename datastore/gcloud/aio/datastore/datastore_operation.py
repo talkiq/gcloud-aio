@@ -6,7 +6,7 @@ from typing import Optional
 class DatastoreOperation:
     def __init__(self, name: str, done: bool,
                  metadata: Optional[Dict[str, Any]] = None,
-                 error: Dict[str, str] = None,
+                 error: Optional[Dict[str, str]] = None,
                  response: Optional[Dict[str, Any]] = None) -> None:
         self.name = name
         self.done = done

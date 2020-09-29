@@ -3,12 +3,13 @@ Google Cloud auth via service account file
 """
 import datetime
 import enum
-import io
 import json
 import os
 import time
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -28,16 +29,19 @@ from .session import AioSession
 
 # Handle differences in exceptions
 try:
-    CustomFileError = FileNotFoundError
+    # TODO: Type[Exception] should work here, no?
+    CustomFileError: Any = FileNotFoundError
 except NameError:
     CustomFileError = IOError
 
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
+    from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
     import asyncio
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
@@ -56,7 +60,7 @@ class Type(enum.Enum):
 
 
 def get_service_data(
-        service: Optional[Union[str, io.IOBase]]) -> Dict[str, Any]:
+        service: Optional[Union[str, IO[AnyStr]]]) -> Dict[str, Any]:
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
@@ -70,11 +74,11 @@ def get_service_data(
 
     try:
         try:
-            with open(service, 'r') as f:
+            with open(service, 'r') as f:  # type: ignore[arg-type]
                 data: Dict[str, Any] = json.loads(f.read())
                 return data
         except TypeError:
-            data: Dict[str, Any] = json.loads(service.read())
+            data = json.loads(service.read())  # type: ignore[union-attr]
             return data
     except CustomFileError:
         if set_explicitly:
@@ -88,9 +92,9 @@ def get_service_data(
 
 class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
+    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
-                 scopes: List[str] = None) -> None:
+                 scopes: Optional[List[str]] = None) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
@@ -112,7 +116,7 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future] = None
+        self.acquiring: Optional[asyncio.Future[Any]] = None
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -157,8 +161,7 @@ class Token:
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
 
-    async def _refresh_authorized_user(self,
-                                       timeout: int) -> Dict[str, str]:
+    async def _refresh_authorized_user(self, timeout: int) -> Response:
         payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
@@ -166,18 +169,19 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         })
 
-        return await self.session.post(url=self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        data: Response = await self.session.post(url=self.token_uri,
+                                                 data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return data
 
-    async def _refresh_gce_metadata(self,
-                                    timeout: int) -> Dict[str, str]:
-        return await self.session.get(url=self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+    async def _refresh_gce_metadata(self, timeout: int) -> Response:
+        resp: Response = await self.session.get(url=self.token_uri,
+                                                headers=GCE_METADATA_HEADERS,
+                                                timeout=timeout)
+        return resp
 
-    async def _refresh_service_account(self,
-                                       timeout: int) -> Dict[str, str]:
+    async def _refresh_service_account(self, timeout: int) -> Response:
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
@@ -196,9 +200,10 @@ class Token:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
 
-        return await self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp: Response = await self.session.post(self.token_uri, data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -> None:
@@ -218,11 +223,11 @@ class Token:
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'Token':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()

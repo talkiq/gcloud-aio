@@ -4,7 +4,9 @@ import datetime
 import hashlib
 import io
 from typing import Any
+from typing import Dict
 from typing import Optional
+from typing import TYPE_CHECKING
 from typing import Union
 from urllib.parse import quote
 
@@ -17,14 +19,18 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+
+if TYPE_CHECKING:
+    from .bucket import Bucket
 
 
 HOST = 'storage.googleapis.com'
 
 
 class Blob:
-    def __init__(self, bucket, name: str, metadata: dict) -> None:
+    def __init__(self, bucket: 'Bucket', name: str,
+                 metadata: Dict[str, Any]) -> None:
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -40,16 +46,17 @@ class Blob:
                                                   session=session)
 
     async def upload(self, data: Any,
-                     session: Optional[Session] = None) -> dict:
-        metadata: dict = await self.bucket.storage.upload(
+                     session: Optional[Session] = None) -> Dict[str, Any]:
+        metadata = await self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
         self.__dict__.update(metadata)
         return metadata
 
     async def get_signed_url(  # pylint: disable=too-many-locals
-            self, expiration: int, headers: Optional[dict] = None,
-            query_params: Optional[dict] = None, http_method: str = 'GET',
+            self, expiration: int, headers: Optional[Dict[str, str]] = None,
+            query_params: Optional[Dict[str, Any]] = None,
+            http_method: str = 'GET',
             iam_client: Optional[IamClient] = None,
             service_account_email: Optional[str] = None,
             service_file: Optional[Union[str, io.IOBase]] = None,

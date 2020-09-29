@@ -1,6 +1,8 @@
-import io
 import json
+from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -15,7 +17,7 @@ from .utils import encode
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT_IAM = 'https://iam.googleapis.com/v1'
 API_ROOT_IAM_CREDENTIALS = 'https://iamcredentials.googleapis.com/v1'
@@ -23,7 +25,7 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 
 class IamClient:
-    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
+    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.session = AioSession(session)
@@ -70,7 +72,8 @@ class IamClient:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        return await resp.json()
+        data: Dict[str, str] = await resp.json()
+        return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
@@ -91,12 +94,13 @@ class IamClient:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        return (await resp.json()).get('keys', [])
+        data: List[Dict[str, Any]] = (await resp.json()).get('keys', [])
+        return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
-                        delegates: Optional[list] = None,
+                        delegates: Optional[List[str]] = None,
                         session: Optional[Session] = None,
                         timeout: int = 10) -> Dict[str, str]:
         service_account_email = (service_account_email or
@@ -110,7 +114,7 @@ class IamClient:
 
         json_str = json.dumps({
             'delegates': delegates or [resource_name],
-            'payload': encode(payload).decode('utf-8'),
+            'payload': encode(payload or '').decode('utf-8'),
         })
 
         headers = await self.headers()
@@ -123,13 +127,14 @@ class IamClient:
 
         resp = await s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'IamClient':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()

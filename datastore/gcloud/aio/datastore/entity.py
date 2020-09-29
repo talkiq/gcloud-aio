@@ -10,7 +10,9 @@ class Entity:
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key: Key, properties: Dict[str, dict] = None) -> None:
+    def __init__(
+            self, key: Optional[Key],
+            properties: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -70,7 +72,7 @@ class EntityResult:
                    data.get('cursor', ''))
 
     def to_repr(self) -> Dict[str, Any]:
-        data = {
+        data: Dict[str, Any] = {
             'entity': self.entity.to_repr(),
         }
         if self.version:

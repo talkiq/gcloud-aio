@@ -18,7 +18,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = 'https://www.googleapis.com/bigquery/v2'
@@ -177,7 +177,8 @@ class Table:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     async def delete(self,
@@ -194,15 +195,17 @@ class Table:
         resp = await s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return await resp.json()
+            data: Dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {'response': await resp.text()}
+                data = {'response': await resp.text()}
             except (AttributeError, TypeError):
-                return {'response': resp.text}
+                data = {'response': resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(
@@ -217,7 +220,8 @@ class Table:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     async def insert(
@@ -303,11 +307,11 @@ class Table:
         body = self._make_query_body(query, project, write_disposition)
         return await self._post_json(url, body, session, timeout)
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'Table':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()

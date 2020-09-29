@@ -2,7 +2,7 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-modu
 
 if BUILD_GCLOUD_REST:
     class FlowControl:
-        def __init__(self, **kwargs) -> None:
+        def __init__(self, **kwargs: Any) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
         def __getattr__(self, attr: str) -> Any:
@@ -13,7 +13,7 @@ if BUILD_GCLOUD_REST:
             pass
 
     class SubscriberClient:
-        def __init__(self, **kwargs) -> None:
+        def __init__(self, **kwargs: Any) -> None:
             raise NotImplementedError('this class is only implemented in aio')
 
 else:
@@ -37,7 +37,7 @@ else:
     from .utils import convert_google_future_to_concurrent_future
 
 
-    class FlowControl:
+    class FlowControl:  # type: ignore[no-redef]
         def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
             """
             FlowControl transitional wrapper.
@@ -51,16 +51,16 @@ else:
             self._flow_control = _FlowControl(*args, **kwargs)
 
         def __repr__(self) -> str:
-            return self._flow_control.__repr__()
+            return repr(self._flow_control)
 
         def __getitem__(self, index: int) -> int:
-            return self._flow_control[index]
+            return self._flow_control[index]  # type: ignore[no-any-return]
 
         def __getattr__(self, attr: str) -> Any:
             return getattr(self._flow_control, attr)
 
 
-    class SubscriberClient:
+    class SubscriberClient:  # type: ignore[no-redef]
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
                      **kwargs: Dict[str, Any]) -> None:
             self._subscriber = pubsub.SubscriberClient(**kwargs)

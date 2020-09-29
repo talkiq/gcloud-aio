@@ -32,12 +32,12 @@ class Query(BaseQuery):
     # pylint: disable=too-many-instance-attributes
     json_key = 'query'
 
-    def __init__(self, kind: str = '', query_filter: Filter = None,
-                 order: List[PropertyOrder] = None, start_cursor: str = '',
-                 end_cursor: str = '', offset: Optional[int] = None,
-                 limit: Optional[int] = None,
-                 projection: List[Projection] = None,
-                 distinct_on: List[str] = None) -> None:
+    def __init__(self, kind: str = '', query_filter: Optional[Filter] = None,
+                 order: Optional[List[PropertyOrder]] = None,
+                 start_cursor: str = '', end_cursor: str = '',
+                 offset: Optional[int] = None, limit: Optional[int] = None,
+                 projection: Optional[List[Projection]] = None,
+                 distinct_on: Optional[List[str]] = None) -> None:
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -77,7 +77,9 @@ class Query(BaseQuery):
                    projection=projection, distinct_on=distinct_on)
 
     def to_repr(self) -> Dict[str, Any]:
-        data = {'kind': [{'name': self.kind}] if self.kind else []}
+        data: Dict[str, Any] = {
+            'kind': [{'name': self.kind}] if self.kind else [],
+        }
         if self.query_filter:
             data['filter'] = self.query_filter.to_repr()
         if self.orders:
@@ -102,8 +104,8 @@ class GQLQuery(BaseQuery):
     json_key = 'gqlQuery'
 
     def __init__(self, query_string: str, allow_literals: bool = True,
-                 named_bindings: Dict[str, Any] = None,
-                 positional_bindings: List[Any] = None) -> None:
+                 named_bindings: Optional[Dict[str, Any]] = None,
+                 positional_bindings: Optional[List[Any]] = None) -> None:
         self.query_string = query_string
         self.allow_literals = allow_literals
         self.named_bindings = named_bindings or {}
@@ -147,7 +149,7 @@ class QueryResultBatch:
 
     def __init__(self, end_cursor: str,
                  entity_result_type: ResultType = ResultType.UNSPECIFIED,
-                 entity_results: List[EntityResult] = None,
+                 entity_results: Optional[List[EntityResult]] = None,
                  more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
                  skipped_cursor: str = '', skipped_results: int = 0,
                  snapshot_version: str = '') -> None:

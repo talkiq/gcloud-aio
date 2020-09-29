@@ -4,6 +4,7 @@ An asynchronous client for Google Cloud KMS
 import io
 import json
 import os
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -16,7 +17,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = 'https://cloudkms.googleapis.com/v1'
@@ -80,11 +81,11 @@ class KMS:
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.close()
 
     async def __aenter__(self) -> 'KMS':
         return self
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self.close()
