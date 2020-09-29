@@ -39,24 +39,29 @@ with warnings.catch_warnings():
     from future import standard_library
 standard_library.install_aliases()
 from builtins import object
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+
 from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+
 
 if BUILD_GCLOUD_REST:
     class SubscriberMessage(object):
-        def __init__(self, **kwargs)        :
+        def __init__(self, **kwargs     )        :
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+        @staticmethod
+        def from_google_cloud(message         )                       :
+            return SubscriberMessage(google_cloud_message=message)
 else:
     import datetime
-
-    from typing import Any
-    from typing import Dict
-    from typing import List
-    from typing import Optional
 
     from google.cloud.pubsub_v1.subscriber.message import Message
 
 
-    class SubscriberMessage(object):
+    class SubscriberMessage(object):  # type: ignore[no-redef]
         def __init__(self, *args           ,
                      **kwargs                )        :
             if &#39;google_cloud_message&#39; in kwargs: google_cloud_message = kwargs[&#39;google_cloud_message&#39;]; del kwargs[&#39;google_cloud_message&#39;]
@@ -65,10 +70,6 @@ else:
                 self._message = google_cloud_message
                 return
             self._message = Message(*args, **kwargs)
-
-        @staticmethod
-        def from_google_cloud(message         )                       :
-            return SubscriberMessage(google_cloud_message=message)
 
         @property
         def google_cloud_message(self)           :
@@ -145,9 +146,30 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberMessage(object):
-    def __init__(self, **kwargs)        :
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+    def __init__(self, **kwargs     )        :
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+    @staticmethod
+    def from_google_cloud(message         )                       :
+        return SubscriberMessage(google_cloud_message=message)</code></pre>
 </details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.pubsub.subscriber_message.SubscriberMessage.from_google_cloud"><code class="name flex">
+<span>def <span class="ident">from_google_cloud</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_google_cloud(message         )                       :
+    return SubscriberMessage(google_cloud_message=message)</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -167,6 +189,9 @@ else:
 <ul>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.subscriber_message.SubscriberMessage" href="#gcloud.rest.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.pubsub.subscriber_message.SubscriberMessage.from_google_cloud" href="#gcloud.rest.pubsub.subscriber_message.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

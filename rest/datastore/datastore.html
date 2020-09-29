@@ -64,7 +64,7 @@ from gcloud.rest.datastore.value import Value
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session   # type: ignore[no-redef]
 
 
 try:
@@ -89,6 +89,8 @@ class Datastore(object):
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
+    #_project: Optional[str]
+
     def __init__(self, project                = None,
                  service_file                                  = None,
                  namespace      = &#39;&#39;, session                    = None,
@@ -109,6 +111,9 @@ class Datastore(object):
     def project(self)       :
         if self._project:
             return self._project
+
+        if IS_DEV or self.token is None:
+            raise Exception(&#39;project can not be determined in dev mode&#39;)
 
         self._project = self.token.get_project()
         if self._project:
@@ -136,7 +141,7 @@ class Datastore(object):
         return data
 
     def headers(self)                  :
-        if IS_DEV:
+        if IS_DEV or self.token is None:
             return {}
 
         token = self.token.get()
@@ -146,8 +151,9 @@ class Datastore(object):
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
-    def make_mutation(cls, operation           , key     ,
-                      properties                 = None)                  :
+    def make_mutation(
+            cls, operation           , key     ,
+            properties                           = None)                  :
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -155,7 +161,7 @@ class Datastore(object):
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
                 &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in properties.items()},
+                               for k, v in (properties or {}).items()},
             }
         }
 
@@ -252,7 +258,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
@@ -269,15 +275,16 @@ class Datastore(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
-    def lookup(self, keys           , transaction      = None,
-                     consistency              = Consistency.STRONG,
-                     session                    = None,
-                     timeout      = 10)                                       :
+    def lookup(
+            self, keys           , transaction                = None,
+            consistency              = Consistency.STRONG,
+            session                    = None, timeout      = 10
+    )                                             :
         project = self.project()
         url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
 
@@ -299,7 +306,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                       = resp.json()
 
         return {
             &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -352,7 +359,8 @@ class Datastore(object):
         s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    def runQuery(self, query           , transaction      = None,
+    def runQuery(self, query           ,
+                       transaction                = None,
                        consistency              = Consistency.EVENTUAL,
                        session                    = None,
                        timeout      = 10)                    :
@@ -381,7 +389,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     def delete(self, key     ,
@@ -405,19 +413,19 @@ class Datastore(object):
 
     # TODO: accept Entity rather than key/properties?
     def operate(self, operation           , key     ,
-                      properties                 = None,
+                      properties                           = None,
                       session                    = None)        :
         transaction = self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         self.commit([mutation], transaction=transaction, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -447,6 +455,8 @@ class Datastore(object):
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
+    #_project: Optional[str]
+
     def __init__(self, project                = None,
                  service_file                                  = None,
                  namespace      = &#39;&#39;, session                    = None,
@@ -467,6 +477,9 @@ class Datastore(object):
     def project(self)       :
         if self._project:
             return self._project
+
+        if IS_DEV or self.token is None:
+            raise Exception(&#39;project can not be determined in dev mode&#39;)
 
         self._project = self.token.get_project()
         if self._project:
@@ -494,7 +507,7 @@ class Datastore(object):
         return data
 
     def headers(self)                  :
-        if IS_DEV:
+        if IS_DEV or self.token is None:
             return {}
 
         token = self.token.get()
@@ -504,8 +517,9 @@ class Datastore(object):
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
-    def make_mutation(cls, operation           , key     ,
-                      properties                 = None)                  :
+    def make_mutation(
+            cls, operation           , key     ,
+            properties                           = None)                  :
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -513,7 +527,7 @@ class Datastore(object):
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
                 &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in properties.items()},
+                               for k, v in (properties or {}).items()},
             }
         }
 
@@ -610,7 +624,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
@@ -627,15 +641,16 @@ class Datastore(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
-    def lookup(self, keys           , transaction      = None,
-                     consistency              = Consistency.STRONG,
-                     session                    = None,
-                     timeout      = 10)                                       :
+    def lookup(
+            self, keys           , transaction                = None,
+            consistency              = Consistency.STRONG,
+            session                    = None, timeout      = 10
+    )                                             :
         project = self.project()
         url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
 
@@ -657,7 +672,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                       = resp.json()
 
         return {
             &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -710,7 +725,8 @@ class Datastore(object):
         s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    def runQuery(self, query           , transaction      = None,
+    def runQuery(self, query           ,
+                       transaction                = None,
                        consistency              = Consistency.EVENTUAL,
                        session                    = None,
                        timeout      = 10)                    :
@@ -739,7 +755,7 @@ class Datastore(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     def delete(self, key     ,
@@ -763,19 +779,19 @@ class Datastore(object):
 
     # TODO: accept Entity rather than key/properties?
     def operate(self, operation           , key     ,
-                      properties                 = None,
+                      properties                           = None,
                       session                    = None)        :
         transaction = self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         self.commit([mutation], transaction=transaction, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -813,8 +829,9 @@ class Datastore(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def make_mutation(cls, operation           , key     ,
-                  properties                 = None)                  :
+def make_mutation(
+        cls, operation           , key     ,
+        properties                           = None)                  :
     if operation == Operation.DELETE:
         return {operation.value: key.to_repr()}
 
@@ -822,7 +839,7 @@ def make_mutation(cls, operation           , key     ,
         operation.value: {
             &#39;key&#39;: key.to_repr(),
             &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                           for k, v in properties.items()},
+                           for k, v in (properties or {}).items()},
         }
     }</code></pre>
 </details>
@@ -898,7 +915,7 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -983,7 +1000,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -1009,7 +1026,7 @@ def make_mutation(cls, operation           , key     ,
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -1024,7 +1041,7 @@ def make_mutation(cls, operation           , key     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
-    if IS_DEV:
+    if IS_DEV or self.token is None:
         return {}
 
     token = self.token.get()
@@ -1057,10 +1074,11 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def lookup(self, keys           , transaction      = None,
-                 consistency              = Consistency.STRONG,
-                 session                    = None,
-                 timeout      = 10)                                       :
+<pre><code class="python">def lookup(
+        self, keys           , transaction                = None,
+        consistency              = Consistency.STRONG,
+        session                    = None, timeout      = 10
+)                                             :
     project = self.project()
     url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
 
@@ -1082,7 +1100,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data       = resp.json()
+    data                       = resp.json()
 
     return {
         &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -1104,7 +1122,7 @@ def make_mutation(cls, operation           , key     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def operate(self, operation           , key     ,
-                  properties                 = None,
+                  properties                           = None,
                   session                    = None)        :
     transaction = self.beginTransaction(session=session)
     mutation = self.make_mutation(operation, key, properties=properties)
@@ -1123,6 +1141,9 @@ def make_mutation(cls, operation           , key     ,
 <pre><code class="python">def project(self)       :
     if self._project:
         return self._project
+
+    if IS_DEV or self.token is None:
+        raise Exception(&#39;project can not be determined in dev mode&#39;)
 
     self._project = self.token.get_project()
     if self._project:
@@ -1199,7 +1220,8 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def runQuery(self, query           , transaction      = None,
+<pre><code class="python">def runQuery(self, query           ,
+                   transaction                = None,
                    consistency              = Consistency.EVENTUAL,
                    session                    = None,
                    timeout      = 10)                    :
@@ -1228,7 +1250,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data       = resp.json()
+    data                 = resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
 </details>
 </dd>

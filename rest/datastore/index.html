@@ -303,6 +303,8 @@ def from_repr(cls, data                )                     :
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
+    #_project: Optional[str]
+
     def __init__(self, project                = None,
                  service_file                                  = None,
                  namespace      = &#39;&#39;, session                    = None,
@@ -323,6 +325,9 @@ def from_repr(cls, data                )                     :
     def project(self)       :
         if self._project:
             return self._project
+
+        if IS_DEV or self.token is None:
+            raise Exception(&#39;project can not be determined in dev mode&#39;)
 
         self._project = self.token.get_project()
         if self._project:
@@ -350,7 +355,7 @@ def from_repr(cls, data                )                     :
         return data
 
     def headers(self)                  :
-        if IS_DEV:
+        if IS_DEV or self.token is None:
             return {}
 
         token = self.token.get()
@@ -360,8 +365,9 @@ def from_repr(cls, data                )                     :
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
-    def make_mutation(cls, operation           , key     ,
-                      properties                 = None)                  :
+    def make_mutation(
+            cls, operation           , key     ,
+            properties                           = None)                  :
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -369,7 +375,7 @@ def from_repr(cls, data                )                     :
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
                 &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in properties.items()},
+                               for k, v in (properties or {}).items()},
             }
         }
 
@@ -466,7 +472,7 @@ def from_repr(cls, data                )                     :
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
@@ -483,15 +489,16 @@ def from_repr(cls, data                )                     :
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
-    def lookup(self, keys           , transaction      = None,
-                     consistency              = Consistency.STRONG,
-                     session                    = None,
-                     timeout      = 10)                                       :
+    def lookup(
+            self, keys           , transaction                = None,
+            consistency              = Consistency.STRONG,
+            session                    = None, timeout      = 10
+    )                                             :
         project = self.project()
         url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
 
@@ -513,7 +520,7 @@ def from_repr(cls, data                )                     :
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                       = resp.json()
 
         return {
             &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -566,7 +573,8 @@ def from_repr(cls, data                )                     :
         s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    def runQuery(self, query           , transaction      = None,
+    def runQuery(self, query           ,
+                       transaction                = None,
                        consistency              = Consistency.EVENTUAL,
                        session                    = None,
                        timeout      = 10)                    :
@@ -595,7 +603,7 @@ def from_repr(cls, data                )                     :
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     def delete(self, key     ,
@@ -619,19 +627,19 @@ def from_repr(cls, data                )                     :
 
     # TODO: accept Entity rather than key/properties?
     def operate(self, operation           , key     ,
-                      properties                 = None,
+                      properties                           = None,
                       session                    = None)        :
         transaction = self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         self.commit([mutation], transaction=transaction, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -669,8 +677,9 @@ def from_repr(cls, data                )                     :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def make_mutation(cls, operation           , key     ,
-                  properties                 = None)                  :
+def make_mutation(
+        cls, operation           , key     ,
+        properties                           = None)                  :
     if operation == Operation.DELETE:
         return {operation.value: key.to_repr()}
 
@@ -678,7 +687,7 @@ def make_mutation(cls, operation           , key     ,
         operation.value: {
             &#39;key&#39;: key.to_repr(),
             &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                           for k, v in properties.items()},
+                           for k, v in (properties or {}).items()},
         }
     }</code></pre>
 </details>
@@ -754,7 +763,7 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -839,7 +848,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -865,7 +874,7 @@ def make_mutation(cls, operation           , key     ,
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -880,7 +889,7 @@ def make_mutation(cls, operation           , key     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def headers(self)                  :
-    if IS_DEV:
+    if IS_DEV or self.token is None:
         return {}
 
     token = self.token.get()
@@ -913,10 +922,11 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def lookup(self, keys           , transaction      = None,
-                 consistency              = Consistency.STRONG,
-                 session                    = None,
-                 timeout      = 10)                                       :
+<pre><code class="python">def lookup(
+        self, keys           , transaction                = None,
+        consistency              = Consistency.STRONG,
+        session                    = None, timeout      = 10
+)                                             :
     project = self.project()
     url = &#39;{}/projects/{}:lookup&#39;.format((API_ROOT), (project))
 
@@ -938,7 +948,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data       = resp.json()
+    data                       = resp.json()
 
     return {
         &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -960,7 +970,7 @@ def make_mutation(cls, operation           , key     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def operate(self, operation           , key     ,
-                  properties                 = None,
+                  properties                           = None,
                   session                    = None)        :
     transaction = self.beginTransaction(session=session)
     mutation = self.make_mutation(operation, key, properties=properties)
@@ -979,6 +989,9 @@ def make_mutation(cls, operation           , key     ,
 <pre><code class="python">def project(self)       :
     if self._project:
         return self._project
+
+    if IS_DEV or self.token is None:
+        raise Exception(&#39;project can not be determined in dev mode&#39;)
 
     self._project = self.token.get_project()
     if self._project:
@@ -1055,7 +1068,8 @@ def make_mutation(cls, operation           , key     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def runQuery(self, query           , transaction      = None,
+<pre><code class="python">def runQuery(self, query           ,
+                   transaction                = None,
                    consistency              = Consistency.EVENTUAL,
                    session                    = None,
                    timeout      = 10)                    :
@@ -1084,7 +1098,7 @@ def make_mutation(cls, operation           , key     ,
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data       = resp.json()
+    data                 = resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
 </details>
 </dd>
@@ -1133,7 +1147,7 @@ def make_mutation(cls, operation           , key     ,
 <pre><code class="python">class DatastoreOperation(object):
     def __init__(self, name     , done      ,
                  metadata                           = None,
-                 error                 = None,
+                 error                           = None,
                  response                           = None)        :
         self.name = name
         self.done = done
@@ -1249,7 +1263,9 @@ def from_repr(cls, data                )                        :
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key     , properties                  = None)        :
+    def __init__(
+            self, key               ,
+            properties                                      = None)        :
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -1373,7 +1389,7 @@ def from_repr(cls, data                )            :
                    data.get(&#39;cursor&#39;, &#39;&#39;))
 
     def to_repr(self)                  :
-        data = {
+        data                 = {
             &#39;entity&#39;: self.entity.to_repr(),
         }
         if self.version:
@@ -1421,7 +1437,7 @@ def from_repr(cls, data                )                  :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    data = {
+    data                 = {
         &#39;entity&#39;: self.entity.to_repr(),
     }
     if self.version:
@@ -1526,8 +1542,8 @@ def from_repr(cls, data                )            :
     json_key = &#39;gqlQuery&#39;
 
     def __init__(self, query_string     , allow_literals       = True,
-                 named_bindings                 = None,
-                 positional_bindings            = None)        :
+                 named_bindings                           = None,
+                 positional_bindings                      = None)        :
         self.query_string = query_string
         self.allow_literals = allow_literals
         self.named_bindings = named_bindings or {}
@@ -2319,12 +2335,12 @@ def from_repr(cls, data                )                   :
     # pylint: disable=too-many-instance-attributes
     json_key = &#39;query&#39;
 
-    def __init__(self, kind      = &#39;&#39;, query_filter         = None,
-                 order                      = None, start_cursor      = &#39;&#39;,
-                 end_cursor      = &#39;&#39;, offset                = None,
-                 limit                = None,
-                 projection                   = None,
-                 distinct_on            = None)        :
+    def __init__(self, kind      = &#39;&#39;, query_filter                   = None,
+                 order                                = None,
+                 start_cursor      = &#39;&#39;, end_cursor      = &#39;&#39;,
+                 offset                = None, limit                = None,
+                 projection                             = None,
+                 distinct_on                      = None)        :
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -2364,7 +2380,9 @@ def from_repr(cls, data                )                   :
                    projection=projection, distinct_on=distinct_on)
 
     def to_repr(self)                  :
-        data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+        data                 = {
+            &#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else [],
+        }
         if self.query_filter:
             data[&#39;filter&#39;] = self.query_filter.to_repr()
         if self.orders:
@@ -2439,7 +2457,9 @@ def from_repr(cls, data                )           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+    data                 = {
+        &#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else [],
+    }
     if self.query_filter:
         data[&#39;filter&#39;] = self.query_filter.to_repr()
     if self.orders:
@@ -2476,7 +2496,7 @@ def from_repr(cls, data                )           :
 
     def __init__(self, end_cursor     ,
                  entity_result_type             = ResultType.UNSPECIFIED,
-                 entity_results                     = None,
+                 entity_results                               = None,
                  more_results                  = MoreResultsType.UNSPECIFIED,
                  skipped_cursor      = &#39;&#39;, skipped_results      = 0,
                  snapshot_version      = &#39;&#39;)        :
@@ -2675,7 +2695,7 @@ def from_repr(cls, data                )                      :
             json_key = type_name.value
             if json_key in data:
                 if json_key == &#39;nullValue&#39;:
-                    value = None
+                    value      = None
                 elif json_key == &#39;blobValue&#39;:
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
@@ -2730,7 +2750,7 @@ def from_repr(cls, data                )                      :
                 &#39;{})&#39;.format(kind, supported_types))
 
     @classmethod
-    def _get_supported_types(cls):
+    def _get_supported_types(cls)                       :
         from gcloud.rest.datastore import array
         from gcloud.rest.datastore import entity
 
@@ -2767,7 +2787,7 @@ def from_repr(cls, data                )           :
         json_key = type_name.value
         if json_key in data:
             if json_key == &#39;nullValue&#39;:
-                value = None
+                value      = None
             elif json_key == &#39;blobValue&#39;:
                 value = base64.b64decode(data[json_key])
             elif value_type == datetime:

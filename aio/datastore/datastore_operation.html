@@ -34,7 +34,7 @@ from typing import Optional
 class DatastoreOperation:
     def __init__(self, name: str, done: bool,
                  metadata: Optional[Dict[str, Any]] = None,
-                 error: Dict[str, str] = None,
+                 error: Optional[Dict[str, str]] = None,
                  response: Optional[Dict[str, Any]] = None) -&gt; None:
         self.name = name
         self.done = done
@@ -72,7 +72,7 @@ class DatastoreOperation:
 <dl>
 <dt id="gcloud.aio.datastore.datastore_operation.DatastoreOperation"><code class="flex name class">
 <span>class <span class="ident">DatastoreOperation</span></span>
-<span>(</span><span>name: str, done: bool, metadata: Union[Dict[str, Any], NoneType] = None, error: Dict[str, str] = None, response: Union[Dict[str, Any], NoneType] = None)</span>
+<span>(</span><span>name: str, done: bool, metadata: Union[Dict[str, Any], NoneType] = None, error: Union[Dict[str, str], NoneType] = None, response: Union[Dict[str, Any], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -83,7 +83,7 @@ class DatastoreOperation:
 <pre><code class="python">class DatastoreOperation:
     def __init__(self, name: str, done: bool,
                  metadata: Optional[Dict[str, Any]] = None,
-                 error: Dict[str, str] = None,
+                 error: Optional[Dict[str, str]] = None,
                  response: Optional[Dict[str, Any]] = None) -&gt; None:
         self.name = name
         self.done = done

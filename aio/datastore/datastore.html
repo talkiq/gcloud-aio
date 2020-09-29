@@ -53,7 +53,7 @@ from gcloud.aio.datastore.value import Value
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session   # type: ignore[no-redef]
 
 
 try:
@@ -78,6 +78,8 @@ class Datastore:
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
+    _project: Optional[str]
+
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  namespace: str = &#39;&#39;, session: Optional[Session] = None,
@@ -98,6 +100,9 @@ class Datastore:
     async def project(self) -&gt; str:
         if self._project:
             return self._project
+
+        if IS_DEV or self.token is None:
+            raise Exception(&#39;project can not be determined in dev mode&#39;)
 
         self._project = await self.token.get_project()
         if self._project:
@@ -125,7 +130,7 @@ class Datastore:
         return data
 
     async def headers(self) -&gt; Dict[str, str]:
-        if IS_DEV:
+        if IS_DEV or self.token is None:
             return {}
 
         token = await self.token.get()
@@ -135,8 +140,9 @@ class Datastore:
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
-    def make_mutation(cls, operation: Operation, key: Key,
-                      properties: Dict[str, Any] = None) -&gt; Dict[str, Any]:
+    def make_mutation(
+            cls, operation: Operation, key: Key,
+            properties: Optional[Dict[str, Any]] = None) -&gt; Dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -144,7 +150,7 @@ class Datastore:
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
                 &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in properties.items()},
+                               for k, v in (properties or {}).items()},
             }
         }
 
@@ -241,7 +247,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
@@ -258,15 +264,16 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
-    async def lookup(self, keys: List[Key], transaction: str = None,
-                     consistency: Consistency = Consistency.STRONG,
-                     session: Optional[Session] = None,
-                     timeout: int = 10) -&gt; Dict[str, Union[EntityResult, Key]]:
+    async def lookup(
+            self, keys: List[Key], transaction: Optional[str] = None,
+            consistency: Consistency = Consistency.STRONG,
+            session: Optional[Session] = None, timeout: int = 10
+    ) -&gt; Dict[str, List[Union[EntityResult, Key]]]:
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}:lookup&#39;
 
@@ -288,7 +295,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data: dict = await resp.json()
+        data: Dict[str, List[Any]] = await resp.json()
 
         return {
             &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -341,7 +348,8 @@ class Datastore:
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    async def runQuery(self, query: BaseQuery, transaction: str = None,
+    async def runQuery(self, query: BaseQuery,
+                       transaction: Optional[str] = None,
                        consistency: Consistency = Consistency.EVENTUAL,
                        session: Optional[Session] = None,
                        timeout: int = 10) -&gt; QueryResultBatch:
@@ -370,7 +378,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     async def delete(self, key: Key,
@@ -394,19 +402,19 @@ class Datastore:
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
-                      properties: Dict[str, Any] = None,
+                      properties: Optional[Dict[str, Any]] = None,
                       session: Optional[Session] = None) -&gt; None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;Datastore&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 </section>
@@ -436,6 +444,8 @@ class Datastore:
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
+    _project: Optional[str]
+
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  namespace: str = &#39;&#39;, session: Optional[Session] = None,
@@ -456,6 +466,9 @@ class Datastore:
     async def project(self) -&gt; str:
         if self._project:
             return self._project
+
+        if IS_DEV or self.token is None:
+            raise Exception(&#39;project can not be determined in dev mode&#39;)
 
         self._project = await self.token.get_project()
         if self._project:
@@ -483,7 +496,7 @@ class Datastore:
         return data
 
     async def headers(self) -&gt; Dict[str, str]:
-        if IS_DEV:
+        if IS_DEV or self.token is None:
             return {}
 
         token = await self.token.get()
@@ -493,8 +506,9 @@ class Datastore:
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
-    def make_mutation(cls, operation: Operation, key: Key,
-                      properties: Dict[str, Any] = None) -&gt; Dict[str, Any]:
+    def make_mutation(
+            cls, operation: Operation, key: Key,
+            properties: Optional[Dict[str, Any]] = None) -&gt; Dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -502,7 +516,7 @@ class Datastore:
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
                 &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in properties.items()},
+                               for k, v in (properties or {}).items()},
             }
         }
 
@@ -599,7 +613,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
@@ -616,15 +630,16 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
-    async def lookup(self, keys: List[Key], transaction: str = None,
-                     consistency: Consistency = Consistency.STRONG,
-                     session: Optional[Session] = None,
-                     timeout: int = 10) -&gt; Dict[str, Union[EntityResult, Key]]:
+    async def lookup(
+            self, keys: List[Key], transaction: Optional[str] = None,
+            consistency: Consistency = Consistency.STRONG,
+            session: Optional[Session] = None, timeout: int = 10
+    ) -&gt; Dict[str, List[Union[EntityResult, Key]]]:
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}:lookup&#39;
 
@@ -646,7 +661,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data: dict = await resp.json()
+        data: Dict[str, List[Any]] = await resp.json()
 
         return {
             &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -699,7 +714,8 @@ class Datastore:
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    async def runQuery(self, query: BaseQuery, transaction: str = None,
+    async def runQuery(self, query: BaseQuery,
+                       transaction: Optional[str] = None,
                        consistency: Consistency = Consistency.EVENTUAL,
                        session: Optional[Session] = None,
                        timeout: int = 10) -&gt; QueryResultBatch:
@@ -728,7 +744,7 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-        data: dict = await resp.json()
+        data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     async def delete(self, key: Key,
@@ -752,19 +768,19 @@ class Datastore:
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
-                      properties: Dict[str, Any] = None,
+                      properties: Optional[Dict[str, Any]] = None,
                       session: Optional[Session] = None) -&gt; None:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         await self.commit([mutation], transaction=transaction, session=session)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;Datastore&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Class variables</h3>
@@ -793,7 +809,7 @@ class Datastore:
 <h3>Static methods</h3>
 <dl>
 <dt id="gcloud.aio.datastore.datastore.Datastore.make_mutation"><code class="name flex">
-<span>def <span class="ident">make_mutation</span></span>(<span>operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any] = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">make_mutation</span></span>(<span>operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Union[Dict[str, Any], NoneType] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -802,8 +818,9 @@ class Datastore:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def make_mutation(cls, operation: Operation, key: Key,
-                  properties: Dict[str, Any] = None) -&gt; Dict[str, Any]:
+def make_mutation(
+        cls, operation: Operation, key: Key,
+        properties: Optional[Dict[str, Any]] = None) -&gt; Dict[str, Any]:
     if operation == Operation.DELETE:
         return {operation.value: key.to_repr()}
 
@@ -811,7 +828,7 @@ def make_mutation(cls, operation: Operation, key: Key,
         operation.value: {
             &#39;key&#39;: key.to_repr(),
             &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                           for k, v in properties.items()},
+                           for k, v in (properties or {}).items()},
         }
     }</code></pre>
 </details>
@@ -879,7 +896,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -887,7 +904,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>
@@ -972,7 +989,7 @@ def make_mutation(cls, operation: Operation, key: Key,
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    data: dict = await resp.json()
+    data: Dict[str, Any] = await resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -998,7 +1015,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 
     s = AioSession(session) if session else self.session
     resp = await s.get(url, headers=headers, timeout=timeout)
-    data: dict = await resp.json()
+    data: Dict[str, Any] = await resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
 </details>
@@ -1013,7 +1030,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
-    if IS_DEV:
+    if IS_DEV or self.token is None:
         return {}
 
     token = await self.token.get()
@@ -1038,7 +1055,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.lookup"><code class="name flex">
-<span>async def <span class="ident">lookup</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], transaction: str = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.STRONG, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Union[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>, <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]]</span>
+<span>async def <span class="ident">lookup</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], transaction: Union[str, NoneType] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.STRONG, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, List[Union[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>, <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]]]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1046,10 +1063,11 @@ def make_mutation(cls, operation: Operation, key: Key,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def lookup(self, keys: List[Key], transaction: str = None,
-                 consistency: Consistency = Consistency.STRONG,
-                 session: Optional[Session] = None,
-                 timeout: int = 10) -&gt; Dict[str, Union[EntityResult, Key]]:
+<pre><code class="python">async def lookup(
+        self, keys: List[Key], transaction: Optional[str] = None,
+        consistency: Consistency = Consistency.STRONG,
+        session: Optional[Session] = None, timeout: int = 10
+) -&gt; Dict[str, List[Union[EntityResult, Key]]]:
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}:lookup&#39;
 
@@ -1071,7 +1089,7 @@ def make_mutation(cls, operation: Operation, key: Key,
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data: dict = await resp.json()
+    data: Dict[str, List[Any]] = await resp.json()
 
     return {
         &#39;found&#39;: [self.entity_result_kind.from_repr(e)
@@ -1084,7 +1102,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.operate"><code class="name flex">
-<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Union[Dict[str, Any], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1093,7 +1111,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def operate(self, operation: Operation, key: Key,
-                  properties: Dict[str, Any] = None,
+                  properties: Optional[Dict[str, Any]] = None,
                   session: Optional[Session] = None) -&gt; None:
     transaction = await self.beginTransaction(session=session)
     mutation = self.make_mutation(operation, key, properties=properties)
@@ -1112,6 +1130,9 @@ def make_mutation(cls, operation: Operation, key: Key,
 <pre><code class="python">async def project(self) -&gt; str:
     if self._project:
         return self._project
+
+    if IS_DEV or self.token is None:
+        raise Exception(&#39;project can not be determined in dev mode&#39;)
 
     self._project = await self.token.get_project()
     if self._project:
@@ -1180,7 +1201,7 @@ def make_mutation(cls, operation: Operation, key: Key,
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.runQuery"><code class="name flex">
-<span>async def <span class="ident">runQuery</span></span>(<span>self, query: <a title="gcloud.aio.datastore.query.BaseQuery" href="query.html#gcloud.aio.datastore.query.BaseQuery">BaseQuery</a>, transaction: str = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.EVENTUAL, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.query.QueryResultBatch" href="query.html#gcloud.aio.datastore.query.QueryResultBatch">QueryResultBatch</a></span>
+<span>async def <span class="ident">runQuery</span></span>(<span>self, query: <a title="gcloud.aio.datastore.query.BaseQuery" href="query.html#gcloud.aio.datastore.query.BaseQuery">BaseQuery</a>, transaction: Union[str, NoneType] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.EVENTUAL, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.query.QueryResultBatch" href="query.html#gcloud.aio.datastore.query.QueryResultBatch">QueryResultBatch</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1188,7 +1209,8 @@ def make_mutation(cls, operation: Operation, key: Key,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def runQuery(self, query: BaseQuery, transaction: str = None,
+<pre><code class="python">async def runQuery(self, query: BaseQuery,
+                   transaction: Optional[str] = None,
                    consistency: Consistency = Consistency.EVENTUAL,
                    session: Optional[Session] = None,
                    timeout: int = 10) -&gt; QueryResultBatch:
@@ -1217,7 +1239,7 @@ def make_mutation(cls, operation: Operation, key: Key,
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    data: dict = await resp.json()
+    data: Dict[str, Any] = await resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
 </details>
 </dd>

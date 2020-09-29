@@ -76,7 +76,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode(payload):
+<pre><code class="python">def decode(payload     )       :
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -97,7 +97,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def encode(payload):
+<pre><code class="python">def encode(payload                   )       :
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -216,13 +216,13 @@ Base64 are respectively replaced by - and _</p></div>
 
         return self._request(&#39;POST&#39;, url, json=body, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -236,7 +236,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

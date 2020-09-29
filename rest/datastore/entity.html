@@ -49,7 +49,9 @@ class Entity(object):
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key     , properties                  = None)        :
+    def __init__(
+            self, key               ,
+            properties                                      = None)        :
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -109,7 +111,7 @@ class EntityResult(object):
                    data.get(&#39;cursor&#39;, &#39;&#39;))
 
     def to_repr(self)                  :
-        data = {
+        data                 = {
             &#39;entity&#39;: self.entity.to_repr(),
         }
         if self.version:
@@ -143,7 +145,9 @@ class EntityResult(object):
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key     , properties                  = None)        :
+    def __init__(
+            self, key               ,
+            properties                                      = None)        :
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -267,7 +271,7 @@ def from_repr(cls, data                )            :
                    data.get(&#39;cursor&#39;, &#39;&#39;))
 
     def to_repr(self)                  :
-        data = {
+        data                 = {
             &#39;entity&#39;: self.entity.to_repr(),
         }
         if self.version:
@@ -315,7 +319,7 @@ def from_repr(cls, data                )                  :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    data = {
+    data                 = {
         &#39;entity&#39;: self.entity.to_repr(),
     }
     if self.version:

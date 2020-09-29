@@ -37,9 +37,11 @@ with warnings.catch_warnings():
     from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-import io
 import json
+from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -54,7 +56,7 @@ from .utils import encode
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT_IAM = &#39;https://iam.googleapis.com/v1&#39;
 API_ROOT_IAM_CREDENTIALS = &#39;https://iamcredentials.googleapis.com/v1&#39;
@@ -62,7 +64,7 @@ SCOPES = [&#39;https://www.googleapis.com/auth/iam&#39;]
 
 
 class IamClient(object):
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
@@ -109,7 +111,8 @@ class IamClient(object):
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     def list_public_keys(
@@ -130,12 +133,13 @@ class IamClient(object):
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return (resp.json()).get(&#39;keys&#39;, [])
+        data                       = (resp.json()).get(&#39;keys&#39;, [])
+        return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     def sign_blob(self, payload                             ,
                         service_account_email                = None,
-                        delegates                 = None,
+                        delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
         service_account_email = (service_account_email or
@@ -149,7 +153,7 @@ class IamClient(object):
 
         json_str = json.dumps({
             &#39;delegates&#39;: delegates or [resource_name],
-            &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+            &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
         })
 
         headers = self.headers()
@@ -162,15 +166,16 @@ class IamClient(object):
 
         resp = s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -194,7 +199,7 @@ class IamClient(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class IamClient(object):
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
@@ -241,7 +246,8 @@ class IamClient(object):
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     def list_public_keys(
@@ -262,12 +268,13 @@ class IamClient(object):
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return (resp.json()).get(&#39;keys&#39;, [])
+        data                       = (resp.json()).get(&#39;keys&#39;, [])
+        return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     def sign_blob(self, payload                             ,
                         service_account_email                = None,
-                        delegates                 = None,
+                        delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
         service_account_email = (service_account_email or
@@ -281,7 +288,7 @@ class IamClient(object):
 
         json_str = json.dumps({
             &#39;delegates&#39;: delegates or [resource_name],
-            &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+            &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
         })
 
         headers = self.headers()
@@ -294,15 +301,16 @@ class IamClient(object):
 
         resp = s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Instance variables</h3>
@@ -331,7 +339,7 @@ def service_account_email(self)                 :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -368,7 +376,8 @@ def service_account_email(self)                 :
 
     resp = s.get(url=url, headers=headers, timeout=timeout)
 
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.auth.iam.IamClient.headers"><code class="name flex">
@@ -414,7 +423,8 @@ def service_account_email(self)                 :
 
     resp = s.get(url=url, headers=headers, timeout=timeout)
 
-    return (resp.json()).get(&#39;keys&#39;, [])</code></pre>
+    data                       = (resp.json()).get(&#39;keys&#39;, [])
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.auth.iam.IamClient.sign_blob"><code class="name flex">
@@ -428,7 +438,7 @@ def service_account_email(self)                 :
 </summary>
 <pre><code class="python">def sign_blob(self, payload                             ,
                     service_account_email                = None,
-                    delegates                 = None,
+                    delegates                      = None,
                     session                    = None,
                     timeout      = 10)                  :
     service_account_email = (service_account_email or
@@ -442,7 +452,7 @@ def service_account_email(self)                 :
 
     json_str = json.dumps({
         &#39;delegates&#39;: delegates or [resource_name],
-        &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+        &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
     })
 
     headers = self.headers()
@@ -455,7 +465,8 @@ def service_account_email(self)                 :
 
     resp = s.post(url=url, data=json_str, headers=headers,
                         timeout=timeout)
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>

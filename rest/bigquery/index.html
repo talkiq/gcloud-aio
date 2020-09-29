@@ -291,7 +291,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     def delete(self,
@@ -308,15 +309,17 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         resp = s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return resp.json()
+            data                 = resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {&#39;response&#39;: resp.text()}
+                data = {&#39;response&#39;: resp.text()}
             except (AttributeError, TypeError):
-                return {&#39;response&#39;: resp.text}
+                data = {&#39;response&#39;: resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     def get(
@@ -331,7 +334,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     def insert(
@@ -418,13 +422,13 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         body = self._make_query_body(query, project, write_disposition)
         return self._post_json(url, body, session, timeout)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -438,7 +442,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -465,15 +469,17 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     resp = s.session.delete(url, headers=headers, params=None,
                                   timeout=timeout)
     try:
-        return resp.json()
+        data                 = resp.json()
     except Exception:  # pylint: disable=broad-except
         # For some reason, `gcloud-rest` seems to have intermittent issues
         # parsing this response. In that case, fall back to returning the
         # raw response body.
         try:
-            return {&#39;response&#39;: resp.text()}
+            data = {&#39;response&#39;: resp.text()}
         except (AttributeError, TypeError):
-            return {&#39;response&#39;: resp.text}</code></pre>
+            data = {&#39;response&#39;: resp.text}
+
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.get"><code class="name flex">
@@ -497,7 +503,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, timeout=timeout)
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.headers"><code class="name flex">

@@ -45,7 +45,7 @@ from gcloud.aio.pubsub.utils import PubsubMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://pubsub.googleapis.com/v1&#39;
@@ -114,15 +114,16 @@ class PublisherClient:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;PublisherClient&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 </section>
@@ -198,15 +199,16 @@ class PublisherClient:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;PublisherClient&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -257,7 +259,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.publisher_client.PublisherClient.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -265,7 +267,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>
@@ -298,7 +300,8 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    return await resp.json()</code></pre>
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>

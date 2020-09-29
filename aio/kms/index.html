@@ -167,19 +167,19 @@ Base64 are respectively replaced by - and _</p></div>
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;KMS&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.kms.KMS.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -187,7 +187,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>

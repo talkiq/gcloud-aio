@@ -45,12 +45,13 @@ with warnings.catch_warnings():
 standard_library.install_aliases()
 import datetime
 import enum
-import io
 import json
 import os
 import time
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -70,16 +71,19 @@ from .session import SyncSession
 
 # Handle differences in exceptions
 try:
-    CustomFileError = FileNotFoundError
+    # TODO: Type[Exception] should work here, no?
+    CustomFileError      = FileNotFoundError
 except NameError:
     CustomFileError = IOError
 
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
+    from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
     import asyncio
 
 GCE_METADATA_BASE = &#39;http://metadata.google.internal/computeMetadata/v1&#39;
@@ -98,7 +102,7 @@ class Type(enum.Enum):
 
 
 def get_service_data(
-        service                                 )                  :
+        service                                  )                  :
     service = service or os.environ.get(&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;)
     if not service:
         cloudsdk_config = os.environ.get(&#39;CLOUDSDK_CONFIG&#39;)
@@ -112,11 +116,11 @@ def get_service_data(
 
     try:
         try:
-            with open(service, &#39;r&#39;) as f:
+            with open(service, &#39;r&#39;) as f:  # type: ignore[arg-type]
                 data                 = json.loads(f.read())
                 return data
         except TypeError:
-            data                 = json.loads(service.read())
+            data = json.loads(service.read())  # type: ignore[union-attr]
             return data
     except CustomFileError:
         if set_explicitly:
@@ -130,9 +134,9 @@ def get_service_data(
 
 class Token(object):
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
-                 scopes            = None)        :
+                 scopes                      = None)        :
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data[&#39;type&#39;])
@@ -154,7 +158,7 @@ class Token(object):
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                           = None
+        self.acquiring                                = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -199,8 +203,7 @@ class Token(object):
         self.acquiring = (self.acquire_access_token())
         self.acquiring
 
-    def _refresh_authorized_user(self,
-                                       timeout     )                  :
+    def _refresh_authorized_user(self, timeout     )            :
         payload = urlencode({
             &#39;grant_type&#39;: &#39;refresh_token&#39;,
             &#39;client_id&#39;: self.service_data[&#39;client_id&#39;],
@@ -208,18 +211,19 @@ class Token(object):
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        return self.session.post(url=self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        data           = self.session.post(url=self.token_uri,
+                                                 data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return data
 
-    def _refresh_gce_metadata(self,
-                                    timeout     )                  :
-        return self.session.get(url=self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+    def _refresh_gce_metadata(self, timeout     )            :
+        resp           = self.session.get(url=self.token_uri,
+                                                headers=GCE_METADATA_HEADERS,
+                                                timeout=timeout)
+        return resp
 
-    def _refresh_service_account(self,
-                                       timeout     )                  :
+    def _refresh_service_account(self, timeout     )            :
         now = int(time.time())
         assertion_payload = {
             &#39;aud&#39;: self.token_uri,
@@ -238,9 +242,10 @@ class Token(object):
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        return self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp           = self.session.post(self.token_uri, data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     def acquire_access_token(self, timeout      = 10)        :
@@ -260,13 +265,13 @@ class Token(object):
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -287,7 +292,7 @@ class Token(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_service_data(
-        service                                 )                  :
+        service                                  )                  :
     service = service or os.environ.get(&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;)
     if not service:
         cloudsdk_config = os.environ.get(&#39;CLOUDSDK_CONFIG&#39;)
@@ -301,11 +306,11 @@ class Token(object):
 
     try:
         try:
-            with open(service, &#39;r&#39;) as f:
+            with open(service, &#39;r&#39;) as f:  # type: ignore[arg-type]
                 data                 = json.loads(f.read())
                 return data
         except TypeError:
-            data                 = json.loads(service.read())
+            data = json.loads(service.read())  # type: ignore[union-attr]
             return data
     except CustomFileError:
         if set_explicitly:
@@ -334,9 +339,9 @@ class Token(object):
 </summary>
 <pre><code class="python">class Token(object):
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
-                 scopes            = None)        :
+                 scopes                      = None)        :
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data[&#39;type&#39;])
@@ -358,7 +363,7 @@ class Token(object):
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                           = None
+        self.acquiring                                = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -403,8 +408,7 @@ class Token(object):
         self.acquiring = (self.acquire_access_token())
         self.acquiring
 
-    def _refresh_authorized_user(self,
-                                       timeout     )                  :
+    def _refresh_authorized_user(self, timeout     )            :
         payload = urlencode({
             &#39;grant_type&#39;: &#39;refresh_token&#39;,
             &#39;client_id&#39;: self.service_data[&#39;client_id&#39;],
@@ -412,18 +416,19 @@ class Token(object):
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        return self.session.post(url=self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        data           = self.session.post(url=self.token_uri,
+                                                 data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return data
 
-    def _refresh_gce_metadata(self,
-                                    timeout     )                  :
-        return self.session.get(url=self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+    def _refresh_gce_metadata(self, timeout     )            :
+        resp           = self.session.get(url=self.token_uri,
+                                                headers=GCE_METADATA_HEADERS,
+                                                timeout=timeout)
+        return resp
 
-    def _refresh_service_account(self,
-                                       timeout     )                  :
+    def _refresh_service_account(self, timeout     )            :
         now = int(time.time())
         assertion_payload = {
             &#39;aud&#39;: self.token_uri,
@@ -442,9 +447,10 @@ class Token(object):
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        return self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp           = self.session.post(self.token_uri, data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     def acquire_access_token(self, timeout      = 10)        :
@@ -464,13 +470,13 @@ class Token(object):
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -512,7 +518,7 @@ def acquire_access_token(self, timeout      = 10)        :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

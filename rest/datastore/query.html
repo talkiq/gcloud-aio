@@ -72,12 +72,12 @@ class Query(BaseQuery):
     # pylint: disable=too-many-instance-attributes
     json_key = &#39;query&#39;
 
-    def __init__(self, kind      = &#39;&#39;, query_filter         = None,
-                 order                      = None, start_cursor      = &#39;&#39;,
-                 end_cursor      = &#39;&#39;, offset                = None,
-                 limit                = None,
-                 projection                   = None,
-                 distinct_on            = None)        :
+    def __init__(self, kind      = &#39;&#39;, query_filter                   = None,
+                 order                                = None,
+                 start_cursor      = &#39;&#39;, end_cursor      = &#39;&#39;,
+                 offset                = None, limit                = None,
+                 projection                             = None,
+                 distinct_on                      = None)        :
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -117,7 +117,9 @@ class Query(BaseQuery):
                    projection=projection, distinct_on=distinct_on)
 
     def to_repr(self)                  :
-        data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+        data                 = {
+            &#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else [],
+        }
         if self.query_filter:
             data[&#39;filter&#39;] = self.query_filter.to_repr()
         if self.orders:
@@ -142,8 +144,8 @@ class GQLQuery(BaseQuery):
     json_key = &#39;gqlQuery&#39;
 
     def __init__(self, query_string     , allow_literals       = True,
-                 named_bindings                 = None,
-                 positional_bindings            = None)        :
+                 named_bindings                           = None,
+                 positional_bindings                      = None)        :
         self.query_string = query_string
         self.allow_literals = allow_literals
         self.named_bindings = named_bindings or {}
@@ -187,7 +189,7 @@ class QueryResultBatch(object):
 
     def __init__(self, end_cursor     ,
                  entity_result_type             = ResultType.UNSPECIFIED,
-                 entity_results                     = None,
+                 entity_results                               = None,
                  more_results                  = MoreResultsType.UNSPECIFIED,
                  skipped_cursor      = &#39;&#39;, skipped_results      = 0,
                  snapshot_version      = &#39;&#39;)        :
@@ -339,8 +341,8 @@ def from_repr(cls, data                )               :
     json_key = &#39;gqlQuery&#39;
 
     def __init__(self, query_string     , allow_literals       = True,
-                 named_bindings                 = None,
-                 positional_bindings            = None)        :
+                 named_bindings                           = None,
+                 positional_bindings                      = None)        :
         self.query_string = query_string
         self.allow_literals = allow_literals
         self.named_bindings = named_bindings or {}
@@ -452,12 +454,12 @@ def from_repr(cls, data                )              :
     # pylint: disable=too-many-instance-attributes
     json_key = &#39;query&#39;
 
-    def __init__(self, kind      = &#39;&#39;, query_filter         = None,
-                 order                      = None, start_cursor      = &#39;&#39;,
-                 end_cursor      = &#39;&#39;, offset                = None,
-                 limit                = None,
-                 projection                   = None,
-                 distinct_on            = None)        :
+    def __init__(self, kind      = &#39;&#39;, query_filter                   = None,
+                 order                                = None,
+                 start_cursor      = &#39;&#39;, end_cursor      = &#39;&#39;,
+                 offset                = None, limit                = None,
+                 projection                             = None,
+                 distinct_on                      = None)        :
         self.kind = kind
         self.query_filter = query_filter
         self.orders = order or []
@@ -497,7 +499,9 @@ def from_repr(cls, data                )              :
                    projection=projection, distinct_on=distinct_on)
 
     def to_repr(self)                  :
-        data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+        data                 = {
+            &#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else [],
+        }
         if self.query_filter:
             data[&#39;filter&#39;] = self.query_filter.to_repr()
         if self.orders:
@@ -572,7 +576,9 @@ def from_repr(cls, data                )           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    data = {&#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else []}
+    data                 = {
+        &#39;kind&#39;: [{&#39;name&#39;: self.kind}] if self.kind else [],
+    }
     if self.query_filter:
         data[&#39;filter&#39;] = self.query_filter.to_repr()
     if self.orders:
@@ -609,7 +615,7 @@ def from_repr(cls, data                )           :
 
     def __init__(self, end_cursor     ,
                  entity_result_type             = ResultType.UNSPECIFIED,
-                 entity_results                     = None,
+                 entity_results                               = None,
                  more_results                  = MoreResultsType.UNSPECIFIED,
                  skipped_cursor      = &#39;&#39;, skipped_results      = 0,
                  snapshot_version      = &#39;&#39;)        :

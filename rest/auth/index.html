@@ -151,7 +151,7 @@ standard Base64 are respectively replaced by - and _.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class IamClient(object):
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
@@ -198,7 +198,8 @@ standard Base64 are respectively replaced by - and _.</p>
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     def list_public_keys(
@@ -219,12 +220,13 @@ standard Base64 are respectively replaced by - and _.</p>
 
         resp = s.get(url=url, headers=headers, timeout=timeout)
 
-        return (resp.json()).get(&#39;keys&#39;, [])
+        data                       = (resp.json()).get(&#39;keys&#39;, [])
+        return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     def sign_blob(self, payload                             ,
                         service_account_email                = None,
-                        delegates                 = None,
+                        delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
         service_account_email = (service_account_email or
@@ -238,7 +240,7 @@ standard Base64 are respectively replaced by - and _.</p>
 
         json_str = json.dumps({
             &#39;delegates&#39;: delegates or [resource_name],
-            &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+            &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
         })
 
         headers = self.headers()
@@ -251,15 +253,16 @@ standard Base64 are respectively replaced by - and _.</p>
 
         resp = s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Instance variables</h3>
@@ -288,7 +291,7 @@ def service_account_email(self)                 :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -325,7 +328,8 @@ def service_account_email(self)                 :
 
     resp = s.get(url=url, headers=headers, timeout=timeout)
 
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.auth.IamClient.headers"><code class="name flex">
@@ -371,7 +375,8 @@ def service_account_email(self)                 :
 
     resp = s.get(url=url, headers=headers, timeout=timeout)
 
-    return (resp.json()).get(&#39;keys&#39;, [])</code></pre>
+    data                       = (resp.json()).get(&#39;keys&#39;, [])
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.auth.IamClient.sign_blob"><code class="name flex">
@@ -385,7 +390,7 @@ def service_account_email(self)                 :
 </summary>
 <pre><code class="python">def sign_blob(self, payload                             ,
                     service_account_email                = None,
-                    delegates                 = None,
+                    delegates                      = None,
                     session                    = None,
                     timeout      = 10)                  :
     service_account_email = (service_account_email or
@@ -399,7 +404,7 @@ def service_account_email(self)                 :
 
     json_str = json.dumps({
         &#39;delegates&#39;: delegates or [resource_name],
-        &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+        &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
     })
 
     headers = self.headers()
@@ -412,7 +417,8 @@ def service_account_email(self)                 :
 
     resp = s.post(url=url, data=json_str, headers=headers,
                         timeout=timeout)
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>
@@ -435,31 +441,34 @@ def service_account_email(self)                 :
         return SyncSession._google_api_lock  # pylint: disable=protected-access
 
     @property
-    def session(self)                    :
-        self._session = self._session or requests.Session()
+    def session(self)           :
+        self._session = self._session or Session()
         self._session.verify = self._ssl
         return self._session
 
-    def post(self, url     , headers                , data      = None,
-             timeout      = 10, params                 = None
-             )                     :
+    # N.B.: none of these will be `async` in compiled form, but adding the
+    # symbol ensures we match the base class&#39;s definition for static
+    # analysis.
+    def post(self, url     , headers                ,
+                   data                = None, timeout      = 10,
+                   params                           = None)            :
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
                                      timeout=timeout, params=params)
         resp.raise_for_status()
         return resp
 
-    def get(self, url     , headers                 = None,
-            timeout      = 10, params                 = None
-            )                     :
+    def get(self, url     , headers                           = None,
+                  timeout      = 10,
+                  params                           = None)            :
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
                                     params=params)
         resp.raise_for_status()
         return resp
 
-    def put(self, url     , headers                , data        ,
-            timeout      = 10)                     :
+    def put(self, url     , headers                , data         ,
+                  timeout      = 10)            :
         with self.google_api_lock:
             resp = self.session.put(url, data=data, headers=headers,
                                     timeout=timeout)
@@ -467,8 +476,8 @@ def service_account_email(self)                 :
         return resp
 
     def delete(self, url     , headers                ,
-               params                , timeout      = 10
-               )                     :
+                     params                , timeout      = 10
+                     )            :
         with self.google_api_lock:
             resp = self.session.delete(url, params=params, headers=headers,
                                        timeout=timeout)
@@ -476,8 +485,8 @@ def service_account_email(self)                 :
         return resp
 
     def request(self, method     , url     , headers                ,
-                auto_raise_for_status       = True, **kwargs     
-                )                     :
+                      auto_raise_for_status       = True, **kwargs     
+                      )            :
         with self.google_api_lock:
             resp = self.session.request(method, url, headers=headers,
                                         **kwargs)
@@ -515,8 +524,8 @@ def google_api_lock(self)                   :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def session(self)                    :
-    self._session = self._session or requests.Session()
+def session(self)           :
+    self._session = self._session or Session()
     self._session.verify = self._ssl
     return self._session</code></pre>
 </details>
@@ -548,8 +557,8 @@ def session(self)                    :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, url     , headers                ,
-           params                , timeout      = 10
-           )                     :
+                 params                , timeout      = 10
+                 )            :
     with self.google_api_lock:
         resp = self.session.delete(url, params=params, headers=headers,
                                    timeout=timeout)
@@ -566,9 +575,9 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, url     , headers                 = None,
-        timeout      = 10, params                 = None
-        )                     :
+<pre><code class="python">def get(self, url     , headers                           = None,
+              timeout      = 10,
+              params                           = None)            :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
                                 params=params)
@@ -585,9 +594,9 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def post(self, url     , headers                , data      = None,
-         timeout      = 10, params                 = None
-         )                     :
+<pre><code class="python">def post(self, url     , headers                ,
+               data                = None, timeout      = 10,
+               params                           = None)            :
     with self.google_api_lock:
         resp = self.session.post(url, data=data, headers=headers,
                                  timeout=timeout, params=params)
@@ -604,8 +613,8 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def put(self, url     , headers                , data        ,
-        timeout      = 10)                     :
+<pre><code class="python">def put(self, url     , headers                , data         ,
+              timeout      = 10)            :
     with self.google_api_lock:
         resp = self.session.put(url, data=data, headers=headers,
                                 timeout=timeout)
@@ -623,8 +632,8 @@ def session(self)                    :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def request(self, method     , url     , headers                ,
-            auto_raise_for_status       = True, **kwargs     
-            )                     :
+                  auto_raise_for_status       = True, **kwargs     
+                  )            :
     with self.google_api_lock:
         resp = self.session.request(method, url, headers=headers,
                                     **kwargs)
@@ -647,9 +656,9 @@ def session(self)                    :
 </summary>
 <pre><code class="python">class Token(object):
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file                                  = None,
+    def __init__(self, service_file                                   = None,
                  session                    = None,
-                 scopes            = None)        :
+                 scopes                      = None)        :
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data[&#39;type&#39;])
@@ -671,7 +680,7 @@ def session(self)                    :
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                           = None
+        self.acquiring                                = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -716,8 +725,7 @@ def session(self)                    :
         self.acquiring = (self.acquire_access_token())
         self.acquiring
 
-    def _refresh_authorized_user(self,
-                                       timeout     )                  :
+    def _refresh_authorized_user(self, timeout     )            :
         payload = urlencode({
             &#39;grant_type&#39;: &#39;refresh_token&#39;,
             &#39;client_id&#39;: self.service_data[&#39;client_id&#39;],
@@ -725,18 +733,19 @@ def session(self)                    :
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        return self.session.post(url=self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        data           = self.session.post(url=self.token_uri,
+                                                 data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return data
 
-    def _refresh_gce_metadata(self,
-                                    timeout     )                  :
-        return self.session.get(url=self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+    def _refresh_gce_metadata(self, timeout     )            :
+        resp           = self.session.get(url=self.token_uri,
+                                                headers=GCE_METADATA_HEADERS,
+                                                timeout=timeout)
+        return resp
 
-    def _refresh_service_account(self,
-                                       timeout     )                  :
+    def _refresh_service_account(self, timeout     )            :
         now = int(time.time())
         assertion_payload = {
             &#39;aud&#39;: self.token_uri,
@@ -755,9 +764,10 @@ def session(self)                    :
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        return self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp           = self.session.post(self.token_uri, data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     def acquire_access_token(self, timeout      = 10)        :
@@ -777,13 +787,13 @@ def session(self)                    :
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -825,7 +835,7 @@ def acquire_access_token(self, timeout      = 10)        :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

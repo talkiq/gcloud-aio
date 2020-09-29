@@ -28,12 +28,14 @@
 </summary>
 <pre><code class="python">import base64
 import logging
+from typing import Union
+
 
 log = logging.getLogger(__name__)
 
 
 # TODO(nick): remove in favor of auth utils. Requires updating auth lib first.
-def decode(payload):
+def decode(payload: str) -&gt; str:
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -43,7 +45,7 @@ def decode(payload):
     return base64.b64decode(variant).decode()
 
 
-def encode(payload):
+def encode(payload: Union[bytes, str]) -&gt; str:
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -64,7 +66,7 @@ def encode(payload):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gcloud.aio.taskqueue.utils.decode"><code class="name flex">
-<span>def <span class="ident">decode</span></span>(<span>payload)</span>
+<span>def <span class="ident">decode</span></span>(<span>payload: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
@@ -74,7 +76,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode(payload):
+<pre><code class="python">def decode(payload: str) -&gt; str:
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
@@ -85,7 +87,7 @@ Base64 are respectively replaced by - and _</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.utils.encode"><code class="name flex">
-<span>def <span class="ident">encode</span></span>(<span>payload)</span>
+<span>def <span class="ident">encode</span></span>(<span>payload: Union[bytes, str]) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
@@ -95,7 +97,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def encode(payload):
+<pre><code class="python">def encode(payload: Union[bytes, str]) -&gt; str:
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard

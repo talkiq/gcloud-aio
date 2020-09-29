@@ -47,7 +47,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT = &#39;https://cloudtasks.googleapis.com&#39;
 LOCATION = &#39;us-central1&#39;
@@ -153,13 +153,13 @@ class PushQueue:
 
         return await self._request(&#39;POST&#39;, url, json=body, session=session)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;PushQueue&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 </section>
@@ -273,19 +273,19 @@ class PushQueue:
 
         return await self._request(&#39;POST&#39;, url, json=body, session=session)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;PushQueue&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -293,7 +293,7 @@ class PushQueue:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>

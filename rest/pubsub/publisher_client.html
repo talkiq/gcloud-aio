@@ -56,7 +56,7 @@ from gcloud.rest.pubsub.utils import PubsubMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://pubsub.googleapis.com/v1&#39;
@@ -129,15 +129,16 @@ class PublisherClient(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)                     :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -217,15 +218,16 @@ class PublisherClient(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)                     :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -284,7 +286,7 @@ def topic_path(cls, project     , topic     )       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -317,7 +319,8 @@ def topic_path(cls, project     , topic     )       :
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>

@@ -49,7 +49,7 @@ from gcloud.rest.datastore import value
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
-class Array(Sequence):
+class Array(Sequence):  # type: ignore[type-arg]
     def __init__(self, items           )        :
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items
@@ -97,7 +97,7 @@ class Array(Sequence):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Array(Sequence):
+<pre><code class="python">class Array(Sequence):  # type: ignore[type-arg]
     def __init__(self, items           )        :
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items

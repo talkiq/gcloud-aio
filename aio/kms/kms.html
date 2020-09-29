@@ -33,6 +33,7 @@ An asynchronous client for Google Cloud KMS
 import io
 import json
 import os
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -45,7 +46,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://cloudkms.googleapis.com/v1&#39;
@@ -109,13 +110,13 @@ class KMS:
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;KMS&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 </section>
@@ -189,19 +190,19 @@ class KMS:
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;KMS&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.kms.kms.KMS.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -209,7 +210,7 @@ class KMS:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>

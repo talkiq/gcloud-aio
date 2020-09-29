@@ -57,7 +57,7 @@ from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT = &#39;https://cloudtasks.googleapis.com&#39;
 LOCATION = &#39;us-central1&#39;
@@ -163,13 +163,13 @@ class PushQueue(object):
 
         return self._request(&#39;POST&#39;, url, json=body, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -283,13 +283,13 @@ class PushQueue(object):
 
         return self._request(&#39;POST&#39;, url, json=body, session=session)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)               :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -303,7 +303,7 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

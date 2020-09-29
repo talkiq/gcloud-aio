@@ -44,7 +44,9 @@ import datetime
 import hashlib
 import io
 from typing import Any
+from typing import Dict
 from typing import Optional
+from typing import TYPE_CHECKING
 from typing import Union
 from six.moves.urllib.parse import quote
 
@@ -57,14 +59,18 @@ from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+
+if TYPE_CHECKING:
+    from .bucket import Bucket
 
 
 HOST = &#39;storage.googleapis.com&#39;
 
 
 class Blob(object):
-    def __init__(self, bucket, name     , metadata      )        :
+    def __init__(self, bucket          , name     ,
+                 metadata                )        :
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -80,16 +86,17 @@ class Blob(object):
                                                   session=session)
 
     def upload(self, data     ,
-                     session                    = None)        :
-        metadata       = self.bucket.storage.upload(
+                     session                    = None)                  :
+        metadata = self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
         self.__dict__.update(metadata)
         return metadata
 
     def get_signed_url(  # pylint: disable=too-many-locals
-            self, expiration     , headers                 = None,
-            query_params                 = None, http_method      = &#39;GET&#39;,
+            self, expiration     , headers                           = None,
+            query_params                           = None,
+            http_method      = &#39;GET&#39;,
             iam_client                      = None,
             service_account_email                = None,
             service_file                                  = None,
@@ -184,7 +191,8 @@ class Blob(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Blob(object):
-    def __init__(self, bucket, name     , metadata      )        :
+    def __init__(self, bucket          , name     ,
+                 metadata                )        :
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -200,16 +208,17 @@ class Blob(object):
                                                   session=session)
 
     def upload(self, data     ,
-                     session                    = None)        :
-        metadata       = self.bucket.storage.upload(
+                     session                    = None)                  :
+        metadata = self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
         self.__dict__.update(metadata)
         return metadata
 
     def get_signed_url(  # pylint: disable=too-many-locals
-            self, expiration     , headers                 = None,
-            query_params                 = None, http_method      = &#39;GET&#39;,
+            self, expiration     , headers                           = None,
+            query_params                           = None,
+            http_method      = &#39;GET&#39;,
             iam_client                      = None,
             service_account_email                = None,
             service_file                                  = None,
@@ -327,8 +336,9 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_signed_url(  # pylint: disable=too-many-locals
-        self, expiration     , headers                 = None,
-        query_params                 = None, http_method      = &#39;GET&#39;,
+        self, expiration     , headers                           = None,
+        query_params                           = None,
+        http_method      = &#39;GET&#39;,
         iam_client                      = None,
         service_account_email                = None,
         service_file                                  = None,
@@ -413,8 +423,8 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def upload(self, data     ,
-                 session                    = None)        :
-    metadata       = self.bucket.storage.upload(
+                 session                    = None)                  :
+    metadata = self.bucket.storage.upload(
         self.bucket.name, self.name, data, session=session)
 
     self.__dict__.update(metadata)

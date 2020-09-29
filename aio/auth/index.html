@@ -133,7 +133,7 @@ standard Base64 are respectively replaced by - and _.</p>
 <dl>
 <dt id="gcloud.aio.auth.AioSession"><code class="flex name class">
 <span>class <span class="ident">AioSession</span></span>
-<span>(</span><span>session=None, timeout: int = 10, verify_ssl: bool = True)</span>
+<span>(</span><span>session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -150,23 +150,24 @@ standard Base64 are respectively replaced by - and _.</p>
         return self._session
 
     async def post(self, url: str, headers: Dict[str, str],
-                   data: str = None, timeout: int = 10,
-                   params: Dict[str, str] = None
+                   data: Optional[str] = None, timeout: int = 10,
+                   params: Optional[Dict[str, str]] = None
                    ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.post(url, data=data, headers=headers,
                                        timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
-    async def get(self, url: str, headers: Dict[str, str] = None,
-                  timeout: int = 10, params: Dict[str, str] = None
+    async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+                  timeout: int = 10,
+                  params: Optional[Dict[str, str]] = None
                   ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.get(url, headers=headers, timeout=timeout,
                                       params=params)
         await _raise_for_status(resp)
         return resp
 
-    async def put(self, url: str, headers: Dict[str, str], data: IOBase,
+    async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                   timeout: int = 10) -&gt; aiohttp.ClientResponse:
         resp = await self.session.put(url, data=data, headers=headers,
                                       timeout=timeout)
@@ -192,7 +193,7 @@ standard Base64 are respectively replaced by - and _.</p>
 
     async def close(self) -&gt; None:
         if self._session:
-            await self._session.close()</code></pre>
+            await self._session.close()  # type: ignore[func-returns-value]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -229,7 +230,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </summary>
 <pre><code class="python">async def close(self) -&gt; None:
     if self._session:
-        await self._session.close()</code></pre>
+        await self._session.close()  # type: ignore[func-returns-value]</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.delete"><code class="name flex">
@@ -251,7 +252,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Dict[str, str] = None, timeout: int = 10, params: Dict[str, str] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Union[Dict[str, str], NoneType] = None, timeout: int = 10, params: Union[Dict[str, str], NoneType] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -259,8 +260,9 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def get(self, url: str, headers: Dict[str, str] = None,
-              timeout: int = 10, params: Dict[str, str] = None
+<pre><code class="python">async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+              timeout: int = 10,
+              params: Optional[Dict[str, str]] = None
               ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.get(url, headers=headers, timeout=timeout,
                                   params=params)
@@ -269,7 +271,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.post"><code class="name flex">
-<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: str = None, timeout: int = 10, params: Dict[str, str] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Union[str, NoneType] = None, timeout: int = 10, params: Union[Dict[str, str], NoneType] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -278,8 +280,8 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def post(self, url: str, headers: Dict[str, str],
-               data: str = None, timeout: int = 10,
-               params: Dict[str, str] = None
+               data: Optional[str] = None, timeout: int = 10,
+               params: Optional[Dict[str, str]] = None
                ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.post(url, data=data, headers=headers,
                                    timeout=timeout, params=params)
@@ -288,7 +290,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.put"><code class="name flex">
-<span>async def <span class="ident">put</span></span>(<span>self, url: str, headers: Dict[str, str], data: io.IOBase, timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">put</span></span>(<span>self, url: str, headers: Dict[str, str], data: IO[Any], timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -296,7 +298,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def put(self, url: str, headers: Dict[str, str], data: IOBase,
+<pre><code class="python">async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
               timeout: int = 10) -&gt; aiohttp.ClientResponse:
     resp = await self.session.put(url, data=data, headers=headers,
                                   timeout=timeout)
@@ -327,7 +329,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </dd>
 <dt id="gcloud.aio.auth.IamClient"><code class="flex name class">
 <span>class <span class="ident">IamClient</span></span>
-<span>(</span><span>service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -336,7 +338,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class IamClient:
-    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
+    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.session = AioSession(session)
@@ -383,7 +385,8 @@ def session(self) -&gt; aiohttp.ClientSession:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        return await resp.json()
+        data: Dict[str, str] = await resp.json()
+        return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
@@ -404,12 +407,13 @@ def session(self) -&gt; aiohttp.ClientSession:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        return (await resp.json()).get(&#39;keys&#39;, [])
+        data: List[Dict[str, Any]] = (await resp.json()).get(&#39;keys&#39;, [])
+        return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(self, payload: Optional[Union[str, bytes]],
                         service_account_email: Optional[str] = None,
-                        delegates: Optional[list] = None,
+                        delegates: Optional[List[str]] = None,
                         session: Optional[Session] = None,
                         timeout: int = 10) -&gt; Dict[str, str]:
         service_account_email = (service_account_email or
@@ -423,7 +427,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 
         json_str = json.dumps({
             &#39;delegates&#39;: delegates or [resource_name],
-            &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+            &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
         })
 
         headers = await self.headers()
@@ -436,15 +440,16 @@ def session(self) -&gt; aiohttp.ClientSession:
 
         resp = await s.post(url=url, data=json_str, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;IamClient&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Instance variables</h3>
@@ -465,7 +470,7 @@ def service_account_email(self) -&gt; Optional[str]:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.auth.IamClient.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -473,7 +478,7 @@ def service_account_email(self) -&gt; Optional[str]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>
@@ -510,7 +515,8 @@ def service_account_email(self) -&gt; Optional[str]:
 
     resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-    return await resp.json()</code></pre>
+    data: Dict[str, str] = await resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.IamClient.headers"><code class="name flex">
@@ -556,11 +562,12 @@ def service_account_email(self) -&gt; Optional[str]:
 
     resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-    return (await resp.json()).get(&#39;keys&#39;, [])</code></pre>
+    data: List[Dict[str, Any]] = (await resp.json()).get(&#39;keys&#39;, [])
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.IamClient.sign_blob"><code class="name flex">
-<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, NoneType], service_account_email: Union[str, NoneType] = None, delegates: Union[list, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, str]</span>
+<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, NoneType], service_account_email: Union[str, NoneType] = None, delegates: Union[List[str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -570,7 +577,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </summary>
 <pre><code class="python">async def sign_blob(self, payload: Optional[Union[str, bytes]],
                     service_account_email: Optional[str] = None,
-                    delegates: Optional[list] = None,
+                    delegates: Optional[List[str]] = None,
                     session: Optional[Session] = None,
                     timeout: int = 10) -&gt; Dict[str, str]:
     service_account_email = (service_account_email or
@@ -584,7 +591,7 @@ def service_account_email(self) -&gt; Optional[str]:
 
     json_str = json.dumps({
         &#39;delegates&#39;: delegates or [resource_name],
-        &#39;payload&#39;: encode(payload).decode(&#39;utf-8&#39;),
+        &#39;payload&#39;: encode(payload or &#39;&#39;).decode(&#39;utf-8&#39;),
     })
 
     headers = await self.headers()
@@ -597,14 +604,15 @@ def service_account_email(self) -&gt; Optional[str]:
 
     resp = await s.post(url=url, data=json_str, headers=headers,
                         timeout=timeout)
-    return await resp.json()</code></pre>
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>
 </dd>
 <dt id="gcloud.aio.auth.Token"><code class="flex name class">
 <span>class <span class="ident">Token</span></span>
-<span>(</span><span>service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, scopes: List[str] = None)</span>
+<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, scopes: Union[List[str], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -614,9 +622,9 @@ def service_account_email(self) -&gt; Optional[str]:
 </summary>
 <pre><code class="python">class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[Union[str, io.IOBase]] = None,
+    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
-                 scopes: List[str] = None) -&gt; None:
+                 scopes: Optional[List[str]] = None) -&gt; None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data[&#39;type&#39;])
@@ -638,7 +646,7 @@ def service_account_email(self) -&gt; Optional[str]:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future] = None
+        self.acquiring: Optional[asyncio.Future[Any]] = None
 
     async def get_project(self) -&gt; Optional[str]:
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -683,8 +691,7 @@ def service_account_email(self) -&gt; Optional[str]:
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
 
-    async def _refresh_authorized_user(self,
-                                       timeout: int) -&gt; Dict[str, str]:
+    async def _refresh_authorized_user(self, timeout: int) -&gt; Response:
         payload = urlencode({
             &#39;grant_type&#39;: &#39;refresh_token&#39;,
             &#39;client_id&#39;: self.service_data[&#39;client_id&#39;],
@@ -692,18 +699,19 @@ def service_account_email(self) -&gt; Optional[str]:
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        return await self.session.post(url=self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        data: Response = await self.session.post(url=self.token_uri,
+                                                 data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return data
 
-    async def _refresh_gce_metadata(self,
-                                    timeout: int) -&gt; Dict[str, str]:
-        return await self.session.get(url=self.token_uri,
-                                      headers=GCE_METADATA_HEADERS,
-                                      timeout=timeout)
+    async def _refresh_gce_metadata(self, timeout: int) -&gt; Response:
+        resp: Response = await self.session.get(url=self.token_uri,
+                                                headers=GCE_METADATA_HEADERS,
+                                                timeout=timeout)
+        return resp
 
-    async def _refresh_service_account(self,
-                                       timeout: int) -&gt; Dict[str, str]:
+    async def _refresh_service_account(self, timeout: int) -&gt; Response:
         now = int(time.time())
         assertion_payload = {
             &#39;aud&#39;: self.token_uri,
@@ -722,9 +730,10 @@ def service_account_email(self) -&gt; Optional[str]:
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        return await self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp: Response = await self.session.post(self.token_uri, data=payload,
+                                                 headers=REFRESH_HEADERS,
+                                                 timeout=timeout)
+        return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def acquire_access_token(self, timeout: int = 10) -&gt; None:
@@ -744,13 +753,13 @@ def service_account_email(self) -&gt; Optional[str]:
         self.access_token_acquired_at = datetime.datetime.utcnow()
         self.acquiring = None
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;Token&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -784,7 +793,7 @@ async def acquire_access_token(self, timeout: int = 10) -&gt; None:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.Token.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -792,7 +801,7 @@ async def acquire_access_token(self, timeout: int = 10) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>

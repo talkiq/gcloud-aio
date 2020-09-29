@@ -30,7 +30,7 @@
 
 if BUILD_GCLOUD_REST:
     class FlowControl:
-        def __init__(self, **kwargs) -&gt; None:
+        def __init__(self, **kwargs: Any) -&gt; None:
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
         def __getattr__(self, attr: str) -&gt; Any:
@@ -41,7 +41,7 @@ if BUILD_GCLOUD_REST:
             pass
 
     class SubscriberClient:
-        def __init__(self, **kwargs) -&gt; None:
+        def __init__(self, **kwargs: Any) -&gt; None:
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
 else:
@@ -65,7 +65,7 @@ else:
     from .utils import convert_google_future_to_concurrent_future
 
 
-    class FlowControl:
+    class FlowControl:  # type: ignore[no-redef]
         def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -&gt; None:
             &#34;&#34;&#34;
             FlowControl transitional wrapper.
@@ -79,16 +79,16 @@ else:
             self._flow_control = _FlowControl(*args, **kwargs)
 
         def __repr__(self) -&gt; str:
-            return self._flow_control.__repr__()
+            return repr(self._flow_control)
 
         def __getitem__(self, index: int) -&gt; int:
-            return self._flow_control[index]
+            return self._flow_control[index]  # type: ignore[no-any-return]
 
         def __getattr__(self, attr: str) -&gt; Any:
             return getattr(self._flow_control, attr)
 
 
-    class SubscriberClient:
+    class SubscriberClient:  # type: ignore[no-redef]
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
                      **kwargs: Dict[str, Any]) -&gt; None:
             self._subscriber = pubsub.SubscriberClient(**kwargs)
@@ -206,7 +206,7 @@ Google uses a named tuple; here are the fields, defaults:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlowControl:
-    def __init__(self, **kwargs) -&gt; None:
+    def __init__(self, **kwargs: Any) -&gt; None:
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
     def __getattr__(self, attr: str) -&gt; Any:
@@ -228,7 +228,7 @@ Google uses a named tuple; here are the fields, defaults:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberClient:
-    def __init__(self, **kwargs) -&gt; None:
+    def __init__(self, **kwargs: Any) -&gt; None:
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 <h3>Methods</h3>

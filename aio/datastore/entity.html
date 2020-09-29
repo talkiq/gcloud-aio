@@ -38,7 +38,9 @@ class Entity:
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key: Key, properties: Dict[str, dict] = None) -&gt; None:
+    def __init__(
+            self, key: Optional[Key],
+            properties: Optional[Dict[str, Dict[str, Any]]] = None) -&gt; None:
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -98,7 +100,7 @@ class EntityResult:
                    data.get(&#39;cursor&#39;, &#39;&#39;))
 
     def to_repr(self) -&gt; Dict[str, Any]:
-        data = {
+        data: Dict[str, Any] = {
             &#39;entity&#39;: self.entity.to_repr(),
         }
         if self.version:
@@ -120,7 +122,7 @@ class EntityResult:
 <dl>
 <dt id="gcloud.aio.datastore.entity.Entity"><code class="flex name class">
 <span>class <span class="ident">Entity</span></span>
-<span>(</span><span>key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, dict] = None)</span>
+<span>(</span><span>key: Union[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, NoneType], properties: Union[Dict[str, Dict[str, Any]], NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -132,7 +134,9 @@ class EntityResult:
     key_kind = Key
     value_kind = Value
 
-    def __init__(self, key: Key, properties: Dict[str, dict] = None) -&gt; None:
+    def __init__(
+            self, key: Optional[Key],
+            properties: Optional[Dict[str, Dict[str, Any]]] = None) -&gt; None:
         self.key = key
         self.properties = {k: self.value_kind.from_repr(v).value
                            for k, v in (properties or {}).items()}
@@ -256,7 +260,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Entity&#39;:
                    data.get(&#39;cursor&#39;, &#39;&#39;))
 
     def to_repr(self) -&gt; Dict[str, Any]:
-        data = {
+        data: Dict[str, Any] = {
             &#39;entity&#39;: self.entity.to_repr(),
         }
         if self.version:
@@ -304,7 +308,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;EntityResult&#39;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self) -&gt; Dict[str, Any]:
-    data = {
+    data: Dict[str, Any] = {
         &#39;entity&#39;: self.entity.to_repr(),
     }
     if self.version:

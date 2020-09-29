@@ -86,7 +86,7 @@ Google uses a named tuple; here are the fields, defaults:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlowControl:
-    def __init__(self, **kwargs) -&gt; None:
+    def __init__(self, **kwargs: Any) -&gt; None:
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
     def __getattr__(self, attr: str) -&gt; Any:
@@ -160,15 +160,16 @@ Google uses a named tuple; here are the fields, defaults:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;PublisherClient&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -219,7 +220,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.PublisherClient.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -227,7 +228,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>
@@ -260,7 +261,8 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers,
                         timeout=timeout)
-    return await resp.json()</code></pre>
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
 </details>
 </dd>
 </dl>
@@ -321,7 +323,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberClient:
-    def __init__(self, **kwargs) -&gt; None:
+    def __init__(self, **kwargs: Any) -&gt; None:
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 <h3>Methods</h3>
@@ -450,26 +452,13 @@ Future", wrap it into a asyncio Future and return it.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberMessage:
-    def __init__(self, **kwargs) -&gt; None:
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+    def __init__(self, **kwargs: Any) -&gt; None:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+    @staticmethod
+    def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
+        return SubscriberMessage(google_cloud_message=message)</code></pre>
 </details>
-<h3>Static methods</h3>
-<dl>
-<dt id="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud"><code class="name flex">
-<span>def <span class="ident">from_google_cloud</span></span>(<span>message: google.cloud.pubsub_v1.subscriber.message.Message) ‑> <a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
-    return SubscriberMessage(google_cloud_message=message)</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.SubscriberMessage.ack_id"><code class="name">var <span class="ident">ack_id</span> : str</code></dt>
@@ -700,7 +689,6 @@ def size(self) -&gt; int:
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.data" href="#gcloud.aio.pubsub.SubscriberMessage.data">data</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt" href="#gcloud.aio.pubsub.SubscriberMessage.delivery_attempt">delivery_attempt</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.drop" href="#gcloud.aio.pubsub.SubscriberMessage.drop">drop</a></code></li>
-<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud" href="#gcloud.aio.pubsub.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.google_cloud_message" href="#gcloud.aio.pubsub.SubscriberMessage.google_cloud_message">google_cloud_message</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.message_id" href="#gcloud.aio.pubsub.SubscriberMessage.message_id">message_id</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline" href="#gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline">modify_ack_deadline</a></code></li>

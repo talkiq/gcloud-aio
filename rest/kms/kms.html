@@ -43,6 +43,7 @@ from builtins import object
 import io
 import json
 import os
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -55,7 +56,7 @@ from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://cloudkms.googleapis.com/v1&#39;
@@ -119,13 +120,13 @@ class KMS(object):
         ciphertext      = (resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)         :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -199,13 +200,13 @@ class KMS(object):
         ciphertext      = (resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)         :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -219,7 +220,7 @@ class KMS(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

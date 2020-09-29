@@ -46,7 +46,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://www.googleapis.com/bigquery/v2&#39;
@@ -205,7 +205,8 @@ class Table:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     async def delete(self,
@@ -222,15 +223,17 @@ class Table:
         resp = await s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return await resp.json()
+            data: Dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {&#39;response&#39;: await resp.text()}
+                data = {&#39;response&#39;: await resp.text()}
             except (AttributeError, TypeError):
-                return {&#39;response&#39;: resp.text}
+                data = {&#39;response&#39;: resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(
@@ -245,7 +248,8 @@ class Table:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     async def insert(
@@ -331,13 +335,13 @@ class Table:
         body = self._make_query_body(query, project, write_disposition)
         return await self._post_json(url, body, session, timeout)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;Table&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 </section>
@@ -576,7 +580,8 @@ class Table:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     async def delete(self,
@@ -593,15 +598,17 @@ class Table:
         resp = await s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return await resp.json()
+            data: Dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {&#39;response&#39;: await resp.text()}
+                data = {&#39;response&#39;: await resp.text()}
             except (AttributeError, TypeError):
-                return {&#39;response&#39;: resp.text}
+                data = {&#39;response&#39;: resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(
@@ -616,7 +623,8 @@ class Table:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     async def insert(
@@ -702,19 +710,19 @@ class Table:
         body = self._make_query_body(query, project, write_disposition)
         return await self._post_json(url, body, session, timeout)
 
-    async def close(self):
+    async def close(self) -&gt; None:
         await self.session.close()
 
     async def __aenter__(self) -&gt; &#39;Table&#39;:
         return self
 
-    async def __aexit__(self, *args) -&gt; None:
+    async def __aexit__(self, *args: Any) -&gt; None:
         await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.bigquery.bigquery.Table.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self)</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -722,7 +730,7 @@ class Table:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def close(self):
+<pre><code class="python">async def close(self) -&gt; None:
     await self.session.close()</code></pre>
 </details>
 </dd>
@@ -749,15 +757,17 @@ class Table:
     resp = await s.session.delete(url, headers=headers, params=None,
                                   timeout=timeout)
     try:
-        return await resp.json()
+        data: Dict[str, Any] = await resp.json()
     except Exception:  # pylint: disable=broad-except
         # For some reason, `gcloud-rest` seems to have intermittent issues
         # parsing this response. In that case, fall back to returning the
         # raw response body.
         try:
-            return {&#39;response&#39;: await resp.text()}
+            data = {&#39;response&#39;: await resp.text()}
         except (AttributeError, TypeError):
-            return {&#39;response&#39;: resp.text}</code></pre>
+            data = {&#39;response&#39;: resp.text}
+
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.get"><code class="name flex">
@@ -781,7 +791,8 @@ class Table:
 
     s = AioSession(session) if session else self.session
     resp = await s.get(url, headers=headers, timeout=timeout)
-    return await resp.json()</code></pre>
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.headers"><code class="name flex">

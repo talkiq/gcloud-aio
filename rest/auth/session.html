@@ -41,11 +41,20 @@ import threading
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
-from io import IOBase
 from typing import Any
 from typing import Dict
+from typing import IO
+from typing import Optional
 
 from .build_constants import BUILD_GCLOUD_REST
+
+# Selectively load libraries based on the package
+if BUILD_GCLOUD_REST:
+    from requests import Response
+    from requests import Session
+else:
+    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 log = logging.getLogger(__name__)
@@ -54,39 +63,41 @@ log = logging.getLogger(__name__)
 class BaseSession(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, session=None, timeout      = 10,
-                 verify_ssl       = True):
+    def __init__(self, session                    = None, timeout      = 10,
+                 verify_ssl       = True)        :
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
 
     @abstractproperty
-    def session(self):
+    def session(self)                     :
         return self._session
 
     @abstractmethod
-    def post(self, url     , headers                , data     , timeout     ,
-             params                ):
+    def post(self, url     , headers                ,
+                   data               , timeout     ,
+                   params                          )            :
         pass
 
     @abstractmethod
-    def get(self, url     , headers                , timeout     ,
-            params                ):
+    def get(self, url     , headers                          ,
+                  timeout     , params                          )            :
         pass
 
     @abstractmethod
-    def put(self, url     , headers                , data        ,
-            timeout     ):
+    def put(self, url     , headers                , data         ,
+                  timeout     )            :
         pass
 
     @abstractmethod
-    def delete(self, url     , headers                , params                ,
-               timeout     ):
+    def delete(self, url     , headers                ,
+                     params                , timeout     )            :
         pass
 
     @abstractmethod
     def request(self, method     , url     , headers                ,
-                auto_raise_for_status       = True, **kwargs     ):
+                      auto_raise_for_status       = True,
+                      **kwargs     )            :
         pass
 
     @abstractmethod
@@ -135,23 +146,24 @@ if not BUILD_GCLOUD_REST:
             return self._session
 
         def post(self, url     , headers                ,
-                       data      = None, timeout      = 10,
-                       params                 = None
+                       data                = None, timeout      = 10,
+                       params                           = None
                        )                          :
             resp = self.session.post(url, data=data, headers=headers,
                                            timeout=timeout, params=params)
             _raise_for_status(resp)
             return resp
 
-        def get(self, url     , headers                 = None,
-                      timeout      = 10, params                 = None
+        def get(self, url     , headers                           = None,
+                      timeout      = 10,
+                      params                           = None
                       )                          :
             resp = self.session.get(url, headers=headers, timeout=timeout,
                                           params=params)
             _raise_for_status(resp)
             return resp
 
-        def put(self, url     , headers                , data        ,
+        def put(self, url     , headers                , data         ,
                       timeout      = 10)                          :
             resp = self.session.put(url, data=data, headers=headers,
                                           timeout=timeout)
@@ -177,12 +189,10 @@ if not BUILD_GCLOUD_REST:
 
         def close(self)        :
             if self._session:
-                self._session.close()
+                self._session.close()  # type: ignore[func-returns-value]
 
 
 if BUILD_GCLOUD_REST:
-    import requests
-
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
 
@@ -191,31 +201,34 @@ if BUILD_GCLOUD_REST:
             return SyncSession._google_api_lock  # pylint: disable=protected-access
 
         @property
-        def session(self)                    :
-            self._session = self._session or requests.Session()
+        def session(self)           :
+            self._session = self._session or Session()
             self._session.verify = self._ssl
             return self._session
 
-        def post(self, url     , headers                , data      = None,
-                 timeout      = 10, params                 = None
-                 )                     :
+        # N.B.: none of these will be `async` in compiled form, but adding the
+        # symbol ensures we match the base class&#39;s definition for static
+        # analysis.
+        def post(self, url     , headers                ,
+                       data                = None, timeout      = 10,
+                       params                           = None)            :
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
                                          timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
-        def get(self, url     , headers                 = None,
-                timeout      = 10, params                 = None
-                )                     :
+        def get(self, url     , headers                           = None,
+                      timeout      = 10,
+                      params                           = None)            :
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
             resp.raise_for_status()
             return resp
 
-        def put(self, url     , headers                , data        ,
-                timeout      = 10)                     :
+        def put(self, url     , headers                , data         ,
+                      timeout      = 10)            :
             with self.google_api_lock:
                 resp = self.session.put(url, data=data, headers=headers,
                                         timeout=timeout)
@@ -223,8 +236,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         def delete(self, url     , headers                ,
-                   params                , timeout      = 10
-                   )                     :
+                         params                , timeout      = 10
+                         )            :
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
                                            timeout=timeout)
@@ -232,8 +245,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         def request(self, method     , url     , headers                ,
-                    auto_raise_for_status       = True, **kwargs     
-                    )                     :
+                          auto_raise_for_status       = True, **kwargs     
+                          )            :
             with self.google_api_lock:
                 resp = self.session.request(method, url, headers=headers,
                                             **kwargs)
@@ -268,39 +281,41 @@ if BUILD_GCLOUD_REST:
 <pre><code class="python">class BaseSession(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, session=None, timeout      = 10,
-                 verify_ssl       = True):
+    def __init__(self, session                    = None, timeout      = 10,
+                 verify_ssl       = True)        :
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
 
     @abstractproperty
-    def session(self):
+    def session(self)                     :
         return self._session
 
     @abstractmethod
-    def post(self, url     , headers                , data     , timeout     ,
-             params                ):
+    def post(self, url     , headers                ,
+                   data               , timeout     ,
+                   params                          )            :
         pass
 
     @abstractmethod
-    def get(self, url     , headers                , timeout     ,
-            params                ):
+    def get(self, url     , headers                          ,
+                  timeout     , params                          )            :
         pass
 
     @abstractmethod
-    def put(self, url     , headers                , data        ,
-            timeout     ):
+    def put(self, url     , headers                , data         ,
+                  timeout     )            :
         pass
 
     @abstractmethod
-    def delete(self, url     , headers                , params                ,
-               timeout     ):
+    def delete(self, url     , headers                ,
+                     params                , timeout     )            :
         pass
 
     @abstractmethod
     def request(self, method     , url     , headers                ,
-                auto_raise_for_status       = True, **kwargs     ):
+                      auto_raise_for_status       = True,
+                      **kwargs     )            :
         pass
 
     @abstractmethod
@@ -321,7 +336,7 @@ if BUILD_GCLOUD_REST:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractproperty
-def session(self):
+def session(self)                     :
     return self._session</code></pre>
 </details>
 </dd>
@@ -352,8 +367,8 @@ def close(self)        :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def delete(self, url     , headers                , params                ,
-           timeout     ):
+def delete(self, url     , headers                ,
+                 params                , timeout     )            :
     pass</code></pre>
 </details>
 </dd>
@@ -367,8 +382,8 @@ def delete(self, url     , headers                , params                ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def get(self, url     , headers                , timeout     ,
-        params                ):
+def get(self, url     , headers                          ,
+              timeout     , params                          )            :
     pass</code></pre>
 </details>
 </dd>
@@ -382,8 +397,9 @@ def get(self, url     , headers                , timeout     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def post(self, url     , headers                , data     , timeout     ,
-         params                ):
+def post(self, url     , headers                ,
+               data               , timeout     ,
+               params                          )            :
     pass</code></pre>
 </details>
 </dd>
@@ -397,8 +413,8 @@ def post(self, url     , headers                , data     , timeout     ,
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def put(self, url     , headers                , data        ,
-        timeout     ):
+def put(self, url     , headers                , data         ,
+              timeout     )            :
     pass</code></pre>
 </details>
 </dd>
@@ -413,7 +429,8 @@ def put(self, url     , headers                , data        ,
 </summary>
 <pre><code class="python">@abstractmethod
 def request(self, method     , url     , headers                ,
-            auto_raise_for_status       = True, **kwargs     ):
+                  auto_raise_for_status       = True,
+                  **kwargs     )            :
     pass</code></pre>
 </details>
 </dd>
@@ -437,31 +454,34 @@ def request(self, method     , url     , headers                ,
         return SyncSession._google_api_lock  # pylint: disable=protected-access
 
     @property
-    def session(self)                    :
-        self._session = self._session or requests.Session()
+    def session(self)           :
+        self._session = self._session or Session()
         self._session.verify = self._ssl
         return self._session
 
-    def post(self, url     , headers                , data      = None,
-             timeout      = 10, params                 = None
-             )                     :
+    # N.B.: none of these will be `async` in compiled form, but adding the
+    # symbol ensures we match the base class&#39;s definition for static
+    # analysis.
+    def post(self, url     , headers                ,
+                   data                = None, timeout      = 10,
+                   params                           = None)            :
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
                                      timeout=timeout, params=params)
         resp.raise_for_status()
         return resp
 
-    def get(self, url     , headers                 = None,
-            timeout      = 10, params                 = None
-            )                     :
+    def get(self, url     , headers                           = None,
+                  timeout      = 10,
+                  params                           = None)            :
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
                                     params=params)
         resp.raise_for_status()
         return resp
 
-    def put(self, url     , headers                , data        ,
-            timeout      = 10)                     :
+    def put(self, url     , headers                , data         ,
+                  timeout      = 10)            :
         with self.google_api_lock:
             resp = self.session.put(url, data=data, headers=headers,
                                     timeout=timeout)
@@ -469,8 +489,8 @@ def request(self, method     , url     , headers                ,
         return resp
 
     def delete(self, url     , headers                ,
-               params                , timeout      = 10
-               )                     :
+                     params                , timeout      = 10
+                     )            :
         with self.google_api_lock:
             resp = self.session.delete(url, params=params, headers=headers,
                                        timeout=timeout)
@@ -478,8 +498,8 @@ def request(self, method     , url     , headers                ,
         return resp
 
     def request(self, method     , url     , headers                ,
-                auto_raise_for_status       = True, **kwargs     
-                )                     :
+                      auto_raise_for_status       = True, **kwargs     
+                      )            :
         with self.google_api_lock:
             resp = self.session.request(method, url, headers=headers,
                                         **kwargs)
@@ -517,8 +537,8 @@ def google_api_lock(self)                   :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def session(self)                    :
-    self._session = self._session or requests.Session()
+def session(self)           :
+    self._session = self._session or Session()
     self._session.verify = self._ssl
     return self._session</code></pre>
 </details>
@@ -550,8 +570,8 @@ def session(self)                    :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, url     , headers                ,
-           params                , timeout      = 10
-           )                     :
+                 params                , timeout      = 10
+                 )            :
     with self.google_api_lock:
         resp = self.session.delete(url, params=params, headers=headers,
                                    timeout=timeout)
@@ -568,9 +588,9 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, url     , headers                 = None,
-        timeout      = 10, params                 = None
-        )                     :
+<pre><code class="python">def get(self, url     , headers                           = None,
+              timeout      = 10,
+              params                           = None)            :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
                                 params=params)
@@ -587,9 +607,9 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def post(self, url     , headers                , data      = None,
-         timeout      = 10, params                 = None
-         )                     :
+<pre><code class="python">def post(self, url     , headers                ,
+               data                = None, timeout      = 10,
+               params                           = None)            :
     with self.google_api_lock:
         resp = self.session.post(url, data=data, headers=headers,
                                  timeout=timeout, params=params)
@@ -606,8 +626,8 @@ def session(self)                    :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def put(self, url     , headers                , data        ,
-        timeout      = 10)                     :
+<pre><code class="python">def put(self, url     , headers                , data         ,
+              timeout      = 10)            :
     with self.google_api_lock:
         resp = self.session.put(url, data=data, headers=headers,
                                 timeout=timeout)
@@ -625,8 +645,8 @@ def session(self)                    :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def request(self, method     , url     , headers                ,
-            auto_raise_for_status       = True, **kwargs     
-            )                     :
+                  auto_raise_for_status       = True, **kwargs     
+                  )            :
     with self.google_api_lock:
         resp = self.session.request(method, url, headers=headers,
                                     **kwargs)

@@ -57,7 +57,7 @@ from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://www.googleapis.com/bigquery/v2&#39;
@@ -218,7 +218,8 @@ class Table(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     def delete(self,
@@ -235,15 +236,17 @@ class Table(object):
         resp = s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return resp.json()
+            data                 = resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {&#39;response&#39;: resp.text()}
+                data = {&#39;response&#39;: resp.text()}
             except (AttributeError, TypeError):
-                return {&#39;response&#39;: resp.text}
+                data = {&#39;response&#39;: resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     def get(
@@ -258,7 +261,8 @@ class Table(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     def insert(
@@ -345,13 +349,13 @@ class Table(object):
         body = self._make_query_body(query, project, write_disposition)
         return self._post_json(url, body, session, timeout)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -592,7 +596,8 @@ class Table(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     def delete(self,
@@ -609,15 +614,17 @@ class Table(object):
         resp = s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
-            return resp.json()
+            data                 = resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
             # raw response body.
             try:
-                return {&#39;response&#39;: resp.text()}
+                data = {&#39;response&#39;: resp.text()}
             except (AttributeError, TypeError):
-                return {&#39;response&#39;: resp.text}
+                data = {&#39;response&#39;: resp.text}
+
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     def get(
@@ -632,7 +639,8 @@ class Table(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, timeout=timeout)
-        return resp.json()
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     def insert(
@@ -719,13 +727,13 @@ class Table(object):
         body = self._make_query_body(query, project, write_disposition)
         return self._post_json(url, body, session, timeout)
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)           :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -739,7 +747,7 @@ class Table(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -766,15 +774,17 @@ class Table(object):
     resp = s.session.delete(url, headers=headers, params=None,
                                   timeout=timeout)
     try:
-        return resp.json()
+        data                 = resp.json()
     except Exception:  # pylint: disable=broad-except
         # For some reason, `gcloud-rest` seems to have intermittent issues
         # parsing this response. In that case, fall back to returning the
         # raw response body.
         try:
-            return {&#39;response&#39;: resp.text()}
+            data = {&#39;response&#39;: resp.text()}
         except (AttributeError, TypeError):
-            return {&#39;response&#39;: resp.text}</code></pre>
+            data = {&#39;response&#39;: resp.text}
+
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.bigquery.Table.get"><code class="name flex">
@@ -798,7 +808,8 @@ class Table(object):
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, timeout=timeout)
-    return resp.json()</code></pre>
+    data                 = resp.json()
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.bigquery.Table.headers"><code class="name flex">

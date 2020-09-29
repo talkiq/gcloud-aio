@@ -176,13 +176,13 @@ Base64 are respectively replaced by - and _</p></div>
         ciphertext      = (resp.json())[&#39;ciphertext&#39;]
         return ciphertext
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)         :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -196,7 +196,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>

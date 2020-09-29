@@ -40,7 +40,7 @@ from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-mod
 
 if BUILD_GCLOUD_REST:
     class FlowControl(object):
-        def __init__(self, **kwargs)        :
+        def __init__(self, **kwargs     )        :
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
         def __getattr__(self, attr     )       :
@@ -51,7 +51,7 @@ if BUILD_GCLOUD_REST:
             pass
 
     class SubscriberClient(object):
-        def __init__(self, **kwargs)        :
+        def __init__(self, **kwargs     )        :
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
 else:
@@ -75,7 +75,7 @@ else:
     from .utils import convert_google_future_to_concurrent_future
 
 
-    class FlowControl(object):
+    class FlowControl(object):  # type: ignore[no-redef]
         def __init__(self, *args           , **kwargs                )        :
             &#34;&#34;&#34;
             FlowControl transitional wrapper.
@@ -89,16 +89,16 @@ else:
             self._flow_control = _FlowControl(*args, **kwargs)
 
         def __repr__(self)       :
-            return self._flow_control.__repr__()
+            return repr(self._flow_control)
 
         def __getitem__(self, index     )       :
-            return self._flow_control[index]
+            return self._flow_control[index]  # type: ignore[no-any-return]
 
         def __getattr__(self, attr     )       :
             return getattr(self._flow_control, attr)
 
 
-    class SubscriberClient(object):
+    class SubscriberClient(object):  # type: ignore[no-redef]
         def __init__(self,
                      **kwargs                )        :
             if &#39;loop&#39; in kwargs: loop = kwargs[&#39;loop&#39;]; del kwargs[&#39;loop&#39;]
@@ -211,7 +211,7 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlowControl(object):
-    def __init__(self, **kwargs)        :
+    def __init__(self, **kwargs     )        :
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
     def __getattr__(self, attr     )       :
@@ -233,7 +233,7 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberClient(object):
-    def __init__(self, **kwargs)        :
+    def __init__(self, **kwargs     )        :
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 </dd>

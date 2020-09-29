@@ -46,7 +46,9 @@ import logging
 import mimetypes
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -63,9 +65,9 @@ if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
     from requests import Session
 else:
-    from asyncio import sleep
-    from aiohttp import ClientResponseError as ResponseError
-    from aiohttp import ClientSession as Session
+    from asyncio import sleep  # type: ignore[misc]
+    from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
@@ -118,7 +120,7 @@ class Storage(object):
         return Bucket(self, bucket_name)
 
     def copy(self, bucket     , object_name     ,
-                   destination_bucket     , **_3to2kwargs)         :
+                   destination_bucket     , **_3to2kwargs)                  :
 
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
@@ -171,7 +173,7 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
@@ -185,10 +187,10 @@ class Storage(object):
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
-        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         headers = self._headers()
@@ -200,7 +202,7 @@ class Storage(object):
         try:
             data      = resp.text()
         except (AttributeError, TypeError):
-            data      = str(resp.text)
+            data = str(resp.text)
 
         return data
 
@@ -214,23 +216,23 @@ class Storage(object):
 
     def download_to_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )        :
         with open(filename, &#39;wb+&#39;) as file_object:
             file_object.write(
                 self.download(bucket, object_name, **kwargs))
 
 
-    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
-        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
-        else: session =  None
+    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         data = self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata       = json.loads(data.decode())
+        metadata                 = json.loads(data.decode())
         return metadata
 
-    def list_objects(self, bucket     , **_3to2kwargs)        :
+    def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -243,17 +245,17 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
-    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
-        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
-        else: force_resumable_upload =  None
+    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
+        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+        else: force_resumable_upload =  None
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -307,13 +309,13 @@ class Storage(object):
 
     def upload_from_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )                  :
         with open(filename, &#39;rb&#39;) as file_object:
             return self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream           )       :
+    def _get_stream_len(stream            )       :
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -321,7 +323,7 @@ class Storage(object):
             stream.seek(current)
 
     @staticmethod
-    def _preprocess_data(data     )             :
+    def _preprocess_data(data     )           :
         if data is None:
             return io.StringIO(&#39;&#39;)
 
@@ -330,7 +332,7 @@ class Storage(object):
         if isinstance(data, str):
             return io.StringIO(data)
         if isinstance(data, io.IOBase):
-            return data
+            return data  # type: ignore[return-value]
 
         raise TypeError(&#39;unsupported upload type: &#34;{}&#34;&#39;.format((type(data))))
 
@@ -352,7 +354,7 @@ class Storage(object):
         return UploadType.SIMPLE
 
     @staticmethod
-    def _split_content_type(content_type     )                   :
+    def _split_content_type(content_type     )                             :
         content_type_and_encoding_split = content_type.split(&#39;;&#39;)
         content_type = content_type_and_encoding_split[0].lower().strip()
 
@@ -384,12 +386,13 @@ class Storage(object):
         try:
             data        = response.read()
         except (AttributeError, TypeError):
-            data        = response.content
+            data = response.content
 
         return data
 
     def _upload_simple(self, url     , object_name     ,
-                             stream           , params      , headers      , **_3to2kwargs)        :
+                             stream            , params                ,
+                             headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -403,12 +406,12 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
-                                stream           , params      ,
-                                headers      , **_3to2kwargs)        :
+                                stream            , params                ,
+                                headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -419,13 +422,11 @@ class Storage(object):
         session_uri = self._initiate_upload(url, object_name, params,
                                                   headers, metadata=metadata,
                                                   session=session)
-        data       = self._do_upload(session_uri, stream,
-                                           headers=headers, session=session,
-                                           timeout=timeout)
-        return data
+        return self._do_upload(session_uri, stream, headers=headers,
+                                     session=session, timeout=timeout)
 
-    def _initiate_upload(self, url     , object_name     , params      ,
-                               headers      , **_3to2kwargs)       :
+    def _initiate_upload(self, url     , object_name     ,
+                               params                , headers                , **_3to2kwargs)       :
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -434,11 +435,11 @@ class Storage(object):
 
         metadict = (metadata or {}).copy()
         metadict.update({&#39;name&#39;: object_name})
-        metadata = json.dumps(metadict)
+        metadata_ = json.dumps(metadict)
 
         post_headers = headers.copy()
         post_headers.update({
-            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Length&#39;: str(len(metadata_)),
             &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
             &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
             &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
@@ -446,12 +447,12 @@ class Storage(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=post_headers, params=params,
-                            data=metadata, timeout=10)
+                            data=metadata_, timeout=10)
         session_uri      = resp.headers[&#39;Location&#39;]
         return session_uri
 
-    def _do_upload(self, session_uri     , stream           ,
-                         headers      , **_3to2kwargs)        :
+    def _do_upload(self, session_uri     , stream            ,
+                         headers                , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -466,16 +467,16 @@ class Storage(object):
                                    data=stream, timeout=timeout)
             except ResponseError:
                 headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
-                sleep(2. ** tries)
+                sleep(2. ** tries)  # type: ignore[func-returns-value]
 
                 continue
 
             break
 
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+    def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -488,16 +489,16 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)             :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 </section>
@@ -545,7 +546,7 @@ class Storage(object):
         return Bucket(self, bucket_name)
 
     def copy(self, bucket     , object_name     ,
-                   destination_bucket     , **_3to2kwargs)         :
+                   destination_bucket     , **_3to2kwargs)                  :
 
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
@@ -598,7 +599,7 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
@@ -612,10 +613,10 @@ class Storage(object):
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
-        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         headers = self._headers()
@@ -627,7 +628,7 @@ class Storage(object):
         try:
             data      = resp.text()
         except (AttributeError, TypeError):
-            data      = str(resp.text)
+            data = str(resp.text)
 
         return data
 
@@ -641,23 +642,23 @@ class Storage(object):
 
     def download_to_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )        :
         with open(filename, &#39;wb+&#39;) as file_object:
             file_object.write(
                 self.download(bucket, object_name, **kwargs))
 
 
-    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
-        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
-        else: session =  None
+    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         data = self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata       = json.loads(data.decode())
+        metadata                 = json.loads(data.decode())
         return metadata
 
-    def list_objects(self, bucket     , **_3to2kwargs)        :
+    def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -670,17 +671,17 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
-    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
-        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
-        else: force_resumable_upload =  None
+    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
+        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+        else: force_resumable_upload =  None
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -734,13 +735,13 @@ class Storage(object):
 
     def upload_from_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )                  :
         with open(filename, &#39;rb&#39;) as file_object:
             return self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream           )       :
+    def _get_stream_len(stream            )       :
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -748,7 +749,7 @@ class Storage(object):
             stream.seek(current)
 
     @staticmethod
-    def _preprocess_data(data     )             :
+    def _preprocess_data(data     )           :
         if data is None:
             return io.StringIO(&#39;&#39;)
 
@@ -757,7 +758,7 @@ class Storage(object):
         if isinstance(data, str):
             return io.StringIO(data)
         if isinstance(data, io.IOBase):
-            return data
+            return data  # type: ignore[return-value]
 
         raise TypeError(&#39;unsupported upload type: &#34;{}&#34;&#39;.format((type(data))))
 
@@ -779,7 +780,7 @@ class Storage(object):
         return UploadType.SIMPLE
 
     @staticmethod
-    def _split_content_type(content_type     )                   :
+    def _split_content_type(content_type     )                             :
         content_type_and_encoding_split = content_type.split(&#39;;&#39;)
         content_type = content_type_and_encoding_split[0].lower().strip()
 
@@ -811,12 +812,13 @@ class Storage(object):
         try:
             data        = response.read()
         except (AttributeError, TypeError):
-            data        = response.content
+            data = response.content
 
         return data
 
     def _upload_simple(self, url     , object_name     ,
-                             stream           , params      , headers      , **_3to2kwargs)        :
+                             stream            , params                ,
+                             headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -830,12 +832,12 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
-                                stream           , params      ,
-                                headers      , **_3to2kwargs)        :
+                                stream            , params                ,
+                                headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -846,13 +848,11 @@ class Storage(object):
         session_uri = self._initiate_upload(url, object_name, params,
                                                   headers, metadata=metadata,
                                                   session=session)
-        data       = self._do_upload(session_uri, stream,
-                                           headers=headers, session=session,
-                                           timeout=timeout)
-        return data
+        return self._do_upload(session_uri, stream, headers=headers,
+                                     session=session, timeout=timeout)
 
-    def _initiate_upload(self, url     , object_name     , params      ,
-                               headers      , **_3to2kwargs)       :
+    def _initiate_upload(self, url     , object_name     ,
+                               params                , headers                , **_3to2kwargs)       :
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -861,11 +861,11 @@ class Storage(object):
 
         metadict = (metadata or {}).copy()
         metadict.update({&#39;name&#39;: object_name})
-        metadata = json.dumps(metadict)
+        metadata_ = json.dumps(metadict)
 
         post_headers = headers.copy()
         post_headers.update({
-            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Length&#39;: str(len(metadata_)),
             &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
             &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
             &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
@@ -873,12 +873,12 @@ class Storage(object):
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=post_headers, params=params,
-                            data=metadata, timeout=10)
+                            data=metadata_, timeout=10)
         session_uri      = resp.headers[&#39;Location&#39;]
         return session_uri
 
-    def _do_upload(self, session_uri     , stream           ,
-                         headers      , **_3to2kwargs)        :
+    def _do_upload(self, session_uri     , stream            ,
+                         headers                , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -893,16 +893,16 @@ class Storage(object):
                                    data=stream, timeout=timeout)
             except ResponseError:
                 headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
-                sleep(2. ** tries)
+                sleep(2. ** tries)  # type: ignore[func-returns-value]
 
                 continue
 
             break
 
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+    def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -915,16 +915,16 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)             :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -938,7 +938,7 @@ class Storage(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -952,7 +952,7 @@ class Storage(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def copy(self, bucket     , object_name     ,
-               destination_bucket     , **_3to2kwargs)         :
+               destination_bucket     , **_3to2kwargs)                  :
 
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
@@ -1005,7 +1005,7 @@ class Storage(object):
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout)
 
-    data       = resp.json()
+    data                 = resp.json()
 
     while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
         params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
@@ -1029,10 +1029,10 @@ class Storage(object):
     # https://cloud.google.com/storage/docs/json_api/#encoding
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
-    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
     headers = self._headers()
@@ -1044,7 +1044,7 @@ class Storage(object):
     try:
         data      = resp.text()
     except (AttributeError, TypeError):
-        data      = str(resp.text)
+        data = str(resp.text)
 
     return data</code></pre>
 </details>
@@ -1076,14 +1076,14 @@ class Storage(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
-    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
-    else: session =  None
+<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
     data = self._download(bucket, object_name, timeout=timeout,
                                 session=session)
-    metadata       = json.loads(data.decode())
+    metadata                 = json.loads(data.decode())
     return metadata</code></pre>
 </details>
 </dd>
@@ -1098,7 +1098,7 @@ class Storage(object):
 </summary>
 <pre><code class="python">def download_to_filename(self, bucket     , object_name     ,
                                filename     ,
-                               **kwargs                )        :
+                               **kwargs     )        :
     with open(filename, &#39;wb+&#39;) as file_object:
         file_object.write(
             self.download(bucket, object_name, **kwargs))</code></pre>
@@ -1126,7 +1126,7 @@ class Storage(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -1139,7 +1139,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1152,7 +1152,7 @@ class Storage(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)        :
+<pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -1165,7 +1165,7 @@ class Storage(object):
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1178,11 +1178,11 @@ class Storage(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
-    if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
-    else: force_resumable_upload =  None
+<pre><code class="python">def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  30
+    if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+    else: force_resumable_upload =  None
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -1246,7 +1246,7 @@ class Storage(object):
 </summary>
 <pre><code class="python">def upload_from_filename(self, bucket     , object_name     ,
                                filename     ,
-                               **kwargs                )        :
+                               **kwargs     )                  :
     with open(filename, &#39;rb&#39;) as file_object:
         return self.upload(bucket, object_name, file_object,
                                  **kwargs)</code></pre>

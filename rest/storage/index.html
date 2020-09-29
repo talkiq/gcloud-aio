@@ -82,7 +82,8 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Blob(object):
-    def __init__(self, bucket, name     , metadata      )        :
+    def __init__(self, bucket          , name     ,
+                 metadata                )        :
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -98,16 +99,17 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
                                                   session=session)
 
     def upload(self, data     ,
-                     session                    = None)        :
-        metadata       = self.bucket.storage.upload(
+                     session                    = None)                  :
+        metadata = self.bucket.storage.upload(
             self.bucket.name, self.name, data, session=session)
 
         self.__dict__.update(metadata)
         return metadata
 
     def get_signed_url(  # pylint: disable=too-many-locals
-            self, expiration     , headers                 = None,
-            query_params                 = None, http_method      = &#39;GET&#39;,
+            self, expiration     , headers                           = None,
+            query_params                           = None,
+            http_method      = &#39;GET&#39;,
             iam_client                      = None,
             service_account_email                = None,
             service_file                                  = None,
@@ -225,8 +227,9 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_signed_url(  # pylint: disable=too-many-locals
-        self, expiration     , headers                 = None,
-        query_params                 = None, http_method      = &#39;GET&#39;,
+        self, expiration     , headers                           = None,
+        query_params                           = None,
+        http_method      = &#39;GET&#39;,
         iam_client                      = None,
         service_account_email                = None,
         service_file                                  = None,
@@ -311,8 +314,8 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def upload(self, data     ,
-                 session                    = None)        :
-    metadata       = self.bucket.storage.upload(
+                 session                    = None)                  :
+    metadata = self.bucket.storage.upload(
         self.bucket.name, self.name, data, session=session)
 
     self.__dict__.update(metadata)
@@ -332,7 +335,7 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Bucket(object):
-    def __init__(self, storage, name     )        :
+    def __init__(self, storage           , name     )        :
         self.storage = storage
         self.name = name
 
@@ -350,10 +353,10 @@ with the link.</p>
             return True
         except ResponseError as e:
             try:
-                if e.status in {404, 410}:
+                if e.status in {404, 410}:  # type: ignore[attr-defined]
                     return False
             except AttributeError:
-                if e.code in {404, 410}:
+                if e.code in {404, 410}:  # type: ignore[attr-defined]
                     return False
 
             raise e
@@ -368,7 +371,7 @@ with the link.</p>
                                                       session=session)
             items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
 
-            params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;)
+            params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;, &#39;&#39;)
             if not params[&#39;pageToken&#39;]:
                 break
 
@@ -378,8 +381,10 @@ with the link.</p>
     def new_blob(self, blob_name     )        :
         return Blob(self, blob_name, {&#39;size&#39;: 0})
 
-    def get_metadata(self, params       = None,
-                           session                    = None)        :
+    def get_metadata(
+            self, params                           = None,
+            session                    = None
+    )                  :
         return self.storage.get_bucket_metadata(self.name, params=params,
                                                       session=session)</code></pre>
 </details>
@@ -401,10 +406,10 @@ with the link.</p>
         return True
     except ResponseError as e:
         try:
-            if e.status in {404, 410}:
+            if e.status in {404, 410}:  # type: ignore[attr-defined]
                 return False
         except AttributeError:
-            if e.code in {404, 410}:
+            if e.code in {404, 410}:  # type: ignore[attr-defined]
                 return False
 
         raise e</code></pre>
@@ -436,8 +441,10 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_metadata(self, params       = None,
-                       session                    = None)        :
+<pre><code class="python">def get_metadata(
+        self, params                           = None,
+        session                    = None
+)                  :
     return self.storage.get_bucket_metadata(self.name, params=params,
                                                   session=session)</code></pre>
 </details>
@@ -461,7 +468,7 @@ with the link.</p>
                                                   session=session)
         items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
 
-        params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;)
+        params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;, &#39;&#39;)
         if not params[&#39;pageToken&#39;]:
             break
 
@@ -518,7 +525,7 @@ with the link.</p>
         return Bucket(self, bucket_name)
 
     def copy(self, bucket     , object_name     ,
-                   destination_bucket     , **_3to2kwargs)         :
+                   destination_bucket     , **_3to2kwargs)                  :
 
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
@@ -571,7 +578,7 @@ with the link.</p>
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
 
-        data       = resp.json()
+        data                 = resp.json()
 
         while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
             params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
@@ -585,10 +592,10 @@ with the link.</p>
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
-        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         headers = self._headers()
@@ -600,7 +607,7 @@ with the link.</p>
         try:
             data      = resp.text()
         except (AttributeError, TypeError):
-            data      = str(resp.text)
+            data = str(resp.text)
 
         return data
 
@@ -614,23 +621,23 @@ with the link.</p>
 
     def download_to_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )        :
         with open(filename, &#39;wb+&#39;) as file_object:
             file_object.write(
                 self.download(bucket, object_name, **kwargs))
 
 
-    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
-        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
-        else: session =  None
+    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         data = self._download(bucket, object_name, timeout=timeout,
                                     session=session)
-        metadata       = json.loads(data.decode())
+        metadata                 = json.loads(data.decode())
         return metadata
 
-    def list_objects(self, bucket     , **_3to2kwargs)        :
+    def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -643,17 +650,17 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
-    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
-        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
-        else: force_resumable_upload =  None
+    def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
+        if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+        else: force_resumable_upload =  None
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -707,13 +714,13 @@ with the link.</p>
 
     def upload_from_filename(self, bucket     , object_name     ,
                                    filename     ,
-                                   **kwargs                )        :
+                                   **kwargs     )                  :
         with open(filename, &#39;rb&#39;) as file_object:
             return self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream           )       :
+    def _get_stream_len(stream            )       :
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -721,7 +728,7 @@ with the link.</p>
             stream.seek(current)
 
     @staticmethod
-    def _preprocess_data(data     )             :
+    def _preprocess_data(data     )           :
         if data is None:
             return io.StringIO(&#39;&#39;)
 
@@ -730,7 +737,7 @@ with the link.</p>
         if isinstance(data, str):
             return io.StringIO(data)
         if isinstance(data, io.IOBase):
-            return data
+            return data  # type: ignore[return-value]
 
         raise TypeError(&#39;unsupported upload type: &#34;{}&#34;&#39;.format((type(data))))
 
@@ -752,7 +759,7 @@ with the link.</p>
         return UploadType.SIMPLE
 
     @staticmethod
-    def _split_content_type(content_type     )                   :
+    def _split_content_type(content_type     )                             :
         content_type_and_encoding_split = content_type.split(&#39;;&#39;)
         content_type = content_type_and_encoding_split[0].lower().strip()
 
@@ -784,12 +791,13 @@ with the link.</p>
         try:
             data        = response.read()
         except (AttributeError, TypeError):
-            data        = response.content
+            data = response.content
 
         return data
 
     def _upload_simple(self, url     , object_name     ,
-                             stream           , params      , headers      , **_3to2kwargs)        :
+                             stream            , params                ,
+                             headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -803,12 +811,12 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
                             timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
     def _upload_resumable(self, url     , object_name     ,
-                                stream           , params      ,
-                                headers      , **_3to2kwargs)        :
+                                stream            , params                ,
+                                headers                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
@@ -819,13 +827,11 @@ with the link.</p>
         session_uri = self._initiate_upload(url, object_name, params,
                                                   headers, metadata=metadata,
                                                   session=session)
-        data       = self._do_upload(session_uri, stream,
-                                           headers=headers, session=session,
-                                           timeout=timeout)
-        return data
+        return self._do_upload(session_uri, stream, headers=headers,
+                                     session=session, timeout=timeout)
 
-    def _initiate_upload(self, url     , object_name     , params      ,
-                               headers      , **_3to2kwargs)       :
+    def _initiate_upload(self, url     , object_name     ,
+                               params                , headers                , **_3to2kwargs)       :
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -834,11 +840,11 @@ with the link.</p>
 
         metadict = (metadata or {}).copy()
         metadict.update({&#39;name&#39;: object_name})
-        metadata = json.dumps(metadict)
+        metadata_ = json.dumps(metadict)
 
         post_headers = headers.copy()
         post_headers.update({
-            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Length&#39;: str(len(metadata_)),
             &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
             &#39;X-Upload-Content-Type&#39;: headers[&#39;Content-Type&#39;],
             &#39;X-Upload-Content-Length&#39;: headers[&#39;Content-Length&#39;]
@@ -846,12 +852,12 @@ with the link.</p>
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=post_headers, params=params,
-                            data=metadata, timeout=10)
+                            data=metadata_, timeout=10)
         session_uri      = resp.headers[&#39;Location&#39;]
         return session_uri
 
-    def _do_upload(self, session_uri     , stream           ,
-                         headers      , **_3to2kwargs)        :
+    def _do_upload(self, session_uri     , stream            ,
+                         headers                , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -866,16 +872,16 @@ with the link.</p>
                                    data=stream, timeout=timeout)
             except ResponseError:
                 headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
-                sleep(2. ** tries)
+                sleep(2. ** tries)  # type: ignore[func-returns-value]
 
                 continue
 
             break
 
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+    def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -888,16 +894,16 @@ with the link.</p>
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
                            timeout=timeout)
-        data       = resp.json()
+        data                 = resp.json()
         return data
 
-    def close(self):
+    def close(self)        :
         self.session.close()
 
     def __enter__(self)             :
         return self
 
-    def __exit__(self, *args)        :
+    def __exit__(self, *args     )        :
         self.close()</code></pre>
 </details>
 <h3>Methods</h3>
@@ -911,7 +917,7 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def close(self):
+<pre><code class="python">def close(self)        :
     self.session.close()</code></pre>
 </details>
 </dd>
@@ -925,7 +931,7 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def copy(self, bucket     , object_name     ,
-               destination_bucket     , **_3to2kwargs)         :
+               destination_bucket     , **_3to2kwargs)                  :
 
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
@@ -978,7 +984,7 @@ with the link.</p>
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout)
 
-    data       = resp.json()
+    data                 = resp.json()
 
     while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
         params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
@@ -1002,10 +1008,10 @@ with the link.</p>
     # https://cloud.google.com/storage/docs/json_api/#encoding
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
-    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
     headers = self._headers()
@@ -1017,7 +1023,7 @@ with the link.</p>
     try:
         data      = resp.text()
     except (AttributeError, TypeError):
-        data      = str(resp.text)
+        data = str(resp.text)
 
     return data</code></pre>
 </details>
@@ -1049,14 +1055,14 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)        :
-    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
-    else: session =  None
+<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
     data = self._download(bucket, object_name, timeout=timeout,
                                 session=session)
-    metadata       = json.loads(data.decode())
+    metadata                 = json.loads(data.decode())
     return metadata</code></pre>
 </details>
 </dd>
@@ -1071,7 +1077,7 @@ with the link.</p>
 </summary>
 <pre><code class="python">def download_to_filename(self, bucket     , object_name     ,
                                filename     ,
-                               **kwargs                )        :
+                               **kwargs     )        :
     with open(filename, &#39;wb+&#39;) as file_object:
         file_object.write(
             self.download(bucket, object_name, **kwargs))</code></pre>
@@ -1099,7 +1105,7 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)        :
+<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -1112,7 +1118,7 @@ with the link.</p>
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1125,7 +1131,7 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)        :
+<pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -1138,7 +1144,7 @@ with the link.</p>
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
                        timeout=timeout)
-    data       = resp.json()
+    data                 = resp.json()
     return data</code></pre>
 </details>
 </dd>
@@ -1151,11 +1157,11 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)        :
-    if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
-    else: force_resumable_upload =  None
+<pre><code class="python">def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  30
+    if &#39;force_resumable_upload&#39; in _3to2kwargs: force_resumable_upload = _3to2kwargs[&#39;force_resumable_upload&#39;]; del _3to2kwargs[&#39;force_resumable_upload&#39;]
+    else: force_resumable_upload =  None
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
@@ -1219,7 +1225,7 @@ with the link.</p>
 </summary>
 <pre><code class="python">def upload_from_filename(self, bucket     , object_name     ,
                                filename     ,
-                               **kwargs                )        :
+                               **kwargs     )                  :
     with open(filename, &#39;rb&#39;) as file_object:
         return self.upload(bucket, object_name, file_object,
                                  **kwargs)</code></pre>

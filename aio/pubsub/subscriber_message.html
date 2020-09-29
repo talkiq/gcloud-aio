@@ -26,24 +26,29 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+<pre><code class="python">from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+
 
 if BUILD_GCLOUD_REST:
     class SubscriberMessage:
-        def __init__(self, **kwargs) -&gt; None:
+        def __init__(self, **kwargs: Any) -&gt; None:
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+        @staticmethod
+        def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
+            return SubscriberMessage(google_cloud_message=message)
 else:
     import datetime
-
-    from typing import Any
-    from typing import Dict
-    from typing import List
-    from typing import Optional
 
     from google.cloud.pubsub_v1.subscriber.message import Message
 
 
-    class SubscriberMessage:
+    class SubscriberMessage:  # type: ignore[no-redef]
         def __init__(self, *args: List[Any],
                      google_cloud_message: Message = None,
                      **kwargs: Dict[str, Any]) -&gt; None:
@@ -51,10 +56,6 @@ else:
                 self._message = google_cloud_message
                 return
             self._message = Message(*args, **kwargs)
-
-        @staticmethod
-        def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
-            return SubscriberMessage(google_cloud_message=message)
 
         @property
         def google_cloud_message(self) -&gt; Message:
@@ -131,26 +132,13 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberMessage:
-    def __init__(self, **kwargs) -&gt; None:
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+    def __init__(self, **kwargs: Any) -&gt; None:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+
+    @staticmethod
+    def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
+        return SubscriberMessage(google_cloud_message=message)</code></pre>
 </details>
-<h3>Static methods</h3>
-<dl>
-<dt id="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.from_google_cloud"><code class="name flex">
-<span>def <span class="ident">from_google_cloud</span></span>(<span>message: google.cloud.pubsub_v1.subscriber.message.Message) ‑> <a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
-    return SubscriberMessage(google_cloud_message=message)</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.ack_id"><code class="name">var <span class="ident">ack_id</span> : str</code></dt>
@@ -346,7 +334,6 @@ def size(self) -&gt; int:
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.data" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.data">data</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.delivery_attempt" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.delivery_attempt">delivery_attempt</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.drop" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.drop">drop</a></code></li>
-<li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.from_google_cloud" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.google_cloud_message" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.google_cloud_message">google_cloud_message</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.message_id" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.message_id">message_id</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage.modify_ack_deadline" href="#gcloud.aio.pubsub.subscriber_message.SubscriberMessage.modify_ack_deadline">modify_ack_deadline</a></code></li>
