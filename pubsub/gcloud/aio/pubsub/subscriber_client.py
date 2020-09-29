@@ -68,7 +68,11 @@ if BUILD_GCLOUD_REST:
                       flow_control: Union[FlowControl, Tuple[int, ...]] = ()
                       ) -> StreamingPullFuture:
             """
-            Pass call to the google-cloud-pubsub SubscriberClient class
+            Pass call to the google-cloud-pubsub SubscriberClient class.
+            This method will most likely be deprecated once gcloud-rest-pubsub
+            stop using google-cloud-pubsub under the hood. If this is
+            what you need we strongly recommend using official library.
+
             """
             sub_keepalive: StreamingPullFuture = (
                 self._subscriber.subscribe(
