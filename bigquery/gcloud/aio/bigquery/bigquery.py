@@ -60,8 +60,13 @@ class Table:
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
+
     async def project(self) -> str:
         if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get('BIGQUERY_PROJECT_ID', 'dev'))
             return self._project
 
         self._project = await self.token.get_project()
