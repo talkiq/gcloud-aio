@@ -19,13 +19,10 @@ Usage
 Subscriber
 ~~~~~~~~~~
 
-Currently we have only implemented an asyncio version of ``SubscriberClient``
-as the subscription pattern does not work with asyncio by default. The official
-Google publisher returns a future which is mostly useable as-is. This patch is
-a noop under ``gcloud-rest`` (ie. when not using ``asyncio``) -- in that case,
-using the official library is preferred.
+The official Google publisher returns a future which is mostly useable as-is.
+``gcloud-rest`` returns the future without change while ``gcloud-aio`` wraps it in ``asyncio`` terms.
 
-An HTTP-oriented version, in keeping with the other ``gcloud-aio-*`` libraries,
+An HTTP-oriented version, in keeping with the other ``gcloud-{aio,rest}-*`` libraries,
 will likely be coming soon -- though our current approach works reasonably well
 for allowing the official ``grpc`` client to be used under ``asyncio``, we
 continue to see threading oddities now and again which we've not been able to
@@ -199,7 +196,7 @@ Cloud Pub/Sub publisher client. The main design goal was to eliminate all the
 additional gRPC overhead implemented by the upstream client.
 
 If migrating between this library and the official one, the main difference is
-this: the ``gcloud-aio-pubsub`` publisher's ``.publish()`` method *immediately*
+this: the ``gcloud-{aio,rest}-pubsub`` publisher's ``.publish()`` method *immediately*
 publishes the messages you've provided, rather than maintaining our own
 publishing queue, implementing batching and flow control, etc. If you're
 looking for a full-featured publishing library with all the bells and whistles
