@@ -36,66 +36,102 @@ with warnings.catch_warnings():
     from future import standard_library
 standard_library.install_aliases()
 from builtins import object
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+
 from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
+
+class FlowControl(object):
+    def __init__(self, *args           , **kwargs                )        :
+        &#34;&#34;&#34;
+        FlowControl transitional wrapper.
+        (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
+        Google uses a named tuple; here are the fields, defaults:
+        - max_bytes: int = 100 * 1024 * 1024
+        - max_messages: int = 1000
+        - max_lease_duration: int = 1 * 60 * 60
+        - max_duration_per_lease_extension: int = 0
+        &#34;&#34;&#34;
+        self._flow_control = _FlowControl(*args, **kwargs)
+
+    def __repr__(self)       :
+        result      = self._flow_control.__repr__()
+        return result
+
+    def __getitem__(self, index     )       :
+        result      = self._flow_control[index]
+        return result
+
+    def __getattr__(self, attr     )       :
+        return getattr(self._flow_control, attr)
 
 if BUILD_GCLOUD_REST:
-    class FlowControl(object):
-        def __init__(self, **kwargs     )        :
-            raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+    from google.cloud import pubsub_v1 as pubsub
+    from google.cloud.pubsub_v1.subscriber.futures import StreamingPullFuture
 
-        def __getattr__(self, attr     )       :
-            # N.B. Minimal interface required for unit testing aio version of
-            # FlowControl. Pylint sees unit tests&#39; use of attributes on
-            # FlowControl but does not see those attributes in this (unused)
-            # REST definition and therefore fails.
-            pass
 
     class SubscriberClient(object):
-        def __init__(self, **kwargs     )        :
-            raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+        def __init__(self, **kwargs                )        :
+            self._subscriber = pubsub.SubscriberClient(**kwargs)
+
+        def create_subscription(self,
+                                subscription     ,
+                                topic     ,
+                                **kwargs                
+                                )        :
+            &#34;&#34;&#34;
+            Create subscription if it does not exist. Check out the official
+            [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
+            for more details
+            &#34;&#34;&#34;
+            try:
+                self._subscriber.create_subscription(
+                    subscription,
+                    topic,
+                    **kwargs
+                )
+            except exceptions.AlreadyExists:
+                pass
+
+        def subscribe(self,
+                      subscription     ,
+                      callback                                    , **_3to2kwargs
+                      )                       :
+            if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
+            else: flow_control =  ()
+            &#34;&#34;&#34;
+            Pass call to the google-cloud-pubsub SubscriberClient class.
+            This method will most likely be deprecated once gcloud-rest-pubsub
+            stop using google-cloud-pubsub under the hood. If this is
+            what you need we strongly recommend using official library.
+
+            &#34;&#34;&#34;
+            sub_keepalive                      = (
+                self._subscriber.subscribe(
+                    subscription,
+                    callback,
+                    flow_control=flow_control))
+
+            return sub_keepalive
 
 else:
     import asyncio
     import concurrent.futures
     import signal
-    from typing import Any
-    from typing import Callable
-    from typing import Dict
-    from typing import List
-    from typing import Optional
-    from typing import Tuple
-    from typing import Union
+
 
     from google.api_core import exceptions
     from google.cloud import pubsub
-    from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
     from google.cloud.pubsub_v1.subscriber.message import Message
 
     from .subscriber_message import SubscriberMessage
     from .utils import convert_google_future_to_concurrent_future
-
-
-    class FlowControl(object):  # type: ignore[no-redef]
-        def __init__(self, *args           , **kwargs                )        :
-            &#34;&#34;&#34;
-            FlowControl transitional wrapper.
-            (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
-            Google uses a named tuple; here are the fields, defaults:
-            - max_bytes: int = 100 * 1024 * 1024
-            - max_messages: int = 1000
-            - max_lease_duration: int = 1 * 60 * 60
-            - max_duration_per_lease_extension: int = 0
-            &#34;&#34;&#34;
-            self._flow_control = _FlowControl(*args, **kwargs)
-
-        def __repr__(self)       :
-            return repr(self._flow_control)
-
-        def __getitem__(self, index     )       :
-            return self._flow_control[index]  # type: ignore[no-any-return]
-
-        def __getattr__(self, attr     )       :
-            return getattr(self._flow_control, attr)
 
 
     class SubscriberClient(object):  # type: ignore[no-redef]
@@ -202,24 +238,44 @@ else:
 <dl>
 <dt id="gcloud.rest.pubsub.subscriber_client.FlowControl"><code class="flex name class">
 <span>class <span class="ident">FlowControl</span></span>
-<span>(</span><span>**kwargs)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>FlowControl transitional wrapper.
+(FlowControl fields docs)[<a href="https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]">https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]</a>
+# pylint: disable=line-too-long
+Google uses a named tuple; here are the fields, defaults:
+- max_bytes: int = 100 * 1024 * 1024
+- max_messages: int = 1000
+- max_lease_duration: int = 1 * 60 * 60
+- max_duration_per_lease_extension: int = 0</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FlowControl(object):
-    def __init__(self, **kwargs     )        :
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
+    def __init__(self, *args           , **kwargs                )        :
+        &#34;&#34;&#34;
+        FlowControl transitional wrapper.
+        (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
+        Google uses a named tuple; here are the fields, defaults:
+        - max_bytes: int = 100 * 1024 * 1024
+        - max_messages: int = 1000
+        - max_lease_duration: int = 1 * 60 * 60
+        - max_duration_per_lease_extension: int = 0
+        &#34;&#34;&#34;
+        self._flow_control = _FlowControl(*args, **kwargs)
+
+    def __repr__(self)       :
+        result      = self._flow_control.__repr__()
+        return result
+
+    def __getitem__(self, index     )       :
+        result      = self._flow_control[index]
+        return result
 
     def __getattr__(self, attr     )       :
-        # N.B. Minimal interface required for unit testing aio version of
-        # FlowControl. Pylint sees unit tests&#39; use of attributes on
-        # FlowControl but does not see those attributes in this (unused)
-        # REST definition and therefore fails.
-        pass</code></pre>
+        return getattr(self._flow_control, attr)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient"><code class="flex name class">
@@ -233,9 +289,115 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberClient(object):
-    def __init__(self, **kwargs     )        :
-        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
+    def __init__(self, **kwargs                )        :
+        self._subscriber = pubsub.SubscriberClient(**kwargs)
+
+    def create_subscription(self,
+                            subscription     ,
+                            topic     ,
+                            **kwargs                
+                            )        :
+        &#34;&#34;&#34;
+        Create subscription if it does not exist. Check out the official
+        [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
+        for more details
+        &#34;&#34;&#34;
+        try:
+            self._subscriber.create_subscription(
+                subscription,
+                topic,
+                **kwargs
+            )
+        except exceptions.AlreadyExists:
+            pass
+
+    def subscribe(self,
+                  subscription     ,
+                  callback                                    , **_3to2kwargs
+                  )                       :
+        if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
+        else: flow_control =  ()
+        &#34;&#34;&#34;
+        Pass call to the google-cloud-pubsub SubscriberClient class.
+        This method will most likely be deprecated once gcloud-rest-pubsub
+        stop using google-cloud-pubsub under the hood. If this is
+        what you need we strongly recommend using official library.
+
+        &#34;&#34;&#34;
+        sub_keepalive                      = (
+            self._subscriber.subscribe(
+                subscription,
+                callback,
+                flow_control=flow_control))
+
+        return sub_keepalive</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription"><code class="name flex">
+<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription, topic, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create subscription if it does not exist. Check out the official
+<a href="https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236">create_subscription docs</a>
+# pylint: disable=line-too-long
+for more details</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_subscription(self,
+                        subscription     ,
+                        topic     ,
+                        **kwargs                
+                        )        :
+    &#34;&#34;&#34;
+    Create subscription if it does not exist. Check out the official
+    [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
+    for more details
+    &#34;&#34;&#34;
+    try:
+        self._subscriber.create_subscription(
+            subscription,
+            topic,
+            **kwargs
+        )
+    except exceptions.AlreadyExists:
+        pass</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.subscribe"><code class="name flex">
+<span>def <span class="ident">subscribe</span></span>(<span>self, subscription, callback, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def subscribe(self,
+              subscription     ,
+              callback                                    , **_3to2kwargs
+              )                       :
+    if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
+    else: flow_control =  ()
+    &#34;&#34;&#34;
+    Pass call to the google-cloud-pubsub SubscriberClient class.
+    This method will most likely be deprecated once gcloud-rest-pubsub
+    stop using google-cloud-pubsub under the hood. If this is
+    what you need we strongly recommend using official library.
+
+    &#34;&#34;&#34;
+    sub_keepalive                      = (
+        self._subscriber.subscribe(
+            subscription,
+            callback,
+            flow_control=flow_control))
+
+    return sub_keepalive</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -258,6 +420,10 @@ else:
 </li>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription">create_subscription</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.subscribe" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.subscribe">subscribe</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
