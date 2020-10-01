@@ -107,8 +107,6 @@ else:
 
     from google.cloud import pubsub
 
-    from .utils import convert_google_future_to_concurrent_future
-
 
     class SubscriberClient:  # type: ignore[no-redef]
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
@@ -152,10 +150,6 @@ else:
                     self._wrap_callback(callback),
                     flow_control=flow_control))
 
-            convert_google_future_to_concurrent_future(
-                sub_keepalive, loop=self.loop)
-
-            _ = asyncio.wrap_future(sub_keepalive)
             self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
             return sub_keepalive
