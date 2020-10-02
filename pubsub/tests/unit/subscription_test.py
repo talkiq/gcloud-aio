@@ -46,10 +46,10 @@ else:
 
         pubsub_message = PubsubMessage()
         pubsub_message.attributes['style'] = 'cool'
-        google_message = Message(pubsub_message, 'some_ack_id', 0,
+        google_message = Message(pubsub_message, ack_id, delivery_attempt,
                                  request_queue)
 
         subscriber_message = SubscriberMessage.from_google_cloud(google_message)
         assert subscriber_message.ack_id == ack_id
-        assert subscriber_message.delivery_attempt == delivery_attempt
+        assert subscriber_message.delivery_attempt is None  # only an int if >0
         assert subscriber_message.attributes['style'] == 'cool'
