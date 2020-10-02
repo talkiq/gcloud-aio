@@ -509,9 +509,26 @@ Future", wrap it into a asyncio Future and return it.</p></div>
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
     @staticmethod
-    def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
-        return SubscriberMessage(google_cloud_message=message)</code></pre>
+    def from_google_cloud(message: Any) -&gt; &#39;SubscriberMessage&#39;:
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud"><code class="name flex">
+<span>def <span class="ident">from_google_cloud</span></span>(<span>message: google.cloud.pubsub_v1.subscriber.message.Message) ‑> <a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def from_google_cloud(message: Message) -&gt; &#39;SubscriberMessage&#39;:
+    return SubscriberMessage(google_cloud_message=message)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.SubscriberMessage.ack_id"><code class="name">var <span class="ident">ack_id</span> : str</code></dt>
@@ -742,6 +759,7 @@ def size(self) -&gt; int:
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.data" href="#gcloud.aio.pubsub.SubscriberMessage.data">data</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt" href="#gcloud.aio.pubsub.SubscriberMessage.delivery_attempt">delivery_attempt</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.drop" href="#gcloud.aio.pubsub.SubscriberMessage.drop">drop</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberMessage.from_google_cloud" href="#gcloud.aio.pubsub.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.google_cloud_message" href="#gcloud.aio.pubsub.SubscriberMessage.google_cloud_message">google_cloud_message</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.message_id" href="#gcloud.aio.pubsub.SubscriberMessage.message_id">message_id</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline" href="#gcloud.aio.pubsub.SubscriberMessage.modify_ack_deadline">modify_ack_deadline</a></code></li>

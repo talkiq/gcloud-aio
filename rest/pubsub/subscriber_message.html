@@ -53,8 +53,8 @@ if BUILD_GCLOUD_REST:
             raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
         @staticmethod
-        def from_google_cloud(message         )                       :
-            return SubscriberMessage(google_cloud_message=message)
+        def from_google_cloud(message     )                       :
+            raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 else:
     import datetime
 
@@ -70,6 +70,10 @@ else:
                 self._message = google_cloud_message
                 return
             self._message = Message(*args, **kwargs)
+
+        @staticmethod
+        def from_google_cloud(message         )                       :
+            return SubscriberMessage(google_cloud_message=message)
 
         @property
         def google_cloud_message(self)           :
@@ -150,8 +154,8 @@ else:
         raise NotImplementedError(&#39;this class is only implemented in aio&#39;)
 
     @staticmethod
-    def from_google_cloud(message         )                       :
-        return SubscriberMessage(google_cloud_message=message)</code></pre>
+    def from_google_cloud(message     )                       :
+        raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -165,8 +169,8 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def from_google_cloud(message         )                       :
-    return SubscriberMessage(google_cloud_message=message)</code></pre>
+def from_google_cloud(message     )                       :
+    raise NotImplementedError(&#39;this class is only implemented in aio&#39;)</code></pre>
 </details>
 </dd>
 </dl>
