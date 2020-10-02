@@ -10,9 +10,13 @@ if BUILD_GCLOUD_REST:
 
 
 else:
+    from queue import Queue
+
     from gcloud.aio.pubsub.subscriber_client import FlowControl
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
-    from gcloud.aio.pubsub.subscriber_message import SubscriberMessage  # pylint: disable=unused-import
+    from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
+    from google.cloud.pubsub_v1.subscriber.message import Message
+    from google.cloud.pubsub_v1.types import PubsubMessage
 
 
     def test_construct_subscriber_client():
@@ -34,3 +38,18 @@ else:
         assert f.max_bytes == 100
         assert f.max_lease_duration == 10
         assert f.max_duration_per_lease_extension == 0
+
+    def test_construct_subscriber_message_from_google_message():
+        ack_id = 'some_ack_id'
+        delivery_attempt = 0
+        request_queue = Queue()
+
+        pubsub_message = PubsubMessage()
+        pubsub_message.attributes['style'] = 'cool'
+        google_message = Message(pubsub_message, 'some_ack_id', 0,
+                                 request_queue)
+
+        subscriber_message = SubscriberMessage.from_google_cloud(google_message)
+        assert subscriber_message.ack_id == ack_id
+        assert subscriber_message.delivery_attempt == delivery_attempt
+        assert subscriber_message.attributes['style'] == 'cool'
