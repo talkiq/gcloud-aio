@@ -7,7 +7,10 @@ from typing import Tuple
 from typing import Union
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
+
+from .subscriber_message import SubscriberMessage
 
 class FlowControl:
     def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
@@ -77,10 +80,23 @@ if BUILD_GCLOUD_REST:
             sub_keepalive: StreamingPullFuture = (
                 self._subscriber.subscribe(
                     subscription,
-                    callback,
+                    self._wrap_callback(callback),
                     flow_control=flow_control))
 
             return sub_keepalive
+
+        @staticmethod
+        def _wrap_callback(callback: Callable[[SubscriberMessage], None]
+                           ) -> Callable[[Message], None]:
+            """
+            Make callback work with vanilla
+            google.cloud.pubsub_v1.subscriber.message.Message
+
+            """
+            def _callback_wrapper(message: Message) -> None:
+                callback(SubscriberMessage.from_google_cloud(message))
+
+            return _callback_wrapper
 
 else:
     import asyncio
@@ -90,9 +106,7 @@ else:
 
     from google.api_core import exceptions
     from google.cloud import pubsub
-    from google.cloud.pubsub_v1.subscriber.message import Message
 
-    from .subscriber_message import SubscriberMessage
     from .utils import convert_google_future_to_concurrent_future
 
 
