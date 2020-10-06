@@ -7,6 +7,7 @@ from typing import Tuple
 from typing import Union
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from google.api_core import exceptions
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
 
@@ -104,7 +105,6 @@ else:
     import signal
 
 
-    from google.api_core import exceptions
     from google.cloud import pubsub
 
     from .utils import convert_google_future_to_concurrent_future
