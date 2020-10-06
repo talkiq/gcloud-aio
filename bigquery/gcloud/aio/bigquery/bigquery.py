@@ -60,7 +60,6 @@ class Table:
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
-
     async def project(self) -> str:
         if self._project:
             return self._project
