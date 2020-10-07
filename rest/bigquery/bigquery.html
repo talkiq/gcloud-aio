@@ -103,6 +103,10 @@ class Table(object):
         if self._project:
             return self._project
 
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
         self._project = self.token.get_project()
         if self._project:
             return self._project
@@ -479,6 +483,10 @@ class Table(object):
 
     def project(self)       :
         if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
             return self._project
 
         self._project = self.token.get_project()
@@ -960,6 +968,10 @@ class Table(object):
 </summary>
 <pre><code class="python">def project(self)       :
     if self._project:
+        return self._project
+
+    if BIGQUERY_EMULATOR_HOST:
+        self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
         return self._project
 
     self._project = self.token.get_project()

@@ -176,6 +176,10 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         if self._project:
             return self._project
 
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
         self._project = self.token.get_project()
         if self._project:
             return self._project
@@ -655,6 +659,10 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </summary>
 <pre><code class="python">def project(self)       :
     if self._project:
+        return self._project
+
+    if BIGQUERY_EMULATOR_HOST:
+        self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
         return self._project
 
     self._project = self.token.get_project()

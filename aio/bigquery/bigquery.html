@@ -92,6 +92,10 @@ class Table:
         if self._project:
             return self._project
 
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
         self._project = await self.token.get_project()
         if self._project:
             return self._project
@@ -465,6 +469,10 @@ class Table:
 
     async def project(self) -&gt; str:
         if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
             return self._project
 
         self._project = await self.token.get_project()
@@ -949,6 +957,10 @@ response JSON containing details on the failing rows.</p></div>
 </summary>
 <pre><code class="python">async def project(self) -&gt; str:
     if self._project:
+        return self._project
+
+    if BIGQUERY_EMULATOR_HOST:
+        self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
         return self._project
 
     self._project = await self.token.get_project()
