@@ -64,6 +64,10 @@ class Table:
         if self._project:
             return self._project
 
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get('BIGQUERY_PROJECT_ID', 'dev'))
+            return self._project
+
         self._project = await self.token.get_project()
         if self._project:
             return self._project
