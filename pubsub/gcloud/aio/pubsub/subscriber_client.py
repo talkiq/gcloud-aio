@@ -8,6 +8,7 @@ from typing import Union
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from google.api_core import exceptions
+from google.cloud.pubsub_v1.subscriber.futures import StreamingPullFuture
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
 
@@ -39,7 +40,6 @@ class FlowControl:
 
 if BUILD_GCLOUD_REST:
     from google.cloud import pubsub_v1 as pubsub
-    from google.cloud.pubsub_v1.subscriber.futures import StreamingPullFuture
 
 
     class SubscriberClient:
@@ -104,7 +104,6 @@ else:
     import concurrent.futures
     import signal
 
-
     from google.cloud import pubsub
 
 
@@ -138,30 +137,27 @@ else:
                       callback: Callable[[SubscriberMessage], Any],
                       *,
                       flow_control: Union[FlowControl, Tuple[int, ...]] = ()
-                      ) -> asyncio.Future:  # type: ignore
+                      ) -> StreamingPullFuture:
             """
-            Create subscription through pubsub client, hijack the returned
-            "non-concurrent Future" and coerce it into being a "concurrent
-            Future", wrap it into a asyncio Future and return it.
+            Create subscription through pubsub client, scheduling callbacks
+            on the event loop.
             """
-            sub_keepalive: asyncio.Future = (  # type: ignore
-                self._subscriber.subscribe(
-                    subscription,
-                    self._wrap_callback(callback),
-                    flow_control=flow_control))
+            sub_keepalive = self._subscriber.subscribe(
+                subscription,
+                self._wrap_callback(callback),
+                flow_control=flow_control)
 
             self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
             return sub_keepalive
 
-        def run_forever(self,
-                        sub_keepalive: asyncio.Future) -> None:  # type: ignore
+        def run_forever(self, sub_keepalive: StreamingPullFuture) -> None:
             """
             Start the asyncio loop, running until it is either SIGTERM-ed or
-            killed by keyboard interrupt. The Future parameter is used to
-            cancel subscription Future in the case that an unexpected exception
-            is thrown. You can also directly pass the `.subscribe()` method
-            call instead like so:
+            killed by keyboard interrupt. The StreamingPullFuture parameter is
+            used to cancel subscription in the case that an unexpected
+            exception is thrown. You can also directly pass the `.subscribe()`
+            method call instead like so:
                 sub.run_forever(sub.subscribe(callback))
             """
             try:
