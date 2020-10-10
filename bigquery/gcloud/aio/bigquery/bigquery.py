@@ -46,6 +46,11 @@ class Disposition(Enum):
     WRITE_TRUNCATE = 'WRITE_TRUNCATE'
 
 
+class SchemaUpdateOption(Enum):
+    ALLOW_FIELD_ADDITION = 'ALLOW_FIELD_ADDITION'
+    ALLOW_FIELD_RELAXATION = 'ALLOW_FIELD_RELAXATION'
+
+
 class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
@@ -124,14 +129,20 @@ class Table:
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
             source_format: SourceFormat,
-            write_disposition: Disposition) -> Dict[str, Any]:
+            write_disposition: Disposition,
+            ignore_unknown_values: bool,
+            schema_update_options: List[SchemaUpdateOption]
+        ) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
                     'autodetect': autodetect,
+                    'ignoreUnknownValues': ignore_unknown_values,
                     'sourceUris': source_uris,
                     'sourceFormat': source_format.value,
                     'writeDisposition': write_disposition.value,
+                    'schemaUpdateOptions': [
+                        e.value for e in schema_update_options],
                     'destinationTable': {
                         'projectId': project,
                         'datasetId': self.dataset_name,
@@ -282,16 +293,23 @@ class Table:
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60,
+            ignore_unknown_values: bool = False,
+            schema_update_options: Optional[List[SchemaUpdateOption]] = None
+        ) -> Dict[str, Any]:
         """Loads entities from storage to BigQuery."""
         if not source_uris:
             return {}
+
+        if not schema_update_options:
+            schema_update_options = []
 
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
+            ignore_unknown_values, schema_update_options
         )
         return await self._post_json(url, body, session, timeout)
 
