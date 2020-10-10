@@ -4,9 +4,11 @@ import json
 import logging
 import mimetypes
 import os
+import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
+from typing import Generator
 from typing import IO
 from typing import Optional
 from typing import Tuple
@@ -18,6 +20,17 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-modu
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
 
+if sys.version_info >= (3, 6):
+    from typing import AsyncGenerator  # pylint: disable=ungrouped-imports
+    Stream = Union[IO[AnyStr],
+                   AsyncGenerator[IO[AnyStr], None],
+                   Generator[IO[AnyStr], None, None]]
+    GENERATORS = (AsyncGenerator, Generator)
+else:
+    Stream = Union[IO[AnyStr],
+                   Generator[IO[AnyStr], None, None]]
+    GENERATORS = (Generator,)
+
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from time import sleep
@@ -27,7 +40,6 @@ else:
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -189,7 +201,8 @@ class Storage:
     # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
-    async def upload(self, bucket: str, object_name: str, file_data: Any,
+    async def upload(self, bucket: str, object_name: str,
+                     file_data: Stream[Any],
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
@@ -215,10 +228,9 @@ class Storage:
 
         headers = headers or {}
         headers.update(await self._headers())
-        headers.update({
-            'Content-Length': str(content_length),
-            'Content-Type': content_type or '',
-        })
+        headers['Content-Type'] = content_type or ''
+        if content_length > 0:
+            headers['Content-Length'] = str(content_length)
 
         upload_type = self._decide_upload_type(force_resumable_upload,
                                                content_length)
@@ -246,7 +258,10 @@ class Storage:
                                      **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream: IO[AnyStr]) -> int:
+    def _get_stream_len(stream: Stream[Any]) -> int:
+        if isinstance(stream, (Generator, AsyncGenerator)):
+            # generator length is not known, return 0
+            return 0
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -254,16 +269,18 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _preprocess_data(data: Any) -> IO[Any]:
+    def _preprocess_data(data: Union[IO[AnyStr],
+                                     Generator[IO[AnyStr], None, None],
+                                     AsyncGenerator[IO[AnyStr], None]]
+                         ) -> Stream[Any]:
         if data is None:
             return io.StringIO('')
-
         if isinstance(data, bytes):
             return io.BytesIO(data)
         if isinstance(data, str):
             return io.StringIO(data)
-        if isinstance(data, io.IOBase):
-            return data  # type: ignore[return-value]
+        if isinstance(data, GENERATORS):
+            return data
 
         raise TypeError(f'unsupported upload type: "{type(data)}"')
 
@@ -279,7 +296,8 @@ class Storage:
             return UploadType.SIMPLE
 
         # decide based on Content-Length
-        if content_length > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD:
+        if (content_length == 0 or
+                content_length > MAX_CONTENT_LENGTH_SIMPLE_UPLOAD):
             return UploadType.RESUMABLE
 
         return UploadType.SIMPLE
@@ -319,7 +337,7 @@ class Storage:
         return data
 
     async def _upload_simple(self, url: str, object_name: str,
-                             stream: IO[AnyStr], params: Dict[str, str],
+                             stream: Stream[Any], params: Dict[str, str],
                              headers: Dict[str, str], *,
                              session: Optional[Session] = None,
                              timeout: int = 30) -> Dict[str, Any]:
@@ -336,7 +354,7 @@ class Storage:
         return data
 
     async def _upload_resumable(self, url: str, object_name: str,
-                                stream: IO[AnyStr], params: Dict[str, str],
+                                stream: Stream[Any], params: Dict[str, str],
                                 headers: Dict[str, str], *,
                                 metadata: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
@@ -363,16 +381,16 @@ class Storage:
             'Content-Length': str(len(metadata_)),
             'Content-Type': 'application/json; charset=UTF-8',
             'X-Upload-Content-Type': headers['Content-Type'],
-            'X-Upload-Content-Length': headers['Content-Length']
         })
-
+        if 'Content-Length' in headers:
+            post_headers['X-Upload-Content-Length'] = headers['Content-Length']
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
                             data=metadata_, timeout=10)
         session_uri: str = resp.headers['Location']
         return session_uri
 
-    async def _do_upload(self, session_uri: str, stream: IO[AnyStr],
+    async def _do_upload(self, session_uri: str, stream: Stream[Any],
                          headers: Dict[str, str], *, retries: int = 5,
                          session: Optional[Session] = None,
                          timeout: int = 30) -> Dict[str, Any]:

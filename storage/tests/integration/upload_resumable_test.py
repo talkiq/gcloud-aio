@@ -31,6 +31,7 @@ RANDOM_STRING = ''.join(rand_str_list)
     ('test'.encode('utf-8'), 'test'.encode('utf-8'), 'bin'),
     (io.BytesIO(RANDOM_BINARY), RANDOM_BINARY, 'bin'),
     (io.StringIO(RANDOM_STRING), RANDOM_STRING.encode('utf-8'), 'txt'),
+    ((b for b in RANDOM_BINARY), RANDOM_BINARY, 'bin'),
 ])
 async def test_upload_resumable(bucket_name, creds, uploaded_data,
                                 expected_data, file_extension):
