@@ -326,6 +326,22 @@ class Table:
         body = self._make_query_body(query, project, write_disposition)
         return await self._post_json(url, body, session, timeout)
 
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
+    async def get_job(self, job_id: str,
+                      session: Optional[Session] = None,
+                      timeout: int = 60) -> Dict[str, Any]:
+        """Get the specified job resource by job ID."""
+
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/jobs/{job_id}'
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
     async def close(self) -> None:
         await self.session.close()
 
