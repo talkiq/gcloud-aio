@@ -301,15 +301,12 @@ class Table:
         if not source_uris:
             return {}
 
-        if not schema_update_options:
-            schema_update_options = []
-
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
-            ignore_unknown_values, schema_update_options
+            ignore_unknown_values, schema_update_options or []
         )
         return await self._post_json(url, body, session, timeout)
 
