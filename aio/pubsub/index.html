@@ -427,27 +427,26 @@ for more details</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.run_forever"><code class="name flex">
-<span>def <span class="ident">run_forever</span></span>(<span>self, sub_keepalive: _asyncio.Future) ‑> NoneType</span>
+<span>def <span class="ident">run_forever</span></span>(<span>self, sub_keepalive: google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Start the asyncio loop, running until it is either SIGTERM-ed or
-killed by keyboard interrupt. The Future parameter is used to
-cancel subscription Future in the case that an unexpected exception
-is thrown. You can also directly pass the <code>.subscribe()</code> method
-call instead like so:
+killed by keyboard interrupt. The StreamingPullFuture parameter is
+used to cancel subscription in the case that an unexpected
+exception is thrown. You can also directly pass the <code>.subscribe()</code>
+method call instead like so:
 sub.run_forever(sub.subscribe(callback))</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run_forever(self,
-                sub_keepalive: asyncio.Future) -&gt; None:  # type: ignore
+<pre><code class="python">def run_forever(self, sub_keepalive: StreamingPullFuture) -&gt; None:
     &#34;&#34;&#34;
     Start the asyncio loop, running until it is either SIGTERM-ed or
-    killed by keyboard interrupt. The Future parameter is used to
-    cancel subscription Future in the case that an unexpected exception
-    is thrown. You can also directly pass the `.subscribe()` method
-    call instead like so:
+    killed by keyboard interrupt. The StreamingPullFuture parameter is
+    used to cancel subscription in the case that an unexpected
+    exception is thrown. You can also directly pass the `.subscribe()`
+    method call instead like so:
         sub.run_forever(sub.subscribe(callback))
     &#34;&#34;&#34;
     try:
@@ -469,12 +468,11 @@ sub.run_forever(sub.subscribe(callback))</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.subscribe"><code class="name flex">
-<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Any], *, flow_control: Union[<a title="gcloud.aio.pubsub.subscriber_client.FlowControl" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.FlowControl">FlowControl</a>, Tuple[int, ...]] = ()) ‑> _asyncio.Future</span>
+<span>def <span class="ident">subscribe</span></span>(<span>self, subscription: str, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Any], *, flow_control: Union[<a title="gcloud.aio.pubsub.subscriber_client.FlowControl" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.FlowControl">FlowControl</a>, Tuple[int, ...]] = ()) ‑> google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create subscription through pubsub client, hijack the returned
-"non-concurrent Future" and coerce it into being a "concurrent
-Future", wrap it into a asyncio Future and return it.</p></div>
+<div class="desc"><p>Create subscription through pubsub client, scheduling callbacks
+on the event loop.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -484,22 +482,16 @@ Future", wrap it into a asyncio Future and return it.</p></div>
               callback: Callable[[SubscriberMessage], Any],
               *,
               flow_control: Union[FlowControl, Tuple[int, ...]] = ()
-              ) -&gt; asyncio.Future:  # type: ignore
+              ) -&gt; StreamingPullFuture:
     &#34;&#34;&#34;
-    Create subscription through pubsub client, hijack the returned
-    &#34;non-concurrent Future&#34; and coerce it into being a &#34;concurrent
-    Future&#34;, wrap it into a asyncio Future and return it.
+    Create subscription through pubsub client, scheduling callbacks
+    on the event loop.
     &#34;&#34;&#34;
-    sub_keepalive: asyncio.Future = (  # type: ignore
-        self._subscriber.subscribe(
-            subscription,
-            self._wrap_callback(callback),
-            flow_control=flow_control))
+    sub_keepalive = self._subscriber.subscribe(
+        subscription,
+        self._wrap_callback(callback),
+        flow_control=flow_control)
 
-    convert_google_future_to_concurrent_future(
-        sub_keepalive, loop=self.loop)
-
-    _ = asyncio.wrap_future(sub_keepalive)
     self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
 
     return sub_keepalive</code></pre>

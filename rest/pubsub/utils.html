@@ -41,62 +41,7 @@ from typing import Any
 from typing import Dict
 from typing import Union
 
-from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.rest.auth import encode  # pylint: disable=no-name-in-module
-
-
-if BUILD_GCLOUD_REST:
-    pass
-else:
-    import asyncio
-    import concurrent
-    import threading
-
-    import google.api_core.future
-
-
-    def convert_google_future_to_concurrent_future(
-            future                               , **_3to2kwargs                           )        :
-        loop = _3to2kwargs[&#39;loop&#39;]; del _3to2kwargs[&#39;loop&#39;]
-        &#34;&#34;&#34;
-        The google-cloud-pubsub subscription library returns a
-        `google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture`,
-        which is a subclass of `google.api_core.future.Future`, which in turn
-        is NOT a subclass of `concurrent.futures.Future` (even though it is
-        explicitly designed to be interface-identical).
-
-        A `concurrent.futures.Future` can be added to an asyncio task queue
-        with `asyncio.wrap_future`, but that method explicitly calls
-        `isinstance` rather than duck-typing the future.
-
-        This method exists as a hack to make `asyncio.wrap_future` think that
-        a google `Future` is valid.
-
-        Here are the gotchas is uses to do so:
-        - sets `future.__class__` so the `isinstance` check works
-        - sets `future._condition`, `future._state`, `future._done_callbacks`
-          and `future._waiters` to their equivalent expected values (these are
-          the attributes which Google decided to avoid mirroring from
-          `concurrent.futures`)
-        - spawns an infinite task which `await`s every second, which prevents
-          the Google future from occasionally getting stuck
-        &#34;&#34;&#34;
-        # BEWARE: here be dragons
-        def await_on_interval(interval     )        :
-            while True:
-                asyncio.sleep(interval)
-
-        def _state(self                           )       :  # type: ignore
-            return &#39;RUNNING&#39; if self.running() else &#39;FINISHED&#39;
-
-        future._condition = threading.Condition()  # pylint: disable=protected-access
-        future.__class__ = concurrent.futures.Future
-        setattr(future, &#39;_state&#39;, property(_state))
-        setattr(future, &#39;_done_callbacks&#39;,
-                future._callbacks)  # pylint: disable=protected-access
-        setattr(future, &#39;_waiters&#39;, [])
-
-        loop.create_task(await_on_interval(1))
 
 
 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage

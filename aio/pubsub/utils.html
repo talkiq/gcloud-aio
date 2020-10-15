@@ -30,62 +30,7 @@
 from typing import Dict
 from typing import Union
 
-from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import encode  # pylint: disable=no-name-in-module
-
-
-if BUILD_GCLOUD_REST:
-    pass
-else:
-    import asyncio
-    import concurrent
-    import threading
-
-    import google.api_core.future
-
-
-    def convert_google_future_to_concurrent_future(
-            future: google.api_core.future.Future, *,
-            loop: asyncio.AbstractEventLoop) -&gt; None:
-        &#34;&#34;&#34;
-        The google-cloud-pubsub subscription library returns a
-        `google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture`,
-        which is a subclass of `google.api_core.future.Future`, which in turn
-        is NOT a subclass of `concurrent.futures.Future` (even though it is
-        explicitly designed to be interface-identical).
-
-        A `concurrent.futures.Future` can be added to an asyncio task queue
-        with `asyncio.wrap_future`, but that method explicitly calls
-        `isinstance` rather than duck-typing the future.
-
-        This method exists as a hack to make `asyncio.wrap_future` think that
-        a google `Future` is valid.
-
-        Here are the gotchas is uses to do so:
-        - sets `future.__class__` so the `isinstance` check works
-        - sets `future._condition`, `future._state`, `future._done_callbacks`
-          and `future._waiters` to their equivalent expected values (these are
-          the attributes which Google decided to avoid mirroring from
-          `concurrent.futures`)
-        - spawns an infinite task which `await`s every second, which prevents
-          the Google future from occasionally getting stuck
-        &#34;&#34;&#34;
-        # BEWARE: here be dragons
-        async def await_on_interval(interval: int) -&gt; None:
-            while True:
-                await asyncio.sleep(interval)
-
-        def _state(self: concurrent.futures.Future) -&gt; str:  # type: ignore
-            return &#39;RUNNING&#39; if self.running() else &#39;FINISHED&#39;
-
-        future._condition = threading.Condition()  # pylint: disable=protected-access
-        future.__class__ = concurrent.futures.Future
-        setattr(future, &#39;_state&#39;, property(_state))
-        setattr(future, &#39;_done_callbacks&#39;,
-                future._callbacks)  # pylint: disable=protected-access
-        setattr(future, &#39;_waiters&#39;, [])
-
-        loop.create_task(await_on_interval(1))
 
 
 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
@@ -110,79 +55,6 @@ class PubsubMessage:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="gcloud.aio.pubsub.utils.convert_google_future_to_concurrent_future"><code class="name flex">
-<span>def <span class="ident">convert_google_future_to_concurrent_future</span></span>(<span>future: google.api_core.future.base.Future, *, loop: asyncio.events.AbstractEventLoop) ‑> NoneType</span>
-</code></dt>
-<dd>
-<div class="desc"><p>The google-cloud-pubsub subscription library returns a
-<code>google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture</code>,
-which is a subclass of <code>google.api_core.future.Future</code>, which in turn
-is NOT a subclass of <code>concurrent.futures.Future</code> (even though it is
-explicitly designed to be interface-identical).</p>
-<p>A <code>concurrent.futures.Future</code> can be added to an asyncio task queue
-with <code>asyncio.wrap_future</code>, but that method explicitly calls
-<code>isinstance</code> rather than duck-typing the future.</p>
-<p>This method exists as a hack to make <code>asyncio.wrap_future</code> think that
-a google <code>Future</code> is valid.</p>
-<p>Here are the gotchas is uses to do so:
-- sets <code>future.__class__</code> so the <code>isinstance</code> check works
-- sets <code>future._condition</code>, <code>future._state</code>, <code>future._done_callbacks</code>
-and <code>future._waiters</code> to their equivalent expected values (these are
-the attributes which Google decided to avoid mirroring from
-<code>concurrent.futures</code>)
-- spawns an infinite task which <code>await</code>s every second, which prevents
-the Google future from occasionally getting stuck</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def convert_google_future_to_concurrent_future(
-        future: google.api_core.future.Future, *,
-        loop: asyncio.AbstractEventLoop) -&gt; None:
-    &#34;&#34;&#34;
-    The google-cloud-pubsub subscription library returns a
-    `google.cloud.pubsub_v1.subscriber.futures.StreamingPullFuture`,
-    which is a subclass of `google.api_core.future.Future`, which in turn
-    is NOT a subclass of `concurrent.futures.Future` (even though it is
-    explicitly designed to be interface-identical).
-
-    A `concurrent.futures.Future` can be added to an asyncio task queue
-    with `asyncio.wrap_future`, but that method explicitly calls
-    `isinstance` rather than duck-typing the future.
-
-    This method exists as a hack to make `asyncio.wrap_future` think that
-    a google `Future` is valid.
-
-    Here are the gotchas is uses to do so:
-    - sets `future.__class__` so the `isinstance` check works
-    - sets `future._condition`, `future._state`, `future._done_callbacks`
-      and `future._waiters` to their equivalent expected values (these are
-      the attributes which Google decided to avoid mirroring from
-      `concurrent.futures`)
-    - spawns an infinite task which `await`s every second, which prevents
-      the Google future from occasionally getting stuck
-    &#34;&#34;&#34;
-    # BEWARE: here be dragons
-    async def await_on_interval(interval: int) -&gt; None:
-        while True:
-            await asyncio.sleep(interval)
-
-    def _state(self: concurrent.futures.Future) -&gt; str:  # type: ignore
-        return &#39;RUNNING&#39; if self.running() else &#39;FINISHED&#39;
-
-    future._condition = threading.Condition()  # pylint: disable=protected-access
-    future.__class__ = concurrent.futures.Future
-    setattr(future, &#39;_state&#39;, property(_state))
-    setattr(future, &#39;_done_callbacks&#39;,
-            future._callbacks)  # pylint: disable=protected-access
-    setattr(future, &#39;_waiters&#39;, [])
-
-    loop.create_task(await_on_interval(1))</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -244,11 +116,6 @@ the Google future from occasionally getting stuck</p></div>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="gcloud.aio.pubsub" href="index.html">gcloud.aio.pubsub</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="gcloud.aio.pubsub.utils.convert_google_future_to_concurrent_future" href="#gcloud.aio.pubsub.utils.convert_google_future_to_concurrent_future">convert_google_future_to_concurrent_future</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
