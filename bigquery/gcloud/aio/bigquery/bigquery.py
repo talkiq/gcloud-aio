@@ -150,7 +150,8 @@ class Table(BQResource):
                  token: Optional[Token] = None) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
-        super().__init__(project=project, service_file=service_file,
+        super().__init__(project=project,
+                         service_file=service_file,
                          session=session, token=token)
 
     @staticmethod
@@ -341,7 +342,7 @@ class Table(BQResource):
     async def insert_via_copy(
             self, destination_project: str, destination_dataset: str,
             destination_table: str, session: Optional[Session] = None,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60) -> Job:
         """Copy BQ table to another table in BQ"""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
@@ -349,7 +350,9 @@ class Table(BQResource):
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response['jobReference']['jobId'], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -363,7 +366,6 @@ class Table(BQResource):
             schema_update_options: Optional[List[SchemaUpdateOption]] = None
         ) -> Job:
         """Loads entities from storage to BigQuery."""
-
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
@@ -380,16 +382,15 @@ class Table(BQResource):
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60) -> Job:
         """Create table as a result of the query"""
-        if not query:
-            return {}
-
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response['jobReference']['jobId'], self._project,
+                   session=self.session, token=self.token)
 
     async def close(self) -> None:
         await self.session.close()
