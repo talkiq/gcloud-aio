@@ -51,12 +51,13 @@ class SchemaUpdateOption(Enum):
     ALLOW_FIELD_RELAXATION = 'ALLOW_FIELD_RELAXATION'
 
 
-class BQResource:
-
-    def __init__(self, project: Optional[str] = None,
+class Job:
+    def __init__(self, job_id: str,
+                 project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
+        self.job_id = job_id
         self._project = project
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
@@ -84,17 +85,6 @@ class BQResource:
         return {
             'Authorization': f'Bearer {token}',
         }
-
-
-class Job(BQResource):
-    def __init__(self, job_id: str,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
-        self.job_id = job_id
-        super().__init__(project=project, service_file=service_file,
-                         session=session, token=token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(self, session: Optional[Session] = None,
@@ -142,7 +132,7 @@ class Job(BQResource):
         return data
 
 
-class Table(BQResource):
+class Table:
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
@@ -150,9 +140,33 @@ class Table(BQResource):
                  token: Optional[Token] = None) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
-        super().__init__(project=project,
-                         service_file=service_file,
-                         session=session, token=token)
+        self._project = project
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    async def project(self) -> str:
+        if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get('BIGQUERY_PROJECT_ID', 'dev'))
+            return self._project
+
+        self._project = await self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception('could not determine project, please set it manually')
+
+    async def headers(self) -> Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
