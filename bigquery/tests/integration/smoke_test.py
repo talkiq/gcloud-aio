@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.bigquery import BQClient
 from gcloud.aio.bigquery import SourceFormat
 from gcloud.aio.bigquery import Table
 from gcloud.aio.datastore import Datastore  # pylint: disable=no-name-in-module
@@ -26,8 +27,8 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
 
     async with Session() as s:
         # TODO: create this table (with a random name)
-        t = Table(dataset, table, project=project, service_file=creds,
-                  session=s)
+        client = BQClient(project=project, service_file=creds, session=s)
+        t = Table(dataset, table, client=client)
         await t.insert(rows)
 
 
@@ -63,8 +64,8 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         backup_entity_table = f'public_test_backup_entity_{uuid_}'
         copy_entity_table = f'{backup_entity_table}_copy'
 
-        t = Table(dataset, backup_entity_table, project=project,
-                  service_file=creds, session=s)
+        client = BQClient(project=project, service_file=creds, session=s)
+        t = Table(dataset, backup_entity_table, client=client)
         gs_prefix = operation.metadata['outputUrlPrefix']
         gs_file = (f'{gs_prefix}/all_namespaces/kind_{kind}/'
                    f'all_namespaces_kind_{kind}.export_metadata')
@@ -78,8 +79,7 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
 
         await t.insert_via_copy(project, dataset, copy_entity_table)
         await sleep(10)
-        t1 = Table(dataset, copy_entity_table, project=project,
-                   service_file=creds, session=s)
+        t1 = Table(dataset, copy_entity_table, client=client)
         copy_table = await t1.get()
         assert copy_table['numRows'] == source_table['numRows']
 

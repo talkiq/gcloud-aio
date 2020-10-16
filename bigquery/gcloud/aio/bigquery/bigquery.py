@@ -51,7 +51,7 @@ class SchemaUpdateOption(Enum):
     ALLOW_FIELD_RELAXATION = 'ALLOW_FIELD_RELAXATION'
 
 
-class BQResource:
+class BQClient:
 
     def __init__(self, project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
@@ -86,27 +86,23 @@ class BQResource:
         }
 
 
-class Job(BQResource):
+class Job():
     def __init__(self, job_id: str,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+                 client: Optional[BQClient] = None) -> None:
         self.job_id = job_id
-        super().__init__(project=project, service_file=service_file,
-                         session=session, token=token)
+        self.client = client or BQClient()
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(self, session: Optional[Session] = None,
                       timeout: int = 60) -> Dict[str, Any]:
         """Get the specified job resource by job ID."""
 
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/jobs/{self.job_id}'
 
-        headers = await self.headers()
+        headers = await self.client.headers()
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
@@ -116,12 +112,12 @@ class Job(BQResource):
                                 timeout: int = 60) -> Dict[str, Any]:
         """Get the specified jobQueryResults by job ID."""
 
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}'
 
-        headers = await self.headers()
+        headers = await self.client.headers()
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
@@ -131,28 +127,23 @@ class Job(BQResource):
                      timeout: int = 60) -> Dict[str, Any]:
         """Cancel the specified job by job ID."""
 
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel'
 
-        headers = await self.headers()
+        headers = await self.client.headers()
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.post(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
 
-class Table(BQResource):
+class Table():
     def __init__(self, dataset_name: str, table_name: str,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+                 client: Optional[BQClient] = None) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
-        super().__init__(project=project,
-                         service_file=service_file,
-                         session=session, token=token)
+        self.client = client or BQClient()
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
@@ -249,13 +240,13 @@ class Table(BQResource):
             timeout: int) -> Dict[str, Any]:
         payload = json.dumps(body).encode('utf-8')
 
-        headers = await self.headers()
+        headers = await self.client.headers()
         headers.update({
             'Content-Length': str(len(payload)),
             'Content-Type': 'application/json',
         })
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.post(url, data=payload, headers=headers, params=None,
                             timeout=timeout)
         data: Dict[str, Any] = await resp.json()
@@ -266,13 +257,13 @@ class Table(BQResource):
                      session: Optional[Session] = None,
                      timeout: int = 60) -> Dict[str, Any]:
         """Deletes the table specified by tableId from the dataset."""
-        project = await self.project()
+        project = await self.client.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables/{self.table_name}')
 
-        headers = await self.headers()
+        headers = await self.client.headers()
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.session.delete(url, headers=headers, params=None,
                                       timeout=timeout)
         try:
@@ -293,13 +284,13 @@ class Table(BQResource):
             self, session: Optional[Session] = None,
             timeout: int = 60) -> Dict[str, Any]:
         """Gets the specified table resource by table ID."""
-        project = await self.project()
+        project = await self.client.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables/{self.table_name}')
 
-        headers = await self.headers()
+        headers = await self.client.headers()
 
-        s = AioSession(session) if session else self.session
+        s = AioSession(session) if session else self.client.session
         resp = await s.get(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
@@ -327,7 +318,7 @@ class Table(BQResource):
         if not rows:
             return {}
 
-        project = await self.project()
+        project = await self.client.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
                f'tables/{self.table_name}/insertAll')
 
@@ -344,15 +335,14 @@ class Table(BQResource):
             destination_table: str, session: Optional[Session] = None,
             timeout: int = 60) -> Job:
         """Copy BQ table to another table in BQ"""
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
-        return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session, token=self.token)
+        return Job(response['jobReference']['jobId'], client=self.client)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -366,7 +356,7 @@ class Table(BQResource):
             schema_update_options: Optional[List[SchemaUpdateOption]] = None
         ) -> Job:
         """Loads entities from storage to BigQuery."""
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_load_body(
@@ -374,8 +364,7 @@ class Table(BQResource):
             ignore_unknown_values, schema_update_options or []
         )
         response = await self._post_json(url, body, session, timeout)
-        return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session, token=self.token)
+        return Job(response['jobReference']['jobId'], client=self.client)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -384,16 +373,15 @@ class Table(BQResource):
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60) -> Job:
         """Create table as a result of the query"""
-        project = await self.project()
+        project = await self.client.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition)
         response = await self._post_json(url, body, session, timeout)
-        return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session, token=self.token)
+        return Job(response['jobReference']['jobId'], client=self.client)
 
     async def close(self) -> None:
-        await self.session.close()
+        await self.client.session.close()
 
     async def __aenter__(self) -> 'Table':
         return self
