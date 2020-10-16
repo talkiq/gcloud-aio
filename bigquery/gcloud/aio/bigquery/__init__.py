@@ -6,7 +6,8 @@ from gcloud.aio.bigquery.bigquery import SCOPES
 from gcloud.aio.bigquery.bigquery import SourceFormat
 from gcloud.aio.bigquery.bigquery import SchemaUpdateOption
 from gcloud.aio.bigquery.bigquery import Table
+from gcloud.aio.bigquery.bigquery import Job
 
 
 __all__ = ['__version__', 'Disposition', 'SCOPES', 'SourceFormat',
-           'SchemaUpdateOption', 'Table']
+           'SchemaUpdateOption', 'Table', 'Job']
