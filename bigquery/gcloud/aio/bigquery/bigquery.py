@@ -46,16 +46,19 @@ class Disposition(Enum):
     WRITE_TRUNCATE = 'WRITE_TRUNCATE'
 
 
-class Table:
-    def __init__(self, dataset_name: str, table_name: str,
+class SchemaUpdateOption(Enum):
+    ALLOW_FIELD_ADDITION = 'ALLOW_FIELD_ADDITION'
+    ALLOW_FIELD_RELAXATION = 'ALLOW_FIELD_RELAXATION'
+
+
+class Job:
+    def __init__(self, job_id: str,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
+        self.job_id = job_id
         self._project = project
-        self.dataset_name = dataset_name
-        self.table_name = table_name
-
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
@@ -73,6 +76,97 @@ class Table:
             return self._project
 
         raise Exception('could not determine project, please set it manually')
+
+    async def headers(self) -> Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
+    async def get_job(self, session: Optional[Session] = None,
+                      timeout: int = 60) -> Dict[str, Any]:
+        """Get the specified job resource by job ID."""
+
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/jobs/{self.job_id}'
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
+    async def get_query_results(self, session: Optional[Session] = None,
+                                timeout: int = 60) -> Dict[str, Any]:
+        """Get the specified jobQueryResults by job ID."""
+
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}'
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
+    async def cancel(self, session: Optional[Session] = None,
+                     timeout: int = 60) -> Dict[str, Any]:
+        """Cancel the specified job by job ID."""
+
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel'
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+
+class Table:
+    def __init__(self, dataset_name: str, table_name: str,
+                 project: Optional[str] = None,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 session: Optional[Session] = None,
+                 token: Optional[Token] = None) -> None:
+        self.dataset_name = dataset_name
+        self.table_name = table_name
+        self._project = project
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    async def project(self) -> str:
+        if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get('BIGQUERY_PROJECT_ID', 'dev'))
+            return self._project
+
+        self._project = await self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception('could not determine project, please set it manually')
+
+    async def headers(self) -> Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            'Authorization': f'Bearer {token}',
+        }
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
@@ -124,14 +218,20 @@ class Table:
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
             source_format: SourceFormat,
-            write_disposition: Disposition) -> Dict[str, Any]:
+            write_disposition: Disposition,
+            ignore_unknown_values: bool,
+            schema_update_options: List[SchemaUpdateOption]
+        ) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
                     'autodetect': autodetect,
+                    'ignoreUnknownValues': ignore_unknown_values,
                     'sourceUris': source_uris,
                     'sourceFormat': source_format.value,
                     'writeDisposition': write_disposition.value,
+                    'schemaUpdateOptions': [
+                        e.value for e in schema_update_options],
                     'destinationTable': {
                         'projectId': project,
                         'datasetId': self.dataset_name,
@@ -156,15 +256,6 @@ class Table:
                     },
                 },
             },
-        }
-
-    async def headers(self) -> Dict[str, str]:
-        if BIGQUERY_EMULATOR_HOST:
-            return {}
-
-        token = await self.token.get()
-        return {
-            'Authorization': f'Bearer {token}',
         }
 
     async def _post_json(
@@ -265,7 +356,7 @@ class Table:
     async def insert_via_copy(
             self, destination_project: str, destination_dataset: str,
             destination_table: str, session: Optional[Session] = None,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60) -> Job:
         """Copy BQ table to another table in BQ"""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
@@ -273,7 +364,9 @@ class Table:
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response['jobReference']['jobId'], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -282,34 +375,36 @@ class Table:
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60,
+            ignore_unknown_values: bool = False,
+            schema_update_options: Optional[List[SchemaUpdateOption]] = None
+        ) -> Job:
         """Loads entities from storage to BigQuery."""
-        if not source_uris:
-            return {}
-
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
+            ignore_unknown_values, schema_update_options or []
         )
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response['jobReference']['jobId'], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60) -> Dict[str, Any]:
+            timeout: int = 60) -> Job:
         """Create table as a result of the query"""
-        if not query:
-            return {}
-
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response['jobReference']['jobId'], self._project,
+                   session=self.session, token=self.token)
 
     async def close(self) -> None:
         await self.session.close()
