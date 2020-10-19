@@ -38,6 +38,11 @@ resolutions.
   cloud functions to stop building. Please pin your requirements as described
   here: `Google Cloud Function Dependencies`_.
 
+Contributing
+-------------
+
+Developer? See our `docs`_ on how you can contribute.
+
 .. gcloud-aio links
 
 .. _Google Cloud Auth: https://github.com/talkiq/gcloud-aio/blob/master/auth/README.rst
@@ -47,6 +52,7 @@ resolutions.
 .. _Google Cloud PubSub: https://github.com/talkiq/gcloud-aio/blob/master/pubsub/README.rst
 .. _Google Cloud Storage: https://github.com/talkiq/gcloud-aio/blob/master/storage/README.rst
 .. _Google Cloud Task Queue: https://github.com/talkiq/gcloud-aio/blob/master/taskqueue/README.rst
+.. _docs: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 
 .. |pypia| image:: https://img.shields.io/pypi/v/gcloud-aio-auth.svg?style=flat-square
     :alt: Latest PyPI Version
