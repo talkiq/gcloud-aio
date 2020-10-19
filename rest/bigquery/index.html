@@ -41,10 +41,13 @@ __version__ = get_distribution(&#39;gcloud-rest-bigquery&#39;).version
 from gcloud.rest.bigquery.bigquery import Disposition
 from gcloud.rest.bigquery.bigquery import SCOPES
 from gcloud.rest.bigquery.bigquery import SourceFormat
+from gcloud.rest.bigquery.bigquery import SchemaUpdateOption
 from gcloud.rest.bigquery.bigquery import Table
+from gcloud.rest.bigquery.bigquery import Job
 
 
-__all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;SourceFormat&#39;, &#39;Table&#39;]</code></pre>
+__all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;SourceFormat&#39;,
+           &#39;SchemaUpdateOption&#39;, &#39;Table&#39;, &#39;Job&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -93,6 +96,245 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <div class="desc"></div>
 </dd>
 <dt id="gcloud.rest.bigquery.Disposition.WRITE_TRUNCATE"><code class="name">var <span class="ident">WRITE_TRUNCATE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.bigquery.Job"><code class="flex name class">
+<span>class <span class="ident">Job</span></span>
+<span>(</span><span>job_id, project=None, service_file=None, session=None, token=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Job(object):
+    def __init__(self, job_id     ,
+                 project                = None,
+                 service_file                                  = None,
+                 session                    = None,
+                 token                  = None)        :
+        self.job_id = job_id
+        self._project = project
+        self.session = SyncSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    def project(self)       :
+        if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
+        self._project = self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    def headers(self)                  :
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = self.token.get()
+        return {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
+    def get_job(self, session                    = None,
+                      timeout      = 60)                  :
+        &#34;&#34;&#34;Get the specified job resource by job ID.&#34;&#34;&#34;
+
+        project = self.project()
+        url = &#39;{}/projects/{}/jobs/{}&#39;.format((API_ROOT), (project), (self.job_id))
+
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, timeout=timeout)
+        data                 = resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
+    def get_query_results(self, session                    = None,
+                                timeout      = 60)                  :
+        &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
+
+        project = self.project()
+        url = &#39;{}/projects/{}/queries/{}&#39;.format((API_ROOT), (project), (self.job_id))
+
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, timeout=timeout)
+        data                 = resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
+    def cancel(self, session                    = None,
+                     timeout      = 60)                  :
+        &#34;&#34;&#34;Cancel the specified job by job ID.&#34;&#34;&#34;
+
+        project = self.project()
+        url = &#39;{}/projects/{}/queries/{}/cancel&#39;.format((API_ROOT), (project), (self.job_id))
+
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, timeout=timeout)
+        data                 = resp.json()
+        return data</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.bigquery.Job.cancel"><code class="name flex">
+<span>def <span class="ident">cancel</span></span>(<span>self, session=None, timeout=60)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cancel the specified job by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cancel(self, session                    = None,
+                 timeout      = 60)                  :
+    &#34;&#34;&#34;Cancel the specified job by job ID.&#34;&#34;&#34;
+
+    project = self.project()
+    url = &#39;{}/projects/{}/queries/{}/cancel&#39;.format((API_ROOT), (project), (self.job_id))
+
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, headers=headers, timeout=timeout)
+    data                 = resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.Job.get_job"><code class="name flex">
+<span>def <span class="ident">get_job</span></span>(<span>self, session=None, timeout=60)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the specified job resource by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_job(self, session                    = None,
+                  timeout      = 60)                  :
+    &#34;&#34;&#34;Get the specified job resource by job ID.&#34;&#34;&#34;
+
+    project = self.project()
+    url = &#39;{}/projects/{}/jobs/{}&#39;.format((API_ROOT), (project), (self.job_id))
+
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, timeout=timeout)
+    data                 = resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.Job.get_query_results"><code class="name flex">
+<span>def <span class="ident">get_query_results</span></span>(<span>self, session=None, timeout=60)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the specified jobQueryResults by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_query_results(self, session                    = None,
+                            timeout      = 60)                  :
+    &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
+
+    project = self.project()
+    url = &#39;{}/projects/{}/queries/{}&#39;.format((API_ROOT), (project), (self.job_id))
+
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, timeout=timeout)
+    data                 = resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.Job.headers"><code class="name flex">
+<span>def <span class="ident">headers</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def headers(self)                  :
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
+    token = self.token.get()
+    return {
+        &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+    }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.Job.project"><code class="name flex">
+<span>def <span class="ident">project</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def project(self)       :
+    if self._project:
+        return self._project
+
+    if BIGQUERY_EMULATOR_HOST:
+        self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+        return self._project
+
+    self._project = self.token.get_project()
+    if self._project:
+        return self._project
+
+    raise Exception(&#39;could not determine project, please set it manually&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.rest.bigquery.SchemaUpdateOption"><code class="flex name class">
+<span>class <span class="ident">SchemaUpdateOption</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SchemaUpdateOption(Enum):
+    ALLOW_FIELD_ADDITION = &#39;ALLOW_FIELD_ADDITION&#39;
+    ALLOW_FIELD_RELAXATION = &#39;ALLOW_FIELD_RELAXATION&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION"><code class="name">var <span class="ident">ALLOW_FIELD_ADDITION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION"><code class="name">var <span class="ident">ALLOW_FIELD_RELAXATION</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -164,10 +406,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
                  service_file                                  = None,
                  session                    = None,
                  token                  = None)        :
-        self._project = project
         self.dataset_name = dataset_name
         self.table_name = table_name
-
+        self._project = project
         self.session = SyncSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
@@ -185,6 +426,15 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
             return self._project
 
         raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    def headers(self)                  :
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = self.token.get()
+        return {
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
+        }
 
     @staticmethod
     def _mk_unique_insert_id(row                )       :
@@ -238,14 +488,20 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     def _make_load_body(
             self, source_uris           , project     , autodetect      ,
             source_format              ,
-            write_disposition             )                  :
+            write_disposition             ,
+            ignore_unknown_values      ,
+            schema_update_options                          
+        )                  :
         return {
             &#39;configuration&#39;: {
                 &#39;load&#39;: {
                     &#39;autodetect&#39;: autodetect,
+                    &#39;ignoreUnknownValues&#39;: ignore_unknown_values,
                     &#39;sourceUris&#39;: source_uris,
                     &#39;sourceFormat&#39;: source_format.value,
                     &#39;writeDisposition&#39;: write_disposition.value,
+                    &#39;schemaUpdateOptions&#39;: [
+                        e.value for e in schema_update_options],
                     &#39;destinationTable&#39;: {
                         &#39;projectId&#39;: project,
                         &#39;datasetId&#39;: self.dataset_name,
@@ -270,15 +526,6 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
                     },
                 },
             },
-        }
-
-    def headers(self)                  :
-        if BIGQUERY_EMULATOR_HOST:
-            return {}
-
-        token = self.token.get()
-        return {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         }
 
     def _post_json(
@@ -380,7 +627,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     def insert_via_copy(
             self, destination_project     , destination_dataset     ,
             destination_table     , session                    = None,
-            timeout      = 60)                  :
+            timeout      = 60)       :
         &#34;&#34;&#34;Copy BQ table to another table in BQ&#34;&#34;&#34;
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
@@ -388,7 +635,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
-        return self._post_json(url, body, session, timeout)
+        response = self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -397,34 +646,36 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
             autodetect       = False,
             source_format               = SourceFormat.CSV,
             write_disposition              = Disposition.WRITE_TRUNCATE,
-            timeout      = 60)                  :
+            timeout      = 60,
+            ignore_unknown_values       = False,
+            schema_update_options                                     = None
+        )       :
         &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
-        if not source_uris:
-            return {}
-
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
+            ignore_unknown_values, schema_update_options or []
         )
-        return self._post_json(url, body, session, timeout)
+        response = self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     def insert_via_query(
             self, query     , session                    = None,
             write_disposition              = Disposition.WRITE_EMPTY,
-            timeout      = 60)                  :
+            timeout      = 60)       :
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
-        if not query:
-            return {}
-
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
         body = self._make_query_body(query, project, write_disposition)
-        return self._post_json(url, body, session, timeout)
+        response = self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     def close(self)        :
         self.session.close()
@@ -585,7 +836,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <pre><code class="python">def insert_via_copy(
         self, destination_project     , destination_dataset     ,
         destination_table     , session                    = None,
-        timeout      = 60)                  :
+        timeout      = 60)       :
     &#34;&#34;&#34;Copy BQ table to another table in BQ&#34;&#34;&#34;
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
@@ -593,11 +844,13 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     body = self._make_copy_body(
         project, destination_project,
         destination_dataset, destination_table)
-    return self._post_json(url, body, session, timeout)</code></pre>
+    response = self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.insert_via_load"><code class="name flex">
-<span>def <span class="ident">insert_via_load</span></span>(<span>self, source_uris, session=None, autodetect=False, source_format=SourceFormat.CSV, write_disposition=Disposition.WRITE_TRUNCATE, timeout=60)</span>
+<span>def <span class="ident">insert_via_load</span></span>(<span>self, source_uris, session=None, autodetect=False, source_format=SourceFormat.CSV, write_disposition=Disposition.WRITE_TRUNCATE, timeout=60, ignore_unknown_values=False, schema_update_options=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads entities from storage to BigQuery.</p></div>
@@ -610,18 +863,21 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         autodetect       = False,
         source_format               = SourceFormat.CSV,
         write_disposition              = Disposition.WRITE_TRUNCATE,
-        timeout      = 60)                  :
+        timeout      = 60,
+        ignore_unknown_values       = False,
+        schema_update_options                                     = None
+    )       :
     &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
-    if not source_uris:
-        return {}
-
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
     body = self._make_load_body(
         source_uris, project, autodetect, source_format, write_disposition,
+        ignore_unknown_values, schema_update_options or []
     )
-    return self._post_json(url, body, session, timeout)</code></pre>
+    response = self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.insert_via_query"><code class="name flex">
@@ -636,16 +892,15 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <pre><code class="python">def insert_via_query(
         self, query     , session                    = None,
         write_disposition              = Disposition.WRITE_EMPTY,
-        timeout      = 60)                  :
+        timeout      = 60)       :
     &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
-    if not query:
-        return {}
-
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
     body = self._make_query_body(query, project, write_disposition)
-    return self._post_json(url, body, session, timeout)</code></pre>
+    response = self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.project"><code class="name flex">
@@ -701,6 +956,23 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <li><code><a title="gcloud.rest.bigquery.Disposition.WRITE_APPEND" href="#gcloud.rest.bigquery.Disposition.WRITE_APPEND">WRITE_APPEND</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Disposition.WRITE_EMPTY" href="#gcloud.rest.bigquery.Disposition.WRITE_EMPTY">WRITE_EMPTY</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Disposition.WRITE_TRUNCATE" href="#gcloud.rest.bigquery.Disposition.WRITE_TRUNCATE">WRITE_TRUNCATE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.bigquery.Job" href="#gcloud.rest.bigquery.Job">Job</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.bigquery.Job.cancel" href="#gcloud.rest.bigquery.Job.cancel">cancel</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Job.get_job" href="#gcloud.rest.bigquery.Job.get_job">get_job</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Job.get_query_results" href="#gcloud.rest.bigquery.Job.get_query_results">get_query_results</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Job.headers" href="#gcloud.rest.bigquery.Job.headers">headers</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Job.project" href="#gcloud.rest.bigquery.Job.project">project</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.bigquery.SchemaUpdateOption" href="#gcloud.rest.bigquery.SchemaUpdateOption">SchemaUpdateOption</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION" href="#gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION">ALLOW_FIELD_ADDITION</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION" href="#gcloud.rest.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION">ALLOW_FIELD_RELAXATION</a></code></li>
 </ul>
 </li>
 <li>

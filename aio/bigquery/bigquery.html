@@ -74,16 +74,19 @@ class Disposition(Enum):
     WRITE_TRUNCATE = &#39;WRITE_TRUNCATE&#39;
 
 
-class Table:
-    def __init__(self, dataset_name: str, table_name: str,
+class SchemaUpdateOption(Enum):
+    ALLOW_FIELD_ADDITION = &#39;ALLOW_FIELD_ADDITION&#39;
+    ALLOW_FIELD_RELAXATION = &#39;ALLOW_FIELD_RELAXATION&#39;
+
+
+class Job:
+    def __init__(self, job_id: str,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
+        self.job_id = job_id
         self._project = project
-        self.dataset_name = dataset_name
-        self.table_name = table_name
-
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
@@ -101,6 +104,97 @@ class Table:
             return self._project
 
         raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
+    async def get_job(self, session: Optional[Session] = None,
+                      timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Get the specified job resource by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/jobs/{self.job_id}&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
+    async def get_query_results(self, session: Optional[Session] = None,
+                                timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
+    async def cancel(self, session: Optional[Session] = None,
+                     timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Cancel the specified job by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+
+class Table:
+    def __init__(self, dataset_name: str, table_name: str,
+                 project: Optional[str] = None,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 session: Optional[Session] = None,
+                 token: Optional[Token] = None) -&gt; None:
+        self.dataset_name = dataset_name
+        self.table_name = table_name
+        self._project = project
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    async def project(self) -&gt; str:
+        if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
+        self._project = await self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -&gt; str:
@@ -152,14 +246,20 @@ class Table:
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
             source_format: SourceFormat,
-            write_disposition: Disposition) -&gt; Dict[str, Any]:
+            write_disposition: Disposition,
+            ignore_unknown_values: bool,
+            schema_update_options: List[SchemaUpdateOption]
+        ) -&gt; Dict[str, Any]:
         return {
             &#39;configuration&#39;: {
                 &#39;load&#39;: {
                     &#39;autodetect&#39;: autodetect,
+                    &#39;ignoreUnknownValues&#39;: ignore_unknown_values,
                     &#39;sourceUris&#39;: source_uris,
                     &#39;sourceFormat&#39;: source_format.value,
                     &#39;writeDisposition&#39;: write_disposition.value,
+                    &#39;schemaUpdateOptions&#39;: [
+                        e.value for e in schema_update_options],
                     &#39;destinationTable&#39;: {
                         &#39;projectId&#39;: project,
                         &#39;datasetId&#39;: self.dataset_name,
@@ -184,15 +284,6 @@ class Table:
                     },
                 },
             },
-        }
-
-    async def headers(self) -&gt; Dict[str, str]:
-        if BIGQUERY_EMULATOR_HOST:
-            return {}
-
-        token = await self.token.get()
-        return {
-            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
         }
 
     async def _post_json(
@@ -293,7 +384,7 @@ class Table:
     async def insert_via_copy(
             self, destination_project: str, destination_dataset: str,
             destination_table: str, session: Optional[Session] = None,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60) -&gt; Job:
         &#34;&#34;&#34;Copy BQ table to another table in BQ&#34;&#34;&#34;
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
@@ -301,7 +392,9 @@ class Table:
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -310,34 +403,36 @@ class Table:
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60,
+            ignore_unknown_values: bool = False,
+            schema_update_options: Optional[List[SchemaUpdateOption]] = None
+        ) -&gt; Job:
         &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
-        if not source_uris:
-            return {}
-
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
+            ignore_unknown_values, schema_update_options or []
         )
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60) -&gt; Job:
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
-        if not query:
-            return {}
-
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
         body = self._make_query_body(query, project, write_disposition)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     async def close(self) -&gt; None:
         await self.session.close()
@@ -388,6 +483,245 @@ class Table:
 <div class="desc"></div>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Disposition.WRITE_TRUNCATE"><code class="name">var <span class="ident">WRITE_TRUNCATE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.Job"><code class="flex name class">
+<span>class <span class="ident">Job</span></span>
+<span>(</span><span>job_id: str, project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Job:
+    def __init__(self, job_id: str,
+                 project: Optional[str] = None,
+                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 session: Optional[Session] = None,
+                 token: Optional[Token] = None) -&gt; None:
+        self.job_id = job_id
+        self._project = project
+        self.session = AioSession(session)
+        self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                    session=self.session.session)
+
+    async def project(self) -&gt; str:
+        if self._project:
+            return self._project
+
+        if BIGQUERY_EMULATOR_HOST:
+            self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+            return self._project
+
+        self._project = await self.token.get_project()
+        if self._project:
+            return self._project
+
+        raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
+    async def get_job(self, session: Optional[Session] = None,
+                      timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Get the specified job resource by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/jobs/{self.job_id}&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
+    async def get_query_results(self, session: Optional[Session] = None,
+                                timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
+    async def cancel(self, session: Optional[Session] = None,
+                     timeout: int = 60) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Cancel the specified job by job ID.&#34;&#34;&#34;
+
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel&#39;
+
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.bigquery.bigquery.Job.cancel"><code class="name flex">
+<span>async def <span class="ident">cancel</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cancel the specified job by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def cancel(self, session: Optional[Session] = None,
+                 timeout: int = 60) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Cancel the specified job by job ID.&#34;&#34;&#34;
+
+    project = await self.project()
+    url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel&#39;
+
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.post(url, headers=headers, timeout=timeout)
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.Job.get_job"><code class="name flex">
+<span>async def <span class="ident">get_job</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the specified job resource by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def get_job(self, session: Optional[Session] = None,
+                  timeout: int = 60) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Get the specified job resource by job ID.&#34;&#34;&#34;
+
+    project = await self.project()
+    url = f&#39;{API_ROOT}/projects/{project}/jobs/{self.job_id}&#39;
+
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, timeout=timeout)
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.Job.get_query_results"><code class="name flex">
+<span>async def <span class="ident">get_query_results</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the specified jobQueryResults by job ID.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def get_query_results(self, session: Optional[Session] = None,
+                            timeout: int = 60) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
+
+    project = await self.project()
+    url = f&#39;{API_ROOT}/projects/{project}/queries/{self.job_id}&#39;
+
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, timeout=timeout)
+    data: Dict[str, Any] = await resp.json()
+    return data</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.Job.headers"><code class="name flex">
+<span>async def <span class="ident">headers</span></span>(<span>self) ‑> Dict[str, str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def headers(self) -&gt; Dict[str, str]:
+    if BIGQUERY_EMULATOR_HOST:
+        return {}
+
+    token = await self.token.get()
+    return {
+        &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+    }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.Job.project"><code class="name flex">
+<span>async def <span class="ident">project</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def project(self) -&gt; str:
+    if self._project:
+        return self._project
+
+    if BIGQUERY_EMULATOR_HOST:
+        self._project = str(os.environ.get(&#39;BIGQUERY_PROJECT_ID&#39;, &#39;dev&#39;))
+        return self._project
+
+    self._project = await self.token.get_project()
+    if self._project:
+        return self._project
+
+    raise Exception(&#39;could not determine project, please set it manually&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.SchemaUpdateOption"><code class="flex name class">
+<span>class <span class="ident">SchemaUpdateOption</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SchemaUpdateOption(Enum):
+    ALLOW_FIELD_ADDITION = &#39;ALLOW_FIELD_ADDITION&#39;
+    ALLOW_FIELD_RELAXATION = &#39;ALLOW_FIELD_RELAXATION&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION"><code class="name">var <span class="ident">ALLOW_FIELD_ADDITION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION"><code class="name">var <span class="ident">ALLOW_FIELD_RELAXATION</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -459,10 +793,9 @@ class Table:
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
-        self._project = project
         self.dataset_name = dataset_name
         self.table_name = table_name
-
+        self._project = project
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
@@ -480,6 +813,15 @@ class Table:
             return self._project
 
         raise Exception(&#39;could not determine project, please set it manually&#39;)
+
+    async def headers(self) -&gt; Dict[str, str]:
+        if BIGQUERY_EMULATOR_HOST:
+            return {}
+
+        token = await self.token.get()
+        return {
+            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
+        }
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -&gt; str:
@@ -531,14 +873,20 @@ class Table:
     def _make_load_body(
             self, source_uris: List[str], project: str, autodetect: bool,
             source_format: SourceFormat,
-            write_disposition: Disposition) -&gt; Dict[str, Any]:
+            write_disposition: Disposition,
+            ignore_unknown_values: bool,
+            schema_update_options: List[SchemaUpdateOption]
+        ) -&gt; Dict[str, Any]:
         return {
             &#39;configuration&#39;: {
                 &#39;load&#39;: {
                     &#39;autodetect&#39;: autodetect,
+                    &#39;ignoreUnknownValues&#39;: ignore_unknown_values,
                     &#39;sourceUris&#39;: source_uris,
                     &#39;sourceFormat&#39;: source_format.value,
                     &#39;writeDisposition&#39;: write_disposition.value,
+                    &#39;schemaUpdateOptions&#39;: [
+                        e.value for e in schema_update_options],
                     &#39;destinationTable&#39;: {
                         &#39;projectId&#39;: project,
                         &#39;datasetId&#39;: self.dataset_name,
@@ -563,15 +911,6 @@ class Table:
                     },
                 },
             },
-        }
-
-    async def headers(self) -&gt; Dict[str, str]:
-        if BIGQUERY_EMULATOR_HOST:
-            return {}
-
-        token = await self.token.get()
-        return {
-            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
         }
 
     async def _post_json(
@@ -672,7 +1011,7 @@ class Table:
     async def insert_via_copy(
             self, destination_project: str, destination_dataset: str,
             destination_table: str, session: Optional[Session] = None,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60) -&gt; Job:
         &#34;&#34;&#34;Copy BQ table to another table in BQ&#34;&#34;&#34;
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
@@ -680,7 +1019,9 @@ class Table:
         body = self._make_copy_body(
             project, destination_project,
             destination_dataset, destination_table)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -689,34 +1030,36 @@ class Table:
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60,
+            ignore_unknown_values: bool = False,
+            schema_update_options: Optional[List[SchemaUpdateOption]] = None
+        ) -&gt; Job:
         &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
-        if not source_uris:
-            return {}
-
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
+            ignore_unknown_values, schema_update_options or []
         )
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60) -&gt; Dict[str, Any]:
+            timeout: int = 60) -&gt; Job:
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
-        if not query:
-            return {}
-
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
         body = self._make_query_body(query, project, write_disposition)
-        return await self._post_json(url, body, session, timeout)
+        response = await self._post_json(url, body, session, timeout)
+        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+                   session=self.session, token=self.token)
 
     async def close(self) -&gt; None:
         await self.session.close()
@@ -872,7 +1215,7 @@ response JSON containing details on the failing rows.</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.insert_via_copy"><code class="name flex">
-<span>async def <span class="ident">insert_via_copy</span></span>(<span>self, destination_project: str, destination_dataset: str, destination_table: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">insert_via_copy</span></span>(<span>self, destination_project: str, destination_dataset: str, destination_table: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Copy BQ table to another table in BQ</p></div>
@@ -883,7 +1226,7 @@ response JSON containing details on the failing rows.</p></div>
 <pre><code class="python">async def insert_via_copy(
         self, destination_project: str, destination_dataset: str,
         destination_table: str, session: Optional[Session] = None,
-        timeout: int = 60) -&gt; Dict[str, Any]:
+        timeout: int = 60) -&gt; Job:
     &#34;&#34;&#34;Copy BQ table to another table in BQ&#34;&#34;&#34;
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
@@ -891,11 +1234,13 @@ response JSON containing details on the failing rows.</p></div>
     body = self._make_copy_body(
         project, destination_project,
         destination_dataset, destination_table)
-    return await self._post_json(url, body, session, timeout)</code></pre>
+    response = await self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.insert_via_load"><code class="name flex">
-<span>async def <span class="ident">insert_via_load</span></span>(<span>self, source_uris: List[str], session: Union[aiohttp.client.ClientSession, NoneType] = None, autodetect: bool = False, source_format: <a title="gcloud.aio.bigquery.bigquery.SourceFormat" href="#gcloud.aio.bigquery.bigquery.SourceFormat">SourceFormat</a> = SourceFormat.CSV, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_TRUNCATE, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">insert_via_load</span></span>(<span>self, source_uris: List[str], session: Union[aiohttp.client.ClientSession, NoneType] = None, autodetect: bool = False, source_format: <a title="gcloud.aio.bigquery.bigquery.SourceFormat" href="#gcloud.aio.bigquery.bigquery.SourceFormat">SourceFormat</a> = SourceFormat.CSV, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_TRUNCATE, timeout: int = 60, ignore_unknown_values: bool = False, schema_update_options: Union[List[<a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption" href="#gcloud.aio.bigquery.bigquery.SchemaUpdateOption">SchemaUpdateOption</a>], NoneType] = None) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads entities from storage to BigQuery.</p></div>
@@ -908,22 +1253,25 @@ response JSON containing details on the failing rows.</p></div>
         autodetect: bool = False,
         source_format: SourceFormat = SourceFormat.CSV,
         write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-        timeout: int = 60) -&gt; Dict[str, Any]:
+        timeout: int = 60,
+        ignore_unknown_values: bool = False,
+        schema_update_options: Optional[List[SchemaUpdateOption]] = None
+    ) -&gt; Job:
     &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
-    if not source_uris:
-        return {}
-
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
     body = self._make_load_body(
         source_uris, project, autodetect, source_format, write_disposition,
+        ignore_unknown_values, schema_update_options or []
     )
-    return await self._post_json(url, body, session, timeout)</code></pre>
+    response = await self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.insert_via_query"><code class="name flex">
-<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create table as a result of the query</p></div>
@@ -934,16 +1282,15 @@ response JSON containing details on the failing rows.</p></div>
 <pre><code class="python">async def insert_via_query(
         self, query: str, session: Optional[Session] = None,
         write_disposition: Disposition = Disposition.WRITE_EMPTY,
-        timeout: int = 60) -&gt; Dict[str, Any]:
+        timeout: int = 60) -&gt; Job:
     &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
-    if not query:
-        return {}
-
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
     body = self._make_query_body(query, project, write_disposition)
-    return await self._post_json(url, body, session, timeout)</code></pre>
+    response = await self._post_json(url, body, session, timeout)
+    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+               session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Table.project"><code class="name flex">
@@ -994,6 +1341,23 @@ response JSON containing details on the failing rows.</p></div>
 <li><code><a title="gcloud.aio.bigquery.bigquery.Disposition.WRITE_APPEND" href="#gcloud.aio.bigquery.bigquery.Disposition.WRITE_APPEND">WRITE_APPEND</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.bigquery.Disposition.WRITE_EMPTY" href="#gcloud.aio.bigquery.bigquery.Disposition.WRITE_EMPTY">WRITE_EMPTY</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.bigquery.Disposition.WRITE_TRUNCATE" href="#gcloud.aio.bigquery.bigquery.Disposition.WRITE_TRUNCATE">WRITE_TRUNCATE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.bigquery.bigquery.Job" href="#gcloud.aio.bigquery.bigquery.Job">Job</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.bigquery.bigquery.Job.cancel" href="#gcloud.aio.bigquery.bigquery.Job.cancel">cancel</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.bigquery.Job.get_job" href="#gcloud.aio.bigquery.bigquery.Job.get_job">get_job</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.bigquery.Job.get_query_results" href="#gcloud.aio.bigquery.bigquery.Job.get_query_results">get_query_results</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.bigquery.Job.headers" href="#gcloud.aio.bigquery.bigquery.Job.headers">headers</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.bigquery.Job.project" href="#gcloud.aio.bigquery.bigquery.Job.project">project</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption" href="#gcloud.aio.bigquery.bigquery.SchemaUpdateOption">SchemaUpdateOption</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION" href="#gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION">ALLOW_FIELD_ADDITION</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION" href="#gcloud.aio.bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION">ALLOW_FIELD_RELAXATION</a></code></li>
 </ul>
 </li>
 <li>
