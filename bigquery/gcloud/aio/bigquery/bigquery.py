@@ -2,6 +2,7 @@ import io
 import json
 import os
 import uuid
+import warnings
 from enum import Enum
 from typing import Any
 from typing import Callable
@@ -52,7 +53,7 @@ class SchemaUpdateOption(Enum):
 
 
 class Job:
-    def __init__(self, job_id: str,
+    def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
@@ -85,6 +86,43 @@ class Job:
         return {
             'Authorization': f'Bearer {token}',
         }
+
+    @staticmethod
+    def _make_query_body(
+            query: str,
+            write_disposition: Disposition,
+            use_query_cache: bool,
+            dry_run: bool, use_legacy_sql: bool,
+            destination_table: Optional[Dict[str, object]]) -> Dict[str, Any]:
+        return {
+            'configuration': {
+                'query': {
+                    'query': query,
+                    'writeDisposition': write_disposition.value,
+                    'destinationTable': destination_table,
+                    'useQueryCache': use_query_cache,
+                    'useLegacySql': use_legacy_sql,
+                },
+                'dryRun': dry_run,
+            },
+        }
+
+    async def _post_json(
+            self, url: str, body: Dict[str, Any], session: Optional[Session],
+            timeout: int) -> Dict[str, Any]:
+        payload = json.dumps(body).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(self, session: Optional[Session] = None,
@@ -130,6 +168,35 @@ class Job:
         resp = await s.post(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+    async def insert_via_query(
+            self, query: str, session: Optional[Session] = None,
+            write_disposition: Disposition = Disposition.WRITE_EMPTY,
+            timeout: int = 60, use_query_cache: bool = True,
+            dry_run: bool = False, use_legacy_sql: bool = True,
+            table: Optional[Table] = None) -> Dict[str, Any]:
+        """Create table as a result of the query"""
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/jobs'
+        destination_table = None
+        if table:
+            destination_table = {
+                'projectId': table.project,
+                'datasetId': table.dataset_name,
+                'tableId': table.table_name,
+            }
+
+        body = self._make_query_body(query=query,
+                                     write_disposition=write_disposition,
+                                     use_query_cache=use_query_cache,
+                                     dry_run=dry_run,
+                                     use_legacy_sql=use_legacy_sql,
+                                     destination_table=destination_table)
+        response = await self._post_json(url, body, session, timeout)
+        self.job_id = response['jobReference']['jobId']
+        return response
 
 
 class Table:
@@ -245,7 +312,7 @@ class Table:
             self, query: str, project: str,
             write_disposition: Disposition,
             use_query_cache: bool,
-            dry_run: bool) -> Dict[str, Any]:
+            dry_run: bool, use_legacy_sql: bool) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -257,6 +324,7 @@ class Table:
                         'tableId': self.table_name,
                     },
                     'useQueryCache': use_query_cache,
+                    'useLegacySql': use_legacy_sql,
                 },
                 'dryRun': dry_run,
             },
@@ -401,13 +469,15 @@ class Table:
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
-            dry_run: bool = False) -> Job:
+            dry_run: bool = False, use_legacy_sql: bool = True) -> Job:
         """Create table as a result of the query"""
+        warnings.warn('using Table#insert_via_query is deprecated.'
+                      'use Job#insert_via_query instead', DeprecationWarning)
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition,
-                                     use_query_cache, dry_run)
+                                     use_query_cache, dry_run, use_legacy_sql)
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
                    session=self.session, token=self.token)
