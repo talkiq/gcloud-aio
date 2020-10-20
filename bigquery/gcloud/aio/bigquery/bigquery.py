@@ -176,7 +176,7 @@ class Job:
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False, use_legacy_sql: bool = True,
-            table: Optional[Table] = None) -> Dict[str, Any]:
+            table: Optional['Table'] = None) -> Dict[str, Any]:
         """Create table as a result of the query"""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
