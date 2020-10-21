@@ -1,4 +1,3 @@
-# pylint disable=reimported
 import io
 import json
 import os
