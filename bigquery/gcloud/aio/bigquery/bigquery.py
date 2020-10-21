@@ -2,7 +2,6 @@ import io
 import json
 import os
 import uuid
-import warnings
 from enum import Enum
 from typing import Any
 from typing import Callable
@@ -468,6 +467,7 @@ class Table:
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False, use_legacy_sql: bool = True) -> Job:
         """Create table as a result of the query"""
+        import warnings
         warnings.warn('using Table#insert_via_query is deprecated.'
                       'use Job#insert_via_query instead', DeprecationWarning)
         project = await self.project()
