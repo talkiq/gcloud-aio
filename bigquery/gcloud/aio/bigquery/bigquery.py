@@ -192,7 +192,8 @@ class Job:
                                      use_legacy_sql=use_legacy_sql,
                                      destination_table=destination_table)
         response = await self._post_json(url, body, session, timeout)
-        self.job_id = response['jobReference']['jobId']
+        if not dry_run:
+            self.job_id = response['jobReference']['jobId']
         return response
 
 
@@ -476,7 +477,8 @@ class Table:
         body = self._make_query_body(query, project, write_disposition,
                                      use_query_cache, dry_run, use_legacy_sql)
         response = await self._post_json(url, body, session, timeout)
-        return Job(response['jobReference']['jobId'], self._project,
+        job_id = response['jobReference']['jobId'] if not dry_run else None
+        return Job(job_id, self._project,
                    session=self.session, token=self.token)
 
     async def close(self) -> None:
