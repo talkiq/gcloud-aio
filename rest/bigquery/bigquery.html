@@ -284,7 +284,9 @@ class Table(object):
 
     def _make_query_body(
             self, query     , project     ,
-            write_disposition             )                  :
+            write_disposition             ,
+            use_query_cache      ,
+            dry_run      )                  :
         return {
             &#39;configuration&#39;: {
                 &#39;query&#39;: {
@@ -295,7 +297,9 @@ class Table(object):
                         &#39;datasetId&#39;: self.dataset_name,
                         &#39;tableId&#39;: self.table_name,
                     },
+                    &#39;useQueryCache&#39;: use_query_cache,
                 },
+                &#39;dryRun&#39;: dry_run,
             },
         }
 
@@ -438,12 +442,14 @@ class Table(object):
     def insert_via_query(
             self, query     , session                    = None,
             write_disposition              = Disposition.WRITE_EMPTY,
-            timeout      = 60)       :
+            timeout      = 60, use_query_cache       = True,
+            dry_run       = False)       :
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-        body = self._make_query_body(query, project, write_disposition)
+        body = self._make_query_body(query, project, write_disposition,
+                                     use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
                    session=self.session, token=self.token)
@@ -914,7 +920,9 @@ class Table(object):
 
     def _make_query_body(
             self, query     , project     ,
-            write_disposition             )                  :
+            write_disposition             ,
+            use_query_cache      ,
+            dry_run      )                  :
         return {
             &#39;configuration&#39;: {
                 &#39;query&#39;: {
@@ -925,7 +933,9 @@ class Table(object):
                         &#39;datasetId&#39;: self.dataset_name,
                         &#39;tableId&#39;: self.table_name,
                     },
+                    &#39;useQueryCache&#39;: use_query_cache,
                 },
+                &#39;dryRun&#39;: dry_run,
             },
         }
 
@@ -1068,12 +1078,14 @@ class Table(object):
     def insert_via_query(
             self, query     , session                    = None,
             write_disposition              = Disposition.WRITE_EMPTY,
-            timeout      = 60)       :
+            timeout      = 60, use_query_cache       = True,
+            dry_run       = False)       :
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-        body = self._make_query_body(query, project, write_disposition)
+        body = self._make_query_body(query, project, write_disposition,
+                                     use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
                    session=self.session, token=self.token)
@@ -1282,7 +1294,7 @@ class Table(object):
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.bigquery.Table.insert_via_query"><code class="name flex">
-<span>def <span class="ident">insert_via_query</span></span>(<span>self, query, session=None, write_disposition=Disposition.WRITE_EMPTY, timeout=60)</span>
+<span>def <span class="ident">insert_via_query</span></span>(<span>self, query, session=None, write_disposition=Disposition.WRITE_EMPTY, timeout=60, use_query_cache=True, dry_run=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create table as a result of the query</p></div>
@@ -1293,12 +1305,14 @@ class Table(object):
 <pre><code class="python">def insert_via_query(
         self, query     , session                    = None,
         write_disposition              = Disposition.WRITE_EMPTY,
-        timeout      = 60)       :
+        timeout      = 60, use_query_cache       = True,
+        dry_run       = False)       :
     &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-    body = self._make_query_body(query, project, write_disposition)
+    body = self._make_query_body(query, project, write_disposition,
+                                 use_query_cache, dry_run)
     response = self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
                session=self.session, token=self.token)</code></pre>
