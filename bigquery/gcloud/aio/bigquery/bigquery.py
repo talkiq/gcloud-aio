@@ -93,13 +93,17 @@ class Job:
             write_disposition: Disposition,
             use_query_cache: bool,
             dry_run: bool, use_legacy_sql: bool,
-            destination_table: Optional[Dict[str, object]]) -> Dict[str, Any]:
+            destination_table: Optional['Table']) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
                     'query': query,
                     'writeDisposition': write_disposition.value,
-                    'destinationTable': destination_table,
+                    'destinationTable': {
+                        'projectId': destination_table.project,
+                        'datasetId': destination_table.dataset_name,
+                        'tableId': destination_table.table_name,
+                    } if destination_table else destination_table,
                     'useQueryCache': use_query_cache,
                     'useLegacySql': use_legacy_sql,
                 },
@@ -176,17 +180,10 @@ class Job:
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False, use_legacy_sql: bool = True,
-            table: Optional['Table'] = None) -> Dict[str, Any]:
+            destination_table: Optional['Table'] = None) -> Dict[str, Any]:
         """Create table as a result of the query"""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
-        destination_table = None
-        if table:
-            destination_table = {
-                'projectId': table.project,
-                'datasetId': table.dataset_name,
-                'tableId': table.table_name,
-            }
 
         body = self._make_query_body(query=query,
                                      write_disposition=write_disposition,
