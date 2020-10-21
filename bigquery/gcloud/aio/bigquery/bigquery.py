@@ -243,7 +243,9 @@ class Table:
 
     def _make_query_body(
             self, query: str, project: str,
-            write_disposition: Disposition) -> Dict[str, Any]:
+            write_disposition: Disposition,
+            use_query_cache: bool,
+            dry_run: bool) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -254,7 +256,9 @@ class Table:
                         'datasetId': self.dataset_name,
                         'tableId': self.table_name,
                     },
+                    'useQueryCache': use_query_cache,
                 },
+                'dryRun': dry_run,
             },
         }
 
@@ -396,12 +400,14 @@ class Table:
     async def insert_via_query(
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
-            timeout: int = 60) -> Job:
+            timeout: int = 60, use_query_cache: bool = True,
+            dry_run: bool = False) -> Job:
         """Create table as a result of the query"""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
-        body = self._make_query_body(query, project, write_disposition)
+        body = self._make_query_body(query, project, write_disposition,
+                                     use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
                    session=self.session, token=self.token)
