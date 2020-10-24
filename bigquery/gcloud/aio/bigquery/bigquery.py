@@ -310,7 +310,7 @@ class Table:
             self, query: str, project: str,
             write_disposition: Disposition,
             use_query_cache: bool,
-            dry_run: bool, use_legacy_sql: bool) -> Dict[str, Any]:
+            dry_run: bool) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -322,7 +322,6 @@ class Table:
                         'tableId': self.table_name,
                     },
                     'useQueryCache': use_query_cache,
-                    'useLegacySql': use_legacy_sql,
                 },
                 'dryRun': dry_run,
             },
@@ -467,7 +466,7 @@ class Table:
             self, query: str, session: Optional[Session] = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
-            dry_run: bool = False, use_legacy_sql: bool = True) -> Job:
+            dry_run: bool = False) -> Job:
         """Create table as a result of the query"""
         warnings.warn('using Table#insert_via_query is deprecated.'
                       'use Job#insert_via_query instead', DeprecationWarning)
@@ -475,7 +474,7 @@ class Table:
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition,
-                                     use_query_cache, dry_run, use_legacy_sql)
+                                     use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         job_id = response['jobReference']['jobId'] if not dry_run else None
         return Job(job_id, self._project,
