@@ -103,7 +103,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </dd>
 <dt id="gcloud.rest.bigquery.Job"><code class="flex name class">
 <span>class <span class="ident">Job</span></span>
-<span>(</span><span>job_id, project=None, service_file=None, session=None, token=None)</span>
+<span>(</span><span>job_id=None, project=None, service_file=None, session=None, token=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -112,7 +112,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Job(object):
-    def __init__(self, job_id     ,
+    def __init__(self, job_id                = None,
                  project                = None,
                  service_file                                  = None,
                  session                    = None,
@@ -145,6 +145,47 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         return {
             &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
         }
+
+    @staticmethod
+    def _make_query_body(
+            query     ,
+            write_disposition             ,
+            use_query_cache      ,
+            dry_run      , use_legacy_sql      ,
+            destination_table                   )                  :
+        return {
+            &#39;configuration&#39;: {
+                &#39;query&#39;: {
+                    &#39;query&#39;: query,
+                    &#39;writeDisposition&#39;: write_disposition.value,
+                    &#39;destinationTable&#39;: {
+                        &#39;projectId&#39;: destination_table.project,
+                        &#39;datasetId&#39;: destination_table.dataset_name,
+                        &#39;tableId&#39;: destination_table.table_name,
+                    } if destination_table else destination_table,
+                    &#39;useQueryCache&#39;: use_query_cache,
+                    &#39;useLegacySql&#39;: use_legacy_sql,
+                },
+                &#39;dryRun&#39;: dry_run,
+            },
+        }
+
+    def _post_json(
+            self, url     , body                , session                   ,
+            timeout     )                  :
+        payload = json.dumps(body).encode(&#39;utf-8&#39;)
+
+        headers = self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
+        data                 = resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     def get_job(self, session                    = None,
@@ -189,7 +230,30 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=headers, timeout=timeout)
         data                 = resp.json()
-        return data</code></pre>
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+    def insert_via_query(
+            self, query     , session                    = None,
+            write_disposition              = Disposition.WRITE_EMPTY,
+            timeout      = 60, use_query_cache       = True,
+            dry_run       = False, use_legacy_sql       = True,
+            destination_table                    = None)                  :
+        &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+        project = self.project()
+        url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
+
+        body = self._make_query_body(query=query,
+                                     write_disposition=write_disposition,
+                                     use_query_cache=use_query_cache,
+                                     dry_run=dry_run,
+                                     use_legacy_sql=use_legacy_sql,
+                                     destination_table=destination_table)
+        response = self._post_json(url, body, session, timeout)
+        if not dry_run:
+            self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+        return response</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -282,6 +346,37 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     return {
         &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
     }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.Job.insert_via_query"><code class="name flex">
+<span>def <span class="ident">insert_via_query</span></span>(<span>self, query, session=None, write_disposition=Disposition.WRITE_EMPTY, timeout=60, use_query_cache=True, dry_run=False, use_legacy_sql=True, destination_table=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create table as a result of the query</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def insert_via_query(
+        self, query     , session                    = None,
+        write_disposition              = Disposition.WRITE_EMPTY,
+        timeout      = 60, use_query_cache       = True,
+        dry_run       = False, use_legacy_sql       = True,
+        destination_table                    = None)                  :
+    &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+    project = self.project()
+    url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
+
+    body = self._make_query_body(query=query,
+                                 write_disposition=write_disposition,
+                                 use_query_cache=use_query_cache,
+                                 dry_run=dry_run,
+                                 use_legacy_sql=use_legacy_sql,
+                                 destination_table=destination_table)
+    response = self._post_json(url, body, session, timeout)
+    if not dry_run:
+        self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+    return response</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Job.project"><code class="name flex">
@@ -674,13 +769,16 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
             timeout      = 60, use_query_cache       = True,
             dry_run       = False)       :
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+        warnings.warn(&#39;using Table#insert_via_query is deprecated.&#39;
+                      &#39;use Job#insert_via_query instead&#39;, DeprecationWarning)
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
         body = self._make_query_body(query, project, write_disposition,
                                      use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
-        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+        job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
+        return Job(job_id, self._project,
                    session=self.session, token=self.token)
 
     def close(self)        :
@@ -901,13 +999,16 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         timeout      = 60, use_query_cache       = True,
         dry_run       = False)       :
     &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+    warnings.warn(&#39;using Table#insert_via_query is deprecated.&#39;
+                  &#39;use Job#insert_via_query instead&#39;, DeprecationWarning)
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
     body = self._make_query_body(query, project, write_disposition,
                                  use_query_cache, dry_run)
     response = self._post_json(url, body, session, timeout)
-    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+    job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
+    return Job(job_id, self._project,
                session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
@@ -968,11 +1069,12 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </li>
 <li>
 <h4><code><a title="gcloud.rest.bigquery.Job" href="#gcloud.rest.bigquery.Job">Job</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="gcloud.rest.bigquery.Job.cancel" href="#gcloud.rest.bigquery.Job.cancel">cancel</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Job.get_job" href="#gcloud.rest.bigquery.Job.get_job">get_job</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Job.get_query_results" href="#gcloud.rest.bigquery.Job.get_query_results">get_query_results</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Job.headers" href="#gcloud.rest.bigquery.Job.headers">headers</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Job.insert_via_query" href="#gcloud.rest.bigquery.Job.insert_via_query">insert_via_query</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Job.project" href="#gcloud.rest.bigquery.Job.project">project</a></code></li>
 </ul>
 </li>

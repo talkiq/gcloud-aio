@@ -94,7 +94,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </dd>
 <dt id="gcloud.aio.bigquery.Job"><code class="flex name class">
 <span>class <span class="ident">Job</span></span>
-<span>(</span><span>job_id: str, project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>job_id: Union[str, NoneType] = None, project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -103,7 +103,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Job:
-    def __init__(self, job_id: str,
+    def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
@@ -136,6 +136,47 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         return {
             &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
         }
+
+    @staticmethod
+    def _make_query_body(
+            query: str,
+            write_disposition: Disposition,
+            use_query_cache: bool,
+            dry_run: bool, use_legacy_sql: bool,
+            destination_table: Optional[&#39;Table&#39;]) -&gt; Dict[str, Any]:
+        return {
+            &#39;configuration&#39;: {
+                &#39;query&#39;: {
+                    &#39;query&#39;: query,
+                    &#39;writeDisposition&#39;: write_disposition.value,
+                    &#39;destinationTable&#39;: {
+                        &#39;projectId&#39;: destination_table.project,
+                        &#39;datasetId&#39;: destination_table.dataset_name,
+                        &#39;tableId&#39;: destination_table.table_name,
+                    } if destination_table else destination_table,
+                    &#39;useQueryCache&#39;: use_query_cache,
+                    &#39;useLegacySql&#39;: use_legacy_sql,
+                },
+                &#39;dryRun&#39;: dry_run,
+            },
+        }
+
+    async def _post_json(
+            self, url: str, body: Dict[str, Any], session: Optional[Session],
+            timeout: int) -&gt; Dict[str, Any]:
+        payload = json.dumps(body).encode(&#39;utf-8&#39;)
+
+        headers = await self.headers()
+        headers.update({
+            &#39;Content-Length&#39;: str(len(payload)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(self, session: Optional[Session] = None,
@@ -180,7 +221,30 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
-        return data</code></pre>
+        return data
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+    async def insert_via_query(
+            self, query: str, session: Optional[Session] = None,
+            write_disposition: Disposition = Disposition.WRITE_EMPTY,
+            timeout: int = 60, use_query_cache: bool = True,
+            dry_run: bool = False, use_legacy_sql: bool = True,
+            destination_table: Optional[&#39;Table&#39;] = None) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+        project = await self.project()
+        url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
+
+        body = self._make_query_body(query=query,
+                                     write_disposition=write_disposition,
+                                     use_query_cache=use_query_cache,
+                                     dry_run=dry_run,
+                                     use_legacy_sql=use_legacy_sql,
+                                     destination_table=destination_table)
+        response = await self._post_json(url, body, session, timeout)
+        if not dry_run:
+            self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+        return response</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -273,6 +337,37 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     return {
         &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
     }</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.Job.insert_via_query"><code class="name flex">
+<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60, use_query_cache: bool = True, dry_run: bool = False, use_legacy_sql: bool = True, destination_table: Union[ForwardRef('<a title="gcloud.aio.bigquery.Table" href="#gcloud.aio.bigquery.Table">Table</a>'), NoneType] = None) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create table as a result of the query</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def insert_via_query(
+        self, query: str, session: Optional[Session] = None,
+        write_disposition: Disposition = Disposition.WRITE_EMPTY,
+        timeout: int = 60, use_query_cache: bool = True,
+        dry_run: bool = False, use_legacy_sql: bool = True,
+        destination_table: Optional[&#39;Table&#39;] = None) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+    project = await self.project()
+    url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
+
+    body = self._make_query_body(query=query,
+                                 write_disposition=write_disposition,
+                                 use_query_cache=use_query_cache,
+                                 dry_run=dry_run,
+                                 use_legacy_sql=use_legacy_sql,
+                                 destination_table=destination_table)
+    response = await self._post_json(url, body, session, timeout)
+    if not dry_run:
+        self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+    return response</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Job.project"><code class="name flex">
@@ -662,13 +757,16 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False) -&gt; Job:
         &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+        warnings.warn(&#39;using Table#insert_via_query is deprecated.&#39;
+                      &#39;use Job#insert_via_query instead&#39;, DeprecationWarning)
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
         body = self._make_query_body(query, project, write_disposition,
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
-        return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+        job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
+        return Job(job_id, self._project,
                    session=self.session, token=self.token)
 
     async def close(self) -&gt; None:
@@ -895,13 +993,16 @@ response JSON containing details on the failing rows.</p></div>
         timeout: int = 60, use_query_cache: bool = True,
         dry_run: bool = False) -&gt; Job:
     &#34;&#34;&#34;Create table as a result of the query&#34;&#34;&#34;
+    warnings.warn(&#39;using Table#insert_via_query is deprecated.&#39;
+                  &#39;use Job#insert_via_query instead&#39;, DeprecationWarning)
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
     body = self._make_query_body(query, project, write_disposition,
                                  use_query_cache, dry_run)
     response = await self._post_json(url, body, session, timeout)
-    return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
+    job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
+    return Job(job_id, self._project,
                session=self.session, token=self.token)</code></pre>
 </details>
 </dd>
@@ -962,11 +1063,12 @@ response JSON containing details on the failing rows.</p></div>
 </li>
 <li>
 <h4><code><a title="gcloud.aio.bigquery.Job" href="#gcloud.aio.bigquery.Job">Job</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="gcloud.aio.bigquery.Job.cancel" href="#gcloud.aio.bigquery.Job.cancel">cancel</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.get_job" href="#gcloud.aio.bigquery.Job.get_job">get_job</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.get_query_results" href="#gcloud.aio.bigquery.Job.get_query_results">get_query_results</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.headers" href="#gcloud.aio.bigquery.Job.headers">headers</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.Job.insert_via_query" href="#gcloud.aio.bigquery.Job.insert_via_query">insert_via_query</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.project" href="#gcloud.aio.bigquery.Job.project">project</a></code></li>
 </ul>
 </li>
