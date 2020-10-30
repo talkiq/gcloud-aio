@@ -71,6 +71,7 @@ jobs:
             pip install ./pubsub
             pip install ./storage
             pip install ./taskqueue
+            pip install ./vision
       - run:
           name: install all sub-projects (rest)
           command: |
@@ -82,6 +83,7 @@ jobs:
             pip install ./pubsub
             pip install ./storage
             pip install ./taskqueue
+            pip install ./vision
       - run: pdoc --html -o ./docs gcloud
       - persist_to_workspace:
           root: docs
@@ -282,6 +284,10 @@ workflows:
           name: pipcheck-taskqueue
           install_args: taskqueue/
           python_version: 3.7.8
+      - tester/pipcheck:
+          name: pipcheck-vision
+          install_args: vision/
+          python_version: 3.7.8
 
       # build docs
       - docs:
@@ -344,6 +350,12 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - nox:
+          name: test-vision
+          folder: vision
+          filters:
+            tags:
+              only: /.*/
 
       # test `-rest-*`
       - nox-rest:
@@ -402,6 +414,14 @@ workflows:
               only: /.*/
           requires:
             - build-rest
+      - nox-rest:
+          name: test-rest-vision
+          folder: vision
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
 
       - github:
           context: org-global
@@ -420,6 +440,7 @@ workflows:
             - pipcheck-pubsub
             - pipcheck-storage
             - pipcheck-taskqueue
+            - pipcheck-vision
             - test-auth
             - test-bigquery
             - test-datastore
@@ -427,6 +448,7 @@ workflows:
             - test-pubsub
             - test-storage
             - test-taskqueue
+            - test-vision
             - test-rest-auth
             - test-rest-bigquery
             - test-rest-datastore
@@ -434,6 +456,7 @@ workflows:
             - test-rest-pubsub
             - test-rest-storage
             - test-rest-taskqueue
+            - test-rest-vision
 
       - hold:
           type: approval

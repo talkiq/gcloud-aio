@@ -1,0 +1,4 @@
+include README.rst LICENSE requirements.txt
+recursive-include gcloud *.py
+recursive-include tests *.py
+global-exclude *.pyc __pycache__
