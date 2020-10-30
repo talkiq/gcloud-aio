@@ -255,33 +255,11 @@ workflows:
             - build-rest
 
       - tester/pipcheck:
-          name: pipcheck-auth
-          install_args: auth/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-bigquery
-          install_args: bigquery/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-datastore
-          install_args: datastore/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-kms
-          install_args: kms/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-pubsub
-          install_args: pubsub/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-storage
-          install_args: storage/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-taskqueue
-          install_args: taskqueue/
-          python_version: 3.7.8
+          python_version: 3.8.5
+          matrix:
+            alias: pipcheck
+            parameters:
+              install_args: [auth/, bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
 
       # build docs
       - docs:
@@ -301,102 +279,21 @@ workflows:
           requires:
             - docs
 
-      # test `-aio-*`
       - nox:
-          name: test-auth
-          folder: auth
+          name: test-<<matrix.folder>>
+          matrix:
+            alias: test
+            parameters:
+              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
-      - nox:
-          name: test-bigquery
-          folder: bigquery
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-datastore
-          folder: datastore
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-kms
-          folder: kms
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-pubsub
-          folder: pubsub
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-storage
-          folder: storage
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-taskqueue
-          folder: taskqueue
-          filters:
-            tags:
-              only: /.*/
-
-      # test `-rest-*`
       - nox-rest:
-          name: test-rest-auth
-          folder: auth
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-bigquery
-          folder: bigquery
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-datastore
-          folder: datastore
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-kms
-          folder: kms
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-pubsub
-          folder: pubsub
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-storage
-          folder: storage
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-taskqueue
-          folder: taskqueue
+          name: test-rest-<<matrix.folder>>
+          matrix:
+            alias: test-rest
+            parameters:
+              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
@@ -413,27 +310,9 @@ workflows:
           requires:
             - linter/pre-commit
             - lint-rest
-            - pipcheck-auth
-            - pipcheck-bigquery
-            - pipcheck-datastore
-            - pipcheck-kms
-            - pipcheck-pubsub
-            - pipcheck-storage
-            - pipcheck-taskqueue
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
-            - test-rest-auth
-            - test-rest-bigquery
-            - test-rest-datastore
-            - test-rest-kms
-            - test-rest-pubsub
-            - test-rest-storage
-            - test-rest-taskqueue
+            - pipcheck
+            - test
+            - test-rest
 
       - hold:
           type: approval
