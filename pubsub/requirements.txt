@@ -1,2 +1,2 @@
 gcloud-aio-auth >= 3.3.0, < 4.0.0
-google-cloud-pubsub >= 0.29.4, < 2.0.0
+google-cloud-pubsub>=0.29.4, <2.2.0
