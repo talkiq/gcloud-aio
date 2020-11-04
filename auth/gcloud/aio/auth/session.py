@@ -37,7 +37,7 @@ class BaseSession:
 
     @abstractmethod
     async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str], timeout: int,
+                   data: Optional[str], json: Optional[Any], timeout: int,
                    params: Optional[Dict[str, str]]) -> Response:
         pass
 
@@ -48,7 +48,7 @@ class BaseSession:
 
     @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                  timeout: int) -> Response:
+                  json: Optional[Any], timeout: int) -> Response:
         pass
 
     @abstractmethod
@@ -108,11 +108,13 @@ if not BUILD_GCLOUD_REST:
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
+                       data: Optional[str] = None, json: Optional[Any] = None,
+                       timeout: int = 10,
                        params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
-            resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout, params=params)
+            resp = await self.session.post(url, data=data, json=json,
+                                           headers=headers, timeout=timeout,
+                                           params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -126,9 +128,10 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> aiohttp.ClientResponse:
-            resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout)
+                      json: Optional[Any] = None, timeout: int = 10
+                      ) -> aiohttp.ClientResponse:
+            resp = await self.session.put(url, data=data, json=json,
+                                          headers=headers, timeout=timeout)
             await _raise_for_status(resp)
             return resp
 
@@ -172,11 +175,13 @@ if BUILD_GCLOUD_REST:
         # symbol ensures we match the base class's definition for static
         # analysis.
         async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
+                       data: Optional[str] = None, json: Optional[Any] = None,
+                       timeout: int = 10,
                        params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
-                resp = self.session.post(url, data=data, headers=headers,
-                                         timeout=timeout, params=params)
+                resp = self.session.post(url, data=data, json=json,
+                                         headers=headers, timeout=timeout,
+                                         params=params)
             resp.raise_for_status()
             return resp
 
@@ -190,10 +195,11 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> Response:
+                      json: Optional[Any] = None, timeout: int = 10
+                      ) -> Response:
             with self.google_api_lock:
-                resp = self.session.put(url, data=data, headers=headers,
-                                        timeout=timeout)
+                resp = self.session.put(url, data=data, json=json,
+                                        headers=headers, timeout=timeout)
             resp.raise_for_status()
             return resp
 
