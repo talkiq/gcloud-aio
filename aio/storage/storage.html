@@ -455,7 +455,7 @@ class Storage:
 <dl>
 <dt id="gcloud.aio.storage.storage.Storage"><code class="flex name class">
 <span>class <span class="ident">Storage</span></span>
-<span>(</span><span>*, service_file: Union[str, IO[~AnyStr], NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None)</span>
+<span>(</span><span>*, service_file: Union[str, IO[~AnyStr], NoneType] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None, session: Optional[aiohttp.client.ClientSession] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -840,7 +840,7 @@ class Storage:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.copy"><code class="name flex">
-<span>async def <span class="ident">copy</span></span>(<span>self, bucket: str, object_name: str, destination_bucket: str, *, new_name: Union[str, NoneType] = None, headers: Union[Dict[str, str], NoneType] = None, params: Union[Dict[str, str], NoneType] = None, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">copy</span></span>(<span>self, bucket: str, object_name: str, destination_bucket: str, *, new_name: Optional[str] = None, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, str]] = None, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>When files are too large, multiple calls to <code>rewriteTo</code> are made. We
@@ -917,7 +917,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, params: Union[Dict[str, str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> str</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -946,7 +946,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.download"><code class="name flex">
-<span>async def <span class="ident">download</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> bytes</span>
+<span>async def <span class="ident">download</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> bytes</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -962,7 +962,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.download_metadata"><code class="name flex">
-<span>async def <span class="ident">download_metadata</span></span>(<span>self, bucket: str, object_name: str, *, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">download_metadata</span></span>(<span>self, bucket: str, object_name: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1010,7 +1010,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.get_bucket_metadata"><code class="name flex">
-<span>async def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket: str, *, params: Union[Dict[str, str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1033,7 +1033,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.list_objects"><code class="name flex">
-<span>async def <span class="ident">list_objects</span></span>(<span>self, bucket: str, *, params: Union[Dict[str, str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">list_objects</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1056,7 +1056,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.upload"><code class="name flex">
-<span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: Union[str, NoneType] = None, parameters: Union[Dict[str, str], NoneType] = None, headers: Union[Dict[str, str], NoneType] = None, metadata: Union[Dict[str, str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, force_resumable_upload: Union[bool, NoneType] = None, timeout: int = 30) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: Optional[str] = None, parameters: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, metadata: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, force_resumable_upload: Optional[bool] = None, timeout: int = 30) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

@@ -316,7 +316,7 @@ class Token:
 <dl>
 <dt id="gcloud.aio.auth.token.Token"><code class="flex name class">
 <span>class <span class="ident">Token</span></span>
-<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, scopes: Union[List[str], NoneType] = None)</span>
+<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, scopes: Optional[List[str]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -538,7 +538,7 @@ async def acquire_access_token(self, timeout: int = 10) -&gt; None:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.token.Token.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self) ‑> Union[str, NoneType]</span>
+<span>async def <span class="ident">get</span></span>(<span>self) ‑> Optional[str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -552,7 +552,7 @@ async def acquire_access_token(self, timeout: int = 10) -&gt; None:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.token.Token.get_project"><code class="name flex">
-<span>async def <span class="ident">get_project</span></span>(<span>self) ‑> Union[str, NoneType]</span>
+<span>async def <span class="ident">get_project</span></span>(<span>self) ‑> Optional[str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

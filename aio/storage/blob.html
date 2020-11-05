@@ -298,7 +298,7 @@ def chunk_size(self) -&gt; int:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.storage.blob.Blob.download"><code class="name flex">
-<span>async def <span class="ident">download</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">download</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -312,7 +312,7 @@ def chunk_size(self) -&gt; int:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.blob.Blob.get_signed_url"><code class="name flex">
-<span>async def <span class="ident">get_signed_url</span></span>(<span>self, expiration: int, headers: Union[Dict[str, str], NoneType] = None, query_params: Union[Dict[str, Any], NoneType] = None, http_method: str = 'GET', iam_client: Union[<a title="gcloud.aio.auth.iam.IamClient" href="../auth/iam.html#gcloud.aio.auth.iam.IamClient">IamClient</a>, NoneType] = None, service_account_email: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> str</span>
+<span>async def <span class="ident">get_signed_url</span></span>(<span>self, expiration: int, headers: Optional[Dict[str, str]] = None, query_params: Optional[Dict[str, Any]] = None, http_method: str = 'GET', iam_client: Optional[<a title="gcloud.aio.auth.iam.IamClient" href="../auth/iam.html#gcloud.aio.auth.iam.IamClient">IamClient</a>] = None, service_account_email: Optional[str] = None, service_file: Union[str, io.IOBase, NoneType] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a temporary access URL for Storage Blob accessible by anyone
@@ -402,7 +402,7 @@ with the link.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.blob.Blob.upload"><code class="name flex">
-<span>async def <span class="ident">upload</span></span>(<span>self, data: Any, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">upload</span></span>(<span>self, data: Any, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

@@ -321,7 +321,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;BaseQuery&#39;:
 </dd>
 <dt id="gcloud.aio.datastore.query.GQLQuery"><code class="flex name class">
 <span>class <span class="ident">GQLQuery</span></span>
-<span>(</span><span>query_string: str, allow_literals: bool = True, named_bindings: Union[Dict[str, Any], NoneType] = None, positional_bindings: Union[List[Any], NoneType] = None)</span>
+<span>(</span><span>query_string: str, allow_literals: bool = True, named_bindings: Optional[Dict[str, Any]] = None, positional_bindings: Optional[List[Any]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -434,7 +434,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;GQLQuery&#39;:
 </dd>
 <dt id="gcloud.aio.datastore.query.Query"><code class="flex name class">
 <span>class <span class="ident">Query</span></span>
-<span>(</span><span>kind: str = '', query_filter: Union[<a title="gcloud.aio.datastore.filter.Filter" href="filter.html#gcloud.aio.datastore.filter.Filter">Filter</a>, NoneType] = None, order: Union[List[<a title="gcloud.aio.datastore.property_order.PropertyOrder" href="property_order.html#gcloud.aio.datastore.property_order.PropertyOrder">PropertyOrder</a>], NoneType] = None, start_cursor: str = '', end_cursor: str = '', offset: Union[int, NoneType] = None, limit: Union[int, NoneType] = None, projection: Union[List[<a title="gcloud.aio.datastore.projection.Projection" href="projection.html#gcloud.aio.datastore.projection.Projection">Projection</a>], NoneType] = None, distinct_on: Union[List[str], NoneType] = None)</span>
+<span>(</span><span>kind: str = '', query_filter: Optional[<a title="gcloud.aio.datastore.filter.Filter" href="filter.html#gcloud.aio.datastore.filter.Filter">Filter</a>] = None, order: Optional[List[<a title="gcloud.aio.datastore.property_order.PropertyOrder" href="property_order.html#gcloud.aio.datastore.property_order.PropertyOrder">PropertyOrder</a>]] = None, start_cursor: str = '', end_cursor: str = '', offset: Optional[int] = None, limit: Optional[int] = None, projection: Optional[List[<a title="gcloud.aio.datastore.projection.Projection" href="projection.html#gcloud.aio.datastore.projection.Projection">Projection</a>]] = None, distinct_on: Optional[List[str]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -594,7 +594,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Query&#39;:
 </dd>
 <dt id="gcloud.aio.datastore.query.QueryResultBatch"><code class="flex name class">
 <span>class <span class="ident">QueryResultBatch</span></span>
-<span>(</span><span>end_cursor: str, entity_result_type: <a title="gcloud.aio.datastore.constants.ResultType" href="constants.html#gcloud.aio.datastore.constants.ResultType">ResultType</a> = ResultType.UNSPECIFIED, entity_results: Union[List[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>], NoneType] = None, more_results: <a title="gcloud.aio.datastore.constants.MoreResultsType" href="constants.html#gcloud.aio.datastore.constants.MoreResultsType">MoreResultsType</a> = MoreResultsType.UNSPECIFIED, skipped_cursor: str = '', skipped_results: int = 0, snapshot_version: str = '')</span>
+<span>(</span><span>end_cursor: str, entity_result_type: <a title="gcloud.aio.datastore.constants.ResultType" href="constants.html#gcloud.aio.datastore.constants.ResultType">ResultType</a> = ResultType.UNSPECIFIED, entity_results: Optional[List[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>]] = None, more_results: <a title="gcloud.aio.datastore.constants.MoreResultsType" href="constants.html#gcloud.aio.datastore.constants.MoreResultsType">MoreResultsType</a> = MoreResultsType.UNSPECIFIED, skipped_cursor: str = '', skipped_results: int = 0, snapshot_version: str = '')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

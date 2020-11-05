@@ -94,7 +94,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </dd>
 <dt id="gcloud.aio.bigquery.Job"><code class="flex name class">
 <span>class <span class="ident">Job</span></span>
-<span>(</span><span>job_id: Union[str, NoneType] = None, project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>job_id: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -249,7 +249,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.bigquery.Job.cancel"><code class="name flex">
-<span>async def <span class="ident">cancel</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">cancel</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Cancel the specified job by job ID.</p></div>
@@ -273,7 +273,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Job.get_job"><code class="name flex">
-<span>async def <span class="ident">get_job</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_job</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the specified job resource by job ID.</p></div>
@@ -297,7 +297,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Job.get_query_results"><code class="name flex">
-<span>async def <span class="ident">get_query_results</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_query_results</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the specified jobQueryResults by job ID.</p></div>
@@ -340,7 +340,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Job.insert_via_query"><code class="name flex">
-<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60, use_query_cache: bool = True, dry_run: bool = False, use_legacy_sql: bool = True, destination_table: Union[ForwardRef('<a title="gcloud.aio.bigquery.Table" href="#gcloud.aio.bigquery.Table">Table</a>'), NoneType] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Optional[aiohttp.client.ClientSession] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60, use_query_cache: bool = True, dry_run: bool = False, use_legacy_sql: bool = True, destination_table: Optional[ForwardRef('<a title="gcloud.aio.bigquery.Table" href="#gcloud.aio.bigquery.Table">Table</a>')] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create table as a result of the query</p></div>
@@ -478,7 +478,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </dd>
 <dt id="gcloud.aio.bigquery.Table"><code class="flex name class">
 <span>class <span class="ident">Table</span></span>
-<span>(</span><span>dataset_name: str, table_name: str, project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>dataset_name: str, table_name: str, project: Optional[str] = None, service_file: Union[str, io.IOBase, NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -794,7 +794,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Deletes the table specified by tableId from the dataset.</p></div>
@@ -830,7 +830,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Gets the specified table resource by table ID.</p></div>
@@ -874,7 +874,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert"><code class="name flex">
-<span>async def <span class="ident">insert</span></span>(<span>self, rows: List[Dict[str, Any]], skip_invalid: bool = False, ignore_unknown: bool = True, session: Union[aiohttp.client.ClientSession, NoneType] = None, template_suffix: Union[str, NoneType] = None, timeout: int = 60, *, insert_id_fn: Union[Callable[[Dict[str, Any]], str], NoneType] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">insert</span></span>(<span>self, rows: List[Dict[str, Any]], skip_invalid: bool = False, ignore_unknown: bool = True, session: Optional[aiohttp.client.ClientSession] = None, template_suffix: Optional[str] = None, timeout: int = 60, *, insert_id_fn: Optional[Callable[[Dict[str, Any]], str]] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Streams data into BigQuery</p>
@@ -923,7 +923,7 @@ response JSON containing details on the failing rows.</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert_via_copy"><code class="name flex">
-<span>async def <span class="ident">insert_via_copy</span></span>(<span>self, destination_project: str, destination_dataset: str, destination_table: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 60) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
+<span>async def <span class="ident">insert_via_copy</span></span>(<span>self, destination_project: str, destination_dataset: str, destination_table: str, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Copy BQ table to another table in BQ</p></div>
@@ -948,7 +948,7 @@ response JSON containing details on the failing rows.</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert_via_load"><code class="name flex">
-<span>async def <span class="ident">insert_via_load</span></span>(<span>self, source_uris: List[str], session: Union[aiohttp.client.ClientSession, NoneType] = None, autodetect: bool = False, source_format: <a title="gcloud.aio.bigquery.bigquery.SourceFormat" href="bigquery.html#gcloud.aio.bigquery.bigquery.SourceFormat">SourceFormat</a> = SourceFormat.CSV, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_TRUNCATE, timeout: int = 60, ignore_unknown_values: bool = False, schema_update_options: Union[List[<a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption" href="bigquery.html#gcloud.aio.bigquery.bigquery.SchemaUpdateOption">SchemaUpdateOption</a>], NoneType] = None) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
+<span>async def <span class="ident">insert_via_load</span></span>(<span>self, source_uris: List[str], session: Optional[aiohttp.client.ClientSession] = None, autodetect: bool = False, source_format: <a title="gcloud.aio.bigquery.bigquery.SourceFormat" href="bigquery.html#gcloud.aio.bigquery.bigquery.SourceFormat">SourceFormat</a> = SourceFormat.CSV, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_TRUNCATE, timeout: int = 60, ignore_unknown_values: bool = False, schema_update_options: Optional[List[<a title="gcloud.aio.bigquery.bigquery.SchemaUpdateOption" href="bigquery.html#gcloud.aio.bigquery.bigquery.SchemaUpdateOption">SchemaUpdateOption</a>]] = None) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Loads entities from storage to BigQuery.</p></div>
@@ -979,7 +979,7 @@ response JSON containing details on the failing rows.</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert_via_query"><code class="name flex">
-<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60, use_query_cache: bool = True, dry_run: bool = False) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
+<span>async def <span class="ident">insert_via_query</span></span>(<span>self, query: str, session: Optional[aiohttp.client.ClientSession] = None, write_disposition: <a title="gcloud.aio.bigquery.bigquery.Disposition" href="bigquery.html#gcloud.aio.bigquery.bigquery.Disposition">Disposition</a> = Disposition.WRITE_EMPTY, timeout: int = 60, use_query_cache: bool = True, dry_run: bool = False) ‑> <a title="gcloud.aio.bigquery.bigquery.Job" href="bigquery.html#gcloud.aio.bigquery.bigquery.Job">Job</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create table as a result of the query</p></div>

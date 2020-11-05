@@ -429,7 +429,7 @@ class Datastore:
 <dl>
 <dt id="gcloud.aio.datastore.datastore.Datastore"><code class="flex name class">
 <span>class <span class="ident">Datastore</span></span>
-<span>(</span><span>project: Union[str, NoneType] = None, service_file: Union[str, io.IOBase, NoneType] = None, namespace: str = '', session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>project: Optional[str] = None, service_file: Union[str, io.IOBase, NoneType] = None, namespace: str = '', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -809,7 +809,7 @@ class Datastore:
 <h3>Static methods</h3>
 <dl>
 <dt id="gcloud.aio.datastore.datastore.Datastore.make_mutation"><code class="name flex">
-<span>def <span class="ident">make_mutation</span></span>(<span>operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Union[Dict[str, Any], NoneType] = None) ‑> Dict[str, Any]</span>
+<span>def <span class="ident">make_mutation</span></span>(<span>operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Optional[Dict[str, Any]] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -837,7 +837,7 @@ def make_mutation(
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.datastore.datastore.Datastore.allocateIds"><code class="name flex">
-<span>async def <span class="ident">allocateIds</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]</span>
+<span>async def <span class="ident">allocateIds</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -869,7 +869,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.beginTransaction"><code class="name flex">
-<span>async def <span class="ident">beginTransaction</span></span>(<span>self, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> str</span>
+<span>async def <span class="ident">beginTransaction</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -909,7 +909,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.commit"><code class="name flex">
-<span>async def <span class="ident">commit</span></span>(<span>self, mutations: List[Dict[str, Any]], transaction: Union[str, NoneType] = None, mode: <a title="gcloud.aio.datastore.constants.Mode" href="constants.html#gcloud.aio.datastore.constants.Mode">Mode</a> = Mode.TRANSACTIONAL, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> NoneType</span>
+<span>async def <span class="ident">commit</span></span>(<span>self, mutations: List[Dict[str, Any]], transaction: Optional[str] = None, mode: <a title="gcloud.aio.datastore.constants.Mode" href="constants.html#gcloud.aio.datastore.constants.Mode">Mode</a> = Mode.TRANSACTIONAL, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -940,7 +940,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -954,7 +954,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.export"><code class="name flex">
-<span>async def <span class="ident">export</span></span>(<span>self, output_bucket_prefix: str, kinds: Union[List[str], NoneType] = None, namespaces: Union[List[str], NoneType] = None, labels: Union[Dict[str, str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.datastore_operation.DatastoreOperation" href="datastore_operation.html#gcloud.aio.datastore.datastore_operation.DatastoreOperation">DatastoreOperation</a></span>
+<span>async def <span class="ident">export</span></span>(<span>self, output_bucket_prefix: str, kinds: Optional[List[str]] = None, namespaces: Optional[List[str]] = None, labels: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.datastore_operation.DatastoreOperation" href="datastore_operation.html#gcloud.aio.datastore.datastore_operation.DatastoreOperation">DatastoreOperation</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -995,7 +995,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.get_datastore_operation"><code class="name flex">
-<span>async def <span class="ident">get_datastore_operation</span></span>(<span>self, name: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.datastore_operation.DatastoreOperation" href="datastore_operation.html#gcloud.aio.datastore.datastore_operation.DatastoreOperation">DatastoreOperation</a></span>
+<span>async def <span class="ident">get_datastore_operation</span></span>(<span>self, name: str, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.datastore_operation.DatastoreOperation" href="datastore_operation.html#gcloud.aio.datastore.datastore_operation.DatastoreOperation">DatastoreOperation</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1040,7 +1040,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.insert"><code class="name flex">
-<span>async def <span class="ident">insert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">insert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1055,7 +1055,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.lookup"><code class="name flex">
-<span>async def <span class="ident">lookup</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], transaction: Union[str, NoneType] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.STRONG, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, List[Union[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>, <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]]]</span>
+<span>async def <span class="ident">lookup</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], transaction: Optional[str] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.STRONG, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, List[Union[<a title="gcloud.aio.datastore.entity.EntityResult" href="entity.html#gcloud.aio.datastore.entity.EntityResult">EntityResult</a>, <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>]]]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1102,7 +1102,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.operate"><code class="name flex">
-<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Union[Dict[str, Any], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1142,7 +1142,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.reserveIds"><code class="name flex">
-<span>async def <span class="ident">reserveIds</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], database_id: str = '', session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> NoneType</span>
+<span>async def <span class="ident">reserveIds</span></span>(<span>self, keys: List[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], database_id: str = '', session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1172,7 +1172,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.rollback"><code class="name flex">
-<span>async def <span class="ident">rollback</span></span>(<span>self, transaction: str, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> NoneType</span>
+<span>async def <span class="ident">rollback</span></span>(<span>self, transaction: str, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1201,7 +1201,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.runQuery"><code class="name flex">
-<span>async def <span class="ident">runQuery</span></span>(<span>self, query: <a title="gcloud.aio.datastore.query.BaseQuery" href="query.html#gcloud.aio.datastore.query.BaseQuery">BaseQuery</a>, transaction: Union[str, NoneType] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.EVENTUAL, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.query.QueryResultBatch" href="query.html#gcloud.aio.datastore.query.QueryResultBatch">QueryResultBatch</a></span>
+<span>async def <span class="ident">runQuery</span></span>(<span>self, query: <a title="gcloud.aio.datastore.query.BaseQuery" href="query.html#gcloud.aio.datastore.query.BaseQuery">BaseQuery</a>, transaction: Optional[str] = None, consistency: <a title="gcloud.aio.datastore.constants.Consistency" href="constants.html#gcloud.aio.datastore.constants.Consistency">Consistency</a> = Consistency.EVENTUAL, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> <a title="gcloud.aio.datastore.query.QueryResultBatch" href="query.html#gcloud.aio.datastore.query.QueryResultBatch">QueryResultBatch</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1244,7 +1244,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.update"><code class="name flex">
-<span>async def <span class="ident">update</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">update</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1259,7 +1259,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.datastore.Datastore.upsert"><code class="name flex">
-<span>async def <span class="ident">upsert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> NoneType</span>
+<span>async def <span class="ident">upsert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

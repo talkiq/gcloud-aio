@@ -260,7 +260,7 @@ if BUILD_GCLOUD_REST:
 <dl>
 <dt id="gcloud.aio.auth.session.AioSession"><code class="flex name class">
 <span>class <span class="ident">AioSession</span></span>
-<span>(</span><span>session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10, verify_ssl: bool = True)</span>
+<span>(</span><span>session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -379,7 +379,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Union[Dict[str, str], NoneType] = None, timeout: int = 10, params: Union[Dict[str, str], NoneType] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -398,7 +398,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.AioSession.post"><code class="name flex">
-<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Union[str, NoneType] = None, timeout: int = 10, params: Union[Dict[str, str], NoneType] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -456,7 +456,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </dd>
 <dt id="gcloud.aio.auth.session.BaseSession"><code class="flex name class">
 <span>class <span class="ident">BaseSession</span></span>
-<span>(</span><span>session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10, verify_ssl: bool = True)</span>
+<span>(</span><span>session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -514,7 +514,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gcloud.aio.auth.session.BaseSession.session"><code class="name">var <span class="ident">session</span> : Union[aiohttp.client.ClientSession, NoneType]</code></dt>
+<dt id="gcloud.aio.auth.session.BaseSession.session"><code class="name">var <span class="ident">session</span> : Optional[aiohttp.client.ClientSession]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -559,7 +559,7 @@ async def delete(self, url: str, headers: Dict[str, str],
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.BaseSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Union[Dict[str, str], NoneType], timeout: int, params: Union[Dict[str, str], NoneType]) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]], timeout: int, params: Optional[Dict[str, str]]) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -574,7 +574,7 @@ async def get(self, url: str, headers: Optional[Dict[str, str]],
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.BaseSession.post"><code class="name flex">
-<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Union[str, NoneType], timeout: int, params: Union[Dict[str, str], NoneType]) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str], timeout: int, params: Optional[Dict[str, str]]) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

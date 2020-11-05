@@ -138,7 +138,7 @@ class PublisherClient:
 <dl>
 <dt id="gcloud.aio.pubsub.publisher_client.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
-<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -272,7 +272,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.publisher_client.PublisherClient.publish"><code class="name flex">
-<span>async def <span class="ident">publish</span></span>(<span>self, topic: str, messages: List[<a title="gcloud.aio.pubsub.utils.PubsubMessage" href="utils.html#gcloud.aio.pubsub.utils.PubsubMessage">PubsubMessage</a>], session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">publish</span></span>(<span>self, topic: str, messages: List[<a title="gcloud.aio.pubsub.utils.PubsubMessage" href="utils.html#gcloud.aio.pubsub.utils.PubsubMessage">PubsubMessage</a>], session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

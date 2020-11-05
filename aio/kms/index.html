@@ -108,7 +108,7 @@ Base64 are respectively replaced by - and _</p></div>
 <dl>
 <dt id="gcloud.aio.kms.KMS"><code class="flex name class">
 <span>class <span class="ident">KMS</span></span>
-<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, io.IOBase, NoneType] = None, location: str = 'global', session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, io.IOBase, NoneType] = None, location: str = 'global', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -192,7 +192,7 @@ Base64 are respectively replaced by - and _</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.kms.KMS.decrypt"><code class="name flex">
-<span>async def <span class="ident">decrypt</span></span>(<span>self, ciphertext: str, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> str</span>
+<span>async def <span class="ident">decrypt</span></span>(<span>self, ciphertext: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -215,7 +215,7 @@ Base64 are respectively replaced by - and _</p></div>
 </details>
 </dd>
 <dt id="gcloud.aio.kms.KMS.encrypt"><code class="name flex">
-<span>async def <span class="ident">encrypt</span></span>(<span>self, plaintext: str, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> str</span>
+<span>async def <span class="ident">encrypt</span></span>(<span>self, plaintext: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

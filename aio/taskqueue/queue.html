@@ -174,7 +174,7 @@ class PushQueue:
 <dl>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue"><code class="flex name class">
 <span>class <span class="ident">PushQueue</span></span>
-<span>(</span><span>project: str, taskqueue: str, service_file: Union[str, io.IOBase, NoneType] = None, location: str = 'us-central1', session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>project: str, taskqueue: str, service_file: Union[str, io.IOBase, NoneType] = None, location: str = 'us-central1', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -298,7 +298,7 @@ class PushQueue:
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.create"><code class="name flex">
-<span>async def <span class="ident">create</span></span>(<span>self, task: Dict[str, Any], session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">create</span></span>(<span>self, task: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -318,7 +318,7 @@ class PushQueue:
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, tname: str, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, tname: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -334,7 +334,7 @@ class PushQueue:
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, tname: str, full: bool = False, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">get</span></span>(<span>self, tname: str, full: bool = False, session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -373,7 +373,7 @@ class PushQueue:
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.list"><code class="name flex">
-<span>async def <span class="ident">list</span></span>(<span>self, full: bool = False, page_size: int = 1000, page_token: str = '', session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">list</span></span>(<span>self, full: bool = False, page_size: int = 1000, page_token: str = '', session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -395,7 +395,7 @@ class PushQueue:
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.queue.PushQueue.run"><code class="name flex">
-<span>async def <span class="ident">run</span></span>(<span>self, tname: str, full: bool = False, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Any</span>
+<span>async def <span class="ident">run</span></span>(<span>self, tname: str, full: bool = False, session: Optional[aiohttp.client.ClientSession] = None) ‑> Any</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

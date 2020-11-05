@@ -183,7 +183,7 @@ class Bucket:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.storage.bucket.Bucket.blob_exists"><code class="name flex">
-<span>async def <span class="ident">blob_exists</span></span>(<span>self, blob_name: str, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> bool</span>
+<span>async def <span class="ident">blob_exists</span></span>(<span>self, blob_name: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -208,7 +208,7 @@ class Bucket:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.bucket.Bucket.get_blob"><code class="name flex">
-<span>async def <span class="ident">get_blob</span></span>(<span>self, blob_name: str, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> <a title="gcloud.aio.storage.blob.Blob" href="blob.html#gcloud.aio.storage.blob.Blob">Blob</a></span>
+<span>async def <span class="ident">get_blob</span></span>(<span>self, blob_name: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> <a title="gcloud.aio.storage.blob.Blob" href="blob.html#gcloud.aio.storage.blob.Blob">Blob</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -225,7 +225,7 @@ class Bucket:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.bucket.Bucket.get_metadata"><code class="name flex">
-<span>async def <span class="ident">get_metadata</span></span>(<span>self, params: Union[Dict[str, Any], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_metadata</span></span>(<span>self, params: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -242,7 +242,7 @@ class Bucket:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.bucket.Bucket.list_blobs"><code class="name flex">
-<span>async def <span class="ident">list_blobs</span></span>(<span>self, prefix: str = '', session: Union[aiohttp.client.ClientSession, NoneType] = None) ‑> List[str]</span>
+<span>async def <span class="ident">list_blobs</span></span>(<span>self, prefix: str = '', session: Optional[aiohttp.client.ClientSession] = None) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

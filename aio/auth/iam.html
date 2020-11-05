@@ -179,7 +179,7 @@ class IamClient:
 <dl>
 <dt id="gcloud.aio.auth.iam.IamClient"><code class="flex name class">
 <span>class <span class="ident">IamClient</span></span>
-<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>service_file: Union[str, IO[~AnyStr], NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -304,7 +304,7 @@ class IamClient:
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="gcloud.aio.auth.iam.IamClient.service_account_email"><code class="name">var <span class="ident">service_account_email</span> : Union[str, NoneType]</code></dt>
+<dt id="gcloud.aio.auth.iam.IamClient.service_account_email"><code class="name">var <span class="ident">service_account_email</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -333,7 +333,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.iam.IamClient.get_public_key"><code class="name flex">
-<span>async def <span class="ident">get_public_key</span></span>(<span>self, key_id: Union[str, NoneType] = None, key: Union[str, NoneType] = None, service_account_email: Union[str, NoneType] = None, project: Union[str, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, str]</span>
+<span>async def <span class="ident">get_public_key</span></span>(<span>self, key_id: Optional[str] = None, key: Optional[str] = None, service_account_email: Optional[str] = None, project: Optional[str] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -386,7 +386,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.iam.IamClient.list_public_keys"><code class="name flex">
-<span>async def <span class="ident">list_public_keys</span></span>(<span>self, service_account_email: Union[str, NoneType] = None, project: Union[str, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> List[Dict[str, str]]</span>
+<span>async def <span class="ident">list_public_keys</span></span>(<span>self, service_account_email: Optional[str] = None, project: Optional[str] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> List[Dict[str, str]]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -417,7 +417,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.iam.IamClient.sign_blob"><code class="name flex">
-<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, NoneType], service_account_email: Union[str, NoneType] = None, delegates: Union[List[str], NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, str]</span>
+<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, NoneType], service_account_email: Optional[str] = None, delegates: Optional[List[str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

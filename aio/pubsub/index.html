@@ -112,7 +112,7 @@ Google uses a named tuple; here are the fields, defaults:
 </dd>
 <dt id="gcloud.aio.pubsub.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
-<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Union[aiohttp.client.ClientSession, NoneType] = None, token: Union[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>, NoneType] = None)</span>
+<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -246,7 +246,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.PublisherClient.publish"><code class="name flex">
-<span>async def <span class="ident">publish</span></span>(<span>self, topic: str, messages: List[<a title="gcloud.aio.pubsub.utils.PubsubMessage" href="utils.html#gcloud.aio.pubsub.utils.PubsubMessage">PubsubMessage</a>], session: Union[aiohttp.client.ClientSession, NoneType] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">publish</span></span>(<span>self, topic: str, messages: List[<a title="gcloud.aio.pubsub.utils.PubsubMessage" href="utils.html#gcloud.aio.pubsub.utils.PubsubMessage">PubsubMessage</a>], session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -327,7 +327,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient"><code class="flex name class">
 <span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>*, loop: Union[asyncio.events.AbstractEventLoop, NoneType] = None, **kwargs: Dict[str, Any])</span>
+<span>(</span><span>*, loop: Optional[asyncio.events.AbstractEventLoop] = None, **kwargs: Dict[str, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -631,7 +631,7 @@ def data(self) -&gt; bytes:
     return bytes(self._message.data)</code></pre>
 </details>
 </dd>
-<dt id="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt"><code class="name">var <span class="ident">delivery_attempt</span> : Union[int, NoneType]</code></dt>
+<dt id="gcloud.aio.pubsub.SubscriberMessage.delivery_attempt"><code class="name">var <span class="ident">delivery_attempt</span> : Optional[int]</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
