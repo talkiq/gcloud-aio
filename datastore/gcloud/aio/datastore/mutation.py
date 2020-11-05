@@ -36,7 +36,7 @@ class MutationResult:
         else:
             key = None
         version: str = data['version']
-        conflict_detected: bool = data['conflictDetected']
+        conflict_detected: bool = data.get('conflictDetected', False)
         return cls(key, version, conflict_detected)
 
     def to_repr(self) -> Dict[str, Any]:
