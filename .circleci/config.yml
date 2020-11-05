@@ -243,7 +243,7 @@ workflows:
               only: /.*/
 
       - linter/pre-commit:
-          python_version: 3.9.0
+          python_version: 3.8.6  # TODO: https://github.com/PyCQA/pylint/issues/3882
           filters:
             tags:
               only: /.*/
