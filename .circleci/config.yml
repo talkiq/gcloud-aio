@@ -57,7 +57,7 @@ jobs:
       - run:
           name: patch pdoc
           command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.8/site-packages/pdoc/__init__.py
+            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.9/site-packages/pdoc/__init__.py
       - checkout
       - attach_workspace:
           at: rest
@@ -211,7 +211,7 @@ jobs:
       ## unit tests
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
       ## integration tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.8'/python=\['2.7', '3.8'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
 
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
@@ -243,7 +243,7 @@ workflows:
               only: /.*/
 
       - linter/pre-commit:
-          python_version: 3.7.8
+          python_version: 3.9.0
           filters:
             tags:
               only: /.*/
@@ -255,7 +255,7 @@ workflows:
             - build-rest
 
       - tester/pipcheck:
-          python_version: 3.8.5
+          python_version: 3.9.0
           matrix:
             alias: pipcheck
             parameters:
