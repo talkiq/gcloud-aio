@@ -59,6 +59,23 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
 
 
 @pytest.mark.asyncio  # type: ignore
+async def test_mutation_result(creds: str, kind: str, project: str) -> None:
+    key = Key(project, [PathElement(kind)])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        insert_result = await ds.insert(key, {'value': 12})
+        assert len(insert_result.mutation_results) == 1
+        saved_key = insert_result.mutation_results[0].key
+        assert saved_key is not None
+
+        update_result = await ds.update(saved_key, {'value': 83})
+        assert len(update_result.mutation_results) == 1
+        assert update_result.mutation_results[0].key is None
+
+
+@pytest.mark.asyncio  # type: ignore
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 

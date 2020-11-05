@@ -19,6 +19,7 @@ from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
+from gcloud.aio.datastore.response import CommitResponse
 from gcloud.aio.datastore.value import Value
 
 # Selectively load libraries based on the package
@@ -44,6 +45,7 @@ log = logging.getLogger(__name__)
 
 
 class Datastore:
+    commit_response_kind = CommitResponse
     datastore_operation_kind = DatastoreOperation
     entity_result_kind = EntityResult
     key_kind = Key
@@ -174,7 +176,7 @@ class Datastore:
                      transaction: Optional[str] = None,
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: Optional[Session] = None,
-                     timeout: int = 10) -> None:
+                     timeout: int = 10) -> CommitResponse:
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}:commit'
 
@@ -189,7 +191,10 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+
+        return self.commit_response_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
@@ -354,31 +359,32 @@ class Datastore:
         return self.query_result_batch_kind.from_repr(data['batch'])
 
     async def delete(self, key: Key,
-                     session: Optional[Session] = None) -> None:
+                     session: Optional[Session] = None) -> CommitResponse:
         return await self.operate(Operation.DELETE, key, session=session)
 
     async def insert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> None:
+                     session: Optional[Session] = None) -> CommitResponse:
         return await self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
     async def update(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> None:
+                     session: Optional[Session] = None) -> CommitResponse:
         return await self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
     async def upsert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> None:
+                     session: Optional[Session] = None) -> CommitResponse:
         return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
                       properties: Optional[Dict[str, Any]] = None,
-                      session: Optional[Session] = None) -> None:
+                      session: Optional[Session] = None) -> CommitResponse:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        await self.commit([mutation], transaction=transaction, session=session)
+        return await self.commit([mutation], transaction=transaction,
+                                 session=session)
 
     async def close(self) -> None:
         await self.session.close()
