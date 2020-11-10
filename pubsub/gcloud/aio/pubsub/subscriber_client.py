@@ -1,18 +1,36 @@
+import json
+import os
 from typing import Any
+from typing import AnyStr
 from typing import Callable
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from gcloud.aio.auth import AioSession
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import Token
 from google.api_core import exceptions
 from google.cloud.pubsub_v1.subscriber.futures import StreamingPullFuture
 from google.cloud.pubsub_v1.subscriber.message import Message
 from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
 
 from .subscriber_message import SubscriberMessage
+
+API_ROOT = 'https://pubsub.googleapis.com'
+VERIFY_SSL = True
+
+SCOPES = [
+    'https://www.googleapis.com/auth/pubsub'
+]
+
+PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
+if PUBSUB_EMULATOR_HOST:
+    API_ROOT = f'https://{PUBSUB_EMULATOR_HOST}'
+    VERIFY_SSL = False
 
 class FlowControl:
     def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
@@ -105,13 +123,29 @@ else:
     import signal
 
     from google.cloud import pubsub
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
     class SubscriberClient:  # type: ignore[no-redef]
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,
+                     service_file: Optional[Union[str, IO[AnyStr]]] = None,
+                     token: Optional[Token] = None,
+                     session: Optional[Session] = None,
                      **kwargs: Dict[str, Any]) -> None:
             self._subscriber = pubsub.SubscriberClient(**kwargs)
             self.loop = loop or asyncio.get_event_loop()
+            self.session = AioSession(session, verify_ssl=VERIFY_SSL)
+            self.token = token or Token(service_file=service_file, scopes=SCOPES,
+                                        session=self.session.session)
+
+        async def _headers(self) -> Dict[str, str]:
+            if PUBSUB_EMULATOR_HOST:
+               return {}
+
+            token = await self.token.get()
+            return {
+                'Authorization': f'Bearer {token}'
+            }
 
         def create_subscription(self,
                                 subscription: str,
@@ -132,60 +166,75 @@ else:
             except exceptions.AlreadyExists:
                 pass
 
-        def subscribe(self,
-                      subscription: str,
-                      callback: Callable[[SubscriberMessage], Any],
-                      *,
-                      flow_control: Union[FlowControl, Tuple[int, ...]] = ()
-                      ) -> StreamingPullFuture:
+        async def pull(self, subscription: str, max_messages: int,
+                       *, session: Optional[Session] = None) -> List[SubscriberMessage]:
             """
-            Create subscription through pubsub client, scheduling callbacks
-            on the event loop.
+            Pull messages from subscription
             """
-            sub_keepalive = self._subscriber.subscribe(
-                subscription,
-                self._wrap_callback(callback),
-                flow_control=flow_control)
+            url = f'{API_ROOT}/v1/{subscription}:pull'
+            headers = await self._headers()
+            body = {
+                'maxMessages': max_messages,
+            }
+            s = session or self.session
+            resp = await s.post(url, data=json.dumps(body).encode(), headers=headers)
+            resp = await resp.json()
+            return [SubscriberMessage.from_api_dict(m) for m in resp['receivedMessages']]
 
-            self.loop.add_signal_handler(signal.SIGTERM, sub_keepalive.cancel)
-
-            return sub_keepalive
-
-        def run_forever(self, sub_keepalive: StreamingPullFuture) -> None:
+        async def acknowledge(self, subscription: str, ack_ids: List[str],
+                              *, session: Optional[Session] = None) -> None:
             """
-            Start the asyncio loop, running until it is either SIGTERM-ed or
-            killed by keyboard interrupt. The StreamingPullFuture parameter is
-            used to cancel subscription in the case that an unexpected
-            exception is thrown. You can also directly pass the `.subscribe()`
-            method call instead like so:
-                sub.run_forever(sub.subscribe(callback))
+            Acknowledge messages by ackIds
             """
+            url = f'{API_ROOT}/v1/{subscription}:acknowledge'
+            headers = await self._headers()
+            body = {
+                'ackIds': ack_ids,
+            }
+            s = session or self.session
+            resp = await s.post(url, data=json.dumps(body).encode(), headers=headers)
+            return
+
+        async def modify_ack_deadline(self, subscription: str, ack_ids: List[str],
+                                      ack_deadline_seconds: int,
+                                      *, session: Optional[Session] = None) -> None:
+            """
+            Modify messages' ack deadline. Set ack deadline to 0 to nack messages
+            """
+            url = f'{API_ROOT}/v1/{subscription}:modifyAckDeadline'
+            headers = await self._headers()
+            body = {
+                'ackIds': ack_ids,
+                'ackDeadlineSeconds': ack_deadline_seconds,
+            }
+            s = session or self.session
+            resp = await s.post(url, data=json.dumps(body).encode(), headers=headers)
+            return
+
+
+        async def subscribe(self,
+                            subscription: str,
+                            callback: Callable[[SubscriberMessage], bool],
+                            *,
+                            max_messages: int
+                            ) -> None:
+            queue: 'asyncio.Queue[SubscriberMessage]' = asyncio.Queue()
+            asyncio.create_task(self._dispatch_worker(subscription, callback, queue))
+            while True:
+                new_messages = await self.pull(subscription=subscription, max_messages=max_messages)
+                for m in new_messages:
+                    await queue.put(m)
+                await queue.join()
+
+        async def _dispatch_worker(self, subscription: str, callback: Callable[[SubscriberMessage], bool], queue: 'asyncio.Queue[SubscriberMessage]') -> None:
+            while True:
+                message = await queue.get()
+                asyncio.create_task(self._dispatch(subscription, message, callback, queue))
+
+        async def _dispatch(self, subscription: str, message: SubscriberMessage, callback: Callable[[SubscriberMessage], bool], queue: 'asyncio.Queue[SubscriberMessage]') -> None:
+            result = callback(message)
             try:
-                self.loop.run_forever()
-            except (KeyboardInterrupt, concurrent.futures.CancelledError):
-                pass
+                if result:
+                    await self.acknowledge(subscription, ack_ids=[message.ack_id])
             finally:
-                # 1. stop the `SubscriberClient` future, which will prevent
-                #    more tasks from being leased
-                if not sub_keepalive.cancelled():
-                    sub_keepalive.cancel()
-                # 2. cancel the tasks we already have, which should just be
-                #    `worker` instances; note they have
-                #    `except CancelledError: pass`
-                for task in asyncio.Task.all_tasks(loop=self.loop):
-                    task.cancel()
-                # 3. stop the `asyncio` event loop
-                self.loop.stop()
-
-        def _wrap_callback(self,
-                           callback: Callable[[SubscriberMessage], None]
-                           ) -> Callable[[Message], None]:
-            """Schedule callback to be called from the event loop"""
-            def _callback_wrapper(message: Message) -> None:
-                asyncio.run_coroutine_threadsafe(
-                    callback(  # type: ignore
-                        SubscriberMessage.from_google_cloud(
-                            message)),
-                    self.loop)
-
-            return _callback_wrapper
+                queue.task_done()
