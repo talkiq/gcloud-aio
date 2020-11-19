@@ -108,6 +108,10 @@ __all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilte
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="gcloud.rest.datastore.mutation" href="mutation.html">gcloud.rest.datastore.mutation</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.rest.datastore.projection" href="projection.html">gcloud.rest.datastore.projection</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -300,6 +304,7 @@ def from_repr(cls, data                )                     :
     datastore_operation_kind = DatastoreOperation
     entity_result_kind = EntityResult
     key_kind = Key
+    mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
@@ -427,7 +432,7 @@ def from_repr(cls, data                )                     :
                      transaction                = None,
                      mode       = Mode.TRANSACTIONAL,
                      session                    = None,
-                     timeout      = 10)        :
+                     timeout      = 10)                  :
         project = self.project()
         url = &#39;{}/projects/{}:commit&#39;.format((API_ROOT), (project))
 
@@ -442,7 +447,14 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        data                 = resp.json()
+
+        return {
+            &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
+                                for r in data.get(&#39;mutationResults&#39;, [])],
+            &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+        }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     def export(self, output_bucket_prefix     ,
@@ -607,31 +619,32 @@ def from_repr(cls, data                )                     :
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     def delete(self, key     ,
-                     session                    = None)        :
+                     session                    = None)                  :
         return self.operate(Operation.DELETE, key, session=session)
 
     def insert(self, key     , properties                ,
-                     session                    = None)        :
+                     session                    = None)                  :
         return self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
     def update(self, key     , properties                ,
-                     session                    = None)        :
+                     session                    = None)                  :
         return self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
     def upsert(self, key     , properties                ,
-                     session                    = None)        :
+                     session                    = None)                  :
         return self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
     # TODO: accept Entity rather than key/properties?
     def operate(self, operation           , key     ,
                       properties                           = None,
-                      session                    = None)        :
+                      session                    = None)                  :
         transaction = self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        self.commit([mutation], transaction=transaction, session=session)
+        return self.commit([mutation], transaction=transaction,
+                                 session=session)
 
     def close(self)        :
         self.session.close()
@@ -653,6 +666,10 @@ def from_repr(cls, data                )                     :
 <div class="desc"></div>
 </dd>
 <dt id="gcloud.rest.datastore.Datastore.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.rest.datastore.Datastore.mutation_result_kind"><code class="name">var <span class="ident">mutation_result_kind</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -780,7 +797,7 @@ def make_mutation(
                  transaction                = None,
                  mode       = Mode.TRANSACTIONAL,
                  session                    = None,
-                 timeout      = 10)        :
+                 timeout      = 10)                  :
     project = self.project()
     url = &#39;{}/projects/{}:commit&#39;.format((API_ROOT), (project))
 
@@ -795,7 +812,14 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    data                 = resp.json()
+
+    return {
+        &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
+                            for r in data.get(&#39;mutationResults&#39;, [])],
+        &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+    }</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.datastore.Datastore.delete"><code class="name flex">
@@ -808,7 +832,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, key     ,
-                 session                    = None)        :
+                 session                    = None)                  :
     return self.operate(Operation.DELETE, key, session=session)</code></pre>
 </details>
 </dd>
@@ -908,7 +932,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def insert(self, key     , properties                ,
-                 session                    = None)        :
+                 session                    = None)                  :
     return self.operate(Operation.INSERT, key, properties,
                               session=session)</code></pre>
 </details>
@@ -971,10 +995,11 @@ def make_mutation(
 </summary>
 <pre><code class="python">def operate(self, operation           , key     ,
                   properties                           = None,
-                  session                    = None)        :
+                  session                    = None)                  :
     transaction = self.beginTransaction(session=session)
     mutation = self.make_mutation(operation, key, properties=properties)
-    self.commit([mutation], transaction=transaction, session=session)</code></pre>
+    return self.commit([mutation], transaction=transaction,
+                             session=session)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.datastore.Datastore.project"><code class="name flex">
@@ -1112,7 +1137,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def update(self, key     , properties                ,
-                 session                    = None)        :
+                 session                    = None)                  :
     return self.operate(Operation.UPDATE, key, properties,
                               session=session)</code></pre>
 </details>
@@ -1127,7 +1152,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def upsert(self, key     , properties                ,
-                 session                    = None)        :
+                 session                    = None)                  :
     return self.operate(Operation.UPSERT, key, properties,
                               session=session)</code></pre>
 </details>
@@ -2869,6 +2894,7 @@ def from_repr(cls, data                )           :
 <li><code><a title="gcloud.rest.datastore.filter" href="filter.html">gcloud.rest.datastore.filter</a></code></li>
 <li><code><a title="gcloud.rest.datastore.key" href="key.html">gcloud.rest.datastore.key</a></code></li>
 <li><code><a title="gcloud.rest.datastore.lat_lng" href="lat_lng.html">gcloud.rest.datastore.lat_lng</a></code></li>
+<li><code><a title="gcloud.rest.datastore.mutation" href="mutation.html">gcloud.rest.datastore.mutation</a></code></li>
 <li><code><a title="gcloud.rest.datastore.projection" href="projection.html">gcloud.rest.datastore.projection</a></code></li>
 <li><code><a title="gcloud.rest.datastore.property_order" href="property_order.html">gcloud.rest.datastore.property_order</a></code></li>
 <li><code><a title="gcloud.rest.datastore.query" href="query.html">gcloud.rest.datastore.query</a></code></li>
@@ -2917,6 +2943,7 @@ def from_repr(cls, data                )           :
 <li><code><a title="gcloud.rest.datastore.Datastore.key_kind" href="#gcloud.rest.datastore.Datastore.key_kind">key_kind</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Datastore.lookup" href="#gcloud.rest.datastore.Datastore.lookup">lookup</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Datastore.make_mutation" href="#gcloud.rest.datastore.Datastore.make_mutation">make_mutation</a></code></li>
+<li><code><a title="gcloud.rest.datastore.Datastore.mutation_result_kind" href="#gcloud.rest.datastore.Datastore.mutation_result_kind">mutation_result_kind</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Datastore.operate" href="#gcloud.rest.datastore.Datastore.operate">operate</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Datastore.project" href="#gcloud.rest.datastore.Datastore.project">project</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Datastore.query_result_batch_kind" href="#gcloud.rest.datastore.Datastore.query_result_batch_kind">query_result_batch_kind</a></code></li>

@@ -99,6 +99,10 @@ __all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilte
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="gcloud.aio.datastore.mutation" href="mutation.html">gcloud.aio.datastore.mutation</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.aio.datastore.projection" href="projection.html">gcloud.aio.datastore.projection</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -291,6 +295,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
     datastore_operation_kind = DatastoreOperation
     entity_result_kind = EntityResult
     key_kind = Key
+    mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
     value_kind = Value
 
@@ -418,7 +423,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
                      transaction: Optional[str] = None,
                      mode: Mode = Mode.TRANSACTIONAL,
                      session: Optional[Session] = None,
-                     timeout: int = 10) -&gt; None:
+                     timeout: int = 10) -&gt; Dict[str, Any]:
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}:commit&#39;
 
@@ -433,7 +438,14 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+
+        return {
+            &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
+                                for r in data.get(&#39;mutationResults&#39;, [])],
+            &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+        }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
@@ -598,31 +610,32 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
 
     async def delete(self, key: Key,
-                     session: Optional[Session] = None) -&gt; None:
+                     session: Optional[Session] = None) -&gt; Dict[str, Any]:
         return await self.operate(Operation.DELETE, key, session=session)
 
     async def insert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -&gt; None:
+                     session: Optional[Session] = None) -&gt; Dict[str, Any]:
         return await self.operate(Operation.INSERT, key, properties,
                                   session=session)
 
     async def update(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -&gt; None:
+                     session: Optional[Session] = None) -&gt; Dict[str, Any]:
         return await self.operate(Operation.UPDATE, key, properties,
                                   session=session)
 
     async def upsert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -&gt; None:
+                     session: Optional[Session] = None) -&gt; Dict[str, Any]:
         return await self.operate(Operation.UPSERT, key, properties,
                                   session=session)
 
     # TODO: accept Entity rather than key/properties?
     async def operate(self, operation: Operation, key: Key,
                       properties: Optional[Dict[str, Any]] = None,
-                      session: Optional[Session] = None) -&gt; None:
+                      session: Optional[Session] = None) -&gt; Dict[str, Any]:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        await self.commit([mutation], transaction=transaction, session=session)
+        return await self.commit([mutation], transaction=transaction,
+                                 session=session)
 
     async def close(self) -&gt; None:
         await self.session.close()
@@ -644,6 +657,10 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
 <div class="desc"></div>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.aio.datastore.Datastore.mutation_result_kind"><code class="name">var <span class="ident">mutation_result_kind</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -759,7 +776,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.commit"><code class="name flex">
-<span>async def <span class="ident">commit</span></span>(<span>self, mutations: List[Dict[str, Any]], transaction: Optional[str] = None, mode: <a title="gcloud.aio.datastore.constants.Mode" href="constants.html#gcloud.aio.datastore.constants.Mode">Mode</a> = Mode.TRANSACTIONAL, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> NoneType</span>
+<span>async def <span class="ident">commit</span></span>(<span>self, mutations: List[Dict[str, Any]], transaction: Optional[str] = None, mode: <a title="gcloud.aio.datastore.constants.Mode" href="constants.html#gcloud.aio.datastore.constants.Mode">Mode</a> = Mode.TRANSACTIONAL, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -771,7 +788,7 @@ def make_mutation(
                  transaction: Optional[str] = None,
                  mode: Mode = Mode.TRANSACTIONAL,
                  session: Optional[Session] = None,
-                 timeout: int = 10) -&gt; None:
+                 timeout: int = 10) -&gt; Dict[str, Any]:
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}:commit&#39;
 
@@ -786,11 +803,18 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    await s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+    data: Dict[str, Any] = await resp.json()
+
+    return {
+        &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
+                            for r in data.get(&#39;mutationResults&#39;, [])],
+        &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+    }</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -799,7 +823,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def delete(self, key: Key,
-                 session: Optional[Session] = None) -&gt; None:
+                 session: Optional[Session] = None) -&gt; Dict[str, Any]:
     return await self.operate(Operation.DELETE, key, session=session)</code></pre>
 </details>
 </dd>
@@ -890,7 +914,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.insert"><code class="name flex">
-<span>async def <span class="ident">insert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
+<span>async def <span class="ident">insert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -899,7 +923,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def insert(self, key: Key, properties: Dict[str, Any],
-                 session: Optional[Session] = None) -&gt; None:
+                 session: Optional[Session] = None) -&gt; Dict[str, Any]:
     return await self.operate(Operation.INSERT, key, properties,
                               session=session)</code></pre>
 </details>
@@ -952,7 +976,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.operate"><code class="name flex">
-<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
+<span>async def <span class="ident">operate</span></span>(<span>self, operation: <a title="gcloud.aio.datastore.constants.Operation" href="constants.html#gcloud.aio.datastore.constants.Operation">Operation</a>, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -962,10 +986,11 @@ def make_mutation(
 </summary>
 <pre><code class="python">async def operate(self, operation: Operation, key: Key,
                   properties: Optional[Dict[str, Any]] = None,
-                  session: Optional[Session] = None) -&gt; None:
+                  session: Optional[Session] = None) -&gt; Dict[str, Any]:
     transaction = await self.beginTransaction(session=session)
     mutation = self.make_mutation(operation, key, properties=properties)
-    await self.commit([mutation], transaction=transaction, session=session)</code></pre>
+    return await self.commit([mutation], transaction=transaction,
+                             session=session)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.project"><code class="name flex">
@@ -1094,7 +1119,7 @@ def make_mutation(
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.update"><code class="name flex">
-<span>async def <span class="ident">update</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
+<span>async def <span class="ident">update</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1103,13 +1128,13 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def update(self, key: Key, properties: Dict[str, Any],
-                 session: Optional[Session] = None) -&gt; None:
+                 session: Optional[Session] = None) -&gt; Dict[str, Any]:
     return await self.operate(Operation.UPDATE, key, properties,
                               session=session)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.upsert"><code class="name flex">
-<span>async def <span class="ident">upsert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
+<span>async def <span class="ident">upsert</span></span>(<span>self, key: <a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>, properties: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1118,7 +1143,7 @@ def make_mutation(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def upsert(self, key: Key, properties: Dict[str, Any],
-                 session: Optional[Session] = None) -&gt; None:
+                 session: Optional[Session] = None) -&gt; Dict[str, Any]:
     return await self.operate(Operation.UPSERT, key, properties,
                               session=session)</code></pre>
 </details>
@@ -2857,6 +2882,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Value&#39;:
 <li><code><a title="gcloud.aio.datastore.filter" href="filter.html">gcloud.aio.datastore.filter</a></code></li>
 <li><code><a title="gcloud.aio.datastore.key" href="key.html">gcloud.aio.datastore.key</a></code></li>
 <li><code><a title="gcloud.aio.datastore.lat_lng" href="lat_lng.html">gcloud.aio.datastore.lat_lng</a></code></li>
+<li><code><a title="gcloud.aio.datastore.mutation" href="mutation.html">gcloud.aio.datastore.mutation</a></code></li>
 <li><code><a title="gcloud.aio.datastore.projection" href="projection.html">gcloud.aio.datastore.projection</a></code></li>
 <li><code><a title="gcloud.aio.datastore.property_order" href="property_order.html">gcloud.aio.datastore.property_order</a></code></li>
 <li><code><a title="gcloud.aio.datastore.query" href="query.html">gcloud.aio.datastore.query</a></code></li>
@@ -2905,6 +2931,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Value&#39;:
 <li><code><a title="gcloud.aio.datastore.Datastore.key_kind" href="#gcloud.aio.datastore.Datastore.key_kind">key_kind</a></code></li>
 <li><code><a title="gcloud.aio.datastore.Datastore.lookup" href="#gcloud.aio.datastore.Datastore.lookup">lookup</a></code></li>
 <li><code><a title="gcloud.aio.datastore.Datastore.make_mutation" href="#gcloud.aio.datastore.Datastore.make_mutation">make_mutation</a></code></li>
+<li><code><a title="gcloud.aio.datastore.Datastore.mutation_result_kind" href="#gcloud.aio.datastore.Datastore.mutation_result_kind">mutation_result_kind</a></code></li>
 <li><code><a title="gcloud.aio.datastore.Datastore.operate" href="#gcloud.aio.datastore.Datastore.operate">operate</a></code></li>
 <li><code><a title="gcloud.aio.datastore.Datastore.project" href="#gcloud.aio.datastore.Datastore.project">project</a></code></li>
 <li><code><a title="gcloud.aio.datastore.Datastore.query_result_batch_kind" href="#gcloud.aio.datastore.Datastore.query_result_batch_kind">query_result_batch_kind</a></code></li>
