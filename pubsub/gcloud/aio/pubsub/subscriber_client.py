@@ -29,7 +29,7 @@ SCOPES = [
 
 PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
 if PUBSUB_EMULATOR_HOST:
-    API_ROOT = f'https://{PUBSUB_EMULATOR_HOST}'
+    API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}'
     VERIFY_SSL = False
 
 class FlowControl:
@@ -161,6 +161,7 @@ else:
             except exceptions.AlreadyExists:
                 pass
 
+        # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
         async def pull(self, subscription: str, max_messages: int,
                        *, session: Optional[Session] = None
                        ) -> List[SubscriberMessage]:
@@ -173,14 +174,15 @@ else:
                 'maxMessages': max_messages,
             }
             encoded = json.dumps(body).encode()
-            s = session or self.session
+            s = AioSession(session) if session else self.session
             resp = await s.post(url, data=encoded, headers=headers)
             resp = await resp.json()
-            messages = []
-            for m in resp['receivedMessages']:
-                messages.append(SubscriberMessage.from_api_dict(m))
-            return messages
+            return [
+                SubscriberMessage.from_api_dict(m)
+                for m in resp['receivedMessages']
+            ]
 
+        # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
         async def acknowledge(self, subscription: str, ack_ids: List[str],
                               *, session: Optional[Session] = None) -> None:
             """
@@ -192,10 +194,11 @@ else:
                 'ackIds': ack_ids,
             }
             encoded = json.dumps(body).encode()
-            s = session or self.session
+            s = AioSession(session) if session else self.session
             await s.post(url, data=encoded, headers=headers)
-            return
 
+
+        # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
         async def modify_ack_deadline(self, subscription: str,
                                       ack_ids: List[str],
                                       ack_deadline_seconds: int,
@@ -211,6 +214,5 @@ else:
                 'ackIds': ack_ids,
                 'ackDeadlineSeconds': ack_deadline_seconds,
             }
-            s = session or self.session
-            await s.post(url, data=json.dumps(body).encode(), headers=headers)
-            return
+            s = AioSession(session) if session else self.session
+            await s.post(url, data=json.dumps(body).encode('utf-8'), headers=headers)
