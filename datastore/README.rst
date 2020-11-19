@@ -128,6 +128,8 @@ The full list of classes which may be overridden in this way is:
         entity_result_kind.entity_kind.key_kind = Key
         key_kind = Key
         key_kind.path_element_kind = PathElement
+        mutation_result_kind = MutationResult
+        mutation_result_kind.key_kind = Key
         query_result_batch_kind = QueryResultBatch
         query_result_batch_kind.entity_result_kind = EntityResult
         value_kind = Value
