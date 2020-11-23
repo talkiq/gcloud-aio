@@ -175,7 +175,8 @@ standard Base64 are respectively replaced by - and _.</p>
         return resp
 
     async def delete(self, url: str, headers: Dict[str, str],
-                     params: Dict[str, str], timeout: int = 10
+                     params: Optional[Dict[str, str]] = None,
+                     timeout: int = 10
                      ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.delete(url, headers=headers,
                                          params=params, timeout=timeout)
@@ -234,7 +235,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Dict[str, str], timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Optional[Dict[str, str]] = None, timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -243,7 +244,8 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def delete(self, url: str, headers: Dict[str, str],
-                 params: Dict[str, str], timeout: int = 10
+                 params: Optional[Dict[str, str]] = None,
+                 timeout: int = 10
                  ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.delete(url, headers=headers,
                                      params=params, timeout=timeout)
