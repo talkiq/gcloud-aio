@@ -133,7 +133,8 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
-                         params: Dict[str, str], timeout: int = 10
+                         params: Optional[Dict[str, str]] = None,
+                         timeout: int = 10
                          ) -> aiohttp.ClientResponse:
             resp = await self.session.delete(url, headers=headers,
                                              params=params, timeout=timeout)
@@ -198,7 +199,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
-                         params: Dict[str, str], timeout: int = 10
+                         params: Optional[Dict[str, str]] = None,
+                         timeout: int = 10
                          ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
