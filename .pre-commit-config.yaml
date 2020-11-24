@@ -57,7 +57,7 @@ repos:
     -   id: pyupgrade
         args: [--py36-plus]
 -   repo: https://github.com/asottile/yesqa
-    rev: v0.0.8
+    rev: v1.2.2
     hooks:
     -   id: yesqa
 -   repo: https://github.com/Lucas-C/pre-commit-hooks-markup
