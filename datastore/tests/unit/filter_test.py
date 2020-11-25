@@ -38,11 +38,12 @@ class TestFilter:
 
     @staticmethod
     def test_composite_filter_from_repr(property_filters):
+        # pylint: disable=line-too-long
         original_filter = CompositeFilter(
             operator=CompositeFilterOperator.AND,
             filters=[
                 Filter(property_filters[0]),
-                Filter(property_filters[1])
+                Filter(property_filters[1]),
             ])
         data = {
             'op': original_filter.operator,
@@ -50,22 +51,22 @@ class TestFilter:
                 {
                     'propertyFilter': {
                         'property': {
-                            'name': original_filter.filters[0].inner_filter.prop
+                            'name': original_filter.filters[0].inner_filter.prop,
                         },
                         'op': original_filter.filters[0].inner_filter.operator,
-                        'value': property_filters[0].value.to_repr()
-                    }
+                        'value': property_filters[0].value.to_repr(),
+                    },
                 },
                 {
                     'propertyFilter': {
                         'property': {
-                            'name': original_filter.filters[1].inner_filter.prop
+                            'name': original_filter.filters[1].inner_filter.prop,
                         },
                         'op': original_filter.filters[1].inner_filter.operator,
-                        'value': property_filters[1].value.to_repr()
-                    }
+                        'value': property_filters[1].value.to_repr(),
+                    },
                 },
-            ]
+            ],
         }
 
         output_filter = CompositeFilter.from_repr(data)
@@ -129,7 +130,7 @@ class TestFilter:
         assert repr(query_filter) == str(query_filter.to_repr())
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def property_filters() -> List[PropertyFilter]:
         return [
             PropertyFilter(
@@ -145,7 +146,7 @@ class TestFilter:
         ]
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def composite_filter(property_filters) -> CompositeFilter:
         return CompositeFilter(
             operator=CompositeFilterOperator.AND,
@@ -155,12 +156,12 @@ class TestFilter:
             ])
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def query_filter(composite_filter) -> Filter:
         return Filter(inner_filter=composite_filter)
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def value() -> Value:
         return Value('value')
 

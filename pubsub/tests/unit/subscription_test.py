@@ -31,6 +31,7 @@ def test_flow_control_getattr():
     assert f.max_lease_duration == 10
     assert f.max_duration_per_lease_extension == 0
 
+
 def test_construct_subscriber_message_from_google_message():
     ack_id = 'some_ack_id'
     delivery_attempt = 0

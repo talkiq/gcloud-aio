@@ -30,7 +30,8 @@ class IamClient:
                  token: Optional[Token] = None) -> None:
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=self.session.session, scopes=SCOPES)
+                                    session=self.session.session,
+                                    scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -103,8 +104,8 @@ class IamClient:
                         delegates: Optional[List[str]] = None,
                         session: Optional[Session] = None,
                         timeout: int = 10) -> Dict[str, str]:
-        service_account_email = (service_account_email or
-                                 self.service_account_email)
+        service_account_email = (service_account_email
+                                 or self.service_account_email)
         if not service_account_email:
             raise TypeError('sign_blob must have a valid '
                             'service_account_email')

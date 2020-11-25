@@ -14,6 +14,7 @@ from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
 
 from .subscriber_message import SubscriberMessage
 
+
 class FlowControl:
     def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
         """
@@ -38,9 +39,9 @@ class FlowControl:
     def __getattr__(self, attr: str) -> Any:
         return getattr(self._flow_control, attr)
 
+
 if BUILD_GCLOUD_REST:
     from google.cloud import pubsub_v1 as pubsub
-
 
     class SubscriberClient:
         def __init__(self, **kwargs: Dict[str, Any]) -> None:
@@ -105,7 +106,6 @@ else:
     import signal
 
     from google.cloud import pubsub
-
 
     class SubscriberClient:  # type: ignore[no-redef]
         def __init__(self, *, loop: Optional[asyncio.AbstractEventLoop] = None,

@@ -109,12 +109,12 @@ class TestQuery:
         assert repr(query) == str(query.to_repr())
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def query(query_filter) -> Query:
         return Query('query_kind', query_filter)
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def query_filter() -> Filter:
         inner_filter = PropertyFilter(
             prop='property_name',

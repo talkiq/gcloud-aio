@@ -50,8 +50,9 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         operation = await ds.export(export_bucket_name, kinds=[kind])
 
         count = 0
-        while (count < 10 and operation and
-               operation.metadata['common']['state'] == 'PROCESSING'):
+        while (count < 10
+               and operation
+               and operation.metadata['common']['state'] == 'PROCESSING'):
             await sleep(10)
             operation = await ds.get_datastore_operation(operation.name)
             count += 1

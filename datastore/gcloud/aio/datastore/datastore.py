@@ -146,7 +146,8 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data['keys']]
@@ -191,7 +192,8 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data: Dict[str, Any] = await resp.json()
 
         return {
@@ -274,7 +276,8 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data: Dict[str, List[Any]] = await resp.json()
 
@@ -346,7 +349,7 @@ class Datastore:
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
-            query.json_key:  query.to_repr(),
+            query.json_key: query.to_repr(),
             'readOptions': options,
         }).encode('utf-8')
 
@@ -357,7 +360,8 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data['batch'])

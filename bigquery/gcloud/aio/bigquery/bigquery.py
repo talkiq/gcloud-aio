@@ -32,6 +32,7 @@ BIGQUERY_EMULATOR_HOST = os.environ.get('BIGQUERY_EMULATOR_HOST')
 if BIGQUERY_EMULATOR_HOST:
     API_ROOT = f'http://{BIGQUERY_EMULATOR_HOST}/bigquery/v2'
 
+
 class SourceFormat(Enum):
     AVRO = 'AVRO'
     CSV = 'CSV'
@@ -281,12 +282,12 @@ class Table:
         return body
 
     def _make_load_body(
-            self, source_uris: List[str], project: str, autodetect: bool,
-            source_format: SourceFormat,
-            write_disposition: Disposition,
-            ignore_unknown_values: bool,
-            schema_update_options: List[SchemaUpdateOption]
-        ) -> Dict[str, Any]:
+        self, source_uris: List[str], project: str, autodetect: bool,
+        source_format: SourceFormat,
+        write_disposition: Disposition,
+        ignore_unknown_values: bool,
+        schema_update_options: List[SchemaUpdateOption]
+    ) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
@@ -440,14 +441,14 @@ class Table:
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     async def insert_via_load(
-            self, source_uris: List[str], session: Optional[Session] = None,
-            autodetect: bool = False,
-            source_format: SourceFormat = SourceFormat.CSV,
-            write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60,
-            ignore_unknown_values: bool = False,
-            schema_update_options: Optional[List[SchemaUpdateOption]] = None
-        ) -> Job:
+        self, source_uris: List[str], session: Optional[Session] = None,
+        autodetect: bool = False,
+        source_format: SourceFormat = SourceFormat.CSV,
+        write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
+        timeout: int = 60,
+        ignore_unknown_values: bool = False,
+        schema_update_options: Optional[List[SchemaUpdateOption]] = None
+    ) -> Job:
         """Loads entities from storage to BigQuery."""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'

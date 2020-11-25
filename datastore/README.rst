@@ -82,8 +82,8 @@ started:
 
     # close the HTTP session
     # Note that other options include:
-    # * providing your own session: `Datastore(.., session=session)`
-    # * using a context manager: `async with Datastore(..) as ds:`
+    # * providing your own session: ``Datastore(.., session=session)``
+    # * using a context manager: ``async with Datastore(..) as ds:``
     await ds.close()
 
 Custom Subclasses

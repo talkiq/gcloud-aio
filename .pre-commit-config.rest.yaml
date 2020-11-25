@@ -1,53 +1,72 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v3.3.0
     hooks:
-    -   id: check-ast
-    -   id: check-builtin-literals
     -   id: check-case-conflict
-    -   id: check-docstring-first
     -   id: check-executables-have-shebangs
     -   id: check-json
     -   id: check-merge-conflict
     -   id: check-symlinks
+    -   id: check-toml
     -   id: check-vcs-permalinks
     -   id: check-xml
     -   id: check-yaml
         args: [--allow-multiple-documents]
-    -   id: debug-statements
     -   id: detect-private-key
         exclude: auth/tests/unit/token_test.py
-    # -   id: double-quote-string-fixer
     -   id: end-of-file-fixer
     -   id: file-contents-sorter
         files: .(docker|git)ignore
     -   id: mixed-line-ending
         args: [--fix=lf]
+
+# python
+    -   id: check-ast
+    -   id: check-builtin-literals
+    -   id: check-docstring-first
+    -   id: debug-statements
     -   id: name-tests-test
     -   id: requirements-txt-fixer
-    # -   id: trailing-whitespace
--   repo: https://github.com/pre-commit/mirrors-pylint
-    rev: v1.9.1
+-   repo: https://github.com/pycqa/pylint
+    rev: pylint-2.6.0
     hooks:
     -   id: pylint
+        additional_dependencies:
+        # TODO: >0.2.0
+        - git+https://github.com/bayesimpact/pylint_import_modules@016f79e4d2
         args:
-        - --max-line-length=80
-        - --ignore-imports=yes
-        # Formatting related
+        - --allowed-direct-imports="typing.*"
+        - --load-plugins=pylint_import_modules
+        - --max-line-length=79
+        - --max-args=10
+        - --score=n
+        - -d broad-except
+        - -d duplicate-code
+        - -d fixme
+        - -d import-error
+        - -d import-only-modules
+        - -d invalid-name
+        - -d locally-disabled
+        - -d missing-docstring
+        - -d too-few-public-methods
+        - -d too-many-arguments
+        - -d ungrouped-imports  # conflicts with reorder-python-imports
+        - -d wrong-import-order  # conflicts with reorder-python-imports
+        # gcloud-rest only: formatting issues
         - -d bad-whitespace
         - -d wrong-import-position
         - -d wrong-import-order
         - -d bad-continuation
         - -d line-too-long
         - -d trailing-whitespace
-        # Caused by automated conversion tools
+        # gcloud-rest only: caused by automated conversion tools
         - -d unused-import
         - -d redefined-builtin
         - -d bad-option-value
         - -d multiple-statements
         - -d pointless-statement
         - -d pointless-string-statement
-        # Other refactor issues
+        # gcloud-rest only: other refactor issues
         - -d too-many-branches
         - -d too-many-statements
         - -d old-style-class
@@ -55,21 +74,12 @@ repos:
         - -d unused-variable
         - -d too-many-locals
         - -d ungrouped-imports
-        # Originally available
-        - -d duplicate-code
-        - -d fixme
-        - -d import-error
-        - -d invalid-name
-        - -d locally-disabled
-        - -d missing-docstring
-        - -d too-few-public-methods
-        - -d too-many-arguments
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.6
+    rev: v1.1.9
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
 -   repo: https://github.com/asottile/yesqa
-    rev: v0.0.8
+    rev: v1.2.2
     hooks:
     -   id: yesqa

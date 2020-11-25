@@ -10,6 +10,7 @@ class Mutation:
     # TODO: Use this Mutation class instead of datastore.make_mutation
     pass
 
+
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit#MutationResult
 class MutationResult:
     key_kind = Key

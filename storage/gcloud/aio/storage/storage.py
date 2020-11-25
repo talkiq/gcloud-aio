@@ -164,7 +164,6 @@ class Storage:
             file_object.write(
                 await self.download(bucket, object_name, **kwargs))
 
-
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 session: Optional[Session] = None,
                                 timeout: int = 10) -> Dict[str, Any]:

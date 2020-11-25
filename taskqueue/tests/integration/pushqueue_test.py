@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 from future.utils import text_to_native_str
 
+
 @pytest.mark.asyncio
 async def test_task_lifecycle_in_push_queue(push_queue_context):
     tq = push_queue_context['queue']
