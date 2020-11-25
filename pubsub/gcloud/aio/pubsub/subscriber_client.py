@@ -17,7 +17,7 @@ from .subscriber_message import SubscriberMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 API_ROOT = 'https://pubsub.googleapis.com'
 VERIFY_SSL = True
@@ -122,7 +122,6 @@ class SubscriberClient:
         encoded = json.dumps(body).encode()
         s = AioSession(session) if session else self.session
         await s.post(url, data=encoded, headers=headers)
-
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     async def modify_ack_deadline(self, subscription: str,

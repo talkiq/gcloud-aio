@@ -6,6 +6,7 @@ from typing import Awaitable
 from typing import Callable
 from typing import Dict
 
+
 def parse_publish_time(publish_time: str) -> datetime.datetime:
     try:
         return datetime.datetime.strptime(
@@ -29,7 +30,7 @@ class SubscriberMessage:
 
     @staticmethod
     def from_api_dict(received_message: Dict[str, Any]
-                     ) -> 'SubscriberMessage':
+                      ) -> 'SubscriberMessage':
         ack_id = received_message['ackId']
         message_id = received_message['message']['messageId']
         data = json.loads(
