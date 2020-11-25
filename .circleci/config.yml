@@ -5,19 +5,6 @@ orbs:
   tester: talkiq/tester@3.0
 
 jobs:
-  lint-rest:
-    docker:
-      - image: python:2.7.18
-    steps:
-      - attach_workspace:
-          at: rest
-      - run:
-          command: |
-            cd rest/
-            git init && git add -A
-            pip install pre-commit
-            pre-commit run --all-files -c .pre-commit-config.rest.yaml
-
   nox:
     docker:
       - image: thekevjames/nox:2020.8.22
@@ -247,12 +234,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - lint-rest:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
 
       - tester/pipcheck:
           python_version: 3.9.0
@@ -309,7 +290,6 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
-            - lint-rest
             - pipcheck
             - test
             - test-rest
