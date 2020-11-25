@@ -108,7 +108,6 @@ class BaseSession(object):
 if not BUILD_GCLOUD_REST:
     import aiohttp
 
-
     def _raise_for_status(resp                        )        :
         &#34;&#34;&#34;Check resp for status and if error log additional info.&#34;&#34;&#34;
         # Copied from aiohttp&#39;s raise_for_status() -- since it releases the
@@ -158,8 +157,8 @@ if not BUILD_GCLOUD_REST:
                       timeout      = 10,
                       params                           = None
                       )                          :
-            resp = self.session.get(url, headers=headers, timeout=timeout,
-                                          params=params)
+            resp = self.session.get(url, headers=headers,
+                                          timeout=timeout, params=params)
             _raise_for_status(resp)
             return resp
 

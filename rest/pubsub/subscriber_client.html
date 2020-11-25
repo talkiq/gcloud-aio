@@ -52,6 +52,7 @@ from google.cloud.pubsub_v1.types import FlowControl as _FlowControl
 
 from .subscriber_message import SubscriberMessage
 
+
 class FlowControl(object):
     def __init__(self, *args           , **kwargs                )        :
         &#34;&#34;&#34;
@@ -76,9 +77,9 @@ class FlowControl(object):
     def __getattr__(self, attr     )       :
         return getattr(self._flow_control, attr)
 
+
 if BUILD_GCLOUD_REST:
     from google.cloud import pubsub_v1 as pubsub
-
 
     class SubscriberClient(object):
         def __init__(self, **kwargs                )        :
@@ -143,7 +144,6 @@ else:
     import signal
 
     from google.cloud import pubsub
-
 
     class SubscriberClient(object):  # type: ignore[no-redef]
         def __init__(self,

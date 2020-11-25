@@ -185,7 +185,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data = resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -230,7 +231,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data                 = resp.json()
 
         return {
@@ -313,7 +315,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                       = resp.json()
 
@@ -385,7 +388,7 @@ class Datastore(object):
                 &#39;projectId&#39;: project,
                 &#39;namespaceId&#39;: self.namespace,
             },
-            query.json_key:  query.to_repr(),
+            query.json_key: query.to_repr(),
             &#39;readOptions&#39;: options,
         }).encode(&#39;utf-8&#39;)
 
@@ -396,7 +399,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -560,7 +564,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data = resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -605,7 +610,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data                 = resp.json()
 
         return {
@@ -688,7 +694,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                       = resp.json()
 
@@ -760,7 +767,7 @@ class Datastore(object):
                 &#39;projectId&#39;: project,
                 &#39;namespaceId&#39;: self.namespace,
             },
-            query.json_key:  query.to_repr(),
+            query.json_key: query.to_repr(),
             &#39;readOptions&#39;: options,
         }).encode(&#39;utf-8&#39;)
 
@@ -771,7 +778,8 @@ class Datastore(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -896,7 +904,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data = resp.json()
 
     return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
@@ -970,7 +979,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data                 = resp.json()
 
     return {
@@ -1128,7 +1138,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data                       = resp.json()
 
@@ -1268,7 +1279,7 @@ def make_mutation(
             &#39;projectId&#39;: project,
             &#39;namespaceId&#39;: self.namespace,
         },
-        query.json_key:  query.to_repr(),
+        query.json_key: query.to_repr(),
         &#39;readOptions&#39;: options,
     }).encode(&#39;utf-8&#39;)
 
@@ -1279,7 +1290,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data                 = resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>

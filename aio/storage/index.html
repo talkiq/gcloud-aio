@@ -127,8 +127,8 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email or
-                                 iam_client.service_account_email)
+        service_account_email = (service_account_email
+                                 or iam_client.service_account_email)
         credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
         credential = f&#39;{service_account_email}/{credential_scope}&#39;
 
@@ -247,8 +247,8 @@ with the link.</p>
     request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
     datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-    service_account_email = (service_account_email or
-                             iam_client.service_account_email)
+    service_account_email = (service_account_email
+                             or iam_client.service_account_email)
     credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
     credential = f&#39;{service_account_email}/{credential_scope}&#39;
 
@@ -367,7 +367,6 @@ with the link.</p>
                 break
 
         return items
-
 
     def new_blob(self, blob_name: str) -&gt; Blob:
         return Blob(self, blob_name, {&#39;size&#39;: 0})
@@ -600,7 +599,6 @@ with the link.</p>
         with open(filename, &#39;wb+&#39;) as file_object:
             file_object.write(
                 await self.download(bucket, object_name, **kwargs))
-
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 session: Optional[Session] = None,

@@ -69,6 +69,7 @@ KMS_EMULATOR_HOST = os.environ.get(&#39;KMS_EMULATOR_HOST&#39;)
 if KMS_EMULATOR_HOST:
     API_ROOT = &#39;http://{}/v1&#39;.format((KMS_EMULATOR_HOST))
 
+
 class KMS(object):
     def __init__(self, keyproject     , keyring     , keyname     ,
                  service_file                                  = None,

@@ -581,12 +581,12 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         return body
 
     def _make_load_body(
-            self, source_uris           , project     , autodetect      ,
-            source_format              ,
-            write_disposition             ,
-            ignore_unknown_values      ,
-            schema_update_options                          
-        )                  :
+        self, source_uris           , project     , autodetect      ,
+        source_format              ,
+        write_disposition             ,
+        ignore_unknown_values      ,
+        schema_update_options                          
+    )                  :
         return {
             &#39;configuration&#39;: {
                 &#39;load&#39;: {
@@ -741,14 +741,14 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     def insert_via_load(
-            self, source_uris           , session                    = None,
-            autodetect       = False,
-            source_format               = SourceFormat.CSV,
-            write_disposition              = Disposition.WRITE_TRUNCATE,
-            timeout      = 60,
-            ignore_unknown_values       = False,
-            schema_update_options                                     = None
-        )       :
+        self, source_uris           , session                    = None,
+        autodetect       = False,
+        source_format               = SourceFormat.CSV,
+        write_disposition              = Disposition.WRITE_TRUNCATE,
+        timeout      = 60,
+        ignore_unknown_values       = False,
+        schema_update_options                                     = None
+    )       :
         &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
@@ -963,14 +963,14 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def insert_via_load(
-        self, source_uris           , session                    = None,
-        autodetect       = False,
-        source_format               = SourceFormat.CSV,
-        write_disposition              = Disposition.WRITE_TRUNCATE,
-        timeout      = 60,
-        ignore_unknown_values       = False,
-        schema_update_options                                     = None
-    )       :
+    self, source_uris           , session                    = None,
+    autodetect       = False,
+    source_format               = SourceFormat.CSV,
+    write_disposition              = Disposition.WRITE_TRUNCATE,
+    timeout      = 60,
+    ignore_unknown_values       = False,
+    schema_update_options                                     = None
+)       :
     &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))

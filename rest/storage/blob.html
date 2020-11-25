@@ -62,7 +62,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
-    from .bucket import Bucket
+    from .bucket import Bucket  # pylint: disable=cyclic-import
 
 
 HOST = &#39;storage.googleapis.com&#39;
@@ -123,8 +123,8 @@ class Blob(object):
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email or
-                                 iam_client.service_account_email)
+        service_account_email = (service_account_email
+                                 or iam_client.service_account_email)
         credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
         credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
 
@@ -245,8 +245,8 @@ class Blob(object):
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email or
-                                 iam_client.service_account_email)
+        service_account_email = (service_account_email
+                                 or iam_client.service_account_email)
         credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
         credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
 
@@ -365,8 +365,8 @@ with the link.</p>
     request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
     datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-    service_account_email = (service_account_email or
-                             iam_client.service_account_email)
+    service_account_email = (service_account_email
+                             or iam_client.service_account_email)
     credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
     credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
 

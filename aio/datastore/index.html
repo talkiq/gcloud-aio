@@ -393,7 +393,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -438,7 +439,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data: Dict[str, Any] = await resp.json()
 
         return {
@@ -521,7 +523,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data: Dict[str, List[Any]] = await resp.json()
 
@@ -593,7 +596,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
                 &#39;projectId&#39;: project,
                 &#39;namespaceId&#39;: self.namespace,
             },
-            query.json_key:  query.to_repr(),
+            query.json_key: query.to_repr(),
             &#39;readOptions&#39;: options,
         }).encode(&#39;utf-8&#39;)
 
@@ -604,7 +607,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -729,7 +733,8 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = await s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data = await resp.json()
 
     return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
@@ -803,7 +808,8 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = await s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data: Dict[str, Any] = await resp.json()
 
     return {
@@ -961,7 +967,8 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = await s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data: Dict[str, List[Any]] = await resp.json()
 
@@ -1101,7 +1108,7 @@ def make_mutation(
             &#39;projectId&#39;: project,
             &#39;namespaceId&#39;: self.namespace,
         },
-        query.json_key:  query.to_repr(),
+        query.json_key: query.to_repr(),
         &#39;readOptions&#39;: options,
     }).encode(&#39;utf-8&#39;)
 
@@ -1112,7 +1119,8 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = await s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data: Dict[str, Any] = await resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
@@ -2758,12 +2766,13 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;QueryResultBatch&#39;:
         try:
             return supported_types[kind]
         except KeyError:
-            raise NotImplementedError(
+            raise NotImplementedError(  # pylint: disable=raise-missing-from
                 &#39;{} is not a supported value type (any of: &#39;
                 &#39;{})&#39;.format(kind, supported_types))
 
     @classmethod
     def _get_supported_types(cls) -&gt; Dict[Any, TypeName]:
+        # pylint: disable=import-outside-toplevel,cyclic-import
         from gcloud.aio.datastore import array
         from gcloud.aio.datastore import entity
 

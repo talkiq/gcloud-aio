@@ -104,7 +104,7 @@ standard Base64 are respectively replaced by - and _.</p>
         # By running `future-fstrings-show`, it adds `unicode_literals` that
         # redefines some classes so the default behaviour changes
         def native_str_to_bytes(s, encoding=None):
-            from future.types import newbytes
+            from future.types import newbytes  # pylint: disable=import-outside-toplevel
             return newbytes(s, encoding=encoding)
         payload = native_str_to_bytes(payload, encoding=&#39;utf-8&#39;)
 
@@ -156,7 +156,8 @@ standard Base64 are respectively replaced by - and _.</p>
                  token                  = None)        :
         self.session = SyncSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=self.session.session, scopes=SCOPES)
+                                    session=self.session.session,
+                                    scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -229,8 +230,8 @@ standard Base64 are respectively replaced by - and _.</p>
                         delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
-        service_account_email = (service_account_email or
-                                 self.service_account_email)
+        service_account_email = (service_account_email
+                                 or self.service_account_email)
         if not service_account_email:
             raise TypeError(&#39;sign_blob must have a valid &#39;
                             &#39;service_account_email&#39;)
@@ -393,8 +394,8 @@ def service_account_email(self)                 :
                     delegates                      = None,
                     session                    = None,
                     timeout      = 10)                  :
-    service_account_email = (service_account_email or
-                             self.service_account_email)
+    service_account_email = (service_account_email
+                             or self.service_account_email)
     if not service_account_email:
         raise TypeError(&#39;sign_blob must have a valid &#39;
                         &#39;service_account_email&#39;)
@@ -682,7 +683,7 @@ def session(self)           :
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                                = None
+        self.acquiring                                = None  # pylint: disable=unsubscriptable-object,line-too-long
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)

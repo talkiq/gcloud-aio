@@ -221,7 +221,6 @@ class Storage(object):
             file_object.write(
                 self.download(bucket, object_name, **kwargs))
 
-
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
@@ -646,7 +645,6 @@ class Storage(object):
         with open(filename, &#39;wb+&#39;) as file_object:
             file_object.write(
                 self.download(bucket, object_name, **kwargs))
-
 
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]

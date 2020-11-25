@@ -402,7 +402,8 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data = resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -447,7 +448,8 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data                 = resp.json()
 
         return {
@@ -530,7 +532,8 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                       = resp.json()
 
@@ -602,7 +605,7 @@ def from_repr(cls, data                )                     :
                 &#39;projectId&#39;: project,
                 &#39;namespaceId&#39;: self.namespace,
             },
-            query.json_key:  query.to_repr(),
+            query.json_key: query.to_repr(),
             &#39;readOptions&#39;: options,
         }).encode(&#39;utf-8&#39;)
 
@@ -613,7 +616,8 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+        resp = s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
 
         data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -738,7 +742,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data = resp.json()
 
     return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
@@ -812,7 +817,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
     data                 = resp.json()
 
     return {
@@ -970,7 +976,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data                       = resp.json()
 
@@ -1110,7 +1117,7 @@ def make_mutation(
             &#39;projectId&#39;: project,
             &#39;namespaceId&#39;: self.namespace,
         },
-        query.json_key:  query.to_repr(),
+        query.json_key: query.to_repr(),
         &#39;readOptions&#39;: options,
     }).encode(&#39;utf-8&#39;)
 
@@ -1121,7 +1128,8 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers, timeout=timeout)
+    resp = s.post(url, data=payload, headers=headers,
+                        timeout=timeout)
 
     data                 = resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
@@ -2770,12 +2778,13 @@ def from_repr(cls, data                )                      :
         try:
             return supported_types[kind]
         except KeyError:
-            raise NotImplementedError(
+            raise NotImplementedError(  # pylint: disable=raise-missing-from
                 &#39;{} is not a supported value type (any of: &#39;
                 &#39;{})&#39;.format(kind, supported_types))
 
     @classmethod
     def _get_supported_types(cls)                       :
+        # pylint: disable=import-outside-toplevel,cyclic-import
         from gcloud.rest.datastore import array
         from gcloud.rest.datastore import entity
 

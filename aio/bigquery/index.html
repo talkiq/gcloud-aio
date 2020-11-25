@@ -570,12 +570,12 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         return body
 
     def _make_load_body(
-            self, source_uris: List[str], project: str, autodetect: bool,
-            source_format: SourceFormat,
-            write_disposition: Disposition,
-            ignore_unknown_values: bool,
-            schema_update_options: List[SchemaUpdateOption]
-        ) -&gt; Dict[str, Any]:
+        self, source_uris: List[str], project: str, autodetect: bool,
+        source_format: SourceFormat,
+        write_disposition: Disposition,
+        ignore_unknown_values: bool,
+        schema_update_options: List[SchemaUpdateOption]
+    ) -&gt; Dict[str, Any]:
         return {
             &#39;configuration&#39;: {
                 &#39;load&#39;: {
@@ -729,14 +729,14 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     async def insert_via_load(
-            self, source_uris: List[str], session: Optional[Session] = None,
-            autodetect: bool = False,
-            source_format: SourceFormat = SourceFormat.CSV,
-            write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60,
-            ignore_unknown_values: bool = False,
-            schema_update_options: Optional[List[SchemaUpdateOption]] = None
-        ) -&gt; Job:
+        self, source_uris: List[str], session: Optional[Session] = None,
+        autodetect: bool = False,
+        source_format: SourceFormat = SourceFormat.CSV,
+        write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
+        timeout: int = 60,
+        ignore_unknown_values: bool = False,
+        schema_update_options: Optional[List[SchemaUpdateOption]] = None
+    ) -&gt; Job:
         &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
@@ -957,14 +957,14 @@ response JSON containing details on the failing rows.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def insert_via_load(
-        self, source_uris: List[str], session: Optional[Session] = None,
-        autodetect: bool = False,
-        source_format: SourceFormat = SourceFormat.CSV,
-        write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-        timeout: int = 60,
-        ignore_unknown_values: bool = False,
-        schema_update_options: Optional[List[SchemaUpdateOption]] = None
-    ) -&gt; Job:
+    self, source_uris: List[str], session: Optional[Session] = None,
+    autodetect: bool = False,
+    source_format: SourceFormat = SourceFormat.CSV,
+    write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
+    timeout: int = 60,
+    ignore_unknown_values: bool = False,
+    schema_update_options: Optional[List[SchemaUpdateOption]] = None
+) -&gt; Job:
     &#34;&#34;&#34;Loads entities from storage to BigQuery.&#34;&#34;&#34;
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;

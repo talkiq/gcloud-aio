@@ -69,7 +69,8 @@ class IamClient(object):
                  token                  = None)        :
         self.session = SyncSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=self.session.session, scopes=SCOPES)
+                                    session=self.session.session,
+                                    scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -142,8 +143,8 @@ class IamClient(object):
                         delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
-        service_account_email = (service_account_email or
-                                 self.service_account_email)
+        service_account_email = (service_account_email
+                                 or self.service_account_email)
         if not service_account_email:
             raise TypeError(&#39;sign_blob must have a valid &#39;
                             &#39;service_account_email&#39;)
@@ -204,7 +205,8 @@ class IamClient(object):
                  token                  = None)        :
         self.session = SyncSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=self.session.session, scopes=SCOPES)
+                                    session=self.session.session,
+                                    scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -277,8 +279,8 @@ class IamClient(object):
                         delegates                      = None,
                         session                    = None,
                         timeout      = 10)                  :
-        service_account_email = (service_account_email or
-                                 self.service_account_email)
+        service_account_email = (service_account_email
+                                 or self.service_account_email)
         if not service_account_email:
             raise TypeError(&#39;sign_blob must have a valid &#39;
                             &#39;service_account_email&#39;)
@@ -441,8 +443,8 @@ def service_account_email(self)                 :
                     delegates                      = None,
                     session                    = None,
                     timeout      = 10)                  :
-    service_account_email = (service_account_email or
-                             self.service_account_email)
+    service_account_email = (service_account_email
+                             or self.service_account_email)
     if not service_account_email:
         raise TypeError(&#39;sign_blob must have a valid &#39;
                         &#39;service_account_email&#39;)

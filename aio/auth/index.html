@@ -95,7 +95,7 @@ standard Base64 are respectively replaced by - and _.</p>
         # By running `future-fstrings-show`, it adds `unicode_literals` that
         # redefines some classes so the default behaviour changes
         def native_str_to_bytes(s, encoding=None):
-            from future.types import newbytes
+            from future.types import newbytes  # pylint: disable=import-outside-toplevel
             return newbytes(s, encoding=encoding)
         payload = native_str_to_bytes(payload, encoding=&#39;utf-8&#39;)
 
@@ -162,8 +162,8 @@ standard Base64 are respectively replaced by - and _.</p>
                   timeout: int = 10,
                   params: Optional[Dict[str, str]] = None
                   ) -&gt; aiohttp.ClientResponse:
-        resp = await self.session.get(url, headers=headers, timeout=timeout,
-                                      params=params)
+        resp = await self.session.get(url, headers=headers,
+                                      timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
@@ -266,8 +266,8 @@ def session(self) -&gt; aiohttp.ClientSession:
               timeout: int = 10,
               params: Optional[Dict[str, str]] = None
               ) -&gt; aiohttp.ClientResponse:
-    resp = await self.session.get(url, headers=headers, timeout=timeout,
-                                  params=params)
+    resp = await self.session.get(url, headers=headers,
+                                  timeout=timeout, params=params)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
@@ -345,7 +345,8 @@ def session(self) -&gt; aiohttp.ClientSession:
                  token: Optional[Token] = None) -&gt; None:
         self.session = AioSession(session)
         self.token = token or Token(service_file=service_file,
-                                    session=self.session.session, scopes=SCOPES)
+                                    session=self.session.session,
+                                    scopes=SCOPES)
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -418,8 +419,8 @@ def session(self) -&gt; aiohttp.ClientSession:
                         delegates: Optional[List[str]] = None,
                         session: Optional[Session] = None,
                         timeout: int = 10) -&gt; Dict[str, str]:
-        service_account_email = (service_account_email or
-                                 self.service_account_email)
+        service_account_email = (service_account_email
+                                 or self.service_account_email)
         if not service_account_email:
             raise TypeError(&#39;sign_blob must have a valid &#39;
                             &#39;service_account_email&#39;)
@@ -582,8 +583,8 @@ def service_account_email(self) -&gt; Optional[str]:
                     delegates: Optional[List[str]] = None,
                     session: Optional[Session] = None,
                     timeout: int = 10) -&gt; Dict[str, str]:
-    service_account_email = (service_account_email or
-                             self.service_account_email)
+    service_account_email = (service_account_email
+                             or self.service_account_email)
     if not service_account_email:
         raise TypeError(&#39;sign_blob must have a valid &#39;
                         &#39;service_account_email&#39;)
@@ -648,7 +649,7 @@ def service_account_email(self) -&gt; Optional[str]:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future[Any]] = None
+        self.acquiring: Optional[asyncio.Future[Any]] = None  # pylint: disable=unsubscriptable-object,line-too-long
 
     async def get_project(self) -&gt; Optional[str]:
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
