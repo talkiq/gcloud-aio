@@ -43,11 +43,15 @@ class SubscriberClient:
                                     session=self.session.session)
 
     async def _headers(self) -> Dict[str, str]:
+        default_headers = {
+            'Content-Type': 'application/json'
+        }
         if PUBSUB_EMULATOR_HOST:
-            return {}
+            return default_headers
 
         token = await self.token.get()
         return {
+            **default_headers,
             'Authorization': f'Bearer {token}'
         }
 
