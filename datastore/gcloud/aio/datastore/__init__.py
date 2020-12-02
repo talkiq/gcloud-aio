@@ -20,6 +20,7 @@ from gcloud.aio.datastore.filter import PropertyFilter
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.key import PathElement
 from gcloud.aio.datastore.lat_lng import LatLng
+from gcloud.aio.datastore.mutation import MutationResult
 from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
 from gcloud.aio.datastore.query import GQLQuery
