@@ -171,7 +171,6 @@ class Datastore:
         transaction: str = data['transaction']
         return transaction
 
-    # TODO: return mutation results
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     async def commit(self, mutations: List[Dict[str, Any]],
                      transaction: Optional[str] = None,
@@ -194,13 +193,19 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        data: Dict[str, Any] = await resp.json()
+        response_body: Dict[str, Any] = await resp.json()
 
-        return {
+        commit_results = {
             'mutationResults': [self.mutation_result_kind.from_repr(r)
-                                for r in data.get('mutationResults', [])],
-            'indexUpdates': data['indexUpdates'],
+                                for r in response_body.get('mutationResults',
+                                                           [])
+                                ],
         }
+
+        if 'indexUpdates' in response_body:
+            commit_results['indexUpdates'] = response_body['indexUpdates']
+
+        return commit_results
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
