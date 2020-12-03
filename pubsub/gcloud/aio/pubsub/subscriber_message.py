@@ -5,7 +5,6 @@ from typing import Dict
 from typing import Optional
 
 
-
 def parse_publish_time(publish_time: str) -> datetime.datetime:
     try:
         return datetime.datetime.strptime(
