@@ -39,7 +39,7 @@ from gcloud.aio.datastore import value
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
 class Array(Sequence):  # type: ignore[type-arg]
-    def __init__(self, items: List[Any]) -&gt; None:
+    def __init__(self, items: List[value.Value]) -&gt; None:
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items
 
@@ -76,7 +76,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 <dl>
 <dt id="gcloud.aio.datastore.array.Array"><code class="flex name class">
 <span>class <span class="ident">Array</span></span>
-<span>(</span><span>items: List[Any])</span>
+<span>(</span><span>items: List[<a title="gcloud.aio.datastore.value.Value" href="value.html#gcloud.aio.datastore.value.Value">Value</a>])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>All the operations on a read-only sequence.</p>
@@ -87,7 +87,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Array(Sequence):  # type: ignore[type-arg]
-    def __init__(self, items: List[Any]) -&gt; None:
+    def __init__(self, items: List[value.Value]) -&gt; None:
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items
 
