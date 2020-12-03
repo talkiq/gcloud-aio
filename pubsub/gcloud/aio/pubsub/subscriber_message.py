@@ -1,9 +1,6 @@
 import base64
 import datetime
-import json
 from typing import Any
-from typing import Awaitable
-from typing import Callable
 from typing import Dict
 
 
@@ -19,22 +16,20 @@ def parse_publish_time(publish_time: str) -> datetime.datetime:
 class SubscriberMessage:
     def __init__(self, ack_id: str, message_id: str,
                  publish_time: 'datetime.datetime',
-                 data: Dict[str, Any],
+                 data: bytes,
                  attributes: Dict[str, Any]):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
         self.data = data
         self.attributes = attributes
-        self._callback = self._default_callback()
 
     @staticmethod
-    def from_api_dict(received_message: Dict[str, Any]
-                      ) -> 'SubscriberMessage':
+    def from_repr(received_message: Dict[str, Any]
+                  ) -> 'SubscriberMessage':
         ack_id = received_message['ackId']
         message_id = received_message['message']['messageId']
-        data = json.loads(
-            base64.b64decode(received_message['message']['data']))
+        data = base64.b64decode(received_message['message']['data'])
         attributes = received_message['message']['attributes']
         publish_time: datetime.datetime = parse_publish_time(
             received_message['message']['publishTime'])
@@ -42,22 +37,13 @@ class SubscriberMessage:
                                  publish_time=publish_time, data=data,
                                  attributes=attributes)
 
-    @staticmethod
-    def _default_callback(
-        ) -> Callable[['SubscriberMessage', bool], Awaitable[None]]:
-        async def f(message: 'SubscriberMessage', ack: bool) -> None:
-            raise NotImplementedError(
-                'Ack callback is not set for this message')
-        return f
-
-    def add_ack_callback(
-            self,
-            callback: Callable[['SubscriberMessage', bool], Awaitable[None]]
-        ) -> None:
-        self._callback = callback
-
-    async def ack(self) -> None:
-        await self._callback(self, True)
-
-    async def nack(self) -> None:
-        await self._callback(self, False)
+    def to_repr(self) -> Dict[str, Any]:
+        return {
+            'ackId': self.ack_id,
+            'message': {
+                'messageId': self.message_id,
+                'attributes': self.attributes,
+                'data': base64.b64encode(self.data),
+                'publishTime': self.publish_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+            }
+        }

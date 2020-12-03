@@ -59,19 +59,21 @@ class SubscriberClient:
     async def create_subscription(self,
                                   subscription: str,
                                   topic: str,
+                                  body: Optional[Dict[str, Any]],
                                   *,
                                   session: Optional[Session] = None,
-                                  **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+                                  ) -> Dict[str, Any]:
         """
         Create subscription.
         """
+        body = {} if not body else body
         url = f'{API_ROOT}/v1/{subscription}'
         headers = await self._headers()
-        body: Dict[str, Any] = {
+        payload: Dict[str, Any] = {
             'topic': topic,
-            **kwargs
+            **body
         }
-        encoded = json.dumps(body).encode()
+        encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         resp = await s.put(url, data=encoded, headers=headers)
         result: Dict[str, Any] = await resp.json()
@@ -100,15 +102,15 @@ class SubscriberClient:
         """
         url = f'{API_ROOT}/v1/{subscription}:pull'
         headers = await self._headers()
-        body = {
+        payload = {
             'maxMessages': max_messages,
         }
-        encoded = json.dumps(body).encode()
+        encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=encoded, headers=headers)
         resp = await resp.json()
         return [
-            SubscriberMessage.from_api_dict(m)
+            SubscriberMessage.from_repr(m)
             for m in resp['receivedMessages']
         ]
 
@@ -120,10 +122,10 @@ class SubscriberClient:
         """
         url = f'{API_ROOT}/v1/{subscription}:acknowledge'
         headers = await self._headers()
-        body = {
+        payload = {
             'ackIds': ack_ids,
         }
-        encoded = json.dumps(body).encode()
+        encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         await s.post(url, data=encoded, headers=headers)
 
@@ -139,12 +141,12 @@ class SubscriberClient:
         """
         url = f'{API_ROOT}/v1/{subscription}:modifyAckDeadline'
         headers = await self._headers()
-        body = {
+        payload = {
             'ackIds': ack_ids,
             'ackDeadlineSeconds': ack_deadline_seconds,
         }
         s = AioSession(session) if session else self.session
-        await s.post(url, data=json.dumps(body).encode('utf-8'),
+        await s.post(url, data=json.dumps(payload).encode('utf-8'),
                      headers=headers)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
