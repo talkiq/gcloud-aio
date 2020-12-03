@@ -11,7 +11,7 @@ from gcloud.aio.datastore import value
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
 class Array(Sequence):  # type: ignore[type-arg]
-    def __init__(self, items: List[Any]) -> None:
+    def __init__(self, items: List[value.Value]) -> None:
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items
 
