@@ -7,10 +7,10 @@ from typing import Dict
 def parse_publish_time(publish_time: str) -> datetime.datetime:
     try:
         return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            publish_time, '%Y-%m-%dT%H:%M:%S.%fZ')
     except ValueError:
         return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%S%z')
+            publish_time, '%Y-%m-%dT%H:%M:%SZ')
 
 
 class SubscriberMessage:
