@@ -57,6 +57,7 @@ from gcloud.rest.datastore.filter import PropertyFilter
 from gcloud.rest.datastore.key import Key
 from gcloud.rest.datastore.key import PathElement
 from gcloud.rest.datastore.lat_lng import LatLng
+from gcloud.rest.datastore.mutation import MutationResult
 from gcloud.rest.datastore.projection import Projection
 from gcloud.rest.datastore.property_order import PropertyOrder
 from gcloud.rest.datastore.query import GQLQuery
@@ -68,9 +69,10 @@ from gcloud.rest.datastore.value import Value
 __all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilterOperator&#39;,
            &#39;Consistency&#39;, &#39;Datastore&#39;, &#39;DatastoreOperation&#39;, &#39;Direction&#39;,
            &#39;Entity&#39;, &#39;EntityResult&#39;, &#39;Filter&#39;, &#39;GQLQuery&#39;, &#39;Key&#39;, &#39;LatLng&#39;,
-           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;Operation&#39;, &#39;PathElement&#39;, &#39;Projection&#39;,
-           &#39;PropertyFilter&#39;, &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;,
-           &#39;Query&#39;, &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
+           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;MutationResult&#39;, &#39;Operation&#39;,
+           &#39;PathElement&#39;, &#39;Projection&#39;, &#39;PropertyFilter&#39;,
+           &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;, &#39;Query&#39;,
+           &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -1927,6 +1929,106 @@ def from_repr(cls, data                )            :
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.rest.datastore.MutationResult"><code class="flex name class">
+<span>class <span class="ident">MutationResult</span></span>
+<span>(</span><span>key, version, conflict_detected)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MutationResult(object):
+    key_kind = Key
+
+    def __init__(self, key               , version     ,
+                 conflict_detected      )        :
+        self.key = key
+        self.version = version
+        self.conflict_detected = conflict_detected
+
+    def __eq__(self, other     )        :
+        if not isinstance(other, MutationResult):
+            return False
+
+        return bool(self.key == other.key and self.version == other.version)
+
+    def __repr__(self)       :
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data                )                    :
+        if &#39;key&#39; in data:
+            key                = cls.key_kind.from_repr(data[&#39;key&#39;])
+        else:
+            key = None
+        version      = data[&#39;version&#39;]
+        conflict_detected       = data.get(&#39;conflictDetected&#39;, False)
+        return cls(key, version, conflict_detected)
+
+    def to_repr(self)                  :
+        data = {
+            &#39;version&#39;: self.version,
+            &#39;conflictDetected&#39;: self.conflict_detected
+        }
+        if self.key:
+            data[&#39;key&#39;] = self.key.to_repr()
+        return data</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.rest.datastore.MutationResult.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.MutationResult.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data                )                    :
+    if &#39;key&#39; in data:
+        key                = cls.key_kind.from_repr(data[&#39;key&#39;])
+    else:
+        key = None
+    version      = data[&#39;version&#39;]
+    conflict_detected       = data.get(&#39;conflictDetected&#39;, False)
+    return cls(key, version, conflict_detected)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.datastore.MutationResult.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self)                  :
+    data = {
+        &#39;version&#39;: self.version,
+        &#39;conflictDetected&#39;: self.conflict_detected
+    }
+    if self.key:
+        data[&#39;key&#39;] = self.key.to_repr()
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gcloud.rest.datastore.Operation"><code class="flex name class">
 <span>class <span class="ident">Operation</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
@@ -3042,6 +3144,14 @@ def from_repr(cls, data                )           :
 <li><code><a title="gcloud.rest.datastore.MoreResultsType.NOT_FINISHED" href="#gcloud.rest.datastore.MoreResultsType.NOT_FINISHED">NOT_FINISHED</a></code></li>
 <li><code><a title="gcloud.rest.datastore.MoreResultsType.NO_MORE_RESULTS" href="#gcloud.rest.datastore.MoreResultsType.NO_MORE_RESULTS">NO_MORE_RESULTS</a></code></li>
 <li><code><a title="gcloud.rest.datastore.MoreResultsType.UNSPECIFIED" href="#gcloud.rest.datastore.MoreResultsType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.MutationResult" href="#gcloud.rest.datastore.MutationResult">MutationResult</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.datastore.MutationResult.from_repr" href="#gcloud.rest.datastore.MutationResult.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MutationResult.key_kind" href="#gcloud.rest.datastore.MutationResult.key_kind">key_kind</a></code></li>
+<li><code><a title="gcloud.rest.datastore.MutationResult.to_repr" href="#gcloud.rest.datastore.MutationResult.to_repr">to_repr</a></code></li>
 </ul>
 </li>
 <li>

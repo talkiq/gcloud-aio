@@ -48,6 +48,7 @@ from gcloud.aio.datastore.filter import PropertyFilter
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.key import PathElement
 from gcloud.aio.datastore.lat_lng import LatLng
+from gcloud.aio.datastore.mutation import MutationResult
 from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
 from gcloud.aio.datastore.query import GQLQuery
@@ -59,9 +60,10 @@ from gcloud.aio.datastore.value import Value
 __all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilterOperator&#39;,
            &#39;Consistency&#39;, &#39;Datastore&#39;, &#39;DatastoreOperation&#39;, &#39;Direction&#39;,
            &#39;Entity&#39;, &#39;EntityResult&#39;, &#39;Filter&#39;, &#39;GQLQuery&#39;, &#39;Key&#39;, &#39;LatLng&#39;,
-           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;Operation&#39;, &#39;PathElement&#39;, &#39;Projection&#39;,
-           &#39;PropertyFilter&#39;, &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;,
-           &#39;Query&#39;, &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
+           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;MutationResult&#39;, &#39;Operation&#39;,
+           &#39;PathElement&#39;, &#39;Projection&#39;, &#39;PropertyFilter&#39;,
+           &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;, &#39;Query&#39;,
+           &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
 </details>
 </section>
 <section>
@@ -1918,6 +1920,106 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;LatLng&#39;:
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.aio.datastore.MutationResult"><code class="flex name class">
+<span>class <span class="ident">MutationResult</span></span>
+<span>(</span><span>key: Optional[<a title="gcloud.aio.datastore.key.Key" href="key.html#gcloud.aio.datastore.key.Key">Key</a>], version: str, conflict_detected: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MutationResult:
+    key_kind = Key
+
+    def __init__(self, key: Optional[Key], version: str,
+                 conflict_detected: bool) -&gt; None:
+        self.key = key
+        self.version = version
+        self.conflict_detected = conflict_detected
+
+    def __eq__(self, other: Any) -&gt; bool:
+        if not isinstance(other, MutationResult):
+            return False
+
+        return bool(self.key == other.key and self.version == other.version)
+
+    def __repr__(self) -&gt; str:
+        return str(self.to_repr())
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;MutationResult&#39;:
+        if &#39;key&#39; in data:
+            key: Optional[Key] = cls.key_kind.from_repr(data[&#39;key&#39;])
+        else:
+            key = None
+        version: str = data[&#39;version&#39;]
+        conflict_detected: bool = data.get(&#39;conflictDetected&#39;, False)
+        return cls(key, version, conflict_detected)
+
+    def to_repr(self) -&gt; Dict[str, Any]:
+        data = {
+            &#39;version&#39;: self.version,
+            &#39;conflictDetected&#39;: self.conflict_detected
+        }
+        if self.key:
+            data[&#39;key&#39;] = self.key.to_repr()
+        return data</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.aio.datastore.MutationResult.key_kind"><code class="name">var <span class="ident">key_kind</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="gcloud.aio.datastore.MutationResult.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>data: Dict[str, Any]) ‑> <a title="gcloud.aio.datastore.mutation.MutationResult" href="mutation.html#gcloud.aio.datastore.mutation.MutationResult">MutationResult</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;MutationResult&#39;:
+    if &#39;key&#39; in data:
+        key: Optional[Key] = cls.key_kind.from_repr(data[&#39;key&#39;])
+    else:
+        key = None
+    version: str = data[&#39;version&#39;]
+    conflict_detected: bool = data.get(&#39;conflictDetected&#39;, False)
+    return cls(key, version, conflict_detected)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.datastore.MutationResult.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_repr(self) -&gt; Dict[str, Any]:
+    data = {
+        &#39;version&#39;: self.version,
+        &#39;conflictDetected&#39;: self.conflict_detected
+    }
+    if self.key:
+        data[&#39;key&#39;] = self.key.to_repr()
+    return data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gcloud.aio.datastore.Operation"><code class="flex name class">
 <span>class <span class="ident">Operation</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
@@ -3030,6 +3132,14 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Value&#39;:
 <li><code><a title="gcloud.aio.datastore.MoreResultsType.NOT_FINISHED" href="#gcloud.aio.datastore.MoreResultsType.NOT_FINISHED">NOT_FINISHED</a></code></li>
 <li><code><a title="gcloud.aio.datastore.MoreResultsType.NO_MORE_RESULTS" href="#gcloud.aio.datastore.MoreResultsType.NO_MORE_RESULTS">NO_MORE_RESULTS</a></code></li>
 <li><code><a title="gcloud.aio.datastore.MoreResultsType.UNSPECIFIED" href="#gcloud.aio.datastore.MoreResultsType.UNSPECIFIED">UNSPECIFIED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.datastore.MutationResult" href="#gcloud.aio.datastore.MutationResult">MutationResult</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.datastore.MutationResult.from_repr" href="#gcloud.aio.datastore.MutationResult.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.aio.datastore.MutationResult.key_kind" href="#gcloud.aio.datastore.MutationResult.key_kind">key_kind</a></code></li>
+<li><code><a title="gcloud.aio.datastore.MutationResult.to_repr" href="#gcloud.aio.datastore.MutationResult.to_repr">to_repr</a></code></li>
 </ul>
 </li>
 <li>
