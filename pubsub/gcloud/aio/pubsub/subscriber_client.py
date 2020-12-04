@@ -59,7 +59,7 @@ class SubscriberClient:
     async def create_subscription(self,
                                   subscription: str,
                                   topic: str,
-                                  body: Optional[Dict[str, Any]],
+                                  body: Optional[Dict[str, Any]] = None,
                                   *,
                                   session: Optional[Session] = None,
                                   ) -> Dict[str, Any]:
