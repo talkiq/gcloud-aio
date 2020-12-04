@@ -197,6 +197,16 @@ class Job:
             self.job_id = response['jobReference']['jobId']
         return response
 
+    async def result(self, session: Optional[Session] = None) -> Dict[str, Any]:
+        data = await self.get_job(session)
+        status = data.get('status', {})
+        if status.get('state') == 'DONE':
+            if 'errorResult' in status:
+                raise Exception('Job finished with errors', status['errors'])
+            return data
+
+        raise OSError('Job results are still pending')
+
 
 class Table:
     def __init__(self, dataset_name: str, table_name: str,
