@@ -25,7 +25,7 @@ def test_construct_subscriber_message_from_message_dict():
             'publishTime': '2020-01-01T00:00:01.000Z'
         }
     }
-    message = SubscriberMessage.from_api_dict(message_dict)
+    message = SubscriberMessage.from_repr(message_dict)
     assert message.ack_id == 'some_ack_id'
     assert message.attributes == {'attr_key': 'attr_value'}
     assert message.message_id == '123'
