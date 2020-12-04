@@ -255,7 +255,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
             self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
         return response
 
-    def result(self, session                    = None)                  :
+    def result(self,
+                     session                    = None)                  :
         data = self.get_job(session)
         status = data.get(&#39;status&#39;, {})
         if status.get(&#39;state&#39;) == &#39;DONE&#39;:
@@ -422,7 +423,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def result(self, session                    = None)                  :
+<pre><code class="python">def result(self,
+                 session                    = None)                  :
     data = self.get_job(session)
     status = data.get(&#39;status&#39;, {})
     if status.get(&#39;state&#39;) == &#39;DONE&#39;:
