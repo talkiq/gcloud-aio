@@ -244,7 +244,17 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         response = await self._post_json(url, body, session, timeout)
         if not dry_run:
             self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
-        return response</code></pre>
+        return response
+
+    async def result(self, session: Optional[Session] = None) -&gt; Dict[str, Any]:
+        data = await self.get_job(session)
+        status = data.get(&#39;status&#39;, {})
+        if status.get(&#39;state&#39;) == &#39;DONE&#39;:
+            if &#39;errorResult&#39; in status:
+                raise Exception(&#39;Job finished with errors&#39;, status[&#39;errors&#39;])
+            return data
+
+        raise OSError(&#39;Job results are still pending&#39;)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -392,6 +402,26 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         return self._project
 
     raise Exception(&#39;could not determine project, please set it manually&#39;)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.bigquery.Job.result"><code class="name flex">
+<span>async def <span class="ident">result</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def result(self, session: Optional[Session] = None) -&gt; Dict[str, Any]:
+    data = await self.get_job(session)
+    status = data.get(&#39;status&#39;, {})
+    if status.get(&#39;state&#39;) == &#39;DONE&#39;:
+        if &#39;errorResult&#39; in status:
+            raise Exception(&#39;Job finished with errors&#39;, status[&#39;errors&#39;])
+        return data
+
+    raise OSError(&#39;Job results are still pending&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1070,6 +1100,7 @@ response JSON containing details on the failing rows.</p></div>
 <li><code><a title="gcloud.aio.bigquery.Job.headers" href="#gcloud.aio.bigquery.Job.headers">headers</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.insert_via_query" href="#gcloud.aio.bigquery.Job.insert_via_query">insert_via_query</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Job.project" href="#gcloud.aio.bigquery.Job.project">project</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.Job.result" href="#gcloud.aio.bigquery.Job.result">result</a></code></li>
 </ul>
 </li>
 <li>

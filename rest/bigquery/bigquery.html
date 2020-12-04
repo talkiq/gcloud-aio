@@ -235,6 +235,16 @@ class Job(object):
             self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
         return response
 
+    def result(self, session                    = None)                  :
+        data = self.get_job(session)
+        status = data.get(&#39;status&#39;, {})
+        if status.get(&#39;state&#39;) == &#39;DONE&#39;:
+            if &#39;errorResult&#39; in status:
+                raise Exception(&#39;Job finished with errors&#39;, status[&#39;errors&#39;])
+            return data
+
+        raise OSError(&#39;Job results are still pending&#39;)
+
 
 class Table(object):
     def __init__(self, dataset_name     , table_name     ,
@@ -728,7 +738,17 @@ class Table(object):
         response = self._post_json(url, body, session, timeout)
         if not dry_run:
             self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
-        return response</code></pre>
+        return response
+
+    def result(self, session                    = None)                  :
+        data = self.get_job(session)
+        status = data.get(&#39;status&#39;, {})
+        if status.get(&#39;state&#39;) == &#39;DONE&#39;:
+            if &#39;errorResult&#39; in status:
+                raise Exception(&#39;Job finished with errors&#39;, status[&#39;errors&#39;])
+            return data
+
+        raise OSError(&#39;Job results are still pending&#39;)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -876,6 +896,26 @@ class Table(object):
         return self._project
 
     raise Exception(&#39;could not determine project, please set it manually&#39;)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.bigquery.bigquery.Job.result"><code class="name flex">
+<span>def <span class="ident">result</span></span>(<span>self, session=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def result(self, session                    = None)                  :
+    data = self.get_job(session)
+    status = data.get(&#39;status&#39;, {})
+    if status.get(&#39;state&#39;) == &#39;DONE&#39;:
+        if &#39;errorResult&#39; in status:
+            raise Exception(&#39;Job finished with errors&#39;, status[&#39;errors&#39;])
+        return data
+
+    raise OSError(&#39;Job results are still pending&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1546,6 +1586,7 @@ class Table(object):
 <li><code><a title="gcloud.rest.bigquery.bigquery.Job.headers" href="#gcloud.rest.bigquery.bigquery.Job.headers">headers</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.bigquery.Job.insert_via_query" href="#gcloud.rest.bigquery.bigquery.Job.insert_via_query">insert_via_query</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.bigquery.Job.project" href="#gcloud.rest.bigquery.bigquery.Job.project">project</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.bigquery.Job.result" href="#gcloud.rest.bigquery.bigquery.Job.result">result</a></code></li>
 </ul>
 </li>
 <li>
