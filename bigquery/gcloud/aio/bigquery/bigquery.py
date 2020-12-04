@@ -197,7 +197,8 @@ class Job:
             self.job_id = response['jobReference']['jobId']
         return response
 
-    async def result(self, session: Optional[Session] = None) -> Dict[str, Any]:
+    async def result(self,
+                     session: Optional[Session] = None) -> Dict[str, Any]:
         data = await self.get_job(session)
         status = data.get('status', {})
         if status.get('state') == 'DONE':
