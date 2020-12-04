@@ -29,6 +29,6 @@ def test_construct_subscriber_message_from_message_dict():
     assert message.ack_id == 'some_ack_id'
     assert message.attributes == {'attr_key': 'attr_value'}
     assert message.message_id == '123'
-    assert message.data == {'foo': 'bar'}
+    assert message.data == b'{"foo": "bar"}'
     assert message.publish_time == datetime.datetime(
         2020, 1, 1, 0, 0, 1, tzinfo=datetime.timezone.utc)
