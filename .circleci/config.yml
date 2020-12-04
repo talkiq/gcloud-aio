@@ -5,19 +5,6 @@ orbs:
   tester: talkiq/tester@3.0
 
 jobs:
-  lint-rest:
-    docker:
-      - image: python:2.7.18
-    steps:
-      - attach_workspace:
-          at: rest
-      - run:
-          command: |
-            cd rest/
-            git init && git add -A
-            pip install pre-commit
-            pre-commit run --all-files -c .pre-commit-config.rest.yaml
-
   nox:
     docker:
       - image: thekevjames/nox:2020.8.22
@@ -51,13 +38,13 @@ jobs:
 
   docs:
     docker:
-      - image: python:3.8.3
+      - image: python:3.9.0
     steps:
       - run: pip install pdoc3
       - run:
           name: patch pdoc
           command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.8/site-packages/pdoc/__init__.py
+            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.9/site-packages/pdoc/__init__.py
       - checkout
       - attach_workspace:
           at: rest
@@ -107,7 +94,7 @@ jobs:
 
   pypi:
     docker:
-      - image: python:3.8.3-slim
+      - image: python:3.9.0-slim
     steps:
       - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - checkout
@@ -120,7 +107,7 @@ jobs:
 
   pypi-rest:
     docker:
-      - image: python:3.8.3-slim
+      - image: python:3.9.0-slim
     steps:
       - run: pip install future==0.18.2 pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
@@ -154,7 +141,7 @@ jobs:
 
   py3to2:
     docker:
-      - image: python:3.8.3-slim
+      - image: python:3.9.0-slim
     steps:
       - checkout
       - run: pip install -r requirements.txt
@@ -183,6 +170,8 @@ jobs:
 
       # Backport other things like type hints, exception handling, etc.
       - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
+      # Delete imports that will be reintroduced later
+      - run: find . -type f -path '*py' | xargs -L1 sed -Ei '/import warnings/d'
       # https://github.com/PythonCharmers/python-future/issues/551
       - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
 
@@ -209,7 +198,7 @@ jobs:
       ## unit tests
       - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
       ## integration tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.8'/python=\['2.7', '3.8'/g"
+      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
 
       # Persist updated files in a workspace for tests & package deployment
       - persist_to_workspace:
@@ -241,45 +230,17 @@ workflows:
               only: /.*/
 
       - linter/pre-commit:
-          python_version: 3.7.8
+          python_version: 3.8.6  # TODO: https://github.com/PyCQA/pylint/issues/3882
           filters:
             tags:
               only: /.*/
-      - lint-rest:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
 
       - tester/pipcheck:
-          name: pipcheck-auth
-          install_args: auth/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-bigquery
-          install_args: bigquery/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-datastore
-          install_args: datastore/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-kms
-          install_args: kms/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-pubsub
-          install_args: pubsub/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-storage
-          install_args: storage/
-          python_version: 3.7.8
-      - tester/pipcheck:
-          name: pipcheck-taskqueue
-          install_args: taskqueue/
-          python_version: 3.7.8
+          python_version: 3.9.0
+          matrix:
+            alias: pipcheck
+            parameters:
+              install_args: [auth/, bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
 
       # build docs
       - docs:
@@ -299,102 +260,21 @@ workflows:
           requires:
             - docs
 
-      # test `-aio-*`
       - nox:
-          name: test-auth
-          folder: auth
+          name: test-<<matrix.folder>>
+          matrix:
+            alias: test
+            parameters:
+              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
-      - nox:
-          name: test-bigquery
-          folder: bigquery
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-datastore
-          folder: datastore
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-kms
-          folder: kms
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-pubsub
-          folder: pubsub
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-storage
-          folder: storage
-          filters:
-            tags:
-              only: /.*/
-      - nox:
-          name: test-taskqueue
-          folder: taskqueue
-          filters:
-            tags:
-              only: /.*/
-
-      # test `-rest-*`
       - nox-rest:
-          name: test-rest-auth
-          folder: auth
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-bigquery
-          folder: bigquery
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-datastore
-          folder: datastore
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-kms
-          folder: kms
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-pubsub
-          folder: pubsub
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-storage
-          folder: storage
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-      - nox-rest:
-          name: test-rest-taskqueue
-          folder: taskqueue
+          name: test-rest-<<matrix.folder>>
+          matrix:
+            alias: test-rest
+            parameters:
+              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
@@ -410,28 +290,9 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
-            - lint-rest
-            - pipcheck-auth
-            - pipcheck-bigquery
-            - pipcheck-datastore
-            - pipcheck-kms
-            - pipcheck-pubsub
-            - pipcheck-storage
-            - pipcheck-taskqueue
-            - test-auth
-            - test-bigquery
-            - test-datastore
-            - test-kms
-            - test-pubsub
-            - test-storage
-            - test-taskqueue
-            - test-rest-auth
-            - test-rest-bigquery
-            - test-rest-datastore
-            - test-rest-kms
-            - test-rest-pubsub
-            - test-rest-storage
-            - test-rest-taskqueue
+            - pipcheck
+            - test
+            - test-rest
 
       - hold:
           type: approval

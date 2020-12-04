@@ -70,7 +70,6 @@ class BaseSession:
 if not BUILD_GCLOUD_REST:
     import aiohttp
 
-
     async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
         # Copied from aiohttp's raise_for_status() -- since it releases the
@@ -120,8 +119,8 @@ if not BUILD_GCLOUD_REST:
                       timeout: int = 10,
                       params: Optional[Dict[str, str]] = None
                       ) -> aiohttp.ClientResponse:
-            resp = await self.session.get(url, headers=headers, timeout=timeout,
-                                          params=params)
+            resp = await self.session.get(url, headers=headers,
+                                          timeout=timeout, params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -133,7 +132,8 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
-                         params: Dict[str, str], timeout: int = 10
+                         params: Optional[Dict[str, str]] = None,
+                         timeout: int = 10
                          ) -> aiohttp.ClientResponse:
             resp = await self.session.delete(url, headers=headers,
                                              params=params, timeout=timeout)
@@ -198,7 +198,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
-                         params: Dict[str, str], timeout: int = 10
+                         params: Optional[Dict[str, str]] = None,
+                         timeout: int = 10
                          ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,

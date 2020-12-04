@@ -38,6 +38,6 @@ class TestPropertyOrder:
         assert repr(property_order) == str(property_order.to_repr())
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def property_order() -> PropertyOrder:
         return PropertyOrder(prop='prop_name', direction=Direction.DESCENDING)

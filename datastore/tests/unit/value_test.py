@@ -219,18 +219,18 @@ class TestValue:
         assert repr(value) == str(value.to_repr())
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def key() -> Key:
         path = PathElement(kind='my-kind', name='path-name')
         key = Key(project='my-project', path=[path], namespace='my-namespace')
         return key
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def lat_lng() -> LatLng:
         return LatLng(49.2827, 123.1207)
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def value() -> Value:
         return Value(value='foobar', exclude_from_indexes=False)

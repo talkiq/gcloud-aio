@@ -18,7 +18,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
-    from .storage import Storage
+    from .storage import Storage  # pylint: disable=cyclic-import
 
 
 log = logging.getLogger(__name__)
@@ -66,7 +66,6 @@ class Bucket:
                 break
 
         return items
-
 
     def new_blob(self, blob_name: str) -> Blob:
         return Blob(self, blob_name, {'size': 0})

@@ -22,7 +22,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 if TYPE_CHECKING:
-    from .bucket import Bucket
+    from .bucket import Bucket  # pylint: disable=cyclic-import
 
 
 HOST = 'storage.googleapis.com'
@@ -83,8 +83,8 @@ class Blob:
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
         datestamp = datetime_now.strftime('%Y%m%d')
 
-        service_account_email = (service_account_email or
-                                 iam_client.service_account_email)
+        service_account_email = (service_account_email
+                                 or iam_client.service_account_email)
         credential_scope = f'{datestamp}/auto/storage/goog4_request'
         credential = f'{service_account_email}/{credential_scope}'
 

@@ -6,7 +6,7 @@ import nox
 LOCAL_DEPS = ('../auth/', )
 
 
-@nox.session(python=['3.6', '3.7', '3.8'], reuse_venv=True)
+@nox.session(python=['3.6', '3.7', '3.8', '3.9'], reuse_venv=True)
 def unit_tests(session):
     session.install('future')
     session.install('pytest', 'pytest-cov', *LOCAL_DEPS)
@@ -17,7 +17,7 @@ def unit_tests(session):
                 os.path.join('tests', 'unit'), *session.posargs)
 
 
-@nox.session(python=['3.8'], reuse_venv=True)
+@nox.session(python=['3.9'], reuse_venv=True)
 def lint_setup_py(session):
     session.install('future')
     session.install('docutils', 'Pygments')

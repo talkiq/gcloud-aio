@@ -2,6 +2,7 @@ import io
 import json
 import os
 import uuid
+import warnings
 from enum import Enum
 from typing import Any
 from typing import Callable
@@ -31,6 +32,7 @@ BIGQUERY_EMULATOR_HOST = os.environ.get('BIGQUERY_EMULATOR_HOST')
 if BIGQUERY_EMULATOR_HOST:
     API_ROOT = f'http://{BIGQUERY_EMULATOR_HOST}/bigquery/v2'
 
+
 class SourceFormat(Enum):
     AVRO = 'AVRO'
     CSV = 'CSV'
@@ -52,7 +54,7 @@ class SchemaUpdateOption(Enum):
 
 
 class Job:
-    def __init__(self, job_id: str,
+    def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
                  service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
@@ -85,6 +87,47 @@ class Job:
         return {
             'Authorization': f'Bearer {token}',
         }
+
+    @staticmethod
+    def _make_query_body(
+            query: str,
+            write_disposition: Disposition,
+            use_query_cache: bool,
+            dry_run: bool, use_legacy_sql: bool,
+            destination_table: Optional['Table']) -> Dict[str, Any]:
+        return {
+            'configuration': {
+                'query': {
+                    'query': query,
+                    'writeDisposition': write_disposition.value,
+                    'destinationTable': {
+                        'projectId': destination_table.project,
+                        'datasetId': destination_table.dataset_name,
+                        'tableId': destination_table.table_name,
+                    } if destination_table else destination_table,
+                    'useQueryCache': use_query_cache,
+                    'useLegacySql': use_legacy_sql,
+                },
+                'dryRun': dry_run,
+            },
+        }
+
+    async def _post_json(
+            self, url: str, body: Dict[str, Any], session: Optional[Session],
+            timeout: int) -> Dict[str, Any]:
+        payload = json.dumps(body).encode('utf-8')
+
+        headers = await self.headers()
+        headers.update({
+            'Content-Length': str(len(payload)),
+            'Content-Type': 'application/json',
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=payload, headers=headers, params=None,
+                            timeout=timeout)
+        data: Dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(self, session: Optional[Session] = None,
@@ -131,13 +174,37 @@ class Job:
         data: Dict[str, Any] = await resp.json()
         return data
 
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+    async def insert_via_query(
+            self, query: str, session: Optional[Session] = None,
+            write_disposition: Disposition = Disposition.WRITE_EMPTY,
+            timeout: int = 60, use_query_cache: bool = True,
+            dry_run: bool = False, use_legacy_sql: bool = True,
+            destination_table: Optional['Table'] = None) -> Dict[str, Any]:
+        """Create table as a result of the query"""
+        project = await self.project()
+        url = f'{API_ROOT}/projects/{project}/jobs'
+
+        body = self._make_query_body(query=query,
+                                     write_disposition=write_disposition,
+                                     use_query_cache=use_query_cache,
+                                     dry_run=dry_run,
+                                     use_legacy_sql=use_legacy_sql,
+                                     destination_table=destination_table)
+        response = await self._post_json(url, body, session, timeout)
+        if not dry_run:
+            self.job_id = response['jobReference']['jobId']
+        return response
+
     async def result(self, session: Optional[Session] = None) -> Dict[str, Any]:
-        job_data = await self.get_job(session)
-        status = job_data['status']
-        if status['state'] == 'DONE':
+        data = await self.get_job(session)
+        status = data.get('status', {})
+        if status.get('state') == 'DONE':
             if 'errorResult' in status:
-                raise Exception('Job finished with errors: ', status['errors'])
-            return job_data
+                raise Exception('Job finished with errors', status['errors'])
+            return data
+
         raise OSError('Job results are still pending')
 
 
@@ -225,12 +292,12 @@ class Table:
         return body
 
     def _make_load_body(
-            self, source_uris: List[str], project: str, autodetect: bool,
-            source_format: SourceFormat,
-            write_disposition: Disposition,
-            ignore_unknown_values: bool,
-            schema_update_options: List[SchemaUpdateOption]
-        ) -> Dict[str, Any]:
+        self, source_uris: List[str], project: str, autodetect: bool,
+        source_format: SourceFormat,
+        write_disposition: Disposition,
+        ignore_unknown_values: bool,
+        schema_update_options: List[SchemaUpdateOption]
+    ) -> Dict[str, Any]:
         return {
             'configuration': {
                 'load': {
@@ -384,14 +451,14 @@ class Table:
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     async def insert_via_load(
-            self, source_uris: List[str], session: Optional[Session] = None,
-            autodetect: bool = False,
-            source_format: SourceFormat = SourceFormat.CSV,
-            write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
-            timeout: int = 60,
-            ignore_unknown_values: bool = False,
-            schema_update_options: Optional[List[SchemaUpdateOption]] = None
-        ) -> Job:
+        self, source_uris: List[str], session: Optional[Session] = None,
+        autodetect: bool = False,
+        source_format: SourceFormat = SourceFormat.CSV,
+        write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
+        timeout: int = 60,
+        ignore_unknown_values: bool = False,
+        schema_update_options: Optional[List[SchemaUpdateOption]] = None
+    ) -> Job:
         """Loads entities from storage to BigQuery."""
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
@@ -412,13 +479,16 @@ class Table:
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False) -> Job:
         """Create table as a result of the query"""
+        warnings.warn('using Table#insert_via_query is deprecated.'
+                      'use Job#insert_via_query instead', DeprecationWarning)
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition,
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
-        return Job(response['jobReference']['jobId'], self._project,
+        job_id = response['jobReference']['jobId'] if not dry_run else None
+        return Job(job_id, self._project,
                    session=self.session, token=self.token)
 
     async def close(self) -> None:

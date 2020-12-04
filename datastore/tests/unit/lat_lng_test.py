@@ -31,6 +31,6 @@ class TestLatLng:
         assert repr(lat_lng) == str(lat_lng.to_repr())
 
     @staticmethod
-    @pytest.fixture()
+    @pytest.fixture(scope='session')
     def lat_lng() -> LatLng:
         return LatLng(49.2827, 123.1207)

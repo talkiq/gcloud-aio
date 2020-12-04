@@ -74,7 +74,7 @@ def get_service_data(
 
     try:
         try:
-            with open(service, 'r') as f:  # type: ignore[arg-type]
+            with open(service) as f:  # type: ignore[arg-type]
                 data: Dict[str, Any] = json.loads(f.read())
                 return data
         except TypeError:
@@ -116,7 +116,7 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future[Any]] = None
+        self.acquiring: Optional[asyncio.Future[Any]] = None  # pylint: disable=unsubscriptable-object,line-too-long
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')

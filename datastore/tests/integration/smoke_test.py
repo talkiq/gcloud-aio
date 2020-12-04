@@ -59,6 +59,27 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
 
 
 @pytest.mark.asyncio  # type: ignore
+async def test_mutation_result(creds: str, kind: str, project: str) -> None:
+    key = Key(project, [PathElement(kind)])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        insert_result = await ds.insert(key, {'value': 12})
+        assert len(insert_result['mutationResults']) == 1
+        saved_key = insert_result['mutationResults'][0].key
+        assert saved_key is not None
+
+        update_result = await ds.update(saved_key, {'value': 83})
+        assert len(update_result['mutationResults']) == 1
+        assert update_result['mutationResults'][0].key is None
+
+        delete_result = await ds.delete(saved_key)
+        assert len(delete_result['mutationResults']) == 1
+        assert delete_result['mutationResults'][0].key is None
+
+
+@pytest.mark.asyncio  # type: ignore
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
@@ -230,8 +251,9 @@ async def test_datastore_export(creds: str, project: str,
         operation = await ds.export(export_bucket_name, kinds=[kind])
 
         count = 0
-        while (count < 10 and operation and
-               operation.metadata['common']['state'] == 'PROCESSING'):
+        while (count < 10
+               and operation
+               and operation.metadata['common']['state'] == 'PROCESSING'):
             await sleep(10)
             operation = await ds.get_datastore_operation(operation.name)
             count += 1

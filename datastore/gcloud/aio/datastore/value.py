@@ -84,12 +84,13 @@ class Value:  # pylint:disable=useless-object-inheritance
         try:
             return supported_types[kind]
         except KeyError:
-            raise NotImplementedError(
+            raise NotImplementedError(  # pylint: disable=raise-missing-from
                 '{} is not a supported value type (any of: '
                 '{})'.format(kind, supported_types))
 
     @classmethod
     def _get_supported_types(cls) -> Dict[Any, TypeName]:
+        # pylint: disable=import-outside-toplevel,cyclic-import
         from gcloud.aio.datastore import array
         from gcloud.aio.datastore import entity
 
