@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -69,10 +70,8 @@ class SubscriberClient:
         body = {} if not body else body
         url = f'{API_ROOT}/v1/{subscription}'
         headers = await self._headers()
-        payload: Dict[str, Any] = {
-            'topic': topic,
-            **body
-        }
+        payload: Dict[str, Any] = deepcopy(body)
+        payload.update({'topic': topic})
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         resp = await s.put(url, data=encoded, headers=headers)
