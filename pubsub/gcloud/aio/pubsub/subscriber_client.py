@@ -43,17 +43,17 @@ class SubscriberClient:
                                     session=self.session.session)
 
     async def _headers(self) -> Dict[str, str]:
-        default_headers = {
+        headers = {
             'Content-Type': 'application/json'
         }
         if PUBSUB_EMULATOR_HOST:
-            return default_headers
+            return headers
 
         token = await self.token.get()
-        return {
-            **default_headers,
+        headers.update({
             'Authorization': f'Bearer {token}'
-        }
+        })
+        return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
     async def create_subscription(self,
