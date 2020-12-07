@@ -31,12 +31,12 @@ Here's the rough usage pattern for using ``SubscriberClient``:
 
     client = SubscriberClient()
     # create subscription
-    client.create_subscription(
+    await client.create_subscription(
         'projects/<project_name>/subscriptions/<subscription_name>',
         'projects/<project_name>/topics/<topic_name>')
 
     # pull messages
-    client.pull(
+    await client.pull(
         'projects/<project_name>/subscriptions/<subscription_name>',
         max_messages=10)
 
