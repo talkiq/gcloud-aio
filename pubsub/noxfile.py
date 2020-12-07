@@ -34,7 +34,7 @@ def require_creds(session):
 @nox.session(python=['3.6', '3.7', '3.8', '3.9'], reuse_venv=True)
 def unit_tests(session):
     session.install('future')
-    session.install('pytest', 'pytest-cov')
+    session.install('pytest', 'pytest-cov', 'pytest-asyncio')
     session.install('-e', '.')
 
     session.run('py.test', '--quiet', '--cov=gcloud.aio.pubsub',
