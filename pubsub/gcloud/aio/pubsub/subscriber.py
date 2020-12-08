@@ -13,7 +13,6 @@ else:
     from typing import Tuple
     from typing import TYPE_CHECKING
 
-    import aiohttp
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
     from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
     from gcloud.aio.pubsub.metrics_agent import MetricsAgent
@@ -179,45 +178,44 @@ else:
                         subscriber_client: Optional[SubscriberClient] = None,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
-        async with aiohttp.ClientSession() as session:
-            ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
-                maxsize=(max_messages * num_workers))
-            subscriber = subscriber_client or SubscriberClient(session=session)
-            ack_deadline_cache = AckDeadlineCache(subscriber,
-                                                  subscription,
-                                                  ack_deadline_cache_timeout)
-            metrics_client = metrics_client or MetricsAgent()
-            tasks = []
-            try:
+        ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
+            maxsize=(max_messages * num_workers))
+        subscriber = subscriber_client or SubscriberClient()
+        ack_deadline_cache = AckDeadlineCache(subscriber,
+                                              subscription,
+                                              ack_deadline_cache_timeout)
+        metrics_client = metrics_client or MetricsAgent()
+        tasks = []
+        try:
+            tasks.append(asyncio.ensure_future(
+                acker(subscription, ack_queue, subscriber,
+                      ack_window=ack_window, metrics_client=metrics_client)
+            ))
+            for _ in range(num_workers):
+                q: MessageQueue = asyncio.Queue(
+                    maxsize=max_messages)
                 tasks.append(asyncio.ensure_future(
-                    acker(subscription, ack_queue, subscriber,
-                          ack_window=ack_window, metrics_client=metrics_client)
+                    consumer(q,
+                             handler,
+                             ack_queue,
+                             ack_deadline_cache,
+                             consumer_pool_size,
+                             metrics_client=metrics_client)
                 ))
-                for _ in range(num_workers):
-                    q: MessageQueue = asyncio.Queue(
-                        maxsize=max_messages)
-                    tasks.append(asyncio.ensure_future(
-                        consumer(q,
-                                 handler,
-                                 ack_queue,
-                                 ack_deadline_cache,
-                                 consumer_pool_size,
-                                 metrics_client=metrics_client)
-                    ))
-                    tasks.append(asyncio.ensure_future(
-                        producer(subscription,
-                                 q,
-                                 subscriber,
-                                 max_messages=max_messages,
-                                 metrics_client=metrics_client)
-                    ))
+                tasks.append(asyncio.ensure_future(
+                    producer(subscription,
+                             q,
+                             subscriber,
+                             max_messages=max_messages,
+                             metrics_client=metrics_client)
+                ))
 
-                await asyncio.wait(
-                    tasks, return_when=asyncio.FIRST_COMPLETED)
-                raise Exception('A subscriber worker shut down unexpectedly!')
-            except Exception:
-                log.exception('Subscriber exited')
-                for task in tasks:
-                    task.cancel()
-                await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-            raise asyncio.CancelledError('Subscriber shut down')
+            await asyncio.wait(
+                tasks, return_when=asyncio.FIRST_COMPLETED)
+            raise Exception('A subscriber worker shut down unexpectedly!')
+        except Exception:
+            log.exception('Subscriber exited')
+            for task in tasks:
+                task.cancel()
+            await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+        raise asyncio.CancelledError('Subscriber shut down')
