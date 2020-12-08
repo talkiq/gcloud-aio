@@ -168,7 +168,7 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=None
+                metrics_client=MagicMock()
             )
         )
         message, pulled_at = await asyncio.wait_for(queue.get(), 0.1)
@@ -190,7 +190,7 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=None
+                metrics_client=MagicMock()
             )
         )
         await asyncio.sleep(0)
@@ -206,7 +206,7 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=None
+                metrics_client=MagicMock()
             )
         )
         await asyncio.sleep(0)
@@ -233,7 +233,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
-                None
+                MagicMock()
             )
         )
         await queue.put((message, 0.0))
@@ -261,7 +261,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
-                None
+                MagicMock()
             )
         )
         await queue.put((message, 0.0))
@@ -290,7 +290,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
-                None
+                MagicMock()
             )
         )
         await queue.put((message, 0.0))
@@ -314,7 +314,7 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                None
+                MagicMock()
             )
         )
         await queue.put('ack_id')
@@ -338,7 +338,7 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                None
+                MagicMock()
             )
         )
         await queue.put('ack_id')
@@ -355,7 +355,7 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                None
+                MagicMock()
             )
         )
         await queue.put('ack_id_1')
@@ -383,7 +383,7 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                None
+                MagicMock()
             )
         )
         await queue.put('ack_id_1')
