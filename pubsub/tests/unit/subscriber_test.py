@@ -50,6 +50,13 @@ else:
         mock.get = MagicMock(return_value=f)
         return mock
 
+    @pytest.fixture(scope='function')
+    def application_callback():
+        f = asyncio.Future()
+        f.set_result(None)
+
+        return MagicMock(return_value=f)
+
     # ================
     # AckDeadlineCache
     # ================
@@ -214,14 +221,15 @@ else:
     # ========
 
     @pytest.mark.asyncio
-    async def test_consumer_calls_none_means_ack(ack_deadline_cache, message):
+    async def test_consumer_calls_none_means_ack(ack_deadline_cache,
+                                                 message,
+                                                 application_callback):
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
-        callback = MagicMock(return_value=None)
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue,
-                callback,
+                application_callback,
                 ack_queue,
                 ack_deadline_cache,
                 1,
@@ -233,23 +241,23 @@ else:
         consumer_task.cancel()
         result = await asyncio.wait_for(ack_queue.get(), 1)
         assert result == 'ack_id'
-        callback.assert_called_once()
+        application_callback.assert_called_once()
         assert queue.qsize() == 0
 
     @pytest.mark.asyncio
     async def test_consumer_drops_expired_messages(ack_deadline_cache,
-                                                   message):
+                                                   message,
+                                                   application_callback):
         f = asyncio.Future()
         f.set_result(0.0)
         ack_deadline_cache.get = MagicMock(return_value=f)
 
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
-        callback = MagicMock(return_value=True)
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue,
-                callback,
+                application_callback,
                 ack_queue,
                 ack_deadline_cache,
                 1,
@@ -259,34 +267,8 @@ else:
         await queue.put((message, 0.0))
         await asyncio.sleep(0)
         consumer_task.cancel()
-        callback.assert_not_called()
+        application_callback.assert_not_called()
         assert ack_queue.qsize() == 0
-        assert queue.qsize() == 0
-
-    @pytest.mark.asyncio
-    async def test_consumer_supports_async_callbacks(ack_deadline_cache,
-                                                     message):
-        queue = asyncio.Queue()
-        ack_queue = asyncio.Queue()
-        f = asyncio.Future()
-        f.set_result(True)
-        callback = MagicMock(return_value=f)
-        consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                callback,
-                ack_queue,
-                ack_deadline_cache,
-                1,
-                None
-            )
-        )
-        await queue.put((message, 0.0))
-        await asyncio.sleep(0)
-        consumer_task.cancel()
-        result = await asyncio.wait_for(ack_queue.get(), 1)
-        assert result == 'ack_id'
-        callback.assert_called_once()
         assert queue.qsize() == 0
 
     @pytest.mark.asyncio
@@ -295,11 +277,16 @@ else:
     ):
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
-        callback = MagicMock(side_effect=RuntimeError)
+        mock = MagicMock()
+
+        async def f(*args):
+            mock(*args)
+            raise RuntimeError
+
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue,
-                callback,
+                f,
                 ack_queue,
                 ack_deadline_cache,
                 1,
@@ -310,7 +297,7 @@ else:
         await asyncio.sleep(0)
         await asyncio.sleep(0)
         consumer_task.cancel()
-        callback.assert_called_once()
+        mock.assert_called_once()
         assert ack_queue.qsize() == 0
         assert queue.qsize() == 0
 
@@ -416,12 +403,12 @@ else:
     # =========
 
     @pytest.mark.asyncio
-    async def test_subscribe_integrates_whole_chain(subscriber_client):
-        handler = MagicMock(return_value=True)
+    async def test_subscribe_integrates_whole_chain(subscriber_client,
+                                                    application_callback):
         subscribe_task = asyncio.ensure_future(
             subscribe(
                 'fake_subscription',
-                handler,
+                application_callback,
                 num_workers=1,
                 max_messages=100,
                 ack_window=0.0,
@@ -432,6 +419,6 @@ else:
         )
         await asyncio.sleep(0.1)
         subscribe_task.cancel()
-        handler.assert_called()
+        application_callback.assert_called()
         subscriber_client.acknowledge.assert_called_with(
             'fake_subscription', ack_ids=['ack_id'])
