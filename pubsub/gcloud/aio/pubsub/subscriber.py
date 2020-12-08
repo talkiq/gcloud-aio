@@ -60,7 +60,7 @@ else:
                     ack_queue: 'asyncio.Queue[str]',
                     subscriber_client: 'SubscriberClient',
                     ack_window: float,
-                    metrics_client: Optional[MetricsAgent]) -> None:
+                    metrics_client: MetricsAgent) -> None:
         ack_ids: List[str] = []
         while True:
             time_budget = ack_window
@@ -87,8 +87,7 @@ else:
                     'Ack request failed, better luck next batch', exc_info=e)
                 continue
 
-            if metrics_client:
-                metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
+            metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
 
             ack_ids = []
 
@@ -96,20 +95,18 @@ else:
                              message: SubscriberMessage,
                              callback: ApplicationHandler,
                              ack_queue: 'asyncio.Queue[str]',
-                             metrics_client: Optional[MetricsAgent]
+                             metrics_client: MetricsAgent
                              ) -> None:
         try:
             start = time.perf_counter()
             await callback(message)
             await ack_queue.put(message.ack_id)
-            if metrics_client:
-                metrics_client.increment('pubsub.consumer.succeeded')
-                metrics_client.histogram('pubsub.consumer.latency.runtime',
-                                         time.perf_counter() - start)
+            metrics_client.increment('pubsub.consumer.succeeded')
+            metrics_client.histogram('pubsub.consumer.latency.runtime',
+                                     time.perf_counter() - start)
         except Exception:
             log.exception('Application callback raised an exception')
-            if metrics_client:
-                metrics_client.increment('pubsub.consumer.failed')
+            metrics_client.increment('pubsub.consumer.failed')
         finally:
             semaphore.release()
 
@@ -119,7 +116,7 @@ else:
             ack_queue: 'asyncio.Queue[str]',
             ack_deadline_cache: AckDeadlineCache,
             consumer_pool_size: int,
-            metrics_client: Optional[MetricsAgent]) -> None:
+            metrics_client: MetricsAgent) -> None:
         semaphore = asyncio.Semaphore(consumer_pool_size)
         while True:
             await semaphore.acquire()
@@ -128,18 +125,16 @@ else:
 
             ack_deadline = await ack_deadline_cache.get()
             if (time.perf_counter() - pulled_at) >= ack_deadline:
-                if metrics_client:
-                    metrics_client.increment('pubsub.consumer.failfast')
+                metrics_client.increment('pubsub.consumer.failfast')
                 message_queue.task_done()
                 semaphore.release()
                 continue
 
-            if metrics_client:
-                metrics_client.histogram(
-                    'pubsub.consumer.latency.receive',
-                    # publish_time is in UTC Zulu
-                    # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-                    time.time() - message.publish_time.timestamp())
+            metrics_client.histogram(
+                'pubsub.consumer.latency.receive',
+                # publish_time is in UTC Zulu
+                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                time.time() - message.publish_time.timestamp())
 
             asyncio.ensure_future(_fire_callback(
                 semaphore,
@@ -155,7 +150,7 @@ else:
             message_queue: MessageQueue,
             subscriber_client: 'SubscriberClient',
             max_messages: int,
-            metrics_client: Optional[MetricsAgent]
+            metrics_client: MetricsAgent
     ) -> None:
         while True:
             try:
@@ -168,9 +163,8 @@ else:
             for m in new_messages:
                 await message_queue.put((m, pulled_at))
 
-            if metrics_client:
-                metrics_client.histogram(
-                    'pubsub.producer.batch', len(new_messages))
+            metrics_client.histogram(
+                'pubsub.producer.batch', len(new_messages))
 
             await message_queue.join()
 
@@ -192,6 +186,7 @@ else:
             ack_deadline_cache = AckDeadlineCache(subscriber,
                                                   subscription,
                                                   ack_deadline_cache_timeout)
+            metrics_client = metrics_client or MetricsAgent()
             tasks = []
             try:
                 tasks.append(asyncio.ensure_future(
