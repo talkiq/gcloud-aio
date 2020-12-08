@@ -210,8 +210,10 @@ else:
                              metrics_client=metrics_client)
                 ))
 
-            await asyncio.wait(
-                tasks, return_when=asyncio.FIRST_COMPLETED)
+            done, _ = await asyncio.wait(tasks,
+                                         return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                task.result()
             raise Exception('A subscriber worker shut down unexpectedly!')
         except Exception:
             log.exception('Subscriber exited')
