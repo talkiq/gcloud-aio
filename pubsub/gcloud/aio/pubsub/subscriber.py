@@ -78,6 +78,7 @@ else:
                 except asyncio.TimeoutError:
                     break
                 time_budget -= (time.perf_counter() - start)
+
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
@@ -136,6 +137,8 @@ else:
             if metrics_client:
                 metrics_client.histogram(
                     'pubsub.consumer.latency.receive',
+                    # publish_time is in UTC Zulu
+                    # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                     time.time() - message.publish_time.timestamp())
 
             asyncio.ensure_future(_fire_callback(
@@ -214,16 +217,12 @@ else:
                                  metrics_client=metrics_client)
                     ))
 
-                _done, pending = await asyncio.wait(
+                await asyncio.wait(
                     tasks, return_when=asyncio.FIRST_COMPLETED)
-                log.info(
-                    'One of subsriber workers exited, stopping the rest...')
-                for task in pending:
-                    task.cancel()
-                await asyncio.wait(pending, return_when=asyncio.ALL_COMPLETED)
+                raise Exception('A subscriber worker shut down unexpectedly!')
             except Exception:
                 log.exception('Subscriber exited')
                 for task in tasks:
                     task.cancel()
                 await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
-            raise asyncio.CancelledError('One of subscription workers exited.')
+            raise asyncio.CancelledError('Subscriber shut down')
