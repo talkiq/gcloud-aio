@@ -16,6 +16,7 @@ else:
     from gcloud.aio.pubsub.subscriber import consumer
     from gcloud.aio.pubsub.subscriber import producer
     from gcloud.aio.pubsub.subscriber import subscribe
+    from gcloud.aio.pubsub.subscriber import nacker
 
     @pytest.fixture(scope='function')
     def message():
@@ -38,6 +39,10 @@ else:
         f = asyncio.Future()
         f.set_result(None)
         mock.acknowledge = MagicMock(return_value=f)
+
+        f = asyncio.Future()
+        f.set_result(None)
+        mock.modify_ack_deadline = MagicMock(return_value=f)
 
         return mock
 
@@ -293,6 +298,7 @@ else:
                                                  application_callback):
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
+        nack_queue = asyncio.Queue()
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue,
@@ -300,6 +306,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
+                nack_queue,
                 MagicMock()
             )
         )
@@ -310,6 +317,7 @@ else:
         assert result == 'ack_id'
         application_callback.assert_called_once()
         assert queue.qsize() == 0
+        assert nack_queue.qsize() == 0
 
     @pytest.mark.asyncio
     async def test_consumer_tasks_limited_by_pool_size(ack_deadline_cache):
@@ -334,6 +342,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 2,
+                None,
                 MagicMock()
             )
         )
@@ -359,6 +368,7 @@ else:
 
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
+        nack_queue = asyncio.Queue()
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue,
@@ -366,6 +376,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
+                nack_queue,
                 MagicMock()
             )
         )
@@ -374,10 +385,11 @@ else:
         consumer_task.cancel()
         application_callback.assert_not_called()
         assert ack_queue.qsize() == 0
+        assert nack_queue.qsize() == 0
         assert queue.qsize() == 0
 
     @pytest.mark.asyncio
-    async def test_consumer_handles_callback_exception(
+    async def test_consumer_handles_callback_exception_no_nack(
         ack_deadline_cache, message
     ):
         queue = asyncio.Queue()
@@ -395,6 +407,7 @@ else:
                 ack_queue,
                 ack_deadline_cache,
                 1,
+                None,
                 MagicMock()
             )
         )
@@ -404,6 +417,39 @@ else:
         consumer_task.cancel()
         mock.assert_called_once()
         assert ack_queue.qsize() == 0
+        assert queue.qsize() == 0
+
+    @pytest.mark.asyncio
+    async def test_consumer_handles_callback_exception_nack(
+        ack_deadline_cache, message
+    ):
+        queue = asyncio.Queue()
+        ack_queue = asyncio.Queue()
+        nack_queue = asyncio.Queue()
+        mock = MagicMock()
+
+        async def f(*args):
+            mock(*args)
+            raise RuntimeError
+
+        consumer_task = asyncio.ensure_future(
+            consumer(
+                queue,
+                f,
+                ack_queue,
+                ack_deadline_cache,
+                1,
+                nack_queue,
+                MagicMock()
+            )
+        )
+        await queue.put((message, 0.0))
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        consumer_task.cancel()
+        mock.assert_called_once()
+        assert ack_queue.qsize() == 0
+        assert nack_queue.qsize() == 1
         assert queue.qsize() == 0
 
     # ========
@@ -509,6 +555,113 @@ else:
             ]
         )
 
+    # ========
+    # nacker
+    # ========
+
+    @pytest.mark.asyncio
+    async def test_nacker_does_modify_ack_deadline(subscriber_client):
+        queue = asyncio.Queue()
+        nacker_task = asyncio.ensure_future(
+            nacker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.0,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id')
+        await asyncio.sleep(0)
+        nacker_task.cancel()
+        subscriber_client.modify_ack_deadline.assert_called_once_with(
+            'fake_subscription', ack_ids=['ack_id'], ack_deadline_seconds=0)
+        assert queue.qsize() == 0
+
+    @pytest.mark.asyncio
+    async def test_nacker_handles_exception(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise RuntimeError
+        subscriber_client.modify_ack_deadline = f
+
+        queue = asyncio.Queue()
+        nacker_task = asyncio.ensure_future(
+            nacker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.0,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id')
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        mock.assert_called_once()
+        assert queue.qsize() == 0
+        assert not nacker_task.done()
+        nacker_task.cancel()
+
+    @pytest.mark.asyncio
+    async def test_nacker_does_batching(subscriber_client):
+        queue = asyncio.Queue()
+        nacker_task = asyncio.ensure_future(
+            nacker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.1,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id_1')
+        await queue.put('ack_id_2')
+        await asyncio.sleep(0.2)
+        nacker_task.cancel()
+        subscriber_client.modify_ack_deadline.assert_called_once_with(
+            'fake_subscription',
+            ack_ids=['ack_id_1', 'ack_id_2'],
+            ack_deadline_seconds=0)
+        assert queue.qsize() == 0
+
+    @pytest.mark.asyncio
+    async def test_nacker_batches_are_retried_next_time(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise TimeoutError
+        subscriber_client.modify_ack_deadline = f
+
+        queue = asyncio.Queue()
+        nacker_task = asyncio.ensure_future(
+            nacker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.1,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id_1')
+        await queue.put('ack_id_2')
+        await asyncio.sleep(0.3)
+        nacker_task.cancel()
+        assert queue.qsize() == 0
+        mock.assert_has_calls(
+            [
+                call('fake_subscription',
+                     ack_ids=['ack_id_1', 'ack_id_2'], ack_deadline_seconds=0),
+                call('fake_subscription',
+                     ack_ids=['ack_id_1', 'ack_id_2'], ack_deadline_seconds=0),
+            ]
+        )
+
     # =========
     # subscribe
     # =========
@@ -526,6 +679,8 @@ else:
                 ack_window=0.0,
                 ack_deadline_cache_timeout=1000,
                 num_tasks_per_consumer=1,
+                enable_nack=True,
+                nack_window=0.0
             )
         )
         await asyncio.sleep(0.1)
