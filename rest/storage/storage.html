@@ -39,16 +39,19 @@ with warnings.catch_warnings():
     warnings.simplefilter(&#34;ignore&#34;)
     from future import standard_library
 standard_library.install_aliases()
+import binascii
 import enum
 import io
 import json
 import logging
 import mimetypes
 import os
+import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
 from typing import IO
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -90,9 +93,58 @@ if STORAGE_EMULATOR_HOST:
 log = logging.getLogger(__name__)
 
 
+def choose_boundary()       :
+    &#34;&#34;&#34;Stolen from six.moves.urllib3.filepost.choose_boundary() as of v1.26.2.&#34;&#34;&#34;
+    boundary = binascii.hexlify(os.urandom(16))
+    if sys.version_info.major == 2:
+        return boundary  # type: ignore[return-value]
+    return boundary.decode(&#39;ascii&#39;)
+
+
+def encode_multipart_formdata(fields                                    ,
+                              boundary     )                     :
+    &#34;&#34;&#34;
+    Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
+
+    Very heavily modified to be compatible with our gcloud-rest converter and
+    to avboid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
+    requests, not aiohttp).
+    &#34;&#34;&#34;
+    body              = []
+    for headers, data in fields:
+        body.append(&#39;--{}\r\n&#39;.format((boundary)).encode(&#39;utf-8&#39;))
+
+        # The below is from RequestFields.render_headers()
+        # Since we only use Content-Type, we could simplify the below to a
+        # single line... but probably best to be safe for future modifications.
+        for field in [&#39;Content-Disposition&#39;, &#39;Content-Type&#39;,
+                      &#39;Content-Location&#39;]:
+            value = headers.pop(field, None)
+            if value:
+                body.append(&#39;{}: {}\r\n&#39;.format((field), (value)).encode(&#39;utf-8&#39;))
+        for field, value in headers.items():
+            # N.B. potential bug copied from six.moves.urllib3 code; zero values should
+            # be sent! Keeping it for now, since Google libs use six.moves.urllib3 for
+            # their examples.
+            if value:
+                body.append(&#39;{}: {}\r\n&#39;.format((field), (value)).encode(&#39;utf-8&#39;))
+
+        body.append(b&#39;\r\n&#39;)
+        body.append(data)
+        body.append(b&#39;\r\n&#39;)
+
+    body.append(&#39;--{}--\r\n&#39;.format((boundary)).encode(&#39;utf-8&#39;))
+
+    # N.B. &#39;multipart/form-data&#39; in upstream, but Google wants &#39;related&#39;
+    content_type = &#39;multipart/related; boundary={}&#39;.format((boundary))
+
+    return b&#39;&#39;.join(body), content_type
+
+
 class UploadType(enum.Enum):
     SIMPLE = 1
     RESUMABLE = 2
+    MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
 class Storage(object):
@@ -257,7 +309,6 @@ class Storage(object):
         data                 = resp.json()
         return data
 
-    # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
@@ -302,17 +353,18 @@ class Storage(object):
                                                content_length)
         log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
 
-        if upload_type == UploadType.SIMPLE:
-            if metadata:
-                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
-            return self._upload_simple(url, object_name, stream,
-                                             parameters, headers,
-                                             session=session, timeout=timeout)
-
         if upload_type == UploadType.RESUMABLE:
             return self._upload_resumable(
                 url, object_name, stream, parameters, headers,
                 metadata=metadata, session=session, timeout=timeout)
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                return self._upload_multipart(
+                    url, object_name, stream, parameters, headers, metadata,
+                    session=session, timeout=timeout)
+            return self._upload_simple(
+                url, object_name, stream, parameters, headers, session=session,
+                timeout=timeout)
 
         raise TypeError(&#39;upload type {} not supported&#39;.format((upload_type)))
 
@@ -374,6 +426,17 @@ class Storage(object):
 
         return content_type, encoding
 
+    @staticmethod
+    def _format_metadata_key(key     )       :
+        &#34;&#34;&#34;
+        Formats the fixed-key metadata keys as wanted by the multipart API.
+
+        Ex: Content-Disposition --&gt; contentDisposition
+        &#34;&#34;&#34;
+        parts = key.split(&#39;-&#39;)
+        parts = [parts[0].lower()] + [p.capitalize() for p in parts[1:]]
+        return &#39;&#39;.join(parts)
+
     def _download(self, bucket     , object_name     , **_3to2kwargs)         :
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -413,10 +476,48 @@ class Storage(object):
         params[&#39;name&#39;] = object_name
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
-        headers.update(self._headers())
-
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data                 = resp.json()
+        return data
+
+    def _upload_multipart(self, url     , object_name     ,
+                                stream            , params                ,
+                                headers                ,
+                                metadata                , **_3to2kwargs)                  :
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        params[&#39;uploadType&#39;] = &#39;multipart&#39;
+
+        metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
+        metadata = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata[&#39;name&#39;] = object_name
+
+        raw_body         = stream.read()
+        if isinstance(raw_body, str):
+            bytes_body        = raw_body.encode(&#39;utf-8&#39;)
+        else:
+            bytes_body = raw_body
+
+        parts = [
+            (metadata_headers, json.dumps(metadata).encode(&#39;utf-8&#39;)),
+            ({&#39;Content-Type&#39;: headers[&#39;Content-Type&#39;]}, bytes_body),
+        ]
+        boundary = choose_boundary()
+        body, content_type = encode_multipart_formdata(parts, boundary)
+        headers.update({
+            &#39;Content-Type&#39;: content_type,
+            &#39;Content-Length&#39;: str(len(body)),
+            &#39;Accept&#39;: &#39;application/json&#39;
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=body, headers=headers, params=params,
                             timeout=timeout)
         data                 = resp.json()
         return data
@@ -522,6 +623,78 @@ class Storage(object):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gcloud.rest.storage.storage.choose_boundary"><code class="name flex">
+<span>def <span class="ident">choose_boundary</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Stolen from six.moves.urllib3.filepost.choose_boundary() as of v1.26.2.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def choose_boundary()       :
+    &#34;&#34;&#34;Stolen from six.moves.urllib3.filepost.choose_boundary() as of v1.26.2.&#34;&#34;&#34;
+    boundary = binascii.hexlify(os.urandom(16))
+    if sys.version_info.major == 2:
+        return boundary  # type: ignore[return-value]
+    return boundary.decode(&#39;ascii&#39;)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.storage.storage.encode_multipart_formdata"><code class="name flex">
+<span>def <span class="ident">encode_multipart_formdata</span></span>(<span>fields, boundary)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.</p>
+<p>Very heavily modified to be compatible with our gcloud-rest converter and
+to avboid unnecessary six.moves.urllib3 dependencies (since that's only included with
+requests, not aiohttp).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encode_multipart_formdata(fields                                    ,
+                              boundary     )                     :
+    &#34;&#34;&#34;
+    Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
+
+    Very heavily modified to be compatible with our gcloud-rest converter and
+    to avboid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
+    requests, not aiohttp).
+    &#34;&#34;&#34;
+    body              = []
+    for headers, data in fields:
+        body.append(&#39;--{}\r\n&#39;.format((boundary)).encode(&#39;utf-8&#39;))
+
+        # The below is from RequestFields.render_headers()
+        # Since we only use Content-Type, we could simplify the below to a
+        # single line... but probably best to be safe for future modifications.
+        for field in [&#39;Content-Disposition&#39;, &#39;Content-Type&#39;,
+                      &#39;Content-Location&#39;]:
+            value = headers.pop(field, None)
+            if value:
+                body.append(&#39;{}: {}\r\n&#39;.format((field), (value)).encode(&#39;utf-8&#39;))
+        for field, value in headers.items():
+            # N.B. potential bug copied from six.moves.urllib3 code; zero values should
+            # be sent! Keeping it for now, since Google libs use six.moves.urllib3 for
+            # their examples.
+            if value:
+                body.append(&#39;{}: {}\r\n&#39;.format((field), (value)).encode(&#39;utf-8&#39;))
+
+        body.append(b&#39;\r\n&#39;)
+        body.append(data)
+        body.append(b&#39;\r\n&#39;)
+
+    body.append(&#39;--{}--\r\n&#39;.format((boundary)).encode(&#39;utf-8&#39;))
+
+    # N.B. &#39;multipart/form-data&#39; in upstream, but Google wants &#39;related&#39;
+    content_type = &#39;multipart/related; boundary={}&#39;.format((boundary))
+
+    return b&#39;&#39;.join(body), content_type</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -698,7 +871,6 @@ class Storage(object):
         data                 = resp.json()
         return data
 
-    # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     def upload(self, bucket     , object_name     , file_data     , **_3to2kwargs)                  :
@@ -743,17 +915,18 @@ class Storage(object):
                                                content_length)
         log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
 
-        if upload_type == UploadType.SIMPLE:
-            if metadata:
-                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
-            return self._upload_simple(url, object_name, stream,
-                                             parameters, headers,
-                                             session=session, timeout=timeout)
-
         if upload_type == UploadType.RESUMABLE:
             return self._upload_resumable(
                 url, object_name, stream, parameters, headers,
                 metadata=metadata, session=session, timeout=timeout)
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                return self._upload_multipart(
+                    url, object_name, stream, parameters, headers, metadata,
+                    session=session, timeout=timeout)
+            return self._upload_simple(
+                url, object_name, stream, parameters, headers, session=session,
+                timeout=timeout)
 
         raise TypeError(&#39;upload type {} not supported&#39;.format((upload_type)))
 
@@ -815,6 +988,17 @@ class Storage(object):
 
         return content_type, encoding
 
+    @staticmethod
+    def _format_metadata_key(key     )       :
+        &#34;&#34;&#34;
+        Formats the fixed-key metadata keys as wanted by the multipart API.
+
+        Ex: Content-Disposition --&gt; contentDisposition
+        &#34;&#34;&#34;
+        parts = key.split(&#39;-&#39;)
+        parts = [parts[0].lower()] + [p.capitalize() for p in parts[1:]]
+        return &#39;&#39;.join(parts)
+
     def _download(self, bucket     , object_name     , **_3to2kwargs)         :
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -854,10 +1038,48 @@ class Storage(object):
         params[&#39;name&#39;] = object_name
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
-        headers.update(self._headers())
-
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data                 = resp.json()
+        return data
+
+    def _upload_multipart(self, url     , object_name     ,
+                                stream            , params                ,
+                                headers                ,
+                                metadata                , **_3to2kwargs)                  :
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        params[&#39;uploadType&#39;] = &#39;multipart&#39;
+
+        metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
+        metadata = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata[&#39;name&#39;] = object_name
+
+        raw_body         = stream.read()
+        if isinstance(raw_body, str):
+            bytes_body        = raw_body.encode(&#39;utf-8&#39;)
+        else:
+            bytes_body = raw_body
+
+        parts = [
+            (metadata_headers, json.dumps(metadata).encode(&#39;utf-8&#39;)),
+            ({&#39;Content-Type&#39;: headers[&#39;Content-Type&#39;]}, bytes_body),
+        ]
+        boundary = choose_boundary()
+        body, content_type = encode_multipart_formdata(parts, boundary)
+        headers.update({
+            &#39;Content-Type&#39;: content_type,
+            &#39;Content-Length&#39;: str(len(body)),
+            &#39;Accept&#39;: &#39;application/json&#39;
+        })
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=body, headers=headers, params=params,
                             timeout=timeout)
         data                 = resp.json()
         return data
@@ -1263,17 +1485,18 @@ class Storage(object):
                                            content_length)
     log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
 
-    if upload_type == UploadType.SIMPLE:
-        if metadata:
-            log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
-        return self._upload_simple(url, object_name, stream,
-                                         parameters, headers,
-                                         session=session, timeout=timeout)
-
     if upload_type == UploadType.RESUMABLE:
         return self._upload_resumable(
             url, object_name, stream, parameters, headers,
             metadata=metadata, session=session, timeout=timeout)
+    if upload_type == UploadType.SIMPLE:
+        if metadata:
+            return self._upload_multipart(
+                url, object_name, stream, parameters, headers, metadata,
+                session=session, timeout=timeout)
+        return self._upload_simple(
+            url, object_name, stream, parameters, headers, session=session,
+            timeout=timeout)
 
     raise TypeError(&#39;upload type {} not supported&#39;.format((upload_type)))</code></pre>
 </details>
@@ -1309,7 +1532,8 @@ class Storage(object):
 </summary>
 <pre><code class="python">class UploadType(enum.Enum):
     SIMPLE = 1
-    RESUMABLE = 2</code></pre>
+    RESUMABLE = 2
+    MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1317,6 +1541,10 @@ class Storage(object):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="gcloud.rest.storage.storage.UploadType.MULTIPART"><code class="name">var <span class="ident">MULTIPART</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="gcloud.rest.storage.storage.UploadType.RESUMABLE"><code class="name">var <span class="ident">RESUMABLE</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1341,6 +1569,12 @@ class Storage(object):
 <li><code><a title="gcloud.rest.storage" href="index.html">gcloud.rest.storage</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gcloud.rest.storage.storage.choose_boundary" href="#gcloud.rest.storage.storage.choose_boundary">choose_boundary</a></code></li>
+<li><code><a title="gcloud.rest.storage.storage.encode_multipart_formdata" href="#gcloud.rest.storage.storage.encode_multipart_formdata">encode_multipart_formdata</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
@@ -1362,6 +1596,7 @@ class Storage(object):
 <li>
 <h4><code><a title="gcloud.rest.storage.storage.UploadType" href="#gcloud.rest.storage.storage.UploadType">UploadType</a></code></h4>
 <ul class="">
+<li><code><a title="gcloud.rest.storage.storage.UploadType.MULTIPART" href="#gcloud.rest.storage.storage.UploadType.MULTIPART">MULTIPART</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.UploadType.RESUMABLE" href="#gcloud.rest.storage.storage.UploadType.RESUMABLE">RESUMABLE</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.UploadType.SIMPLE" href="#gcloud.rest.storage.storage.UploadType.SIMPLE">SIMPLE</a></code></li>
 </ul>

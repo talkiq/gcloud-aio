@@ -627,7 +627,6 @@ with the link.</p>
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    # TODO: if `metadata` is set, use multipart upload:
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
     async def upload(self, bucket: str, object_name: str, file_data: Any,
@@ -665,17 +664,18 @@ with the link.</p>
                                                content_length)
         log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
 
-        if upload_type == UploadType.SIMPLE:
-            if metadata:
-                log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
-            return await self._upload_simple(url, object_name, stream,
-                                             parameters, headers,
-                                             session=session, timeout=timeout)
-
         if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(
                 url, object_name, stream, parameters, headers,
                 metadata=metadata, session=session, timeout=timeout)
+        if upload_type == UploadType.SIMPLE:
+            if metadata:
+                return await self._upload_multipart(
+                    url, object_name, stream, parameters, headers, metadata,
+                    session=session, timeout=timeout)
+            return await self._upload_simple(
+                url, object_name, stream, parameters, headers, session=session,
+                timeout=timeout)
 
         raise TypeError(f&#39;upload type {upload_type} not supported&#39;)
 
@@ -737,6 +737,17 @@ with the link.</p>
 
         return content_type, encoding
 
+    @staticmethod
+    def _format_metadata_key(key: str) -&gt; str:
+        &#34;&#34;&#34;
+        Formats the fixed-key metadata keys as wanted by the multipart API.
+
+        Ex: Content-Disposition --&gt; contentDisposition
+        &#34;&#34;&#34;
+        parts = key.split(&#39;-&#39;)
+        parts = [parts[0].lower()] + [p.capitalize() for p in parts[1:]]
+        return &#39;&#39;.join(parts)
+
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
@@ -770,10 +781,46 @@ with the link.</p>
         params[&#39;name&#39;] = object_name
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
-        headers.update(await self._headers())
-
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=stream, headers=headers, params=params,
+                            timeout=timeout)
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
+    async def _upload_multipart(self, url: str, object_name: str,
+                                stream: IO[AnyStr], params: Dict[str, str],
+                                headers: Dict[str, str],
+                                metadata: Dict[str, str], *,
+                                session: Optional[Session] = None,
+                                timeout: int = 30) -&gt; Dict[str, Any]:
+        # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+        params[&#39;uploadType&#39;] = &#39;multipart&#39;
+
+        metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
+        metadata = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata[&#39;name&#39;] = object_name
+
+        raw_body: AnyStr = stream.read()
+        if isinstance(raw_body, str):
+            bytes_body: bytes = raw_body.encode(&#39;utf-8&#39;)
+        else:
+            bytes_body = raw_body
+
+        parts = [
+            (metadata_headers, json.dumps(metadata).encode(&#39;utf-8&#39;)),
+            ({&#39;Content-Type&#39;: headers[&#39;Content-Type&#39;]}, bytes_body),
+        ]
+        boundary = choose_boundary()
+        body, content_type = encode_multipart_formdata(parts, boundary)
+        headers.update({
+            &#39;Content-Type&#39;: content_type,
+            &#39;Content-Length&#39;: str(len(body)),
+            &#39;Accept&#39;: &#39;application/json&#39;
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, data=body, headers=headers, params=params,
                             timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -1143,17 +1190,18 @@ copy operation, you then have 1 week to complete the copy job.</p>
                                            content_length)
     log.debug(&#39;using %r gcloud storage upload method&#39;, upload_type)
 
-    if upload_type == UploadType.SIMPLE:
-        if metadata:
-            log.warning(&#39;metadata will be ignored for upload_type=Simple&#39;)
-        return await self._upload_simple(url, object_name, stream,
-                                         parameters, headers,
-                                         session=session, timeout=timeout)
-
     if upload_type == UploadType.RESUMABLE:
         return await self._upload_resumable(
             url, object_name, stream, parameters, headers,
             metadata=metadata, session=session, timeout=timeout)
+    if upload_type == UploadType.SIMPLE:
+        if metadata:
+            return await self._upload_multipart(
+                url, object_name, stream, parameters, headers, metadata,
+                session=session, timeout=timeout)
+        return await self._upload_simple(
+            url, object_name, stream, parameters, headers, session=session,
+            timeout=timeout)
 
     raise TypeError(f&#39;upload type {upload_type} not supported&#39;)</code></pre>
 </details>
