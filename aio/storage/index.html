@@ -513,8 +513,8 @@ with the link.</p>
 
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
-                   headers: Optional[Dict[str, str]] = None,
-                   params: Optional[Dict[str, str]] = None, timeout: int = 10,
+                   params: Optional[Dict[str, str]] = None,
+                   headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                    session: Optional[Session] = None) -&gt; Dict[str, Any]:
 
         &#34;&#34;&#34;
@@ -570,11 +570,13 @@ with the link.</p>
 
     async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                      params: Optional[Dict[str, str]] = None,
+                     headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -&gt; str:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, params=params or {},
@@ -588,32 +590,36 @@ with the link.</p>
         return data
 
     async def download(self, bucket: str, object_name: str, *,
+                       headers: Optional[Dict[str, Any]] = None,
                        timeout: int = 10,
                        session: Optional[Session] = None) -&gt; bytes:
-        return await self._download(bucket, object_name, timeout=timeout,
-                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+        return await self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
+                                    session=session)
 
     async def download_to_filename(self, bucket: str, object_name: str,
-                                   filename: str,
-                                   **kwargs: Any) -&gt; None:
+                                   filename: str, **kwargs: Any) -&gt; None:
         with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(
-                await self.download(bucket, object_name, **kwargs))
+            file_object.write(await self.download(bucket, object_name,
+                                                  **kwargs))
 
     async def download_metadata(self, bucket: str, object_name: str, *,
+                                headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
                                 timeout: int = 10) -&gt; Dict[str, Any]:
-        data = await self._download(bucket, object_name, timeout=timeout,
-                                    session=session)
+        data = await self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
+                           headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
                            timeout: int = 10) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}/o&#39;
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
@@ -733,12 +739,14 @@ with the link.</p>
 
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
+                        headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -&gt; bytes:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
@@ -830,10 +838,12 @@ with the link.</p>
 
     async def get_bucket_metadata(self, bucket: str, *,
                                   params: Optional[Dict[str, str]] = None,
+                                  headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
                                   timeout: int = 10) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}&#39;
-        headers = await self._headers()
+        headers = headers or {}
+        headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=params or {},
@@ -866,7 +876,7 @@ with the link.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.copy"><code class="name flex">
-<span>async def <span class="ident">copy</span></span>(<span>self, bucket: str, object_name: str, destination_bucket: str, *, new_name: Optional[str] = None, headers: Optional[Dict[str, str]] = None, params: Optional[Dict[str, str]] = None, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">copy</span></span>(<span>self, bucket: str, object_name: str, destination_bucket: str, *, new_name: Optional[str] = None, params: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>When files are too large, multiple calls to <code>rewriteTo</code> are made. We
@@ -886,8 +896,8 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def copy(self, bucket: str, object_name: str,
                destination_bucket: str, *, new_name: Optional[str] = None,
-               headers: Optional[Dict[str, str]] = None,
-               params: Optional[Dict[str, str]] = None, timeout: int = 10,
+               params: Optional[Dict[str, str]] = None,
+               headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                session: Optional[Session] = None) -&gt; Dict[str, Any]:
 
     &#34;&#34;&#34;
@@ -943,7 +953,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, params: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -953,11 +963,13 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                  params: Optional[Dict[str, str]] = None,
+                 headers: Optional[Dict[str, str]] = None,
                  session: Optional[Session] = None) -&gt; str:
     # https://cloud.google.com/storage/docs/json_api/#encoding
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
-    headers = await self._headers()
+    headers = headers or {}
+    headers.update(await self._headers())
 
     s = AioSession(session) if session else self.session
     resp = await s.delete(url, headers=headers, params=params or {},
@@ -972,7 +984,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.download"><code class="name flex">
-<span>async def <span class="ident">download</span></span>(<span>self, bucket: str, object_name: str, *, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> bytes</span>
+<span>async def <span class="ident">download</span></span>(<span>self, bucket: str, object_name: str, *, headers: Optional[Dict[str, Any]] = None, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> bytes</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -981,14 +993,16 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def download(self, bucket: str, object_name: str, *,
+                   headers: Optional[Dict[str, Any]] = None,
                    timeout: int = 10,
                    session: Optional[Session] = None) -&gt; bytes:
-    return await self._download(bucket, object_name, timeout=timeout,
-                                params={&#39;alt&#39;: &#39;media&#39;}, session=session)</code></pre>
+    return await self._download(bucket, object_name, headers=headers,
+                                timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
+                                session=session)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.download_metadata"><code class="name flex">
-<span>async def <span class="ident">download_metadata</span></span>(<span>self, bucket: str, object_name: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">download_metadata</span></span>(<span>self, bucket: str, object_name: str, *, headers: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -997,10 +1011,11 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def download_metadata(self, bucket: str, object_name: str, *,
+                            headers: Optional[Dict[str, Any]] = None,
                             session: Optional[Session] = None,
                             timeout: int = 10) -&gt; Dict[str, Any]:
-    data = await self._download(bucket, object_name, timeout=timeout,
-                                session=session)
+    data = await self._download(bucket, object_name, headers=headers,
+                                timeout=timeout, session=session)
     metadata: Dict[str, Any] = json.loads(data.decode())
     return metadata</code></pre>
 </details>
@@ -1015,11 +1030,10 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def download_to_filename(self, bucket: str, object_name: str,
-                               filename: str,
-                               **kwargs: Any) -&gt; None:
+                               filename: str, **kwargs: Any) -&gt; None:
     with open(filename, &#39;wb+&#39;) as file_object:
-        file_object.write(
-            await self.download(bucket, object_name, **kwargs))</code></pre>
+        file_object.write(await self.download(bucket, object_name,
+                                              **kwargs))</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.get_bucket"><code class="name flex">
@@ -1036,7 +1050,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.get_bucket_metadata"><code class="name flex">
-<span>async def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_bucket_metadata</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1046,10 +1060,12 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def get_bucket_metadata(self, bucket: str, *,
                               params: Optional[Dict[str, str]] = None,
+                              headers: Optional[Dict[str, str]] = None,
                               session: Optional[Session] = None,
                               timeout: int = 10) -&gt; Dict[str, Any]:
     url = f&#39;{API_ROOT}/{bucket}&#39;
-    headers = await self._headers()
+    headers = headers or {}
+    headers.update(await self._headers())
 
     s = AioSession(session) if session else self.session
     resp = await s.get(url, headers=headers, params=params or {},
@@ -1059,7 +1075,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.list_objects"><code class="name flex">
-<span>async def <span class="ident">list_objects</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">list_objects</span></span>(<span>self, bucket: str, *, params: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1069,10 +1085,12 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def list_objects(self, bucket: str, *,
                        params: Optional[Dict[str, str]] = None,
+                       headers: Optional[Dict[str, Any]] = None,
                        session: Optional[Session] = None,
                        timeout: int = 10) -&gt; Dict[str, Any]:
     url = f&#39;{API_ROOT}/{bucket}/o&#39;
-    headers = await self._headers()
+    headers = headers or {}
+    headers.update(await self._headers())
 
     s = AioSession(session) if session else self.session
     resp = await s.get(url, headers=headers, params=params or {},

@@ -126,10 +126,10 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
-        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
-        else: params =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
         if &#39;new_name&#39; in _3to2kwargs: new_name = _3to2kwargs[&#39;new_name&#39;]; del _3to2kwargs[&#39;new_name&#39;]
         else: new_name =  None
         &#34;&#34;&#34;
@@ -187,13 +187,16 @@ class Storage(object):
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.delete(url, headers=headers, params=params or {},
@@ -211,23 +214,27 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
-        return self._download(bucket, object_name, timeout=timeout,
-                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        return self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
+                                    session=session)
 
     def download_to_filename(self, bucket     , object_name     ,
-                                   filename     ,
-                                   **kwargs     )        :
+                                   filename     , **kwargs     )        :
         with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(
-                self.download(bucket, object_name, **kwargs))
+            file_object.write(self.download(bucket, object_name,
+                                                  **kwargs))
 
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
-        data = self._download(bucket, object_name, timeout=timeout,
-                                    session=session)
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        data = self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, session=session)
         metadata                 = json.loads(data.decode())
         return metadata
 
@@ -236,10 +243,13 @@ class Storage(object):
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -370,11 +380,14 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         response = s.get(url, headers=headers, params=params or {},
@@ -480,10 +493,13 @@ class Storage(object):
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -551,10 +567,10 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
-        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
-        else: params =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
         if &#39;new_name&#39; in _3to2kwargs: new_name = _3to2kwargs[&#39;new_name&#39;]; del _3to2kwargs[&#39;new_name&#39;]
         else: new_name =  None
         &#34;&#34;&#34;
@@ -612,13 +628,16 @@ class Storage(object):
         # https://cloud.google.com/storage/docs/json_api/#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.delete(url, headers=headers, params=params or {},
@@ -636,23 +655,27 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
-        return self._download(bucket, object_name, timeout=timeout,
-                                    params={&#39;alt&#39;: &#39;media&#39;}, session=session)
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        return self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
+                                    session=session)
 
     def download_to_filename(self, bucket     , object_name     ,
-                                   filename     ,
-                                   **kwargs     )        :
+                                   filename     , **kwargs     )        :
         with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(
-                self.download(bucket, object_name, **kwargs))
+            file_object.write(self.download(bucket, object_name,
+                                                  **kwargs))
 
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
-        data = self._download(bucket, object_name, timeout=timeout,
-                                    session=session)
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        data = self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, session=session)
         metadata                 = json.loads(data.decode())
         return metadata
 
@@ -661,10 +684,13 @@ class Storage(object):
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -795,11 +821,14 @@ class Storage(object):
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         response = s.get(url, headers=headers, params=params or {},
@@ -905,10 +934,13 @@ class Storage(object):
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
-        headers = self._headers()
+        headers = headers or {}
+        headers.update(self._headers())
 
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers, params=params or {},
@@ -956,10 +988,10 @@ class Storage(object):
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
-    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
-    else: params =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
     else: headers =  None
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
     if &#39;new_name&#39; in _3to2kwargs: new_name = _3to2kwargs[&#39;new_name&#39;]; del _3to2kwargs[&#39;new_name&#39;]
     else: new_name =  None
     &#34;&#34;&#34;
@@ -1027,13 +1059,16 @@ class Storage(object):
     # https://cloud.google.com/storage/docs/json_api/#encoding
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
-    headers = self._headers()
+    headers = headers or {}
+    headers.update(self._headers())
 
     s = SyncSession(session) if session else self.session
     resp = s.delete(url, headers=headers, params=params or {},
@@ -1061,8 +1096,11 @@ class Storage(object):
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
-    return self._download(bucket, object_name, timeout=timeout,
-                                params={&#39;alt&#39;: &#39;media&#39;}, session=session)</code></pre>
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    return self._download(bucket, object_name, headers=headers,
+                                timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
+                                session=session)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.storage.Storage.download_metadata"><code class="name flex">
@@ -1079,8 +1117,10 @@ class Storage(object):
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
-    data = self._download(bucket, object_name, timeout=timeout,
-                                session=session)
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    data = self._download(bucket, object_name, headers=headers,
+                                timeout=timeout, session=session)
     metadata                 = json.loads(data.decode())
     return metadata</code></pre>
 </details>
@@ -1095,11 +1135,10 @@ class Storage(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def download_to_filename(self, bucket     , object_name     ,
-                               filename     ,
-                               **kwargs     )        :
+                               filename     , **kwargs     )        :
     with open(filename, &#39;wb+&#39;) as file_object:
-        file_object.write(
-            self.download(bucket, object_name, **kwargs))</code></pre>
+        file_object.write(self.download(bucket, object_name,
+                                              **kwargs))</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.storage.Storage.get_bucket"><code class="name flex">
@@ -1129,10 +1168,13 @@ class Storage(object):
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
     url = &#39;{}/{}&#39;.format((API_ROOT), (bucket))
-    headers = self._headers()
+    headers = headers or {}
+    headers.update(self._headers())
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
@@ -1155,10 +1197,13 @@ class Storage(object):
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
     url = &#39;{}/{}/o&#39;.format((API_ROOT), (bucket))
-    headers = self._headers()
+    headers = headers or {}
+    headers.update(self._headers())
 
     s = SyncSession(session) if session else self.session
     resp = s.get(url, headers=headers, params=params or {},
