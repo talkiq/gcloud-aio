@@ -33,10 +33,10 @@ else:
             self.subscription = subscription
             self.cache_timeout = cache_timout
             self.ack_deadline: float = float('inf')
-            self.last_refresh: float = 0
+            self.last_refresh: float = float('-inf')
 
         async def get(self) -> float:
-            if self.ack_deadline == float('inf') or self.cache_outdated():
+            if self.cache_outdated():
                 await self.refresh()
             return self.ack_deadline
 

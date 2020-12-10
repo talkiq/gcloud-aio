@@ -67,27 +67,20 @@ else:
             subscriber_client, 'fake_subscription', 1)
         assert cache.cache_timeout == 1
         assert cache.ack_deadline == float('inf')
-        assert cache.last_refresh == 0
+        assert cache.last_refresh == float('-inf')
 
     @pytest.mark.asyncio
-    async def test_ack_deadline_cache_cache_outdated(subscriber_client):
+    async def test_ack_deadline_cache_cache_outdated_false(subscriber_client):
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1000)
         cache.last_refresh = time.perf_counter()
         assert not cache.cache_outdated()
 
     @pytest.mark.asyncio
-    async def test_ack_deadline_cache_cache_outdated_false(subscriber_client):
-        cache = AckDeadlineCache(
-            subscriber_client, 'fake_subscription', 0)
-        cache.last_refresh = time.perf_counter()
-        assert cache.cache_outdated()
-
-    @pytest.mark.asyncio
     async def test_ack_deadline_cache_cache_outdated_true(subscriber_client):
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 0)
-        cache.ack_deadline = time.perf_counter()
+        cache.last_refresh = time.perf_counter()
         assert cache.cache_outdated()
 
     @pytest.mark.asyncio
@@ -106,8 +99,10 @@ else:
     async def test_ack_deadline_cache_refresh_is_cool_about_failures(
         subscriber_client
     ):
+        f = asyncio.Future()
+        f.set_exception(RuntimeError)
         subscriber_client.get_subscription = MagicMock(
-            side_effect=RuntimeError)
+            return_value=f)
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1)
         cache.ack_deadline = 55.0
@@ -136,6 +131,16 @@ else:
         subscriber_client.get_subscription.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_ack_deadline_cache_get_no_call_first_time_if_not_outdated(
+        subscriber_client
+    ):
+        cache = AckDeadlineCache(
+            subscriber_client, 'fake_subscription', 1000)
+        cache.last_refresh = time.perf_counter()
+        assert await cache.get() == float('inf')
+        subscriber_client.get_subscription.assert_not_called()
+
+    @pytest.mark.asyncio
     async def test_ack_deadline_cache_get_refreshes_if_outdated(
             subscriber_client):
         cache = AckDeadlineCache(
@@ -147,8 +152,10 @@ else:
 
     @pytest.mark.asyncio
     async def test_ack_deadline_cache_first_get_failed(subscriber_client):
+        f = asyncio.Future()
+        f.set_exception(RuntimeError)
         subscriber_client.get_subscription = MagicMock(
-            side_effect=RuntimeError)
+            return_value=f)
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 10)
         assert await cache.get() == float('inf')
