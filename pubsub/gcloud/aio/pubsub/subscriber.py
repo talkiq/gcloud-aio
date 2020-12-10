@@ -63,6 +63,7 @@ else:
         ack_ids: List[str] = []
         while True:
             time_budget = ack_window
+            ack_ids = ack_ids[-1000:]
             if not ack_ids:
                 ack_ids.append(await ack_queue.get())
                 ack_queue.task_done()
