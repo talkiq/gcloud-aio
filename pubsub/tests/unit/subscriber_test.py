@@ -409,12 +409,12 @@ else:
             subscribe(
                 'fake_subscription',
                 application_callback,
+                subscriber_client,
                 num_workers=1,
                 max_messages=100,
                 ack_window=0.0,
                 ack_deadline_cache_timeout=1000,
                 consumer_pool_size=1,
-                subscriber_client=subscriber_client
             )
         )
         await asyncio.sleep(0.1)
