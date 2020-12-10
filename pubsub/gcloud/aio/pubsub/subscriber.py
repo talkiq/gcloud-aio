@@ -63,7 +63,6 @@ else:
         ack_ids: List[str] = []
         while True:
             time_budget = ack_window
-            ack_ids = ack_ids[-1000:]
             if not ack_ids:
                 ack_ids.append(await ack_queue.get())
                 ack_queue.task_done()
@@ -79,6 +78,9 @@ else:
                     break
                 time_budget -= (time.perf_counter() - start)
 
+            # acknowledge endpoint limit is 524288 bytes
+            # which is ~2744 ack_ids
+            ack_ids = ack_ids[-2500:]
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
