@@ -169,26 +169,25 @@ else:
 
     async def subscribe(subscription: str,  # pylint: disable=too-many-locals
                         handler: ApplicationHandler,
+                        subscriber_client: SubscriberClient,
                         *,
                         num_workers: int = 1,
                         max_messages: int = 100,
                         ack_window: float = 0.3,
                         ack_deadline_cache_timeout: int = 10,
                         consumer_pool_size: int = 1,
-                        subscriber_client: Optional[SubscriberClient] = None,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
             maxsize=(max_messages * num_workers))
-        subscriber = subscriber_client or SubscriberClient()
-        ack_deadline_cache = AckDeadlineCache(subscriber,
+        ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
         metrics_client = metrics_client or MetricsAgent()
         tasks = []
         try:
             tasks.append(asyncio.ensure_future(
-                acker(subscription, ack_queue, subscriber,
+                acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
             for _ in range(num_workers):
@@ -205,7 +204,7 @@ else:
                 tasks.append(asyncio.ensure_future(
                     producer(subscription,
                              q,
-                             subscriber,
+                             subscriber_client,
                              max_messages=max_messages,
                              metrics_client=metrics_client)
                 ))
