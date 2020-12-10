@@ -36,7 +36,7 @@ Here's the rough usage pattern for using ``SubscriberClient``:
         'projects/<project_name>/topics/<topic_name>')
 
     # pull messages
-    await client.pull(
+    messages: List[SubscriberMessage] = await client.pull(
         'projects/<project_name>/subscriptions/<subscription_name>',
         max_messages=10)
 
