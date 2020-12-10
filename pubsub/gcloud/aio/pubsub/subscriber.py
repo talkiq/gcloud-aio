@@ -93,8 +93,7 @@ else:
 
             ack_ids = []
 
-    async def _execute_callback(semaphore: asyncio.Semaphore,
-                                message: SubscriberMessage,
+    async def _execute_callback(message: SubscriberMessage,
                                 callback: ApplicationHandler,
                                 ack_queue: 'asyncio.Queue[str]',
                                 metrics_client: MetricsAgent
@@ -109,8 +108,6 @@ else:
         except Exception:
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
-        finally:
-            semaphore.release()
 
     async def consumer(
             message_queue: MessageQueue,
@@ -138,13 +135,13 @@ else:
                 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 time.time() - message.publish_time.timestamp())
 
-            asyncio.ensure_future(_execute_callback(
-                semaphore,
+            task = asyncio.ensure_future(_execute_callback(
                 message,
                 callback,
                 ack_queue,
                 metrics_client,
             ))
+            task.add_done_callback(lambda _f: semaphore.release())
             message_queue.task_done()
 
     async def producer(
