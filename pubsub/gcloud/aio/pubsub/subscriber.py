@@ -93,12 +93,12 @@ else:
 
             ack_ids = []
 
-    async def _fire_callback(semaphore: asyncio.Semaphore,
-                             message: SubscriberMessage,
-                             callback: ApplicationHandler,
-                             ack_queue: 'asyncio.Queue[str]',
-                             metrics_client: MetricsAgent
-                             ) -> None:
+    async def _execute_callback(semaphore: asyncio.Semaphore,
+                                message: SubscriberMessage,
+                                callback: ApplicationHandler,
+                                ack_queue: 'asyncio.Queue[str]',
+                                metrics_client: MetricsAgent
+                                ) -> None:
         try:
             start = time.perf_counter()
             await callback(message)
@@ -138,7 +138,7 @@ else:
                 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 time.time() - message.publish_time.timestamp())
 
-            asyncio.ensure_future(_fire_callback(
+            asyncio.ensure_future(_execute_callback(
                 semaphore,
                 message,
                 callback,
