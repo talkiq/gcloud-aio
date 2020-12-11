@@ -87,6 +87,7 @@ else:
             except Exception as e:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
+                metrics_client.increment('pubsub.acker.batch.failed')
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
