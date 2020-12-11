@@ -166,8 +166,6 @@ else:
             metrics_client.histogram(
                 'pubsub.producer.batch', len(new_messages))
 
-            await message_queue.join()
-
     async def subscribe(subscription: str,  # pylint: disable=too-many-locals
                         handler: ApplicationHandler,
                         subscriber_client: SubscriberClient,
