@@ -193,19 +193,13 @@ class Datastore:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout)
-        response_body: Dict[str, Any] = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
-        commit_results = {
+        return {
             'mutationResults': [self.mutation_result_kind.from_repr(r)
-                                for r in response_body.get('mutationResults',
-                                                           [])
-                                ],
+                                for r in data.get('mutationResults', [])],
+            'indexUpdates': data.get('indexUpdates', 0),
         }
-
-        if 'indexUpdates' in response_body:
-            commit_results['indexUpdates'] = response_body['indexUpdates']
-
-        return commit_results
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(self, output_bucket_prefix: str,
