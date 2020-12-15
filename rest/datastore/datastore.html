@@ -210,7 +210,6 @@ class Datastore(object):
         transaction      = data[&#39;transaction&#39;]
         return transaction
 
-    # TODO: return mutation results
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     def commit(self, mutations                      ,
                      transaction                = None,
@@ -238,7 +237,7 @@ class Datastore(object):
         return {
             &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
                                 for r in data.get(&#39;mutationResults&#39;, [])],
-            &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+            &#39;indexUpdates&#39;: data.get(&#39;indexUpdates&#39;, 0),
         }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
@@ -589,7 +588,6 @@ class Datastore(object):
         transaction      = data[&#39;transaction&#39;]
         return transaction
 
-    # TODO: return mutation results
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     def commit(self, mutations                      ,
                      transaction                = None,
@@ -617,7 +615,7 @@ class Datastore(object):
         return {
             &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
                                 for r in data.get(&#39;mutationResults&#39;, [])],
-            &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+            &#39;indexUpdates&#39;: data.get(&#39;indexUpdates&#39;, 0),
         }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
@@ -986,7 +984,7 @@ def make_mutation(
     return {
         &#39;mutationResults&#39;: [self.mutation_result_kind.from_repr(r)
                             for r in data.get(&#39;mutationResults&#39;, [])],
-        &#39;indexUpdates&#39;: data[&#39;indexUpdates&#39;],
+        &#39;indexUpdates&#39;: data.get(&#39;indexUpdates&#39;, 0),
     }</code></pre>
 </details>
 </dd>
