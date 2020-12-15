@@ -171,7 +171,6 @@ class Datastore:
         transaction: str = data['transaction']
         return transaction
 
-    # TODO: return mutation results
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     async def commit(self, mutations: List[Dict[str, Any]],
                      transaction: Optional[str] = None,
@@ -199,7 +198,7 @@ class Datastore:
         return {
             'mutationResults': [self.mutation_result_kind.from_repr(r)
                                 for r in data.get('mutationResults', [])],
-            'indexUpdates': data['indexUpdates'],
+            'indexUpdates': data.get('indexUpdates', 0),
         }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
