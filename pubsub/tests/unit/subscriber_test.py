@@ -31,9 +31,10 @@ else:
         f.set_result({'ackDeadlineSeconds': 42})
         mock.get_subscription = MagicMock(return_value=f)
 
-        f = asyncio.Future()
-        f.set_result([message])
-        mock.pull = MagicMock(return_value=f)
+        async def pull(*_args, **_kwargs):
+            await asyncio.sleep(0)
+            return [message]
+        mock.pull = MagicMock(side_effect=pull)
 
         f = asyncio.Future()
         f.set_result(None)
@@ -203,25 +204,6 @@ else:
         await asyncio.sleep(0)
         producer_task.cancel()
         assert queue.qsize() == 0
-
-    @pytest.mark.asyncio
-    async def test_producer_fetches_once_then_blocks(subscriber_client):
-        queue = asyncio.Queue()
-        producer_task = asyncio.ensure_future(
-            producer(
-                'fake_subscription',
-                queue,
-                subscriber_client,
-                max_messages=1,
-                metrics_client=MagicMock()
-            )
-        )
-        await asyncio.sleep(0)
-        await asyncio.wait_for(queue.get(), 1)
-        queue.task_done()
-        await asyncio.sleep(0)
-        producer_task.cancel()
-        assert queue.qsize() == 1
 
     # ========
     # consumer
@@ -417,7 +399,7 @@ else:
                 'fake_subscription',
                 application_callback,
                 subscriber_client,
-                num_workers=1,
+                producer_workers=1,
                 max_messages=100,
                 ack_window=0.0,
                 ack_deadline_cache_timeout=1000,

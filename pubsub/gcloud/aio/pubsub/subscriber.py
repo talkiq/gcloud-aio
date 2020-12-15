@@ -127,7 +127,6 @@ else:
             if (time.perf_counter() - pulled_at) >= ack_deadline:
                 metrics_client.increment('pubsub.consumer.failfast')
                 message_queue.task_done()
-                semaphore.release()
                 continue
 
             metrics_client.histogram(
@@ -170,7 +169,7 @@ else:
                         handler: ApplicationHandler,
                         subscriber_client: SubscriberClient,
                         *,
-                        num_workers: int = 1,
+                        producer_workers: int = 1,
                         max_messages: int = 100,
                         ack_window: float = 0.3,
                         ack_deadline_cache_timeout: int = 10,
@@ -178,7 +177,10 @@ else:
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
-            maxsize=(max_messages * num_workers))
+            maxsize=(max_messages * producer_workers))
+        message_queue: MessageQueue = asyncio.Queue(
+            maxsize=(max_messages * producer_workers)
+        )
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
@@ -189,20 +191,18 @@ else:
                 acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
-            for _ in range(num_workers):
-                q: MessageQueue = asyncio.Queue(
-                    maxsize=max_messages)
-                tasks.append(asyncio.ensure_future(
-                    consumer(q,
-                             handler,
-                             ack_queue,
-                             ack_deadline_cache,
-                             consumer_pool_size,
-                             metrics_client=metrics_client)
-                ))
+            tasks.append(asyncio.ensure_future(
+                consumer(message_queue,
+                         handler,
+                         ack_queue,
+                         ack_deadline_cache,
+                         consumer_pool_size,
+                         metrics_client=metrics_client)
+            ))
+            for _ in range(producer_workers):
                 tasks.append(asyncio.ensure_future(
                     producer(subscription,
-                             q,
+                             message_queue,
                              subscriber_client,
                              max_messages=max_messages,
                              metrics_client=metrics_client)
