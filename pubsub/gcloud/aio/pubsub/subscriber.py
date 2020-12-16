@@ -80,7 +80,11 @@ else:
 
             # acknowledge endpoint limit is 524288 bytes
             # which is ~2744 ack_ids
-            ack_ids = ack_ids[-2500:]
+            if len(ack_ids) > 2500:
+                log.error(
+                    'acker is falling behind, dropping %d unacked messages',
+                    len(ack_ids) - 2500)
+                ack_ids = ack_ids[-2500:]
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
