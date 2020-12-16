@@ -115,11 +115,8 @@ else:
             callback: ApplicationHandler,
             ack_queue: 'asyncio.Queue[str]',
             ack_deadline_cache: AckDeadlineCache,
-            consumer_pool_size: int,
             metrics_client: MetricsAgent) -> None:
-        semaphore = asyncio.Semaphore(consumer_pool_size)
         while True:
-            await semaphore.acquire()
 
             message, pulled_at = await message_queue.get()
 
@@ -127,7 +124,6 @@ else:
             if (time.perf_counter() - pulled_at) >= ack_deadline:
                 metrics_client.increment('pubsub.consumer.failfast')
                 message_queue.task_done()
-                semaphore.release()
                 continue
 
             metrics_client.histogram(
@@ -136,13 +132,17 @@ else:
                 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 time.time() - message.publish_time.timestamp())
 
-            task = asyncio.ensure_future(_execute_callback(
-                message,
-                callback,
-                ack_queue,
-                metrics_client,
-            ))
-            task.add_done_callback(lambda _f: semaphore.release())
+            try:
+                start = time.perf_counter()
+                await callback(message)
+                await ack_queue.put(message.ack_id)
+                metrics_client.increment('pubsub.consumer.succeeded')
+                metrics_client.histogram('pubsub.consumer.latency.runtime',
+                                         time.perf_counter() - start)
+            except Exception:
+                log.exception('Application callback raised an exception')
+                metrics_client.increment('pubsub.consumer.failed')
+
             message_queue.task_done()
 
     async def producer(
@@ -172,15 +172,15 @@ else:
                         handler: ApplicationHandler,
                         subscriber_client: SubscriberClient,
                         *,
-                        num_workers: int = 1,
+                        producer_workers: int = 1,
                         max_messages: int = 100,
                         ack_window: float = 0.3,
                         ack_deadline_cache_timeout: int = 10,
-                        consumer_pool_size: int = 1,
+                        consumers_per_producer: int = 1,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
-            maxsize=(max_messages * num_workers))
+            maxsize=(max_messages * producer_workers))
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
@@ -191,17 +191,18 @@ else:
                 acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
-            for _ in range(num_workers):
+            for _ in range(producer_workers):
                 q: MessageQueue = asyncio.Queue(
                     maxsize=max_messages)
-                tasks.append(asyncio.ensure_future(
-                    consumer(q,
-                             handler,
-                             ack_queue,
-                             ack_deadline_cache,
-                             consumer_pool_size,
-                             metrics_client=metrics_client)
-                ))
+                for _ in range(consumers_per_producer):
+                    tasks.append(asyncio.ensure_future(
+                        consumer(q,
+                                 handler,
+                                 ack_queue,
+                                 ack_deadline_cache,
+                                 metrics_client=metrics_client)
+                    ))
+
                 tasks.append(asyncio.ensure_future(
                     producer(subscription,
                              q,
