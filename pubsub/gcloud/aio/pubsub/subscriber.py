@@ -154,8 +154,7 @@ else:
             message_queue: MessageQueue,
             subscriber_client: 'SubscriberClient',
             max_messages: int,
-            metrics_client: MetricsAgent
-    ) -> None:
+            metrics_client: MetricsAgent) -> None:
         while True:
             try:
                 new_messages = await subscriber_client.pull(
