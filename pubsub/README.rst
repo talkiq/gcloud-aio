@@ -19,10 +19,8 @@ Usage
 Subscriber
 ~~~~~~~~~~
 
-At the moment, ``gcloud-{aio,rest}-pubsub`` only provides a set of handles
-to call Pubsub REST API.
-
-Here's the rough usage pattern for using ``SubscriberClient``:
+``gcloud-{aio,rest}-pubsub`` provides ``SubscriberClient``
+as an interface to call pubsub's HTTP API:
 
 .. code-block:: python
 
@@ -39,6 +37,88 @@ Here's the rough usage pattern for using ``SubscriberClient``:
     messages: List[SubscriberMessage] = await client.pull(
         'projects/<project_name>/subscriptions/<subscription_name>',
         max_messages=10)
+
+
+There's also ``gcloud.aio.pubsub.subscribe`` helper function you can use to
+setup a pubsub processing pipeline. It is built with ``asyncio`` and thus only available
+in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
+
+.. code-block:: python
+
+    from gcloud.aio.pubsub import SubscriberClient
+    from gcloud.aio.pubsub import subscribe
+    from gcloud.aio.pubsub.metrics_agent import MetricsAgent
+
+    subscriber_client = SubscriberClient()
+
+    async def handler(message):
+        return
+
+    await subscribe(
+        'projects/<my_project>/subscriptions/<my_subscription>',
+        handler,
+        subscriber_client,
+        num_workers=1,
+        max_messages=100,
+        ack_window=0.3,
+        consumer_pool_size=1,
+        metrics_client=MetricsAgent()
+    )
+
+While defaults are somewhat sensinble, it is highly recommended to performance test
+your application and tweak function parameter to your specific needs. Here's a few hints:
+
+:``handler``:
+    an async function that will be called for each message. It should accept an instance of
+    ``SubscriberMessage`` as its only argument and return ``None`` if the message should
+    be acked.
+
+:``num_workers``:
+    number of workers that will be making ``pull`` requests to pubsub.
+    Please note that a worker will only fetch new batch once the ``handler``
+    was called for each message from the previous batch. This means that running only a single worker
+    will most likely make your application IO bound. If you notice this being an issue don't hesitate
+    to bump this parameter.
+
+:``max_messages``:
+    number of pubsub messages a worker will try to fetch in a single batch. This
+    value is passed to ``pull`` `endpoint`_ as ``maxMessages`` parameter. A rule of thumb here is
+    the faster your handler is the bigger this value should be.
+
+:``ack_window``:
+    ack requests are handled separately and are done in batches. This parameters
+    specifies how often ack requests will be made. Setting it to ``0.0`` will effectively
+    disable batching.
+
+:``consumer_pool_size``:
+    how many ``handle`` calls a worker can make until it blocks
+    to wait for them to return. If you process messages independetly from each other you should
+    be good with the default value of ``1``. If you do something fancy (e.g. aggregate messages
+    before processing them), you'll want a higher pool here. You can think of
+    ``num_workers * consumer_pool_size`` as an upper limit of how many messages can possibly
+    be within your application state at any given moment.
+
+
+``subscribe`` has also an optional ``metrics_client`` argument. You can provide any metrics
+agent that implements the same interface as ``MetricsAgent`` (Datadog client will do 😉)
+and get the following metrics:
+
+- ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from pubsub.
+
+- ``pubsub.consumer.failfast`` - [increment] a message was dropped due to its lease being expired.
+
+- ``pubsub.consumer.latency.receive`` - [histogram] how many seconds it took for a message to reach
+  handler after it was published.
+
+- ``pubsub.consumer.succeeded`` - [increment] ``handler`` call was successfull.
+
+- ``pubsub.consumer.failed`` - [increment] ``handler`` call raised an exception.
+
+- ``pubsub.consumer.latency.runtime`` - [histogram] ``handler`` execution time in seconds.
+
+- ``pubsub.acker.batch.failed`` - [increment] ack request failed.
+
+- ``pubsub.acker.batch`` - [histogram] actual number of messages that was acked in a single request.
 
 
 Publisher
@@ -117,3 +197,5 @@ Please see our `contributing guide`_.
 .. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-pubsub.svg?style=flat-square&label=python (rest)
     :alt: Python Version Support (gcloud-rest-pubsub)
     :target: https://pypi.org/project/gcloud-rest-pubsub/
+
+.. _endpoint: https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body
