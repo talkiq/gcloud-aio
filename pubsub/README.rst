@@ -100,7 +100,7 @@ your application and tweak function parameter to your specific needs. Here's a f
 
 
 ``subscribe`` has also an optional ``metrics_client`` argument. You can provide any metrics
-agent that implements the same interface as ``MetricsAgent`` (Datadog client will do 😉)
+agent that implements the same interface as ``MetricsAgent`` (Datadog client will do ;) )
 and get the following metrics:
 
 - ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from pubsub.
