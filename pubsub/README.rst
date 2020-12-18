@@ -58,14 +58,14 @@ in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
         'projects/<my_project>/subscriptions/<my_subscription>',
         handler,
         subscriber_client,
-        num_workers=1,
-        max_messages=100,
+        num_producers=1,
+        max_messages_per_producer=100,
         ack_window=0.3,
-        consumer_pool_size=1,
+        num_tasks_per_consumer=1,
         metrics_client=MetricsAgent()
     )
 
-While defaults are somewhat sensinble, it is highly recommended to performance test
+While defaults are somewhat sensible, it is highly recommended to performance test
 your application and tweak function parameter to your specific needs. Here's a few hints:
 
 :``handler``:
@@ -73,14 +73,14 @@ your application and tweak function parameter to your specific needs. Here's a f
     ``SubscriberMessage`` as its only argument and return ``None`` if the message should
     be acked.
 
-:``num_workers``:
+:``num_producers``:
     number of workers that will be making ``pull`` requests to pubsub.
     Please note that a worker will only fetch new batch once the ``handler``
     was called for each message from the previous batch. This means that running only a single worker
     will most likely make your application IO bound. If you notice this being an issue don't hesitate
     to bump this parameter.
 
-:``max_messages``:
+:``max_messages_per_producer``:
     number of pubsub messages a worker will try to fetch in a single batch. This
     value is passed to ``pull`` `endpoint`_ as ``maxMessages`` parameter. A rule of thumb here is
     the faster your handler is the bigger this value should be.
@@ -90,12 +90,12 @@ your application and tweak function parameter to your specific needs. Here's a f
     specifies how often ack requests will be made. Setting it to ``0.0`` will effectively
     disable batching.
 
-:``consumer_pool_size``:
+:``num_tasks_per_consumer``:
     how many ``handle`` calls a worker can make until it blocks
     to wait for them to return. If you process messages independetly from each other you should
     be good with the default value of ``1``. If you do something fancy (e.g. aggregate messages
     before processing them), you'll want a higher pool here. You can think of
-    ``num_workers * consumer_pool_size`` as an upper limit of how many messages can possibly
+    ``num_producers * num_tasks_per_consumer`` as an upper limit of how many messages can possibly
     be within your application state at any given moment.
 
 

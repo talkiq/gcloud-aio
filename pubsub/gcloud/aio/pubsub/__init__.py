@@ -7,11 +7,9 @@ from gcloud.aio.pubsub.subscriber_client import SubscriberClient
 from gcloud.aio.pubsub.utils import PubsubMessage
 from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
 
-if BUILD_GCLOUD_REST:
-    __all__ = ['__version__', 'PublisherClient', 'PubsubMessage',
-               'SubscriberClient', 'SubscriberMessage']
-else:
-    from gcloud.aio.pubsub.subscriber import subscribe
+__all__ = ['__version__', 'PublisherClient', 'PubsubMessage',
+           'SubscriberClient', 'SubscriberMessage']
 
-    __all__ = ['__version__', 'PublisherClient', 'PubsubMessage',
-               'SubscriberClient', 'SubscriberMessage', 'subscribe']
+if not BUILD_GCLOUD_REST:
+    from gcloud.aio.pubsub.subscriber import subscribe
+    __all__.append('subscribe')

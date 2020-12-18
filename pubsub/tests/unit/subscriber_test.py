@@ -455,11 +455,11 @@ else:
                 'fake_subscription',
                 application_callback,
                 subscriber_client,
-                num_workers=1,
-                max_messages=100,
+                num_producers=1,
+                max_messages_per_producer=100,
                 ack_window=0.0,
                 ack_deadline_cache_timeout=1000,
-                consumer_pool_size=1,
+                num_tasks_per_consumer=1,
             )
         )
         await asyncio.sleep(0.1)

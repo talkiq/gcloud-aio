@@ -119,9 +119,9 @@ else:
             callback: ApplicationHandler,
             ack_queue: 'asyncio.Queue[str]',
             ack_deadline_cache: AckDeadlineCache,
-            consumer_pool_size: int,
+            max_tasks: int,
             metrics_client: MetricsAgent) -> None:
-        semaphore = asyncio.Semaphore(consumer_pool_size)
+        semaphore = asyncio.Semaphore(max_tasks)
         while True:
             await semaphore.acquire()
 
@@ -175,15 +175,15 @@ else:
                         handler: ApplicationHandler,
                         subscriber_client: SubscriberClient,
                         *,
-                        num_workers: int = 1,
-                        max_messages: int = 100,
+                        num_producers: int = 1,
+                        max_messages_per_producer: int = 100,
                         ack_window: float = 0.3,
                         ack_deadline_cache_timeout: int = 10,
-                        consumer_pool_size: int = 1,
+                        num_tasks_per_consumer: int = 1,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
-            maxsize=(max_messages * num_workers))
+            maxsize=(max_messages_per_producer * num_producers))
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
@@ -194,22 +194,22 @@ else:
                 acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
-            for _ in range(num_workers):
+            for _ in range(num_producers):
                 q: MessageQueue = asyncio.Queue(
-                    maxsize=max_messages)
+                    maxsize=max_messages_per_producer)
                 tasks.append(asyncio.ensure_future(
                     consumer(q,
                              handler,
                              ack_queue,
                              ack_deadline_cache,
-                             consumer_pool_size,
+                             num_tasks_per_consumer,
                              metrics_client=metrics_client)
                 ))
                 tasks.append(asyncio.ensure_future(
                     producer(subscription,
                              q,
                              subscriber_client,
-                             max_messages=max_messages,
+                             max_messages=max_messages_per_producer,
                              metrics_client=metrics_client)
                 ))
 
