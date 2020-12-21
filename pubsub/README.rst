@@ -92,7 +92,7 @@ your application and tweak function parameter to your specific needs. Here's a f
 
 :``num_tasks_per_consumer``:
     how many ``handle`` calls a worker can make until it blocks
-    to wait for them to return. If you process messages independetly from each other you should
+    to wait for them to return. If you process messages independently from each other you should
     be good with the default value of ``1``. If you do something fancy (e.g. aggregate messages
     before processing them), you'll want a higher pool here. You can think of
     ``num_producers * num_tasks_per_consumer`` as an upper limit of how many messages can possibly
