@@ -178,7 +178,7 @@ else:
                         num_producers: int = 1,
                         max_messages_per_producer: int = 100,
                         ack_window: float = 0.3,
-                        ack_deadline_cache_timeout: int = 10,
+                        ack_deadline_cache_timeout: int = 60,
                         num_tasks_per_consumer: int = 1,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
