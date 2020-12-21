@@ -40,8 +40,8 @@ as an interface to call pubsub's HTTP API:
 
 
 There's also ``gcloud.aio.pubsub.subscribe`` helper function you can use to
-setup a pubsub processing pipeline. It is built with ``asyncio`` and thus only available
-in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
+setup a pubsub processing pipeline. It is built with ``asyncio`` and thus only
+available in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
 
 .. code-block:: python
 
@@ -65,60 +65,68 @@ in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
         metrics_client=MetricsAgent()
     )
 
-While defaults are somewhat sensible, it is highly recommended to performance test
-your application and tweak function parameter to your specific needs. Here's a few hints:
+While defaults are somewhat sensible, it is highly recommended to performance
+test your application and tweak function parameter to your specific needs.
+Here's a few hints:
 
 :``handler``:
-    an async function that will be called for each message. It should accept an instance of
-    ``SubscriberMessage`` as its only argument and return ``None`` if the message should
-    be acked.
+    an async function that will be called for each message. It should accept an
+    instance of ``SubscriberMessage`` as its only argument and return ``None``
+    if the message should be acked. An exception raised within the handler will
+    result in the message being left to expire, and thus it will be redelivered
+    according to your subscription's ack deadline.
 
 :``num_producers``:
-    number of workers that will be making ``pull`` requests to pubsub.
-    Please note that a worker will only fetch new batch once the ``handler``
-    was called for each message from the previous batch. This means that running only a single worker
-    will most likely make your application IO bound. If you notice this being an issue don't hesitate
-    to bump this parameter.
+    number of workers that will be making ``pull`` requests to pubsub. Please
+    note that a worker will only fetch new batch once the ``handler`` was called
+    for each message from the previous batch. This means that running only a
+    single worker will most likely make your application IO bound. If you notice
+    this being an issue don't hesitate to bump this parameter.
 
 :``max_messages_per_producer``:
     number of pubsub messages a worker will try to fetch in a single batch. This
-    value is passed to ``pull`` `endpoint`_ as ``maxMessages`` parameter. A rule of thumb here is
-    the faster your handler is the bigger this value should be.
+    value is passed to ``pull`` `endpoint`_ as ``maxMessages`` parameter. A rule
+    of thumb here is the faster your handler is the bigger this value should be.
 
 :``ack_window``:
     ack requests are handled separately and are done in batches. This parameters
-    specifies how often ack requests will be made. Setting it to ``0.0`` will effectively
-    disable batching.
+    specifies how often ack requests will be made. Setting it to ``0.0`` will
+    effectively disable batching.
 
 :``num_tasks_per_consumer``:
-    how many ``handle`` calls a worker can make until it blocks
-    to wait for them to return. If you process messages independently from each other you should
-    be good with the default value of ``1``. If you do something fancy (e.g. aggregate messages
-    before processing them), you'll want a higher pool here. You can think of
-    ``num_producers * num_tasks_per_consumer`` as an upper limit of how many messages can possibly
-    be within your application state at any given moment.
+    how many ``handle`` calls a worker can make until it blocks to wait for them
+    to return. If you process messages independently from each other you should
+    be good with the default value of ``1``. If you do something fancy (e.g.
+    aggregate messages before processing them), you'll want a higher pool here.
+    You can think of ``num_producers * num_tasks_per_consumer`` as an upper
+    limit of how many messages can possibly be within your application state at
+    any given moment.
 
 
-``subscribe`` has also an optional ``metrics_client`` argument. You can provide any metrics
-agent that implements the same interface as ``MetricsAgent`` (Datadog client will do ;) )
-and get the following metrics:
+``subscribe`` has also an optional ``metrics_client`` argument. You can provide
+any metrics agent that implements the same interface as ``MetricsAgent``
+(Datadog client will do ;) ) and get the following metrics:
 
-- ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from pubsub.
+- ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from
+  pubsub.
 
-- ``pubsub.consumer.failfast`` - [increment] a message was dropped due to its lease being expired.
+- ``pubsub.consumer.failfast`` - [increment] a message was dropped due to its
+  lease being expired.
 
-- ``pubsub.consumer.latency.receive`` - [histogram] how many seconds it took for a message to reach
-  handler after it was published.
+- ``pubsub.consumer.latency.receive`` - [histogram] how many seconds it took for
+  a message to reach handler after it was published.
 
 - ``pubsub.consumer.succeeded`` - [increment] ``handler`` call was successfull.
 
 - ``pubsub.consumer.failed`` - [increment] ``handler`` call raised an exception.
 
-- ``pubsub.consumer.latency.runtime`` - [histogram] ``handler`` execution time in seconds.
+- ``pubsub.consumer.latency.runtime`` - [histogram] ``handler`` execution time
+  in seconds.
 
 - ``pubsub.acker.batch.failed`` - [increment] ack request failed.
 
-- ``pubsub.acker.batch`` - [histogram] actual number of messages that was acked in a single request.
+- ``pubsub.acker.batch`` - [histogram] actual number of messages that was acked
+  in a single request.
 
 
 Publisher
