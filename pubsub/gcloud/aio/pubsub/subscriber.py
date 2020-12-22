@@ -159,7 +159,7 @@ else:
             try:
                 new_messages = await subscriber_client.pull(
                     subscription=subscription, max_messages=max_messages)
-            except asyncio.TimeoutError:
+            except (asyncio.TimeoutError, KeyError):
                 continue
 
             pulled_at = time.perf_counter()

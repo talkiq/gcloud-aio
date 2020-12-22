@@ -211,6 +211,33 @@ else:
         producer_task.cancel()
 
     @pytest.mark.asyncio
+    async def test_producer_key_error_is_ok(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise KeyError
+
+        subscriber_client.pull = f
+        queue = asyncio.Queue()
+        producer_task = asyncio.ensure_future(
+            producer(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                max_messages=1,
+                metrics_client=MagicMock()
+            )
+        )
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        mock.assert_called_once()
+        assert queue.qsize() == 0
+        assert not producer_task.done()
+        producer_task.cancel()
+
+    @pytest.mark.asyncio
     async def test_producer_exits_on_exceptions(subscriber_client):
         mock = MagicMock()
 
