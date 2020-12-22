@@ -359,44 +359,6 @@ else:
         assert ack_queue.qsize() == 0
 
     @pytest.mark.asyncio
-    async def test_consumer_tasks_limited_by_pool_size(ack_deadline_cache):
-        queue = asyncio.Queue()
-        ack_queue = asyncio.Queue()
-
-        async def callback(mock):
-            mock()
-            await asyncio.sleep(10)
-
-        mock1 = MagicMock()
-        mock1.ack_id = 'ack_id'
-        mock2 = MagicMock()
-        mock2.ack_id = 'ack_id'
-        mock3 = MagicMock()
-        mock3.ack_id = 'ack_id'
-
-        consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                callback,
-                ack_queue,
-                ack_deadline_cache,
-                2,
-                MagicMock()
-            )
-        )
-        for m in [mock1, mock2, mock3]:
-            await queue.put((m, 0.0))
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        consumer_task.cancel()
-        mock1.assert_called_once()
-        mock2.assert_called_once()
-        mock3.assert_not_called()
-        assert queue.qsize() == 1
-        assert ack_queue.qsize() == 0
-
-    @pytest.mark.asyncio
     async def test_consumer_drops_expired_messages(ack_deadline_cache,
                                                    message,
                                                    application_callback):

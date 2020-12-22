@@ -62,6 +62,8 @@ available in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
         max_messages_per_producer=100,
         ack_window=0.3,
         num_tasks_per_consumer=1,
+        enable_nack=True,
+        nack_window=0.3,
         metrics_client=MetricsAgent()
     )
 
@@ -101,6 +103,14 @@ Here's a few hints:
     You can think of ``num_producers * num_tasks_per_consumer`` as an upper
     limit of how many messages can possibly be within your application state at
     any given moment.
+
+:``enable_nack``:
+    if enabled messages for which ``callback`` raised an exception will be
+    explicitely nacked using ``modifyAckDeadline`` endpoint so they can be
+    retried immediately.
+
+:``nack_windows``:
+    same as ``ack_window`` but for nack requests
 
 
 ``subscribe`` has also an optional ``metrics_client`` argument. You can provide
