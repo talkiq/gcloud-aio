@@ -185,8 +185,38 @@ else:
 
     @pytest.mark.asyncio
     async def test_producer_timeout_error_is_ok(subscriber_client):
-        async def f(*_args, **_kwargs):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
             await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise asyncio.TimeoutError
+
+        subscriber_client.pull = f
+        queue = asyncio.Queue()
+        producer_task = asyncio.ensure_future(
+            producer(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                max_messages=1,
+                metrics_client=MagicMock()
+            )
+        )
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        mock.assert_called_once()
+        assert queue.qsize() == 0
+        assert not producer_task.done()
+        producer_task.cancel()
+
+    @pytest.mark.asyncio
+    async def test_producer_exits_on_exceptions(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
             raise RuntimeError
 
         subscriber_client.pull = f
@@ -201,8 +231,11 @@ else:
             )
         )
         await asyncio.sleep(0)
-        producer_task.cancel()
+        await asyncio.sleep(0)
+        mock.assert_called_once()
         assert queue.qsize() == 0
+        assert producer_task.done()
+        assert producer_task.exception()
 
     @pytest.mark.asyncio
     async def test_producer_fetches_once_then_blocks(subscriber_client):
@@ -371,8 +404,11 @@ else:
 
     @pytest.mark.asyncio
     async def test_acker_handles_exception(subscriber_client):
-        async def f(*_args, **_kwargs):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
             await asyncio.sleep(0)
+            mock(*args, **kwargs)
             raise RuntimeError
         subscriber_client.acknowledge = f
 
@@ -388,8 +424,11 @@ else:
         )
         await queue.put('ack_id')
         await asyncio.sleep(0)
-        acker_task.cancel()
+        await asyncio.sleep(0)
+        mock.assert_called_once()
         assert queue.qsize() == 0
+        assert not acker_task.done()
+        acker_task.cancel()
 
     @pytest.mark.asyncio
     async def test_acker_does_batching(subscriber_client):
