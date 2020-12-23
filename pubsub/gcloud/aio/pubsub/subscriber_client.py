@@ -161,3 +161,18 @@ class SubscriberClient:
         resp = await s.get(url, headers=headers)
         result: Dict[str, Any] = await resp.json()
         return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
+    async def list_subscriptions(self, project: str,
+                                 query_params: Optional[Dict[str, str]] = None,
+                                 *, session: Optional[Session] = None
+                                 ) -> Dict[str, Any]:
+        """
+        List subscriptions
+        """
+        url = f'{API_ROOT}/v1/{project}/subscriptions'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=query_params)
+        result: Dict[str, Any] = await resp.json()
+        return result
