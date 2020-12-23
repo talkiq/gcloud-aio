@@ -106,10 +106,10 @@ Here's a few hints:
 
 :``enable_nack``:
     if enabled messages for which ``callback`` raised an exception will be
-    explicitely nacked using ``modifyAckDeadline`` endpoint so they can be
+    explicitly nacked using ``modifyAckDeadline`` endpoint so they can be
     retried immediately.
 
-:``nack_windows``:
+:``nack_window``:
     same as ``ack_window`` but for nack requests
 
 
