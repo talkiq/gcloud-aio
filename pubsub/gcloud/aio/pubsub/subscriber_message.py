@@ -2,6 +2,7 @@ import base64
 import datetime
 from typing import Any
 from typing import Dict
+from typing import Optional
 
 
 def parse_publish_time(publish_time: str) -> datetime.datetime:
@@ -17,7 +18,7 @@ class SubscriberMessage:
     def __init__(self, ack_id: str, message_id: str,
                  publish_time: 'datetime.datetime',
                  data: bytes,
-                 attributes: Dict[str, Any]):
+                 attributes: Optional[Dict[str, Any]]):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
@@ -30,7 +31,7 @@ class SubscriberMessage:
         ack_id = received_message['ackId']
         message_id = received_message['message']['messageId']
         data = base64.b64decode(received_message['message']['data'])
-        attributes = received_message['message']['attributes']
+        attributes = received_message['message'].get('attributes')
         publish_time: datetime.datetime = parse_publish_time(
             received_message['message']['publishTime'])
         return SubscriberMessage(ack_id=ack_id, message_id=message_id,
