@@ -88,6 +88,8 @@ else:
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
+            except asyncio.CancelledError:
+                raise
             except Exception as e:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
