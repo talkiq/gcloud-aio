@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>gcloud.aio.pubsub.subscriber API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>gcloud.aio.pubsub.subscriber</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from gcloud.aio.auth import BUILD_GCLOUD_REST
+
+if BUILD_GCLOUD_REST:
+    pass
+else:
+    import asyncio
+    import logging
+    import time
+    from typing import Awaitable
+    from typing import Callable
+    from typing import List
+    from typing import Optional
+    from typing import Tuple
+    from typing import TYPE_CHECKING
+
+    from gcloud.aio.pubsub.subscriber_client import SubscriberClient
+    from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
+    from gcloud.aio.pubsub.metrics_agent import MetricsAgent
+
+    log = logging.getLogger(__name__)
+
+    if TYPE_CHECKING:
+        MessageQueue = asyncio.Queue[Tuple[SubscriberMessage,  # pylint: disable=unsubscriptable-object
+                                           float]]
+    else:
+        MessageQueue = asyncio.Queue
+    ApplicationHandler = Callable[[SubscriberMessage], Awaitable[None]]
+
+    class AckDeadlineCache:
+        def __init__(self, subscriber_client: SubscriberClient,
+                     subscription: str, cache_timout: int):
+            self.subscriber_client = subscriber_client
+            self.subscription = subscription
+            self.cache_timeout = cache_timout
+            self.ack_deadline: float = float(&#39;inf&#39;)
+            self.last_refresh: float = float(&#39;-inf&#39;)
+
+        async def get(self) -&gt; float:
+            if self.cache_outdated():
+                await self.refresh()
+            return self.ack_deadline
+
+        async def refresh(self) -&gt; None:
+            try:
+                sub = await self.subscriber_client.get_subscription(
+                    self.subscription)
+                self.ack_deadline = float(sub[&#39;ackDeadlineSeconds&#39;])
+            except Exception as e:
+                log.warning(
+                    &#39;Failed to refresh ackDeadlineSeconds value&#39;, exc_info=e)
+            self.last_refresh = time.perf_counter()
+
+        def cache_outdated(self) -&gt; bool:
+            if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+                return True
+            return False
+
+    async def acker(subscription: str,
+                    ack_queue: &#39;asyncio.Queue[str]&#39;,
+                    subscriber_client: &#39;SubscriberClient&#39;,
+                    ack_window: float,
+                    metrics_client: MetricsAgent) -&gt; None:
+        ack_ids: List[str] = []
+        while True:
+            time_budget = ack_window
+            if not ack_ids:
+                ack_ids.append(await ack_queue.get())
+                ack_queue.task_done()
+
+            while time_budget &gt; 0:
+                start = time.perf_counter()
+                try:
+                    ack_id = await asyncio.wait_for(
+                        ack_queue.get(), timeout=time_budget)
+                    ack_ids.append(ack_id)
+                    ack_queue.task_done()
+                except asyncio.TimeoutError:
+                    break
+                time_budget -= (time.perf_counter() - start)
+
+            # acknowledge endpoint limit is 524288 bytes
+            # which is ~2744 ack_ids
+            if len(ack_ids) &gt; 2500:
+                log.error(
+                    &#39;acker is falling behind, dropping %d unacked messages&#39;,
+                    len(ack_ids) - 2500)
+                ack_ids = ack_ids[-2500:]
+            try:
+                await subscriber_client.acknowledge(subscription,
+                                                    ack_ids=ack_ids)
+            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+                raise
+            except Exception as e:
+                log.warning(
+                    &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+                metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+                continue
+
+            metrics_client.histogram(&#39;pubsub.acker.batch&#39;, len(ack_ids))
+
+            ack_ids = []
+
+    async def _execute_callback(message: SubscriberMessage,
+                                callback: ApplicationHandler,
+                                ack_queue: &#39;asyncio.Queue[str]&#39;,
+                                metrics_client: MetricsAgent
+                                ) -&gt; None:
+        try:
+            start = time.perf_counter()
+            await callback(message)
+            await ack_queue.put(message.ack_id)
+            metrics_client.increment(&#39;pubsub.consumer.succeeded&#39;)
+            metrics_client.histogram(&#39;pubsub.consumer.latency.runtime&#39;,
+                                     time.perf_counter() - start)
+        except Exception:
+            log.exception(&#39;Application callback raised an exception&#39;)
+            metrics_client.increment(&#39;pubsub.consumer.failed&#39;)
+
+    async def consumer(
+            message_queue: MessageQueue,
+            callback: ApplicationHandler,
+            ack_queue: &#39;asyncio.Queue[str]&#39;,
+            ack_deadline_cache: AckDeadlineCache,
+            max_tasks: int,
+            metrics_client: MetricsAgent) -&gt; None:
+        semaphore = asyncio.Semaphore(max_tasks)
+        while True:
+            await semaphore.acquire()
+
+            message, pulled_at = await message_queue.get()
+
+            ack_deadline = await ack_deadline_cache.get()
+            if (time.perf_counter() - pulled_at) &gt;= ack_deadline:
+                metrics_client.increment(&#39;pubsub.consumer.failfast&#39;)
+                message_queue.task_done()
+                semaphore.release()
+                continue
+
+            metrics_client.histogram(
+                &#39;pubsub.consumer.latency.receive&#39;,
+                # publish_time is in UTC Zulu
+                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                time.time() - message.publish_time.timestamp())
+
+            task = asyncio.ensure_future(_execute_callback(
+                message,
+                callback,
+                ack_queue,
+                metrics_client,
+            ))
+            task.add_done_callback(lambda _f: semaphore.release())
+            message_queue.task_done()
+
+    async def producer(
+            subscription: str,
+            message_queue: MessageQueue,
+            subscriber_client: &#39;SubscriberClient&#39;,
+            max_messages: int,
+            metrics_client: MetricsAgent) -&gt; None:
+        while True:
+            try:
+                new_messages = await subscriber_client.pull(
+                    subscription=subscription, max_messages=max_messages)
+            except (asyncio.TimeoutError, KeyError):
+                continue
+
+            pulled_at = time.perf_counter()
+            for m in new_messages:
+                await message_queue.put((m, pulled_at))
+
+            metrics_client.histogram(
+                &#39;pubsub.producer.batch&#39;, len(new_messages))
+
+            await message_queue.join()
+
+    async def subscribe(subscription: str,  # pylint: disable=too-many-locals
+                        handler: ApplicationHandler,
+                        subscriber_client: SubscriberClient,
+                        *,
+                        num_producers: int = 1,
+                        max_messages_per_producer: int = 100,
+                        ack_window: float = 0.3,
+                        ack_deadline_cache_timeout: int = 60,
+                        num_tasks_per_consumer: int = 1,
+                        metrics_client: Optional[MetricsAgent] = None
+                        ) -&gt; None:
+        ack_queue: &#39;asyncio.Queue[str]&#39; = asyncio.Queue(
+            maxsize=(max_messages_per_producer * num_producers))
+        ack_deadline_cache = AckDeadlineCache(subscriber_client,
+                                              subscription,
+                                              ack_deadline_cache_timeout)
+        metrics_client = metrics_client or MetricsAgent()
+        tasks = []
+        try:
+            tasks.append(asyncio.ensure_future(
+                acker(subscription, ack_queue, subscriber_client,
+                      ack_window=ack_window, metrics_client=metrics_client)
+            ))
+            for _ in range(num_producers):
+                q: MessageQueue = asyncio.Queue(
+                    maxsize=max_messages_per_producer)
+                tasks.append(asyncio.ensure_future(
+                    consumer(q,
+                             handler,
+                             ack_queue,
+                             ack_deadline_cache,
+                             num_tasks_per_consumer,
+                             metrics_client=metrics_client)
+                ))
+                tasks.append(asyncio.ensure_future(
+                    producer(subscription,
+                             q,
+                             subscriber_client,
+                             max_messages=max_messages_per_producer,
+                             metrics_client=metrics_client)
+                ))
+
+            done, _ = await asyncio.wait(tasks,
+                                         return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                task.result()
+            raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
+        except Exception:
+            log.exception(&#39;Subscriber exited&#39;)
+            for task in tasks:
+                task.cancel()
+            await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+        raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gcloud.aio.pubsub.subscriber.acker"><code class="name flex">
+<span>async def <span class="ident">acker</span></span>(<span>subscription: str, ack_queue: asyncio.Queue[str], subscriber_client: SubscriberClient, ack_window: float, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def acker(subscription: str,
+                ack_queue: &#39;asyncio.Queue[str]&#39;,
+                subscriber_client: &#39;SubscriberClient&#39;,
+                ack_window: float,
+                metrics_client: MetricsAgent) -&gt; None:
+    ack_ids: List[str] = []
+    while True:
+        time_budget = ack_window
+        if not ack_ids:
+            ack_ids.append(await ack_queue.get())
+            ack_queue.task_done()
+
+        while time_budget &gt; 0:
+            start = time.perf_counter()
+            try:
+                ack_id = await asyncio.wait_for(
+                    ack_queue.get(), timeout=time_budget)
+                ack_ids.append(ack_id)
+                ack_queue.task_done()
+            except asyncio.TimeoutError:
+                break
+            time_budget -= (time.perf_counter() - start)
+
+        # acknowledge endpoint limit is 524288 bytes
+        # which is ~2744 ack_ids
+        if len(ack_ids) &gt; 2500:
+            log.error(
+                &#39;acker is falling behind, dropping %d unacked messages&#39;,
+                len(ack_ids) - 2500)
+            ack_ids = ack_ids[-2500:]
+        try:
+            await subscriber_client.acknowledge(subscription,
+                                                ack_ids=ack_ids)
+        except asyncio.CancelledError:  # pylint: disable=try-except-raise
+            raise
+        except Exception as e:
+            log.warning(
+                &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+            metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+            continue
+
+        metrics_client.histogram(&#39;pubsub.acker.batch&#39;, len(ack_ids))
+
+        ack_ids = []</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.subscriber.consumer"><code class="name flex">
+<span>async def <span class="ident">consumer</span></span>(<span>message_queue: asyncio.queues.Queue, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], ack_queue: asyncio.Queue[str], ack_deadline_cache: <a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache">AckDeadlineCache</a>, max_tasks: int, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def consumer(
+        message_queue: MessageQueue,
+        callback: ApplicationHandler,
+        ack_queue: &#39;asyncio.Queue[str]&#39;,
+        ack_deadline_cache: AckDeadlineCache,
+        max_tasks: int,
+        metrics_client: MetricsAgent) -&gt; None:
+    semaphore = asyncio.Semaphore(max_tasks)
+    while True:
+        await semaphore.acquire()
+
+        message, pulled_at = await message_queue.get()
+
+        ack_deadline = await ack_deadline_cache.get()
+        if (time.perf_counter() - pulled_at) &gt;= ack_deadline:
+            metrics_client.increment(&#39;pubsub.consumer.failfast&#39;)
+            message_queue.task_done()
+            semaphore.release()
+            continue
+
+        metrics_client.histogram(
+            &#39;pubsub.consumer.latency.receive&#39;,
+            # publish_time is in UTC Zulu
+            # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+            time.time() - message.publish_time.timestamp())
+
+        task = asyncio.ensure_future(_execute_callback(
+            message,
+            callback,
+            ack_queue,
+            metrics_client,
+        ))
+        task.add_done_callback(lambda _f: semaphore.release())
+        message_queue.task_done()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.subscriber.producer"><code class="name flex">
+<span>async def <span class="ident">producer</span></span>(<span>subscription: str, message_queue: asyncio.queues.Queue, subscriber_client: SubscriberClient, max_messages: int, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def producer(
+        subscription: str,
+        message_queue: MessageQueue,
+        subscriber_client: &#39;SubscriberClient&#39;,
+        max_messages: int,
+        metrics_client: MetricsAgent) -&gt; None:
+    while True:
+        try:
+            new_messages = await subscriber_client.pull(
+                subscription=subscription, max_messages=max_messages)
+        except (asyncio.TimeoutError, KeyError):
+            continue
+
+        pulled_at = time.perf_counter()
+        for m in new_messages:
+            await message_queue.put((m, pulled_at))
+
+        metrics_client.histogram(
+            &#39;pubsub.producer.batch&#39;, len(new_messages))
+
+        await message_queue.join()</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.subscriber.subscribe"><code class="name flex">
+<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def subscribe(subscription: str,  # pylint: disable=too-many-locals
+                    handler: ApplicationHandler,
+                    subscriber_client: SubscriberClient,
+                    *,
+                    num_producers: int = 1,
+                    max_messages_per_producer: int = 100,
+                    ack_window: float = 0.3,
+                    ack_deadline_cache_timeout: int = 60,
+                    num_tasks_per_consumer: int = 1,
+                    metrics_client: Optional[MetricsAgent] = None
+                    ) -&gt; None:
+    ack_queue: &#39;asyncio.Queue[str]&#39; = asyncio.Queue(
+        maxsize=(max_messages_per_producer * num_producers))
+    ack_deadline_cache = AckDeadlineCache(subscriber_client,
+                                          subscription,
+                                          ack_deadline_cache_timeout)
+    metrics_client = metrics_client or MetricsAgent()
+    tasks = []
+    try:
+        tasks.append(asyncio.ensure_future(
+            acker(subscription, ack_queue, subscriber_client,
+                  ack_window=ack_window, metrics_client=metrics_client)
+        ))
+        for _ in range(num_producers):
+            q: MessageQueue = asyncio.Queue(
+                maxsize=max_messages_per_producer)
+            tasks.append(asyncio.ensure_future(
+                consumer(q,
+                         handler,
+                         ack_queue,
+                         ack_deadline_cache,
+                         num_tasks_per_consumer,
+                         metrics_client=metrics_client)
+            ))
+            tasks.append(asyncio.ensure_future(
+                producer(subscription,
+                         q,
+                         subscriber_client,
+                         max_messages=max_messages_per_producer,
+                         metrics_client=metrics_client)
+            ))
+
+        done, _ = await asyncio.wait(tasks,
+                                     return_when=asyncio.FIRST_COMPLETED)
+        for task in done:
+            task.result()
+        raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
+    except Exception:
+        log.exception(&#39;Subscriber exited&#39;)
+        for task in tasks:
+            task.cancel()
+        await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+    raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache"><code class="flex name class">
+<span>class <span class="ident">AckDeadlineCache</span></span>
+<span>(</span><span>subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, subscription: str, cache_timout: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AckDeadlineCache:
+    def __init__(self, subscriber_client: SubscriberClient,
+                 subscription: str, cache_timout: int):
+        self.subscriber_client = subscriber_client
+        self.subscription = subscription
+        self.cache_timeout = cache_timout
+        self.ack_deadline: float = float(&#39;inf&#39;)
+        self.last_refresh: float = float(&#39;-inf&#39;)
+
+    async def get(self) -&gt; float:
+        if self.cache_outdated():
+            await self.refresh()
+        return self.ack_deadline
+
+    async def refresh(self) -&gt; None:
+        try:
+            sub = await self.subscriber_client.get_subscription(
+                self.subscription)
+            self.ack_deadline = float(sub[&#39;ackDeadlineSeconds&#39;])
+        except Exception as e:
+            log.warning(
+                &#39;Failed to refresh ackDeadlineSeconds value&#39;, exc_info=e)
+        self.last_refresh = time.perf_counter()
+
+    def cache_outdated(self) -&gt; bool:
+        if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+            return True
+        return False</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache.cache_outdated"><code class="name flex">
+<span>def <span class="ident">cache_outdated</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cache_outdated(self) -&gt; bool:
+    if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+        return True
+    return False</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache.get"><code class="name flex">
+<span>async def <span class="ident">get</span></span>(<span>self) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def get(self) -&gt; float:
+    if self.cache_outdated():
+        await self.refresh()
+    return self.ack_deadline</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache.refresh"><code class="name flex">
+<span>async def <span class="ident">refresh</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def refresh(self) -&gt; None:
+    try:
+        sub = await self.subscriber_client.get_subscription(
+            self.subscription)
+        self.ack_deadline = float(sub[&#39;ackDeadlineSeconds&#39;])
+    except Exception as e:
+        log.warning(
+            &#39;Failed to refresh ackDeadlineSeconds value&#39;, exc_info=e)
+    self.last_refresh = time.perf_counter()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="gcloud.aio.pubsub" href="index.html">gcloud.aio.pubsub</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gcloud.aio.pubsub.subscriber.acker" href="#gcloud.aio.pubsub.subscriber.acker">acker</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber.consumer" href="#gcloud.aio.pubsub.subscriber.consumer">consumer</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber.producer" href="#gcloud.aio.pubsub.subscriber.producer">producer</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber.subscribe" href="#gcloud.aio.pubsub.subscriber.subscribe">subscribe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache">AckDeadlineCache</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache.cache_outdated" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache.cache_outdated">cache_outdated</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache.get" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache.get">get</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache.refresh" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache.refresh">refresh</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

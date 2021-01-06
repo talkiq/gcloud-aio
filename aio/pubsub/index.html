@@ -29,20 +29,32 @@
 <pre><code class="python">from pkg_resources import get_distribution
 __version__ = get_distribution(&#39;gcloud-aio-pubsub&#39;).version
 
+from gcloud.aio.auth import BUILD_GCLOUD_REST
 from gcloud.aio.pubsub.publisher_client import PublisherClient
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
 from gcloud.aio.pubsub.utils import PubsubMessage
 from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
 
-
 __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
-           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]</code></pre>
+           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]
+
+if not BUILD_GCLOUD_REST:
+    from gcloud.aio.pubsub.subscriber import subscribe
+    __all__.append(&#39;subscribe&#39;)</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="gcloud.aio.pubsub.metrics_agent" href="metrics_agent.html">gcloud.aio.pubsub.metrics_agent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.aio.pubsub.publisher_client" href="publisher_client.html">gcloud.aio.pubsub.publisher_client</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.aio.pubsub.subscriber" href="subscriber.html">gcloud.aio.pubsub.subscriber</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -63,6 +75,73 @@ __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gcloud.aio.pubsub.subscribe"><code class="name flex">
+<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def subscribe(subscription: str,  # pylint: disable=too-many-locals
+                    handler: ApplicationHandler,
+                    subscriber_client: SubscriberClient,
+                    *,
+                    num_producers: int = 1,
+                    max_messages_per_producer: int = 100,
+                    ack_window: float = 0.3,
+                    ack_deadline_cache_timeout: int = 60,
+                    num_tasks_per_consumer: int = 1,
+                    metrics_client: Optional[MetricsAgent] = None
+                    ) -&gt; None:
+    ack_queue: &#39;asyncio.Queue[str]&#39; = asyncio.Queue(
+        maxsize=(max_messages_per_producer * num_producers))
+    ack_deadline_cache = AckDeadlineCache(subscriber_client,
+                                          subscription,
+                                          ack_deadline_cache_timeout)
+    metrics_client = metrics_client or MetricsAgent()
+    tasks = []
+    try:
+        tasks.append(asyncio.ensure_future(
+            acker(subscription, ack_queue, subscriber_client,
+                  ack_window=ack_window, metrics_client=metrics_client)
+        ))
+        for _ in range(num_producers):
+            q: MessageQueue = asyncio.Queue(
+                maxsize=max_messages_per_producer)
+            tasks.append(asyncio.ensure_future(
+                consumer(q,
+                         handler,
+                         ack_queue,
+                         ack_deadline_cache,
+                         num_tasks_per_consumer,
+                         metrics_client=metrics_client)
+            ))
+            tasks.append(asyncio.ensure_future(
+                producer(subscription,
+                         q,
+                         subscriber_client,
+                         max_messages=max_messages_per_producer,
+                         metrics_client=metrics_client)
+            ))
+
+        done, _ = await asyncio.wait(tasks,
+                                     return_when=asyncio.FIRST_COMPLETED)
+        for task in done:
+            task.result()
+        raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
+    except Exception:
+        log.exception(&#39;Subscriber exited&#39;)
+        for task in tasks:
+            task.cancel()
+        await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+    raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -698,10 +777,17 @@ def from_repr(received_message: Dict[str, Any]
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="gcloud.aio.pubsub.metrics_agent" href="metrics_agent.html">gcloud.aio.pubsub.metrics_agent</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.publisher_client" href="publisher_client.html">gcloud.aio.pubsub.publisher_client</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber" href="subscriber.html">gcloud.aio.pubsub.subscriber</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client" href="subscriber_client.html">gcloud.aio.pubsub.subscriber_client</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_message" href="subscriber_message.html">gcloud.aio.pubsub.subscriber_message</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.utils" href="utils.html">gcloud.aio.pubsub.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gcloud.aio.pubsub.subscribe" href="#gcloud.aio.pubsub.subscribe">subscribe</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

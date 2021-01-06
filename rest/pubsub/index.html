@@ -38,20 +38,32 @@ standard_library.install_aliases()
 from pkg_resources import get_distribution
 __version__ = get_distribution(&#39;gcloud-rest-pubsub&#39;).version
 
+from gcloud.rest.auth import BUILD_GCLOUD_REST
 from gcloud.rest.pubsub.publisher_client import PublisherClient
 from gcloud.rest.pubsub.subscriber_client import SubscriberClient
 from gcloud.rest.pubsub.utils import PubsubMessage
 from gcloud.rest.pubsub.subscriber_message import SubscriberMessage
 
-
 __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
-           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]</code></pre>
+           &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]
+
+if not BUILD_GCLOUD_REST:
+    from gcloud.rest.pubsub.subscriber import subscribe
+    __all__.append(&#39;subscribe&#39;)</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="gcloud.rest.pubsub.metrics_agent" href="metrics_agent.html">gcloud.rest.pubsub.metrics_agent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.rest.pubsub.publisher_client" href="publisher_client.html">gcloud.rest.pubsub.publisher_client</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="gcloud.rest.pubsub.subscriber" href="subscriber.html">gcloud.rest.pubsub.subscriber</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -721,7 +733,9 @@ def from_repr(received_message
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="gcloud.rest.pubsub.metrics_agent" href="metrics_agent.html">gcloud.rest.pubsub.metrics_agent</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.publisher_client" href="publisher_client.html">gcloud.rest.pubsub.publisher_client</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.subscriber" href="subscriber.html">gcloud.rest.pubsub.subscriber</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client" href="subscriber_client.html">gcloud.rest.pubsub.subscriber_client</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_message" href="subscriber_message.html">gcloud.rest.pubsub.subscriber_message</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.utils" href="utils.html">gcloud.rest.pubsub.utils</a></code></li>
