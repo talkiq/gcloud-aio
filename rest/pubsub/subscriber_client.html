@@ -205,6 +205,22 @@ class SubscriberClient(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers)
         result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
+    def list_subscriptions(self, project     ,
+                                 query_params                           = None, **_3to2kwargs
+                                 )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        List subscriptions
+        &#34;&#34;&#34;
+        url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=query_params)
+        result                 = resp.json()
         return result</code></pre>
 </details>
 </section>
@@ -361,6 +377,22 @@ class SubscriberClient(object):
         s = SyncSession(session) if session else self.session
         resp = s.get(url, headers=headers)
         result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
+    def list_subscriptions(self, project     ,
+                                 query_params                           = None, **_3to2kwargs
+                                 )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        List subscriptions
+        &#34;&#34;&#34;
+        url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=query_params)
+        result                 = resp.json()
         return result</code></pre>
 </details>
 <h3>Methods</h3>
@@ -468,6 +500,31 @@ class SubscriberClient(object):
     return result</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.list_subscriptions"><code class="name flex">
+<span>def <span class="ident">list_subscriptions</span></span>(<span>self, project, query_params=None, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_subscriptions(self, project     ,
+                             query_params                           = None, **_3to2kwargs
+                             )                  :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    List subscriptions
+    &#34;&#34;&#34;
+    url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
+    headers = self._headers()
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=query_params)
+    result                 = resp.json()
+    return result</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline"><code class="name flex">
 <span>def <span class="ident">modify_ack_deadline</span></span>(<span>self, subscription, ack_ids, ack_deadline_seconds, **_3to2kwargs)</span>
 </code></dt>
@@ -554,6 +611,7 @@ class SubscriberClient(object):
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription">create_subscription</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.delete_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.delete_subscription">delete_subscription</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.get_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.get_subscription">get_subscription</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.list_subscriptions" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.list_subscriptions">list_subscriptions</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline">modify_ack_deadline</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.pull" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.pull">pull</a></code></li>
 </ul>

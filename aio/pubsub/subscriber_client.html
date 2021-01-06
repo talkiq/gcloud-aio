@@ -188,6 +188,21 @@ class SubscriberClient:
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers)
         result: Dict[str, Any] = await resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
+    async def list_subscriptions(self, project: str,
+                                 query_params: Optional[Dict[str, str]] = None,
+                                 *, session: Optional[Session] = None
+                                 ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;
+        List subscriptions
+        &#34;&#34;&#34;
+        url = f&#39;{API_ROOT}/v1/{project}/subscriptions&#39;
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=query_params)
+        result: Dict[str, Any] = await resp.json()
         return result</code></pre>
 </details>
 </section>
@@ -337,6 +352,21 @@ class SubscriberClient:
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers)
         result: Dict[str, Any] = await resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
+    async def list_subscriptions(self, project: str,
+                                 query_params: Optional[Dict[str, str]] = None,
+                                 *, session: Optional[Session] = None
+                                 ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;
+        List subscriptions
+        &#34;&#34;&#34;
+        url = f&#39;{API_ROOT}/v1/{project}/subscriptions&#39;
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=query_params)
+        result: Dict[str, Any] = await resp.json()
         return result</code></pre>
 </details>
 <h3>Methods</h3>
@@ -442,6 +472,30 @@ class SubscriberClient:
     return result</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.pubsub.subscriber_client.SubscriberClient.list_subscriptions"><code class="name flex">
+<span>async def <span class="ident">list_subscriptions</span></span>(<span>self, project: str, query_params: Optional[Dict[str, str]] = None, *, session: Optional[aiohttp.client.ClientSession] = None) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List subscriptions</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def list_subscriptions(self, project: str,
+                             query_params: Optional[Dict[str, str]] = None,
+                             *, session: Optional[Session] = None
+                             ) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;
+    List subscriptions
+    &#34;&#34;&#34;
+    url = f&#39;{API_ROOT}/v1/{project}/subscriptions&#39;
+    headers = await self._headers()
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, params=query_params)
+    result: Dict[str, Any] = await resp.json()
+    return result</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline"><code class="name flex">
 <span>async def <span class="ident">modify_ack_deadline</span></span>(<span>self, subscription: str, ack_ids: List[str], ack_deadline_seconds: int, *, session: Optional[aiohttp.client.ClientSession] = None) ‑> NoneType</span>
 </code></dt>
@@ -527,6 +581,7 @@ Set ack deadline to 0 to nack messages.</p></div>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.create_subscription" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.create_subscription">create_subscription</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.delete_subscription" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.delete_subscription">delete_subscription</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.get_subscription" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.get_subscription">get_subscription</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.list_subscriptions" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.list_subscriptions">list_subscriptions</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.modify_ack_deadline">modify_ack_deadline</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient.pull" href="#gcloud.aio.pubsub.subscriber_client.SubscriberClient.pull">pull</a></code></li>
 </ul>
