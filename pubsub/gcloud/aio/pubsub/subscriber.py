@@ -23,6 +23,7 @@ else:
     if TYPE_CHECKING:
         MessageQueue = asyncio.Queue[Tuple[SubscriberMessage,  # pylint: disable=unsubscriptable-object
                                            float]]
+        T = TypeVar('T')
     else:
         MessageQueue = asyncio.Queue
     ApplicationHandler = Callable[[SubscriberMessage], Awaitable[None]]
