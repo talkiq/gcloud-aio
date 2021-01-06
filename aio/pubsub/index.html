@@ -78,7 +78,7 @@ if not BUILD_GCLOUD_REST:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gcloud.aio.pubsub.subscribe"><code class="name flex">
-<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
+<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, enable_nack: bool = True, nack_window: float = 0.3, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -95,10 +95,13 @@ if not BUILD_GCLOUD_REST:
                     ack_window: float = 0.3,
                     ack_deadline_cache_timeout: int = 60,
                     num_tasks_per_consumer: int = 1,
+                    enable_nack: bool = True,
+                    nack_window: float = 0.3,
                     metrics_client: Optional[MetricsAgent] = None
                     ) -&gt; None:
     ack_queue: &#39;asyncio.Queue[str]&#39; = asyncio.Queue(
         maxsize=(max_messages_per_producer * num_producers))
+    nack_queue: &#39;Optional[asyncio.Queue[str]]&#39; = None
     ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                           subscription,
                                           ack_deadline_cache_timeout)
@@ -109,6 +112,14 @@ if not BUILD_GCLOUD_REST:
             acker(subscription, ack_queue, subscriber_client,
                   ack_window=ack_window, metrics_client=metrics_client)
         ))
+        if enable_nack:
+            nack_queue = asyncio.Queue(
+                maxsize=(max_messages_per_producer * num_producers))
+            tasks.append(asyncio.ensure_future(
+                nacker(subscription, nack_queue, subscriber_client,
+                       nack_window=nack_window,
+                       metrics_client=metrics_client)
+            ))
         for _ in range(num_producers):
             q: MessageQueue = asyncio.Queue(
                 maxsize=max_messages_per_producer)
@@ -118,6 +129,7 @@ if not BUILD_GCLOUD_REST:
                          ack_queue,
                          ack_deadline_cache,
                          num_tasks_per_consumer,
+                         nack_queue,
                          metrics_client=metrics_client)
             ))
             tasks.append(asyncio.ensure_future(
