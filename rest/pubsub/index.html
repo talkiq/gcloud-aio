@@ -41,11 +41,10 @@ __version__ = get_distribution(&#39;gcloud-rest-pubsub&#39;).version
 from gcloud.rest.pubsub.publisher_client import PublisherClient
 from gcloud.rest.pubsub.subscriber_client import SubscriberClient
 from gcloud.rest.pubsub.utils import PubsubMessage
-from gcloud.rest.pubsub.subscriber_client import FlowControl
 from gcloud.rest.pubsub.subscriber_message import SubscriberMessage
 
 
-__all__ = [&#39;__version__&#39;, &#39;FlowControl&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
+__all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
            &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]</code></pre>
 </details>
 </section>
@@ -77,48 +76,6 @@ __all__ = [&#39;__version__&#39;, &#39;FlowControl&#39;, &#39;PublisherClient&#3
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="gcloud.rest.pubsub.FlowControl"><code class="flex name class">
-<span>class <span class="ident">FlowControl</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>FlowControl transitional wrapper.
-(FlowControl fields docs)[<a href="https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]">https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]</a>
-# pylint: disable=line-too-long
-Google uses a named tuple; here are the fields, defaults:
-- max_bytes: int = 100 * 1024 * 1024
-- max_messages: int = 1000
-- max_lease_duration: int = 1 * 60 * 60
-- max_duration_per_lease_extension: int = 0</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FlowControl(object):
-    def __init__(self, *args           , **kwargs                )        :
-        &#34;&#34;&#34;
-        FlowControl transitional wrapper.
-        (FlowControl fields docs)[https://github.com/googleapis/python-pubsub/blob/v1.7.0/google/cloud/pubsub_v1/types.py#L124-L166]  # pylint: disable=line-too-long
-        Google uses a named tuple; here are the fields, defaults:
-        - max_bytes: int = 100 * 1024 * 1024
-        - max_messages: int = 1000
-        - max_lease_duration: int = 1 * 60 * 60
-        - max_duration_per_lease_extension: int = 0
-        &#34;&#34;&#34;
-        self._flow_control = _FlowControl(*args, **kwargs)
-
-    def __repr__(self)       :
-        result      = self._flow_control.__repr__()
-        return result
-
-    def __getitem__(self, index     )       :
-        result      = self._flow_control[index]
-        return result
-
-    def __getattr__(self, attr     )       :
-        return getattr(self._flow_control, attr)</code></pre>
-</details>
-</dd>
 <dt id="gcloud.rest.pubsub.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
 <span>(</span><span>**_3to2kwargs)</span>
@@ -340,7 +297,7 @@ def topic_path(cls, project     , topic     )       :
 </dd>
 <dt id="gcloud.rest.pubsub.SubscriberClient"><code class="flex name class">
 <span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>**kwargs)</span>
+<span>(</span><span>**_3to2kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -349,98 +306,145 @@ def topic_path(cls, project     , topic     )       :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberClient(object):
-    def __init__(self, **kwargs                )        :
-        self._subscriber = pubsub.SubscriberClient(**kwargs)
+    def __init__(self, **_3to2kwargs)        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;token&#39; in _3to2kwargs: token = _3to2kwargs[&#39;token&#39;]; del _3to2kwargs[&#39;token&#39;]
+        else: token =  None
+        if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
+        else: service_file =  None
+        self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
+        self.token = token or Token(service_file=service_file,
+                                    scopes=SCOPES,
+                                    session=self.session.session)
 
+    def _headers(self)                  :
+        headers = {
+            &#39;Content-Type&#39;: &#39;application/json&#39;
+        }
+        if PUBSUB_EMULATOR_HOST:
+            return headers
+
+        token = self.token.get()
+        headers.update({
+            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token))
+        })
+        return headers
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
     def create_subscription(self,
-                            subscription     ,
-                            topic     ,
-                            **kwargs                
-                            )        :
+                                  subscription     ,
+                                  topic     ,
+                                  body                           = None, **_3to2kwargs
+                                  )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         &#34;&#34;&#34;
-        Create subscription if it does not exist. Check out the official
-        [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
-        for more details
+        Create subscription.
         &#34;&#34;&#34;
-        try:
-            self._subscriber.create_subscription(
-                subscription,
-                topic,
-                **kwargs
-            )
-        except exceptions.AlreadyExists:
-            pass
+        body = {} if not body else body
+        url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        payload                 = deepcopy(body)
+        payload.update({&#39;topic&#39;: topic})
+        encoded = json.dumps(payload).encode()
+        s = SyncSession(session) if session else self.session
+        resp = s.put(url, data=encoded, headers=headers)
+        result                 = resp.json()
+        return result
 
-    def subscribe(self,
-                  subscription     ,
-                  callback                                    , **_3to2kwargs
-                  )                       :
-        if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
-        else: flow_control =  ()
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
+    def delete_subscription(self,
+                                  subscription     , **_3to2kwargs
+                                  )        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         &#34;&#34;&#34;
-        Pass call to the google-cloud-pubsub SubscriberClient class.
-        This method will most likely be deprecated once gcloud-rest-pubsub
-        stop using google-cloud-pubsub under the hood. If this is
-        what you need we strongly recommend using official library.
-
+        Delete subscription.
         &#34;&#34;&#34;
-        sub_keepalive                      = (
-            self._subscriber.subscribe(
-                subscription,
-                self._wrap_callback(callback),
-                flow_control=flow_control))
+        url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        s.delete(url, headers=headers)
 
-        return sub_keepalive
-
-    @staticmethod
-    def _wrap_callback(callback                                     
-                       )                             :
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
+    def pull(self, subscription     , max_messages     , **_3to2kwargs
+                   )                           :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
         &#34;&#34;&#34;
-        Make callback work with vanilla
-        google.cloud.pubsub_v1.subscriber.message.Message
-
+        Pull messages from subscription
         &#34;&#34;&#34;
-        def _callback_wrapper(message         )        :
-            callback(SubscriberMessage.from_google_cloud(message))
+        url = &#39;{}/v1/{}:pull&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        payload = {
+            &#39;maxMessages&#39;: max_messages,
+        }
+        encoded = json.dumps(payload).encode()
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, data=encoded, headers=headers)
+        resp = resp.json()
+        return [
+            SubscriberMessage.from_repr(m)
+            for m in resp[&#39;receivedMessages&#39;]
+        ]
 
-        return _callback_wrapper</code></pre>
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
+    def acknowledge(self, subscription     , ack_ids           , **_3to2kwargs)        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Acknowledge messages by ackIds
+        &#34;&#34;&#34;
+        url = &#39;{}/v1/{}:acknowledge&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        payload = {
+            &#39;ackIds&#39;: ack_ids,
+        }
+        encoded = json.dumps(payload).encode()
+        s = SyncSession(session) if session else self.session
+        s.post(url, data=encoded, headers=headers)
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
+    def modify_ack_deadline(self, subscription     ,
+                                  ack_ids           ,
+                                  ack_deadline_seconds     , **_3to2kwargs
+                                  )        :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Modify messages&#39; ack deadline.
+        Set ack deadline to 0 to nack messages.
+        &#34;&#34;&#34;
+        url = &#39;{}/v1/{}:modifyAckDeadline&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        payload = {
+            &#39;ackIds&#39;: ack_ids,
+            &#39;ackDeadlineSeconds&#39;: ack_deadline_seconds,
+        }
+        s = SyncSession(session) if session else self.session
+        s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
+                     headers=headers)
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
+    def get_subscription(self, subscription     , **_3to2kwargs
+                               )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Get Subscription
+        &#34;&#34;&#34;
+        url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers)
+        result                 = resp.json()
+        return result</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="gcloud.rest.pubsub.SubscriberClient.create_subscription"><code class="name flex">
-<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription, topic, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create subscription if it does not exist. Check out the official
-<a href="https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236">create_subscription docs</a>
-# pylint: disable=line-too-long
-for more details</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def create_subscription(self,
-                        subscription     ,
-                        topic     ,
-                        **kwargs                
-                        )        :
-    &#34;&#34;&#34;
-    Create subscription if it does not exist. Check out the official
-    [create_subscription docs](https://github.com/googleapis/google-cloud-python/blob/11c72ade8b282ae1917fba19e7f4e0fe7176d12b/pubsub/google/cloud/pubsub_v1/gapic/subscriber_client.py#L236)  # pylint: disable=line-too-long
-    for more details
-    &#34;&#34;&#34;
-    try:
-        self._subscriber.create_subscription(
-            subscription,
-            topic,
-            **kwargs
-        )
-    except exceptions.AlreadyExists:
-        pass</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberClient.subscribe"><code class="name flex">
-<span>def <span class="ident">subscribe</span></span>(<span>self, subscription, callback, **_3to2kwargs)</span>
+<dt id="gcloud.rest.pubsub.SubscriberClient.acknowledge"><code class="name flex">
+<span>def <span class="ident">acknowledge</span></span>(<span>self, subscription, ack_ids, **_3to2kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -448,33 +452,166 @@ for more details</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def subscribe(self,
-              subscription     ,
-              callback                                    , **_3to2kwargs
-              )                       :
-    if &#39;flow_control&#39; in _3to2kwargs: flow_control = _3to2kwargs[&#39;flow_control&#39;]; del _3to2kwargs[&#39;flow_control&#39;]
-    else: flow_control =  ()
+<pre><code class="python">def acknowledge(self, subscription     , ack_ids           , **_3to2kwargs)        :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
     &#34;&#34;&#34;
-    Pass call to the google-cloud-pubsub SubscriberClient class.
-    This method will most likely be deprecated once gcloud-rest-pubsub
-    stop using google-cloud-pubsub under the hood. If this is
-    what you need we strongly recommend using official library.
-
+    Acknowledge messages by ackIds
     &#34;&#34;&#34;
-    sub_keepalive                      = (
-        self._subscriber.subscribe(
-            subscription,
-            self._wrap_callback(callback),
-            flow_control=flow_control))
-
-    return sub_keepalive</code></pre>
+    url = &#39;{}/v1/{}:acknowledge&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    payload = {
+        &#39;ackIds&#39;: ack_ids,
+    }
+    encoded = json.dumps(payload).encode()
+    s = SyncSession(session) if session else self.session
+    s.post(url, data=encoded, headers=headers)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.SubscriberClient.create_subscription"><code class="name flex">
+<span>def <span class="ident">create_subscription</span></span>(<span>self, subscription, topic, body=None, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_subscription(self,
+                              subscription     ,
+                              topic     ,
+                              body                           = None, **_3to2kwargs
+                              )                  :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Create subscription.
+    &#34;&#34;&#34;
+    body = {} if not body else body
+    url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    payload                 = deepcopy(body)
+    payload.update({&#39;topic&#39;: topic})
+    encoded = json.dumps(payload).encode()
+    s = SyncSession(session) if session else self.session
+    resp = s.put(url, data=encoded, headers=headers)
+    result                 = resp.json()
+    return result</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.SubscriberClient.delete_subscription"><code class="name flex">
+<span>def <span class="ident">delete_subscription</span></span>(<span>self, subscription, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_subscription(self,
+                              subscription     , **_3to2kwargs
+                              )        :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Delete subscription.
+    &#34;&#34;&#34;
+    url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    s = SyncSession(session) if session else self.session
+    s.delete(url, headers=headers)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.SubscriberClient.get_subscription"><code class="name flex">
+<span>def <span class="ident">get_subscription</span></span>(<span>self, subscription, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_subscription(self, subscription     , **_3to2kwargs
+                           )                  :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Get Subscription
+    &#34;&#34;&#34;
+    url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers)
+    result                 = resp.json()
+    return result</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.SubscriberClient.modify_ack_deadline"><code class="name flex">
+<span>def <span class="ident">modify_ack_deadline</span></span>(<span>self, subscription, ack_ids, ack_deadline_seconds, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def modify_ack_deadline(self, subscription     ,
+                              ack_ids           ,
+                              ack_deadline_seconds     , **_3to2kwargs
+                              )        :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Modify messages&#39; ack deadline.
+    Set ack deadline to 0 to nack messages.
+    &#34;&#34;&#34;
+    url = &#39;{}/v1/{}:modifyAckDeadline&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    payload = {
+        &#39;ackIds&#39;: ack_ids,
+        &#39;ackDeadlineSeconds&#39;: ack_deadline_seconds,
+    }
+    s = SyncSession(session) if session else self.session
+    s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
+                 headers=headers)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.SubscriberClient.pull"><code class="name flex">
+<span>def <span class="ident">pull</span></span>(<span>self, subscription, max_messages, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pull(self, subscription     , max_messages     , **_3to2kwargs
+               )                           :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Pull messages from subscription
+    &#34;&#34;&#34;
+    url = &#39;{}/v1/{}:pull&#39;.format((API_ROOT), (subscription))
+    headers = self._headers()
+    payload = {
+        &#39;maxMessages&#39;: max_messages,
+    }
+    encoded = json.dumps(payload).encode()
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, data=encoded, headers=headers)
+    resp = resp.json()
+    return [
+        SubscriberMessage.from_repr(m)
+        for m in resp[&#39;receivedMessages&#39;]
+    ]</code></pre>
 </details>
 </dd>
 </dl>
 </dd>
 <dt id="gcloud.rest.pubsub.SubscriberMessage"><code class="flex name class">
 <span>class <span class="ident">SubscriberMessage</span></span>
-<span>(</span><span>*args, **kwargs)</span>
+<span>(</span><span>ack_id, message_id, publish_time, data, attributes)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -483,77 +620,44 @@ for more details</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SubscriberMessage(object):
-    def __init__(self, *args           ,
-                 **kwargs                )        :
-        if &#39;google_cloud_message&#39; in kwargs: google_cloud_message = kwargs[&#39;google_cloud_message&#39;]; del kwargs[&#39;google_cloud_message&#39;]
-        else: google_cloud_message =  None
-        if google_cloud_message:
-            self._message = google_cloud_message
-            return
-        self._message = Message(*args, **kwargs)
+    def __init__(self, ack_id     , message_id     ,
+                 publish_time                     ,
+                 data       ,
+                 attributes                          ):
+        self.ack_id = ack_id
+        self.message_id = message_id
+        self.publish_time = publish_time
+        self.data = data
+        self.attributes = attributes
 
     @staticmethod
-    def from_google_cloud(message         )                       :
-        return SubscriberMessage(google_cloud_message=message)
+    def from_repr(received_message                
+                  )                       :
+        ack_id = received_message[&#39;ackId&#39;]
+        message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
+        data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+        attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
+        publish_time                    = parse_publish_time(
+            received_message[&#39;message&#39;][&#39;publishTime&#39;])
+        return SubscriberMessage(ack_id=ack_id, message_id=message_id,
+                                 publish_time=publish_time, data=data,
+                                 attributes=attributes)
 
-    @property
-    def google_cloud_message(self)           :
-        return self._message
-
-    @property
-    def message_id(self)       :  # indirects to a Google protobuff field
-        return str(self._message.message_id)
-
-    def __repr__(self)       :
-        return repr(self._message)
-
-    @property
-    def attributes(self)       :  # Google .ScalarMapContainer
-        return self._message.attributes
-
-    @property
-    def data(self)         :
-        return bytes(self._message.data)
-
-    @property
-    def publish_time(self)                     :
-        published                    = self._message.publish_time
-        return published
-
-    @property
-    def ordering_key(self)       :
-        return str(self._message.ordering_key)
-
-    @property
-    def size(self)       :
-        return int(self._message.size)
-
-    @property
-    def ack_id(self)       :
-        return str(self._message.ack_id)
-
-    @property
-    def delivery_attempt(self)                 :
-        if self._message.delivery_attempt:
-            return int(self._message.delivery_attempt)
-        return None
-
-    def ack(self)        :
-        self._message.ack()
-
-    def drop(self)        :
-        self._message.drop()
-
-    def modify_ack_deadline(self, seconds     )        :
-        self._message.modify_ack_deadline(seconds)
-
-    def nack(self)        :
-        self._message.nack()</code></pre>
+    def to_repr(self)                  :
+        return {
+            &#39;ackId&#39;: self.ack_id,
+            &#39;message&#39;: {
+                &#39;messageId&#39;: self.message_id,
+                &#39;attributes&#39;: self.attributes,
+                &#39;data&#39;: base64.b64encode(self.data),
+                &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
+            }
+        }</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.from_google_cloud"><code class="name flex">
-<span>def <span class="ident">from_google_cloud</span></span>(<span>message)</span>
+<dt id="gcloud.rest.pubsub.SubscriberMessage.from_repr"><code class="name flex">
+<span>def <span class="ident">from_repr</span></span>(<span>received_message)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -562,129 +666,24 @@ for more details</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def from_google_cloud(message         )                       :
-    return SubscriberMessage(google_cloud_message=message)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.ack_id"><code class="name">var <span class="ident">ack_id</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def ack_id(self)       :
-    return str(self._message.ack_id)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.attributes"><code class="name">var <span class="ident">attributes</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def attributes(self)       :  # Google .ScalarMapContainer
-    return self._message.attributes</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.data"><code class="name">var <span class="ident">data</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def data(self)         :
-    return bytes(self._message.data)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.delivery_attempt"><code class="name">var <span class="ident">delivery_attempt</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def delivery_attempt(self)                 :
-    if self._message.delivery_attempt:
-        return int(self._message.delivery_attempt)
-    return None</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.google_cloud_message"><code class="name">var <span class="ident">google_cloud_message</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def google_cloud_message(self)           :
-    return self._message</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.message_id"><code class="name">var <span class="ident">message_id</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def message_id(self)       :  # indirects to a Google protobuff field
-    return str(self._message.message_id)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.ordering_key"><code class="name">var <span class="ident">ordering_key</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def ordering_key(self)       :
-    return str(self._message.ordering_key)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.publish_time"><code class="name">var <span class="ident">publish_time</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def publish_time(self)                     :
-    published                    = self._message.publish_time
-    return published</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.size"><code class="name">var <span class="ident">size</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def size(self)       :
-    return int(self._message.size)</code></pre>
+def from_repr(received_message                
+              )                       :
+    ack_id = received_message[&#39;ackId&#39;]
+    message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
+    data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+    attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
+    publish_time                    = parse_publish_time(
+        received_message[&#39;message&#39;][&#39;publishTime&#39;])
+    return SubscriberMessage(ack_id=ack_id, message_id=message_id,
+                             publish_time=publish_time, data=data,
+                             attributes=attributes)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.ack"><code class="name flex">
-<span>def <span class="ident">ack</span></span>(<span>self)</span>
+<dt id="gcloud.rest.pubsub.SubscriberMessage.to_repr"><code class="name flex">
+<span>def <span class="ident">to_repr</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -692,47 +691,16 @@ def size(self)       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def ack(self)        :
-    self._message.ack()</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.drop"><code class="name flex">
-<span>def <span class="ident">drop</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def drop(self)        :
-    self._message.drop()</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.modify_ack_deadline"><code class="name flex">
-<span>def <span class="ident">modify_ack_deadline</span></span>(<span>self, seconds)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def modify_ack_deadline(self, seconds     )        :
-    self._message.modify_ack_deadline(seconds)</code></pre>
-</details>
-</dd>
-<dt id="gcloud.rest.pubsub.SubscriberMessage.nack"><code class="name flex">
-<span>def <span class="ident">nack</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def nack(self)        :
-    self._message.nack()</code></pre>
+<pre><code class="python">def to_repr(self)                  :
+    return {
+        &#39;ackId&#39;: self.ack_id,
+        &#39;message&#39;: {
+            &#39;messageId&#39;: self.message_id,
+            &#39;attributes&#39;: self.attributes,
+            &#39;data&#39;: base64.b64encode(self.data),
+            &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
+        }
+    }</code></pre>
 </details>
 </dd>
 </dl>
@@ -762,9 +730,6 @@ def size(self)       :
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="gcloud.rest.pubsub.FlowControl" href="#gcloud.rest.pubsub.FlowControl">FlowControl</a></code></h4>
-</li>
-<li>
 <h4><code><a title="gcloud.rest.pubsub.PublisherClient" href="#gcloud.rest.pubsub.PublisherClient">PublisherClient</a></code></h4>
 <ul class="">
 <li><code><a title="gcloud.rest.pubsub.PublisherClient.close" href="#gcloud.rest.pubsub.PublisherClient.close">close</a></code></li>
@@ -782,28 +747,20 @@ def size(self)       :
 </li>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.SubscriberClient" href="#gcloud.rest.pubsub.SubscriberClient">SubscriberClient</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="gcloud.rest.pubsub.SubscriberClient.acknowledge" href="#gcloud.rest.pubsub.SubscriberClient.acknowledge">acknowledge</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.SubscriberClient.create_subscription" href="#gcloud.rest.pubsub.SubscriberClient.create_subscription">create_subscription</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberClient.subscribe" href="#gcloud.rest.pubsub.SubscriberClient.subscribe">subscribe</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberClient.delete_subscription" href="#gcloud.rest.pubsub.SubscriberClient.delete_subscription">delete_subscription</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberClient.get_subscription" href="#gcloud.rest.pubsub.SubscriberClient.get_subscription">get_subscription</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberClient.modify_ack_deadline" href="#gcloud.rest.pubsub.SubscriberClient.modify_ack_deadline">modify_ack_deadline</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberClient.pull" href="#gcloud.rest.pubsub.SubscriberClient.pull">pull</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.SubscriberMessage" href="#gcloud.rest.pubsub.SubscriberMessage">SubscriberMessage</a></code></h4>
 <ul class="">
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.ack" href="#gcloud.rest.pubsub.SubscriberMessage.ack">ack</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.ack_id" href="#gcloud.rest.pubsub.SubscriberMessage.ack_id">ack_id</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.attributes" href="#gcloud.rest.pubsub.SubscriberMessage.attributes">attributes</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.data" href="#gcloud.rest.pubsub.SubscriberMessage.data">data</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.delivery_attempt" href="#gcloud.rest.pubsub.SubscriberMessage.delivery_attempt">delivery_attempt</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.drop" href="#gcloud.rest.pubsub.SubscriberMessage.drop">drop</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.from_google_cloud" href="#gcloud.rest.pubsub.SubscriberMessage.from_google_cloud">from_google_cloud</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.google_cloud_message" href="#gcloud.rest.pubsub.SubscriberMessage.google_cloud_message">google_cloud_message</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.message_id" href="#gcloud.rest.pubsub.SubscriberMessage.message_id">message_id</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.modify_ack_deadline" href="#gcloud.rest.pubsub.SubscriberMessage.modify_ack_deadline">modify_ack_deadline</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.nack" href="#gcloud.rest.pubsub.SubscriberMessage.nack">nack</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.ordering_key" href="#gcloud.rest.pubsub.SubscriberMessage.ordering_key">ordering_key</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.publish_time" href="#gcloud.rest.pubsub.SubscriberMessage.publish_time">publish_time</a></code></li>
-<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.size" href="#gcloud.rest.pubsub.SubscriberMessage.size">size</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.from_repr" href="#gcloud.rest.pubsub.SubscriberMessage.from_repr">from_repr</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.SubscriberMessage.to_repr" href="#gcloud.rest.pubsub.SubscriberMessage.to_repr">to_repr</a></code></li>
 </ul>
 </li>
 </ul>
