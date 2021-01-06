@@ -12,6 +12,7 @@ else:
     from typing import Optional
     from typing import Tuple
     from typing import TYPE_CHECKING
+    from typing import TypeVar
 
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
     from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
@@ -25,6 +26,7 @@ else:
     else:
         MessageQueue = asyncio.Queue
     ApplicationHandler = Callable[[SubscriberMessage], Awaitable[None]]
+    T = TypeVar('T')
 
     class AckDeadlineCache:
         def __init__(self, subscriber_client: SubscriberClient,
@@ -55,6 +57,21 @@ else:
                 return True
             return False
 
+    async def _budgeted_queue_get(queue: 'asyncio.Queue[T]',
+                                  time_budget: float) -> List[T]:
+        result = []
+        while time_budget > 0:
+            start = time.perf_counter()
+            try:
+                message = await asyncio.wait_for(
+                    queue.get(), timeout=time_budget)
+                result.append(message)
+                queue.task_done()
+            except asyncio.TimeoutError:
+                break
+            time_budget -= (time.perf_counter() - start)
+        return result
+
     async def acker(subscription: str,
                     ack_queue: 'asyncio.Queue[str]',
                     subscriber_client: 'SubscriberClient',
@@ -62,21 +79,11 @@ else:
                     metrics_client: MetricsAgent) -> None:
         ack_ids: List[str] = []
         while True:
-            time_budget = ack_window
             if not ack_ids:
                 ack_ids.append(await ack_queue.get())
                 ack_queue.task_done()
 
-            while time_budget > 0:
-                start = time.perf_counter()
-                try:
-                    ack_id = await asyncio.wait_for(
-                        ack_queue.get(), timeout=time_budget)
-                    ack_ids.append(ack_id)
-                    ack_queue.task_done()
-                except asyncio.TimeoutError:
-                    break
-                time_budget -= (time.perf_counter() - start)
+            ack_ids += await _budgeted_queue_get(ack_queue, ack_window)
 
             # acknowledge endpoint limit is 524288 bytes
             # which is ~2744 ack_ids
@@ -88,8 +95,6 @@ else:
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
-                raise
             except Exception as e:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
@@ -100,9 +105,47 @@ else:
 
             ack_ids = []
 
+    async def nacker(subscription: str,
+                     nack_queue: 'asyncio.Queue[str]',
+                     subscriber_client: 'SubscriberClient',
+                     nack_window: float,
+                     metrics_client: MetricsAgent) -> None:
+        ack_ids: List[str] = []
+        while True:
+            if not ack_ids:
+                ack_ids.append(await nack_queue.get())
+                nack_queue.task_done()
+
+            ack_ids += await _budgeted_queue_get(nack_queue, nack_window)
+
+            # modifyAckDeadline endpoint limit is 524288 bytes
+            # which is ~2744 ack_ids
+            if len(ack_ids) > 2500:
+                log.error(
+                    'nacker is falling behind, dropping %d unacked messages',
+                    len(ack_ids) - 2500)
+                ack_ids = ack_ids[-2500:]
+            try:
+                await subscriber_client.modify_ack_deadline(
+                    subscription,
+                    ack_ids=ack_ids,
+                    ack_deadline_seconds=0)
+            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+                raise
+            except Exception as e:
+                log.warning(
+                    'Nack request failed, better luck next batch', exc_info=e)
+                metrics_client.increment('pubsub.nacker.batch.failed')
+                continue
+
+            metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
+
+            ack_ids = []
+
     async def _execute_callback(message: SubscriberMessage,
                                 callback: ApplicationHandler,
                                 ack_queue: 'asyncio.Queue[str]',
+                                nack_queue: 'Optional[asyncio.Queue[str]]',
                                 metrics_client: MetricsAgent
                                 ) -> None:
         try:
@@ -113,6 +156,8 @@ else:
             metrics_client.histogram('pubsub.consumer.latency.runtime',
                                      time.perf_counter() - start)
         except Exception:
+            if nack_queue:
+                await nack_queue.put(message.ack_id)
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
 
@@ -122,6 +167,7 @@ else:
             ack_queue: 'asyncio.Queue[str]',
             ack_deadline_cache: AckDeadlineCache,
             max_tasks: int,
+            nack_queue: 'Optional[asyncio.Queue[str]]',
             metrics_client: MetricsAgent) -> None:
         semaphore = asyncio.Semaphore(max_tasks)
         while True:
@@ -146,6 +192,7 @@ else:
                 message,
                 callback,
                 ack_queue,
+                nack_queue,
                 metrics_client,
             ))
             task.add_done_callback(lambda _f: semaphore.release())
@@ -182,10 +229,13 @@ else:
                         ack_window: float = 0.3,
                         ack_deadline_cache_timeout: int = 60,
                         num_tasks_per_consumer: int = 1,
+                        enable_nack: bool = True,
+                        nack_window: float = 0.3,
                         metrics_client: Optional[MetricsAgent] = None
                         ) -> None:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
             maxsize=(max_messages_per_producer * num_producers))
+        nack_queue: 'Optional[asyncio.Queue[str]]' = None
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
@@ -196,6 +246,14 @@ else:
                 acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
+            if enable_nack:
+                nack_queue = asyncio.Queue(
+                    maxsize=(max_messages_per_producer * num_producers))
+                tasks.append(asyncio.ensure_future(
+                    nacker(subscription, nack_queue, subscriber_client,
+                           nack_window=nack_window,
+                           metrics_client=metrics_client)
+                ))
             for _ in range(num_producers):
                 q: MessageQueue = asyncio.Queue(
                     maxsize=max_messages_per_producer)
@@ -205,6 +263,7 @@ else:
                              ack_queue,
                              ack_deadline_cache,
                              num_tasks_per_consumer,
+                             nack_queue,
                              metrics_client=metrics_client)
                 ))
                 tasks.append(asyncio.ensure_future(
