@@ -272,14 +272,8 @@ else:
 
     @pytest.mark.asyncio
     async def test_producer_gracefully_shutsdown(subscriber_client):
-        def f():
-            if f.called:
-                return 1
-            f.called = True
-            raise asyncio.CancelledError
-        f.called = False
-
-        with patch('time.perf_counter', f):
+        with patch('time.perf_counter',
+                   side_effect=(asyncio.CancelledError, 1)):
             queue = asyncio.Queue()
             producer_task = asyncio.ensure_future(
                 producer(
