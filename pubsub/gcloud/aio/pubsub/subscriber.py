@@ -216,18 +216,20 @@ else:
             metrics_client: MetricsAgent) -> None:
         try:
             while True:
+                new_messages = []
                 try:
                     new_messages = await subscriber_client.pull(
                         subscription=subscription, max_messages=max_messages)
                 except (asyncio.TimeoutError, KeyError):
                     continue
 
-                pulled_at = time.perf_counter()
-                for m in new_messages:
-                    await message_queue.put((m, pulled_at))
-
                 metrics_client.histogram(
                     'pubsub.producer.batch', len(new_messages))
+
+                pulled_at = time.perf_counter()
+                while new_messages:
+                    await message_queue.put((new_messages[-1], pulled_at))
+                    new_messages.pop()
 
                 await message_queue.join()
         except asyncio.CancelledError:
@@ -260,18 +262,18 @@ else:
                                               subscription,
                                               ack_deadline_cache_timeout)
         metrics_client = metrics_client or MetricsAgent()
-        tasks = []
+        acker_tasks = []
         consumer_tasks = []
         producer_tasks = []
         try:
-            tasks.append(asyncio.ensure_future(
+            acker_tasks.append(asyncio.ensure_future(
                 acker(subscription, ack_queue, subscriber_client,
                       ack_window=ack_window, metrics_client=metrics_client)
             ))
             if enable_nack:
                 nack_queue = asyncio.Queue(
                     maxsize=(max_messages_per_producer * num_producers))
-                tasks.append(asyncio.ensure_future(
+                acker_tasks.append(asyncio.ensure_future(
                     nacker(subscription, nack_queue, subscriber_client,
                            nack_window=nack_window,
                            metrics_client=metrics_client)
@@ -296,7 +298,7 @@ else:
                              metrics_client=metrics_client)
                 ))
 
-            all_tasks = [*producer_tasks, *consumer_tasks, *tasks]
+            all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
             done, _ = await asyncio.wait(all_tasks,
                                          return_when=asyncio.FIRST_COMPLETED)
             for task in done:
@@ -314,7 +316,7 @@ else:
             await asyncio.wait(consumer_tasks,
                                return_when=asyncio.ALL_COMPLETED)
 
-            for task in tasks:
+            for task in acker_tasks:
                 task.cancel()
-            await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+            await asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
         raise asyncio.CancelledError('Subscriber shut down')

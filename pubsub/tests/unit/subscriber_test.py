@@ -8,6 +8,7 @@ else:
     import time
     from unittest.mock import call
     from unittest.mock import MagicMock
+    from unittest.mock import patch
 
     import pytest
 
@@ -32,9 +33,9 @@ else:
         f.set_result({'ackDeadlineSeconds': 42})
         mock.get_subscription = MagicMock(return_value=f)
 
-        f = asyncio.Future()
-        f.set_result([message])
-        mock.pull = MagicMock(return_value=f)
+        async def g(*_args, **_kwargs):
+            return [message]
+        mock.pull = g
 
         f = asyncio.Future()
         f.set_result(None)
@@ -270,36 +271,34 @@ else:
         assert producer_task.exception()
 
     @pytest.mark.asyncio
-    async def test_producer_gracefully_shutdowns(subscriber_client):
-        mock = MagicMock()
-        def g():
-            yield 1
-            mock()
+    async def test_producer_gracefully_shutsdown(subscriber_client):
+        def f():
+            if f.called:
+                return 1
+            f.called = True
             raise asyncio.CancelledError
+        f.called = False
 
-        f = asyncio.Future()
-        f.set_result(g())
-        subscriber_client.pull = MagicMock(return_value=f)
-
-        queue = asyncio.Queue()
-        producer_task = asyncio.ensure_future(
-            producer(
-                'fake_subscription',
-                queue,
-                subscriber_client,
-                max_messages=1,
-                metrics_client=MagicMock()
+        with patch('time.perf_counter', f):
+            queue = asyncio.Queue()
+            producer_task = asyncio.ensure_future(
+                producer(
+                    'fake_subscription',
+                    queue,
+                    subscriber_client,
+                    max_messages=1,
+                    metrics_client=MagicMock()
+                )
             )
-        )
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        mock.assert_called_once()
-        assert queue.qsize() == 1
-        assert not producer_task.done()
-        await queue.get()
-        queue.task_done()
-        await asyncio.sleep(0)
-        assert producer_task.done()
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+            await asyncio.sleep(0)
+            assert queue.qsize() == 1
+            assert not producer_task.done()
+            await queue.get()
+            queue.task_done()
+            await asyncio.sleep(0)
+            assert producer_task.done()
 
     @pytest.mark.asyncio
     async def test_producer_fetches_once_then_blocks(subscriber_client):
@@ -314,11 +313,11 @@ else:
             )
         )
         await asyncio.sleep(0)
-        await asyncio.wait_for(queue.get(), 1)
+        await asyncio.wait_for(queue.get(), 1.0)
+        producer_task.cancel()
         queue.task_done()
         await asyncio.sleep(0)
-        producer_task.cancel()
-        assert queue.qsize() == 1
+        assert queue.qsize() == 0
 
     # ========
     # consumer
