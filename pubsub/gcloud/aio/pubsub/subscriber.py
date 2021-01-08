@@ -169,34 +169,44 @@ else:
             max_tasks: int,
             nack_queue: 'Optional[asyncio.Queue[str]]',
             metrics_client: MetricsAgent) -> None:
-        semaphore = asyncio.Semaphore(max_tasks)
-        while True:
-            await semaphore.acquire()
+        try:
+            semaphore = asyncio.Semaphore(max_tasks)
+            while True:
+                await semaphore.acquire()
 
-            message, pulled_at = await message_queue.get()
+                message, pulled_at = await message_queue.get()
 
-            ack_deadline = await ack_deadline_cache.get()
-            if (time.perf_counter() - pulled_at) >= ack_deadline:
-                metrics_client.increment('pubsub.consumer.failfast')
+                ack_deadline = await ack_deadline_cache.get()
+                if (time.perf_counter() - pulled_at) >= ack_deadline:
+                    metrics_client.increment('pubsub.consumer.failfast')
+                    message_queue.task_done()
+                    semaphore.release()
+                    continue
+
+                metrics_client.histogram(
+                    'pubsub.consumer.latency.receive',
+                    # publish_time is in UTC Zulu
+                    # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                    time.time() - message.publish_time.timestamp())
+
+                task = asyncio.ensure_future(_execute_callback(
+                    message,
+                    callback,
+                    ack_queue,
+                    nack_queue,
+                    metrics_client,
+                ))
+                task.add_done_callback(lambda _f: semaphore.release())
                 message_queue.task_done()
-                semaphore.release()
-                continue
-
-            metrics_client.histogram(
-                'pubsub.consumer.latency.receive',
-                # publish_time is in UTC Zulu
-                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-                time.time() - message.publish_time.timestamp())
-
-            task = asyncio.ensure_future(_execute_callback(
-                message,
-                callback,
-                ack_queue,
-                nack_queue,
-                metrics_client,
-            ))
-            task.add_done_callback(lambda _f: semaphore.release())
-            message_queue.task_done()
+        except asyncio.CancelledError:
+            log.info('Consumer worker cancelled. Gracefully terminating...')
+            for _ in range(max_tasks):
+                await semaphore.acquire()
+            await ack_queue.join()
+            if nack_queue:
+                await nack_queue.join()
+            log.info('Consumer terminated gracefully.')
+            raise
 
     async def producer(
             subscription: str,
@@ -204,21 +214,31 @@ else:
             subscriber_client: 'SubscriberClient',
             max_messages: int,
             metrics_client: MetricsAgent) -> None:
-        while True:
-            try:
-                new_messages = await subscriber_client.pull(
-                    subscription=subscription, max_messages=max_messages)
-            except (asyncio.TimeoutError, KeyError):
-                continue
+        try:
+            while True:
+                try:
+                    new_messages = await subscriber_client.pull(
+                        subscription=subscription, max_messages=max_messages)
+                except (asyncio.TimeoutError, KeyError):
+                    continue
 
+                pulled_at = time.perf_counter()
+                for m in new_messages:
+                    await message_queue.put((m, pulled_at))
+
+                metrics_client.histogram(
+                    'pubsub.producer.batch', len(new_messages))
+
+                await message_queue.join()
+        except asyncio.CancelledError:
+            log.info('Producer worker cancelled. Gracefully terminating...')
             pulled_at = time.perf_counter()
             for m in new_messages:
                 await message_queue.put((m, pulled_at))
 
-            metrics_client.histogram(
-                'pubsub.producer.batch', len(new_messages))
-
             await message_queue.join()
+            log.info('Producer terminated gracefully.')
+            raise
 
     async def subscribe(subscription: str,  # pylint: disable=too-many-locals
                         handler: ApplicationHandler,
@@ -241,6 +261,8 @@ else:
                                               ack_deadline_cache_timeout)
         metrics_client = metrics_client or MetricsAgent()
         tasks = []
+        consumer_tasks = []
+        producer_tasks = []
         try:
             tasks.append(asyncio.ensure_future(
                 acker(subscription, ack_queue, subscriber_client,
@@ -257,7 +279,7 @@ else:
             for _ in range(num_producers):
                 q: MessageQueue = asyncio.Queue(
                     maxsize=max_messages_per_producer)
-                tasks.append(asyncio.ensure_future(
+                consumer_tasks.append(asyncio.ensure_future(
                     consumer(q,
                              handler,
                              ack_queue,
@@ -266,7 +288,7 @@ else:
                              nack_queue,
                              metrics_client=metrics_client)
                 ))
-                tasks.append(asyncio.ensure_future(
+                producer_tasks.append(asyncio.ensure_future(
                     producer(subscription,
                              q,
                              subscriber_client,
@@ -274,13 +296,24 @@ else:
                              metrics_client=metrics_client)
                 ))
 
-            done, _ = await asyncio.wait(tasks,
+            all_tasks = [*producer_tasks, *consumer_tasks, *tasks]
+            done, _ = await asyncio.wait(all_tasks,
                                          return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
             raise Exception('A subscriber worker shut down unexpectedly!')
         except Exception:
             log.exception('Subscriber exited')
+            for task in producer_tasks:
+                task.cancel()
+            await asyncio.wait(producer_tasks,
+                               return_when=asyncio.ALL_COMPLETED)
+
+            for task in consumer_tasks:
+                task.cancel()
+            await asyncio.wait(consumer_tasks,
+                               return_when=asyncio.ALL_COMPLETED)
+
             for task in tasks:
                 task.cancel()
             await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)

@@ -270,6 +270,38 @@ else:
         assert producer_task.exception()
 
     @pytest.mark.asyncio
+    async def test_producer_gracefully_shutdowns(subscriber_client):
+        mock = MagicMock()
+        def g():
+            yield 1
+            mock()
+            raise asyncio.CancelledError
+
+        f = asyncio.Future()
+        f.set_result(g())
+        subscriber_client.pull = MagicMock(return_value=f)
+
+        queue = asyncio.Queue()
+        producer_task = asyncio.ensure_future(
+            producer(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                max_messages=1,
+                metrics_client=MagicMock()
+            )
+        )
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        mock.assert_called_once()
+        assert queue.qsize() == 1
+        assert not producer_task.done()
+        await queue.get()
+        queue.task_done()
+        await asyncio.sleep(0)
+        assert producer_task.done()
+
+    @pytest.mark.asyncio
     async def test_producer_fetches_once_then_blocks(subscriber_client):
         queue = asyncio.Queue()
         producer_task = asyncio.ensure_future(
@@ -451,6 +483,46 @@ else:
         assert ack_queue.qsize() == 0
         assert nack_queue.qsize() == 1
         assert queue.qsize() == 0
+
+    @pytest.mark.asyncio
+    async def test_consumer_gracefull_shutdown(
+        ack_deadline_cache, message
+    ):
+        queue = asyncio.Queue()
+        ack_queue = asyncio.Queue()
+        nack_queue = asyncio.Queue()
+        mock = MagicMock()
+        event = asyncio.Event()
+
+        async def f(*args):
+            mock(*args)
+            await event.wait()
+
+        consumer_task = asyncio.ensure_future(
+            consumer(
+                queue,
+                f,
+                ack_queue,
+                ack_deadline_cache,
+                1,
+                nack_queue,
+                MagicMock()
+            )
+        )
+        await queue.put((message, 0.0))
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        mock.assert_called_once()
+        consumer_task.cancel()
+        await asyncio.sleep(0)
+        assert not consumer_task.done()
+        event.set()
+        await asyncio.sleep(0)
+        assert ack_queue.qsize() == 1
+        await ack_queue.get()
+        ack_queue.task_done()
+        await asyncio.sleep(0.3)
+        assert consumer_task.done()
 
     # ========
     # acker
