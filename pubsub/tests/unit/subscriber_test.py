@@ -295,7 +295,8 @@ else:
             assert producer_task.done()
 
     @pytest.mark.asyncio
-    async def test_producer_fetches_once_then_blocks(subscriber_client):
+    async def test_producer_fetches_once_then_waits_for_consumer(
+            subscriber_client):
         queue = asyncio.Queue()
         producer_task = asyncio.ensure_future(
             producer(
@@ -514,7 +515,8 @@ else:
         assert ack_queue.qsize() == 1
         await ack_queue.get()
         ack_queue.task_done()
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
         assert consumer_task.done()
 
     # ========
