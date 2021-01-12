@@ -304,8 +304,8 @@ else:
             for task in done:
                 task.result()
             raise Exception('A subscriber worker shut down unexpectedly!')
-        except Exception:
-            log.exception('Subscriber exited')
+        except Exception as e:
+            log.info('Subscriber exited', exc_info=e)
             for task in producer_tasks:
                 task.cancel()
             await asyncio.wait(producer_tasks,
