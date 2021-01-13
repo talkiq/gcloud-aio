@@ -517,6 +517,8 @@ else:
         ack_queue.task_done()
         await asyncio.sleep(0)
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
         assert consumer_task.done()
 
     # ========

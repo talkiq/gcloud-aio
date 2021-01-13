@@ -161,7 +161,7 @@ else:
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
 
-    async def consumer(
+    async def consumer(  # pylint: disable=too-many-locals
             message_queue: MessageQueue,
             callback: ApplicationHandler,
             ack_queue: 'asyncio.Queue[str]',
@@ -200,8 +200,23 @@ else:
                 message_queue.task_done()
         except asyncio.CancelledError:
             log.info('Consumer worker cancelled. Gracefully terminating...')
-            for _ in range(max_tasks):
-                await semaphore.acquire()
+            # we can't know if last task was even scheduled,
+            # so the best we can do is to wait roughly the same amount
+            # as was needed for previous locks
+            waits: List[float] = []
+            for i in range(max_tasks):
+                if i == (max_tasks - 1):
+                    try:
+                        timeout = sum(waits) / len(waits) if waits else 5.0
+                        await asyncio.wait_for(semaphore.acquire(),
+                                               timeout=timeout)
+                    except asyncio.TimeoutError:
+                        pass
+                else:
+                    start = time.perf_counter()
+                    await semaphore.acquire()
+                    waits.append(time.perf_counter() - start)
+
             await ack_queue.join()
             if nack_queue:
                 await nack_queue.join()
@@ -304,8 +319,8 @@ else:
             for task in done:
                 task.result()
             raise Exception('A subscriber worker shut down unexpectedly!')
-        except Exception:
-            log.exception('Subscriber exited')
+        except Exception as e:
+            log.info('Subscriber exited', exc_info=e)
             for task in producer_tasks:
                 task.cancel()
             await asyncio.wait(producer_tasks,
