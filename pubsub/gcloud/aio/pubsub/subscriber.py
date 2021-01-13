@@ -161,7 +161,7 @@ else:
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
 
-    async def consumer(
+    async def consumer(  # pylint: disable=too-many-locals
             message_queue: MessageQueue,
             callback: ApplicationHandler,
             ack_queue: 'asyncio.Queue[str]',
@@ -171,17 +171,17 @@ else:
             metrics_client: MetricsAgent) -> None:
         try:
             semaphore = asyncio.Semaphore(max_tasks)
-            while True:
-                await semaphore.acquire()
 
-                message, pulled_at = await message_queue.get()
+            async def _consume_one(message: SubscriberMessage,
+                                   pulled_at: float) -> None:
+                await semaphore.acquire()
 
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) >= ack_deadline:
                     metrics_client.increment('pubsub.consumer.failfast')
                     message_queue.task_done()
                     semaphore.release()
-                    continue
+                    return
 
                 metrics_client.histogram(
                     'pubsub.consumer.latency.receive',
@@ -198,10 +198,15 @@ else:
                 ))
                 task.add_done_callback(lambda _f: semaphore.release())
                 message_queue.task_done()
+
+            while True:
+                message, pulled_at = await message_queue.get()
+                await asyncio.shield(_consume_one(message, pulled_at))
         except asyncio.CancelledError:
             log.info('Consumer worker cancelled. Gracefully terminating...')
             for _ in range(max_tasks):
                 await semaphore.acquire()
+
             await ack_queue.join()
             if nack_queue:
                 await nack_queue.join()
@@ -304,8 +309,8 @@ else:
             for task in done:
                 task.result()
             raise Exception('A subscriber worker shut down unexpectedly!')
-        except Exception:
-            log.exception('Subscriber exited')
+        except Exception as e:
+            log.info('Subscriber exited', exc_info=e)
             for task in producer_tasks:
                 task.cancel()
             await asyncio.wait(producer_tasks,
