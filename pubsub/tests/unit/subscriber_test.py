@@ -360,8 +360,10 @@ else:
         mock2.ack_id = 'ack_id'
         mock3 = MagicMock()
         mock3.ack_id = 'ack_id'
+        mock4 = MagicMock()
+        mock4.ack_id = 'ack_id'
 
-        consumer_task = asyncio.ensure_future(
+        asyncio.ensure_future(
             consumer(
                 queue,
                 callback,
@@ -372,12 +374,9 @@ else:
                 MagicMock()
             )
         )
-        for m in [mock1, mock2, mock3]:
+        for m in [mock1, mock2, mock3, mock4]:
             await queue.put((m, 0.0))
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        consumer_task.cancel()
+        await asyncio.sleep(0.1)
         mock1.assert_called_once()
         mock2.assert_called_once()
         mock3.assert_not_called()
@@ -438,8 +437,7 @@ else:
             )
         )
         await queue.put((message, 0.0))
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
         consumer_task.cancel()
         mock.assert_called_once()
         assert ack_queue.qsize() == 0
@@ -470,8 +468,7 @@ else:
             )
         )
         await queue.put((message, 0.0))
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
         consumer_task.cancel()
         mock.assert_called_once()
         assert ack_queue.qsize() == 0
@@ -504,21 +501,17 @@ else:
             )
         )
         await queue.put((message, 0.0))
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
         mock.assert_called_once()
         consumer_task.cancel()
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
         assert not consumer_task.done()
         event.set()
         await asyncio.sleep(0)
         assert ack_queue.qsize() == 1
         await ack_queue.get()
         ack_queue.task_done()
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
         assert consumer_task.done()
 
     # ========

@@ -171,17 +171,17 @@ else:
             metrics_client: MetricsAgent) -> None:
         try:
             semaphore = asyncio.Semaphore(max_tasks)
-            while True:
-                await semaphore.acquire()
 
-                message, pulled_at = await message_queue.get()
+            async def _consume_one(message: SubscriberMessage,
+                                   pulled_at: float) -> None:
+                await semaphore.acquire()
 
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) >= ack_deadline:
                     metrics_client.increment('pubsub.consumer.failfast')
                     message_queue.task_done()
                     semaphore.release()
-                    continue
+                    return
 
                 metrics_client.histogram(
                     'pubsub.consumer.latency.receive',
@@ -198,24 +198,14 @@ else:
                 ))
                 task.add_done_callback(lambda _f: semaphore.release())
                 message_queue.task_done()
+
+            while True:
+                message, pulled_at = await message_queue.get()
+                await asyncio.shield(_consume_one(message, pulled_at))
         except asyncio.CancelledError:
             log.info('Consumer worker cancelled. Gracefully terminating...')
-            # we can't know if last task was even scheduled,
-            # so the best we can do is to wait roughly the same amount
-            # as was needed for previous locks
-            waits: List[float] = []
-            for i in range(max_tasks):
-                if i == (max_tasks - 1):
-                    try:
-                        timeout = sum(waits) / len(waits) if waits else 5.0
-                        await asyncio.wait_for(semaphore.acquire(),
-                                               timeout=timeout)
-                    except asyncio.TimeoutError:
-                        pass
-                else:
-                    start = time.perf_counter()
-                    await semaphore.acquire()
-                    waits.append(time.perf_counter() - start)
+            for _ in range(max_tasks):
+                await semaphore.acquire()
 
             await ack_queue.join()
             if nack_queue:
