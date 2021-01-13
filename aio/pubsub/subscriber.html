@@ -189,7 +189,7 @@ else:
             log.exception(&#39;Application callback raised an exception&#39;)
             metrics_client.increment(&#39;pubsub.consumer.failed&#39;)
 
-    async def consumer(
+    async def consumer(  # pylint: disable=too-many-locals
             message_queue: MessageQueue,
             callback: ApplicationHandler,
             ack_queue: &#39;asyncio.Queue[str]&#39;,
@@ -199,17 +199,17 @@ else:
             metrics_client: MetricsAgent) -&gt; None:
         try:
             semaphore = asyncio.Semaphore(max_tasks)
-            while True:
-                await semaphore.acquire()
 
-                message, pulled_at = await message_queue.get()
+            async def _consume_one(message: SubscriberMessage,
+                                   pulled_at: float) -&gt; None:
+                await semaphore.acquire()
 
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) &gt;= ack_deadline:
                     metrics_client.increment(&#39;pubsub.consumer.failfast&#39;)
                     message_queue.task_done()
                     semaphore.release()
-                    continue
+                    return
 
                 metrics_client.histogram(
                     &#39;pubsub.consumer.latency.receive&#39;,
@@ -226,10 +226,15 @@ else:
                 ))
                 task.add_done_callback(lambda _f: semaphore.release())
                 message_queue.task_done()
+
+            while True:
+                message, pulled_at = await message_queue.get()
+                await asyncio.shield(_consume_one(message, pulled_at))
         except asyncio.CancelledError:
             log.info(&#39;Consumer worker cancelled. Gracefully terminating...&#39;)
             for _ in range(max_tasks):
                 await semaphore.acquire()
+
             await ack_queue.join()
             if nack_queue:
                 await nack_queue.join()
@@ -332,8 +337,8 @@ else:
             for task in done:
                 task.result()
             raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
-        except Exception:
-            log.exception(&#39;Subscriber exited&#39;)
+        except Exception as e:
+            log.info(&#39;Subscriber exited&#39;, exc_info=e)
             for task in producer_tasks:
                 task.cancel()
             await asyncio.wait(producer_tasks,
@@ -409,7 +414,7 @@ else:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def consumer(
+<pre><code class="python">async def consumer(  # pylint: disable=too-many-locals
         message_queue: MessageQueue,
         callback: ApplicationHandler,
         ack_queue: &#39;asyncio.Queue[str]&#39;,
@@ -419,17 +424,17 @@ else:
         metrics_client: MetricsAgent) -&gt; None:
     try:
         semaphore = asyncio.Semaphore(max_tasks)
-        while True:
-            await semaphore.acquire()
 
-            message, pulled_at = await message_queue.get()
+        async def _consume_one(message: SubscriberMessage,
+                               pulled_at: float) -&gt; None:
+            await semaphore.acquire()
 
             ack_deadline = await ack_deadline_cache.get()
             if (time.perf_counter() - pulled_at) &gt;= ack_deadline:
                 metrics_client.increment(&#39;pubsub.consumer.failfast&#39;)
                 message_queue.task_done()
                 semaphore.release()
-                continue
+                return
 
             metrics_client.histogram(
                 &#39;pubsub.consumer.latency.receive&#39;,
@@ -446,10 +451,15 @@ else:
             ))
             task.add_done_callback(lambda _f: semaphore.release())
             message_queue.task_done()
+
+        while True:
+            message, pulled_at = await message_queue.get()
+            await asyncio.shield(_consume_one(message, pulled_at))
     except asyncio.CancelledError:
         log.info(&#39;Consumer worker cancelled. Gracefully terminating...&#39;)
         for _ in range(max_tasks):
             await semaphore.acquire()
+
         await ack_queue.join()
         if nack_queue:
             await nack_queue.join()
@@ -619,8 +629,8 @@ else:
         for task in done:
             task.result()
         raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
-    except Exception:
-        log.exception(&#39;Subscriber exited&#39;)
+    except Exception as e:
+        log.info(&#39;Subscriber exited&#39;, exc_info=e)
         for task in producer_tasks:
             task.cancel()
         await asyncio.wait(producer_tasks,
