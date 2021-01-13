@@ -514,6 +514,30 @@ else:
         await asyncio.sleep(0.1)
         assert consumer_task.done()
 
+    @pytest.mark.asyncio
+    async def test_consumer_gracefull_shutdown_without_pending_tasks(
+        ack_deadline_cache
+    ):
+        queue = asyncio.Queue()
+        ack_queue = asyncio.Queue()
+        nack_queue = asyncio.Queue()
+
+        consumer_task = asyncio.ensure_future(
+            consumer(
+                queue,
+                lambda _x: None,
+                ack_queue,
+                ack_deadline_cache,
+                1,
+                nack_queue,
+                MagicMock()
+            )
+        )
+        await asyncio.sleep(0.1)
+        consumer_task.cancel()
+        await asyncio.sleep(0.1)
+        assert consumer_task.done()
+
     # ========
     # acker
     # ========
