@@ -200,7 +200,7 @@ else:
                 message_queue.task_done()
         except asyncio.CancelledError:
             log.info('Consumer worker cancelled. Gracefully terminating...')
-            for _ in range(max_tasks - 1):
+            for _ in range(max(1, max_tasks - 1)):
                 await semaphore.acquire()
             await ack_queue.join()
             if nack_queue:
