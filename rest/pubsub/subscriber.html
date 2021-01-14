@@ -370,6 +370,7 @@ else:
             for task in acker_tasks:
                 task.cancel()
             asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
+            subscriber_client.session.close()
         raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
 </details>
 </section>
