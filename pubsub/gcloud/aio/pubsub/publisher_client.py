@@ -65,6 +65,49 @@ class PublisherClient:
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
 
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
+    async def list_topics(self, project: str,
+                          query_params: Optional[Dict[str, str]] = None,
+                          *, session: Optional[Session] = None
+                          ) -> Dict[str, Any]:
+        """
+        List topics
+        """
+        url = f'{API_ROOT}/{project}/topics'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=query_params)
+        result: Dict[str, Any] = await resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
+    async def create_topic(self, topic: str,
+                           body: Optional[Dict[str, Any]] = None,
+                           *, session: Optional[Session] = None
+                           ) -> Dict[str, Any]:
+        """
+        Create topic.
+        """
+        url = f'{API_ROOT}/{topic}'
+        headers = await self._headers()
+        encoded = json.dumps(body or {}).encode()
+        s = AioSession(session) if session else self.session
+        resp = await s.put(url, data=encoded, headers=headers, timeout=60)
+        result: Dict[str, Any] = await resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
+    async def delete_topic(self, topic: str,
+                           *, session: Optional[Session] = None
+                           ) -> None:
+        """
+        Delete topic.
+        """
+        url = f'{API_ROOT}/{topic}'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        await s.delete(url, headers=headers)
+
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/publish
     async def publish(self, topic: str, messages: List[PubsubMessage],
                       session: Optional[Session] = None,
