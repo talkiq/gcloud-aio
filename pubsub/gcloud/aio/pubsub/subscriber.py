@@ -224,7 +224,9 @@ else:
                 new_messages = []
                 try:
                     new_messages = await subscriber_client.pull(
-                        subscription=subscription, max_messages=max_messages)
+                        subscription=subscription,
+                        max_messages=max_messages,
+                        timeout=30)
                 except (asyncio.TimeoutError, KeyError):
                     continue
 
