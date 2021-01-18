@@ -83,8 +83,8 @@ class PublisherClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
     async def create_topic(self, topic: str,
                            body: Optional[Dict[str, Any]] = None,
-                           timeout: int = 60,
-                           *, session: Optional[Session] = None
+                           *, session: Optional[Session] = None,
+                           timeout: Optional[int] = None
                            ) -> Dict[str, Any]:
         """
         Create topic.
@@ -93,7 +93,8 @@ class PublisherClient:
         headers = await self._headers()
         encoded = json.dumps(body or {}).encode()
         s = AioSession(session) if session else self.session
-        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
+        kwargs = {} if timeout is None else {'timeout': timeout}
+        resp = await s.put(url, data=encoded, headers=headers, **kwargs)
         result: Dict[str, Any] = await resp.json()
         return result
 
