@@ -226,6 +226,10 @@ else:
                     new_messages = await subscriber_client.pull(
                         subscription=subscription,
                         max_messages=max_messages,
+                        # it is important to have this value reasonably high
+                        # as long lived connections may be left hanging
+                        # on a server which will cause delay in message
+                        # delivery or even false deadlettering
                         timeout=30)
                 except (asyncio.TimeoutError, KeyError):
                     continue
