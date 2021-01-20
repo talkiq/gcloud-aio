@@ -464,7 +464,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.PubsubMessage"><code class="flex name class">
 <span>class <span class="ident">PubsubMessage</span></span>
-<span>(</span><span>data: Union[bytes, str], **kwargs: Dict[str, Any])</span>
+<span>(</span><span>data: Union[bytes, str], ordering_key: str = '', **kwargs: Dict[str, Any])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -473,19 +473,23 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PubsubMessage:
-    def __init__(self, data: Union[bytes, str],
+    def __init__(self, data: Union[bytes, str], ordering_key: str = &#39;&#39;,
                  **kwargs: Dict[str, Any]) -&gt; None:
         self.data = data
         self.attributes = kwargs
+        self.ordering_key = ordering_key
 
     def __repr__(self) -&gt; str:
         return str(self.to_repr())
 
     def to_repr(self) -&gt; Dict[str, Any]:
-        return {
+        msg = {
             &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
             &#39;attributes&#39;: self.attributes,
-        }</code></pre>
+        }
+        if self.ordering_key:
+            msg[&#39;orderingKey&#39;] = self.ordering_key
+        return msg</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -499,10 +503,13 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self) -&gt; Dict[str, Any]:
-    return {
+    msg = {
         &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
         &#39;attributes&#39;: self.attributes,
-    }</code></pre>
+    }
+    if self.ordering_key:
+        msg[&#39;orderingKey&#39;] = self.ordering_key
+    return msg</code></pre>
 </details>
 </dd>
 </dl>

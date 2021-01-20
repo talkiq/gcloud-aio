@@ -397,7 +397,7 @@ def topic_path(cls, project     , topic     )       :
 </dd>
 <dt id="gcloud.rest.pubsub.PubsubMessage"><code class="flex name class">
 <span>class <span class="ident">PubsubMessage</span></span>
-<span>(</span><span>data, **kwargs)</span>
+<span>(</span><span>data, ordering_key='', **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -406,19 +406,23 @@ def topic_path(cls, project     , topic     )       :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PubsubMessage(object):
-    def __init__(self, data                   ,
+    def __init__(self, data                   , ordering_key      = &#39;&#39;,
                  **kwargs                )        :
         self.data = data
         self.attributes = kwargs
+        self.ordering_key = ordering_key
 
     def __repr__(self)       :
         return str(self.to_repr())
 
     def to_repr(self)                  :
-        return {
+        msg = {
             &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
             &#39;attributes&#39;: self.attributes,
-        }</code></pre>
+        }
+        if self.ordering_key:
+            msg[&#39;orderingKey&#39;] = self.ordering_key
+        return msg</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -432,10 +436,13 @@ def topic_path(cls, project     , topic     )       :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    return {
+    msg = {
         &#39;data&#39;: encode(self.data).decode(&#39;utf-8&#39;),
         &#39;attributes&#39;: self.attributes,
-    }</code></pre>
+    }
+    if self.ordering_key:
+        msg[&#39;orderingKey&#39;] = self.ordering_key
+    return msg</code></pre>
 </details>
 </dd>
 </dl>
