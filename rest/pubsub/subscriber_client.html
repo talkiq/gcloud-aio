@@ -103,6 +103,8 @@ class SubscriberClient(object):
                                   topic     ,
                                   body                           = None, **_3to2kwargs
                                   )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -115,7 +117,7 @@ class SubscriberClient(object):
         payload.update({&#39;topic&#39;: topic})
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers)
+        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
@@ -123,6 +125,8 @@ class SubscriberClient(object):
     def delete_subscription(self,
                                   subscription     , **_3to2kwargs
                                   )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -131,11 +135,13 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        s.delete(url, headers=headers)
+        s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
     def pull(self, subscription     , max_messages     , **_3to2kwargs
                    )                           :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -148,7 +154,8 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=encoded, headers=headers)
+        resp = s.post(url, data=encoded, headers=headers,
+                            timeout=timeout)
         resp = resp.json()
         return [
             SubscriberMessage.from_repr(m)
@@ -157,6 +164,8 @@ class SubscriberClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
     def acknowledge(self, subscription     , ack_ids           , **_3to2kwargs)        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -169,13 +178,15 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        s.post(url, data=encoded, headers=headers)
+        s.post(url, data=encoded, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     def modify_ack_deadline(self, subscription     ,
                                   ack_ids           ,
                                   ack_deadline_seconds     , **_3to2kwargs
                                   )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -190,11 +201,13 @@ class SubscriberClient(object):
         }
         s = SyncSession(session) if session else self.session
         s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
-                     headers=headers)
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
     def get_subscription(self, subscription     , **_3to2kwargs
                                )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -203,7 +216,7 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers)
+        resp = s.get(url, headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
@@ -211,6 +224,8 @@ class SubscriberClient(object):
     def list_subscriptions(self, project     ,
                                  query_params                           = None, **_3to2kwargs
                                  )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -219,7 +234,8 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers, params=query_params)
+        resp = s.get(url, headers=headers, params=query_params,
+                           timeout=timeout)
         result                 = resp.json()
         return result</code></pre>
 </details>
@@ -275,6 +291,8 @@ class SubscriberClient(object):
                                   topic     ,
                                   body                           = None, **_3to2kwargs
                                   )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -287,7 +305,7 @@ class SubscriberClient(object):
         payload.update({&#39;topic&#39;: topic})
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers)
+        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
@@ -295,6 +313,8 @@ class SubscriberClient(object):
     def delete_subscription(self,
                                   subscription     , **_3to2kwargs
                                   )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -303,11 +323,13 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        s.delete(url, headers=headers)
+        s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
     def pull(self, subscription     , max_messages     , **_3to2kwargs
                    )                           :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -320,7 +342,8 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=encoded, headers=headers)
+        resp = s.post(url, data=encoded, headers=headers,
+                            timeout=timeout)
         resp = resp.json()
         return [
             SubscriberMessage.from_repr(m)
@@ -329,6 +352,8 @@ class SubscriberClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
     def acknowledge(self, subscription     , ack_ids           , **_3to2kwargs)        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -341,13 +366,15 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        s.post(url, data=encoded, headers=headers)
+        s.post(url, data=encoded, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     def modify_ack_deadline(self, subscription     ,
                                   ack_ids           ,
                                   ack_deadline_seconds     , **_3to2kwargs
                                   )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -362,11 +389,13 @@ class SubscriberClient(object):
         }
         s = SyncSession(session) if session else self.session
         s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
-                     headers=headers)
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
     def get_subscription(self, subscription     , **_3to2kwargs
                                )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -375,7 +404,7 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers)
+        resp = s.get(url, headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
@@ -383,6 +412,8 @@ class SubscriberClient(object):
     def list_subscriptions(self, project     ,
                                  query_params                           = None, **_3to2kwargs
                                  )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         &#34;&#34;&#34;
@@ -391,7 +422,8 @@ class SubscriberClient(object):
         url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
         headers = self._headers()
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers, params=query_params)
+        resp = s.get(url, headers=headers, params=query_params,
+                           timeout=timeout)
         result                 = resp.json()
         return result</code></pre>
 </details>
@@ -407,6 +439,8 @@ class SubscriberClient(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def acknowledge(self, subscription     , ack_ids           , **_3to2kwargs)        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -419,7 +453,7 @@ class SubscriberClient(object):
     }
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    s.post(url, data=encoded, headers=headers)</code></pre>
+    s.post(url, data=encoded, headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription"><code class="name flex">
@@ -436,6 +470,8 @@ class SubscriberClient(object):
                               topic     ,
                               body                           = None, **_3to2kwargs
                               )                  :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -448,7 +484,7 @@ class SubscriberClient(object):
     payload.update({&#39;topic&#39;: topic})
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    resp = s.put(url, data=encoded, headers=headers)
+    resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
     result                 = resp.json()
     return result</code></pre>
 </details>
@@ -465,6 +501,8 @@ class SubscriberClient(object):
 <pre><code class="python">def delete_subscription(self,
                               subscription     , **_3to2kwargs
                               )        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -473,7 +511,7 @@ class SubscriberClient(object):
     url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
     headers = self._headers()
     s = SyncSession(session) if session else self.session
-    s.delete(url, headers=headers)</code></pre>
+    s.delete(url, headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.get_subscription"><code class="name flex">
@@ -487,6 +525,8 @@ class SubscriberClient(object):
 </summary>
 <pre><code class="python">def get_subscription(self, subscription     , **_3to2kwargs
                            )                  :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -495,7 +535,7 @@ class SubscriberClient(object):
     url = &#39;{}/v1/{}&#39;.format((API_ROOT), (subscription))
     headers = self._headers()
     s = SyncSession(session) if session else self.session
-    resp = s.get(url, headers=headers)
+    resp = s.get(url, headers=headers, timeout=timeout)
     result                 = resp.json()
     return result</code></pre>
 </details>
@@ -512,6 +552,8 @@ class SubscriberClient(object):
 <pre><code class="python">def list_subscriptions(self, project     ,
                              query_params                           = None, **_3to2kwargs
                              )                  :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -520,7 +562,8 @@ class SubscriberClient(object):
     url = &#39;{}/v1/{}/subscriptions&#39;.format((API_ROOT), (project))
     headers = self._headers()
     s = SyncSession(session) if session else self.session
-    resp = s.get(url, headers=headers, params=query_params)
+    resp = s.get(url, headers=headers, params=query_params,
+                       timeout=timeout)
     result                 = resp.json()
     return result</code></pre>
 </details>
@@ -538,6 +581,8 @@ class SubscriberClient(object):
                               ack_ids           ,
                               ack_deadline_seconds     , **_3to2kwargs
                               )        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -552,7 +597,7 @@ class SubscriberClient(object):
     }
     s = SyncSession(session) if session else self.session
     s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
-                 headers=headers)</code></pre>
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.pull"><code class="name flex">
@@ -566,6 +611,8 @@ class SubscriberClient(object):
 </summary>
 <pre><code class="python">def pull(self, subscription     , max_messages     , **_3to2kwargs
                )                           :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  30
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     &#34;&#34;&#34;
@@ -578,7 +625,8 @@ class SubscriberClient(object):
     }
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=encoded, headers=headers)
+    resp = s.post(url, data=encoded, headers=headers,
+                        timeout=timeout)
     resp = resp.json()
     return [
         SubscriberMessage.from_repr(m)
