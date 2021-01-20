@@ -108,6 +108,59 @@ class PublisherClient(object):
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
 
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
+    def list_topics(self, project     ,
+                          query_params                           = None, **_3to2kwargs
+                          )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        List topics
+        &#34;&#34;&#34;
+        url = &#39;{}/{}/topics&#39;.format((API_ROOT), (project))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=query_params,
+                           timeout=timeout)
+        result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
+    def create_topic(self, topic     ,
+                           body                           = None, **_3to2kwargs
+                           )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Create topic.
+        &#34;&#34;&#34;
+        url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+        headers = self._headers()
+        encoded = json.dumps(body or {}).encode()
+        s = SyncSession(session) if session else self.session
+        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
+    def delete_topic(self, topic     , **_3to2kwargs
+                           )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Delete topic.
+        &#34;&#34;&#34;
+        url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        s.delete(url, headers=headers, timeout=timeout)
+
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/publish
     def publish(self, topic     , messages                     ,
                       session                    = None,
@@ -196,6 +249,59 @@ class PublisherClient(object):
 
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
+    def list_topics(self, project     ,
+                          query_params                           = None, **_3to2kwargs
+                          )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        List topics
+        &#34;&#34;&#34;
+        url = &#39;{}/{}/topics&#39;.format((API_ROOT), (project))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=query_params,
+                           timeout=timeout)
+        result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
+    def create_topic(self, topic     ,
+                           body                           = None, **_3to2kwargs
+                           )                  :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Create topic.
+        &#34;&#34;&#34;
+        url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+        headers = self._headers()
+        encoded = json.dumps(body or {}).encode()
+        s = SyncSession(session) if session else self.session
+        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        result                 = resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
+    def delete_topic(self, topic     , **_3to2kwargs
+                           )        :
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        &#34;&#34;&#34;
+        Delete topic.
+        &#34;&#34;&#34;
+        url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+        headers = self._headers()
+        s = SyncSession(session) if session else self.session
+        s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/publish
     def publish(self, topic     , messages                     ,
@@ -290,6 +396,86 @@ def topic_path(cls, project     , topic     )       :
     self.session.close()</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.pubsub.publisher_client.PublisherClient.create_topic"><code class="name flex">
+<span>def <span class="ident">create_topic</span></span>(<span>self, topic, body=None, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_topic(self, topic     ,
+                       body                           = None, **_3to2kwargs
+                       )                  :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Create topic.
+    &#34;&#34;&#34;
+    url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+    headers = self._headers()
+    encoded = json.dumps(body or {}).encode()
+    s = SyncSession(session) if session else self.session
+    resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+    result                 = resp.json()
+    return result</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.publisher_client.PublisherClient.delete_topic"><code class="name flex">
+<span>def <span class="ident">delete_topic</span></span>(<span>self, topic, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_topic(self, topic     , **_3to2kwargs
+                       )        :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    Delete topic.
+    &#34;&#34;&#34;
+    url = &#39;{}/{}&#39;.format((API_ROOT), (topic))
+    headers = self._headers()
+    s = SyncSession(session) if session else self.session
+    s.delete(url, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.publisher_client.PublisherClient.list_topics"><code class="name flex">
+<span>def <span class="ident">list_topics</span></span>(<span>self, project, query_params=None, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_topics(self, project     ,
+                      query_params                           = None, **_3to2kwargs
+                      )                  :
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    &#34;&#34;&#34;
+    List topics
+    &#34;&#34;&#34;
+    url = &#39;{}/{}/topics&#39;.format((API_ROOT), (project))
+    headers = self._headers()
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=query_params,
+                       timeout=timeout)
+    result                 = resp.json()
+    return result</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.pubsub.publisher_client.PublisherClient.publish"><code class="name flex">
 <span>def <span class="ident">publish</span></span>(<span>self, topic, messages, session=None, timeout=10)</span>
 </code></dt>
@@ -343,8 +529,11 @@ def topic_path(cls, project     , topic     )       :
 <ul>
 <li>
 <h4><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient" href="#gcloud.rest.pubsub.publisher_client.PublisherClient">PublisherClient</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.close" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.close">close</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.create_topic" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.create_topic">create_topic</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.delete_topic" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.delete_topic">delete_topic</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.list_topics" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.list_topics">list_topics</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.project_path" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.project_path">project_path</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.publish" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.publish">publish</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.publisher_client.PublisherClient.subscription_path" href="#gcloud.rest.pubsub.publisher_client.PublisherClient.subscription_path">subscription_path</a></code></li>
