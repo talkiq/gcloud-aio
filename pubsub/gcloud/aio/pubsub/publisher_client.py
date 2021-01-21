@@ -21,6 +21,7 @@ else:
 
 
 API_ROOT = 'https://pubsub.googleapis.com/v1'
+VERIFY_SSL = True
 SCOPES = [
     'https://www.googleapis.com/auth/pubsub',
 ]
@@ -29,6 +30,7 @@ SCOPES = [
 PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
 if PUBSUB_EMULATOR_HOST:
     API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}/v1'
+    VERIFY_SSL = False
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class PublisherClient:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = AioSession(session)
+        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
