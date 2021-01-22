@@ -63,9 +63,7 @@ class PublisherClient:
             return headers
 
         token = await self.token.get()
-        headers.update({
-            'Authorization': f'Bearer {token}'
-        })
+        headers['Authorization'] = f'Bearer {token}'
         return headers
 
     # TODO: implement that various methods from:
@@ -131,10 +129,7 @@ class PublisherClient:
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self._headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
+        headers['Content-Length'] = str(len(payload))
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,

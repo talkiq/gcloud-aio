@@ -51,9 +51,7 @@ class SubscriberClient:
             return headers
 
         token = await self.token.get()
-        headers.update({
-            'Authorization': f'Bearer {token}'
-        })
+        headers['Authorization'] = f'Bearer {token}'
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
