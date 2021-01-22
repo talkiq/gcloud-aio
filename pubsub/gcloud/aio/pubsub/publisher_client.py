@@ -21,6 +21,7 @@ else:
 
 
 API_ROOT = 'https://pubsub.googleapis.com/v1'
+VERIFY_SSL = True
 SCOPES = [
     'https://www.googleapis.com/auth/pubsub',
 ]
@@ -29,6 +30,7 @@ SCOPES = [
 PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
 if PUBSUB_EMULATOR_HOST:
     API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}/v1'
+    VERIFY_SSL = False
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ class PublisherClient:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
-        self.session = AioSession(session)
+        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -54,13 +56,15 @@ class PublisherClient:
         return f'{cls.project_path(project)}/topics/{topic}'
 
     async def _headers(self) -> Dict[str, str]:
+        headers = {
+            'Content-Type': 'application/json'
+        }
         if PUBSUB_EMULATOR_HOST:
-            return {}
+            return headers
 
         token = await self.token.get()
-        return {
-            'Authorization': f'Bearer {token}',
-        }
+        headers['Authorization'] = f'Bearer {token}'
+        return headers
 
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
@@ -125,10 +129,7 @@ class PublisherClient:
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self._headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
+        headers['Content-Length'] = str(len(payload))
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
