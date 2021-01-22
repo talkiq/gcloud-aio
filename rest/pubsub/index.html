@@ -106,7 +106,7 @@ if not BUILD_GCLOUD_REST:
         else: session =  None
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
-        self.session = SyncSession(session)
+        self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -123,13 +123,15 @@ if not BUILD_GCLOUD_REST:
         return &#39;{}/topics/{}&#39;.format((cls.project_path(project)), (topic))
 
     def _headers(self)                  :
+        headers = {
+            &#39;Content-Type&#39;: &#39;application/json&#39;
+        }
         if PUBSUB_EMULATOR_HOST:
-            return {}
+            return headers
 
         token = self.token.get()
-        return {
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token)),
-        }
+        headers[&#39;Authorization&#39;] = &#39;Bearer {}&#39;.format((token))
+        return headers
 
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
@@ -200,10 +202,7 @@ if not BUILD_GCLOUD_REST:
         payload = json.dumps(body).encode(&#39;utf-8&#39;)
 
         headers = self._headers()
-        headers.update({
-            &#39;Content-Length&#39;: str(len(payload)),
-            &#39;Content-Type&#39;: &#39;application/json&#39;,
-        })
+        headers[&#39;Content-Length&#39;] = str(len(payload))
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, data=payload, headers=headers,
@@ -381,10 +380,7 @@ def topic_path(cls, project     , topic     )       :
     payload = json.dumps(body).encode(&#39;utf-8&#39;)
 
     headers = self._headers()
-    headers.update({
-        &#39;Content-Length&#39;: str(len(payload)),
-        &#39;Content-Type&#39;: &#39;application/json&#39;,
-    })
+    headers[&#39;Content-Length&#39;] = str(len(payload))
 
     s = SyncSession(session) if session else self.session
     resp = s.post(url, data=payload, headers=headers,
@@ -478,9 +474,7 @@ def topic_path(cls, project     , topic     )       :
             return headers
 
         token = self.token.get()
-        headers.update({
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token))
-        })
+        headers[&#39;Authorization&#39;] = &#39;Bearer {}&#39;.format((token))
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create

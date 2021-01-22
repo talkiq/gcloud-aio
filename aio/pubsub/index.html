@@ -185,7 +185,7 @@ if not BUILD_GCLOUD_REST:
     def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
-        self.session = AioSession(session)
+        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
 
@@ -202,13 +202,15 @@ if not BUILD_GCLOUD_REST:
         return f&#39;{cls.project_path(project)}/topics/{topic}&#39;
 
     async def _headers(self) -&gt; Dict[str, str]:
+        headers = {
+            &#39;Content-Type&#39;: &#39;application/json&#39;
+        }
         if PUBSUB_EMULATOR_HOST:
-            return {}
+            return headers
 
         token = await self.token.get()
-        return {
-            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;,
-        }
+        headers[&#39;Authorization&#39;] = f&#39;Bearer {token}&#39;
+        return headers
 
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
@@ -273,10 +275,7 @@ if not BUILD_GCLOUD_REST:
         payload = json.dumps(body).encode(&#39;utf-8&#39;)
 
         headers = await self._headers()
-        headers.update({
-            &#39;Content-Length&#39;: str(len(payload)),
-            &#39;Content-Type&#39;: &#39;application/json&#39;,
-        })
+        headers[&#39;Content-Length&#39;] = str(len(payload))
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
@@ -448,10 +447,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
     payload = json.dumps(body).encode(&#39;utf-8&#39;)
 
     headers = await self._headers()
-    headers.update({
-        &#39;Content-Length&#39;: str(len(payload)),
-        &#39;Content-Type&#39;: &#39;application/json&#39;,
-    })
+    headers[&#39;Content-Length&#39;] = str(len(payload))
 
     s = AioSession(session) if session else self.session
     resp = await s.post(url, data=payload, headers=headers,
@@ -542,9 +538,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
             return headers
 
         token = await self.token.get()
-        headers.update({
-            &#39;Authorization&#39;: f&#39;Bearer {token}&#39;
-        })
+        headers[&#39;Authorization&#39;] = f&#39;Bearer {token}&#39;
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create

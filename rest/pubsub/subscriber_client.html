@@ -92,9 +92,7 @@ class SubscriberClient(object):
             return headers
 
         token = self.token.get()
-        headers.update({
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token))
-        })
+        headers[&#39;Authorization&#39;] = &#39;Bearer {}&#39;.format((token))
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
@@ -280,9 +278,7 @@ class SubscriberClient(object):
             return headers
 
         token = self.token.get()
-        headers.update({
-            &#39;Authorization&#39;: &#39;Bearer {}&#39;.format((token))
-        })
+        headers[&#39;Authorization&#39;] = &#39;Bearer {}&#39;.format((token))
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
