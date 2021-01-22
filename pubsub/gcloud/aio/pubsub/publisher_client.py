@@ -56,13 +56,17 @@ class PublisherClient:
         return f'{cls.project_path(project)}/topics/{topic}'
 
     async def _headers(self) -> Dict[str, str]:
+        headers = {
+            'Content-Type': 'application/json'
+        }
         if PUBSUB_EMULATOR_HOST:
-            return {}
+            return headers
 
         token = await self.token.get()
-        return {
-            'Authorization': f'Bearer {token}',
-        }
+        headers.update({
+            'Authorization': f'Bearer {token}'
+        })
+        return headers
 
     # TODO: implement that various methods from:
     # https://github.com/googleapis/python-pubsub/blob/master/google/cloud/pubsub_v1/gapic/publisher_client.py
