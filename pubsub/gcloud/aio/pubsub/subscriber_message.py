@@ -40,7 +40,7 @@ class SubscriberMessage:
                                  attributes=attributes)
 
     def to_repr(self) -> Dict[str, Any]:
-        r = {
+        r: Dict[str, Any] = {
             'ackId': self.ack_id,
             'message': {
                 'messageId': self.message_id,
@@ -48,7 +48,7 @@ class SubscriberMessage:
             }
         }
         if self.attributes:
-            r['message']['attributes'] = self.attributes  # type: ignore
+            r['message']['attributes'] = self.attributes
         if self.data:
-            r['message']['data'] = base64.b64encode(self.data)  # type: ignore
+            r['message']['data'] = base64.b64encode(self.data)
         return r
