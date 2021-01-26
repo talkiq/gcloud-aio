@@ -47,8 +47,8 @@ class SubscriberMessage:
                 'publishTime': self.publish_time.strftime('%Y-%m-%dT%H:%M:%SZ')
             }
         }
-        if self.attributes:
+        if self.attributes is not None:
             r['message']['attributes'] = self.attributes
-        if self.data:
+        if self.data is not None:
             r['message']['data'] = base64.b64encode(self.data)
         return r
