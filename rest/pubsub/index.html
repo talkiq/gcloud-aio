@@ -841,7 +841,7 @@ def topic_path(cls, project     , topic     )       :
 <pre><code class="python">class SubscriberMessage(object):
     def __init__(self, ack_id     , message_id     ,
                  publish_time                     ,
-                 data       ,
+                 data                 ,
                  attributes                          ):
         self.ack_id = ack_id
         self.message_id = message_id
@@ -854,7 +854,8 @@ def topic_path(cls, project     , topic     )       :
                   )                       :
         ack_id = received_message[&#39;ackId&#39;]
         message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
-        data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+        raw_data = received_message[&#39;message&#39;].get(&#39;data&#39;)
+        data = base64.b64decode(raw_data) if raw_data is not None else None
         attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
         publish_time                    = parse_publish_time(
             received_message[&#39;message&#39;][&#39;publishTime&#39;])
@@ -863,15 +864,18 @@ def topic_path(cls, project     , topic     )       :
                                  attributes=attributes)
 
     def to_repr(self)                  :
-        return {
+        r                 = {
             &#39;ackId&#39;: self.ack_id,
             &#39;message&#39;: {
                 &#39;messageId&#39;: self.message_id,
-                &#39;attributes&#39;: self.attributes,
-                &#39;data&#39;: base64.b64encode(self.data),
                 &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
             }
-        }</code></pre>
+        }
+        if self.attributes is not None:
+            r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
+        if self.data is not None:
+            r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+        return r</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -889,7 +893,8 @@ def from_repr(received_message
               )                       :
     ack_id = received_message[&#39;ackId&#39;]
     message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
-    data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+    raw_data = received_message[&#39;message&#39;].get(&#39;data&#39;)
+    data = base64.b64decode(raw_data) if raw_data is not None else None
     attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
     publish_time                    = parse_publish_time(
         received_message[&#39;message&#39;][&#39;publishTime&#39;])
@@ -911,15 +916,18 @@ def from_repr(received_message
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self)                  :
-    return {
+    r                 = {
         &#39;ackId&#39;: self.ack_id,
         &#39;message&#39;: {
             &#39;messageId&#39;: self.message_id,
-            &#39;attributes&#39;: self.attributes,
-            &#39;data&#39;: base64.b64encode(self.data),
             &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
         }
-    }</code></pre>
+    }
+    if self.attributes is not None:
+        r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
+    if self.data is not None:
+        r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+    return r</code></pre>
 </details>
 </dd>
 </dl>

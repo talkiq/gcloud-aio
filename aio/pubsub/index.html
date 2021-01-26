@@ -871,7 +871,7 @@ Set ack deadline to 0 to nack messages.</p></div>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberMessage"><code class="flex name class">
 <span>class <span class="ident">SubscriberMessage</span></span>
-<span>(</span><span>ack_id: str, message_id: str, publish_time: datetime.datetime, data: bytes, attributes: Optional[Dict[str, Any]])</span>
+<span>(</span><span>ack_id: str, message_id: str, publish_time: datetime.datetime, data: Optional[bytes], attributes: Optional[Dict[str, Any]])</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -882,7 +882,7 @@ Set ack deadline to 0 to nack messages.</p></div>
 <pre><code class="python">class SubscriberMessage:
     def __init__(self, ack_id: str, message_id: str,
                  publish_time: &#39;datetime.datetime&#39;,
-                 data: bytes,
+                 data: Optional[bytes],
                  attributes: Optional[Dict[str, Any]]):
         self.ack_id = ack_id
         self.message_id = message_id
@@ -895,7 +895,8 @@ Set ack deadline to 0 to nack messages.</p></div>
                   ) -&gt; &#39;SubscriberMessage&#39;:
         ack_id = received_message[&#39;ackId&#39;]
         message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
-        data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+        raw_data = received_message[&#39;message&#39;].get(&#39;data&#39;)
+        data = base64.b64decode(raw_data) if raw_data is not None else None
         attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
         publish_time: datetime.datetime = parse_publish_time(
             received_message[&#39;message&#39;][&#39;publishTime&#39;])
@@ -904,15 +905,18 @@ Set ack deadline to 0 to nack messages.</p></div>
                                  attributes=attributes)
 
     def to_repr(self) -&gt; Dict[str, Any]:
-        return {
+        r: Dict[str, Any] = {
             &#39;ackId&#39;: self.ack_id,
             &#39;message&#39;: {
                 &#39;messageId&#39;: self.message_id,
-                &#39;attributes&#39;: self.attributes,
-                &#39;data&#39;: base64.b64encode(self.data),
                 &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
             }
-        }</code></pre>
+        }
+        if self.attributes is not None:
+            r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
+        if self.data is not None:
+            r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+        return r</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -930,7 +934,8 @@ def from_repr(received_message: Dict[str, Any]
               ) -&gt; &#39;SubscriberMessage&#39;:
     ack_id = received_message[&#39;ackId&#39;]
     message_id = received_message[&#39;message&#39;][&#39;messageId&#39;]
-    data = base64.b64decode(received_message[&#39;message&#39;][&#39;data&#39;])
+    raw_data = received_message[&#39;message&#39;].get(&#39;data&#39;)
+    data = base64.b64decode(raw_data) if raw_data is not None else None
     attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
     publish_time: datetime.datetime = parse_publish_time(
         received_message[&#39;message&#39;][&#39;publishTime&#39;])
@@ -952,15 +957,18 @@ def from_repr(received_message: Dict[str, Any]
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_repr(self) -&gt; Dict[str, Any]:
-    return {
+    r: Dict[str, Any] = {
         &#39;ackId&#39;: self.ack_id,
         &#39;message&#39;: {
             &#39;messageId&#39;: self.message_id,
-            &#39;attributes&#39;: self.attributes,
-            &#39;data&#39;: base64.b64encode(self.data),
             &#39;publishTime&#39;: self.publish_time.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;)
         }
-    }</code></pre>
+    }
+    if self.attributes is not None:
+        r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
+    if self.data is not None:
+        r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+    return r</code></pre>
 </details>
 </dd>
 </dl>
