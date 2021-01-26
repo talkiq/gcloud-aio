@@ -32,3 +32,20 @@ def test_construct_subscriber_message_from_message_dict():
     assert message.data == b'{"foo": "bar"}'
     assert message.publish_time == datetime.datetime(
         2020, 1, 1, 0, 0, 1)
+
+
+def test_construct_subscriber_message_no_data_no_attrs():
+    message_dict = {
+        'ackId': 'some_ack_id',
+        'message': {
+            'messageId': '123',
+            'publishTime': '2020-01-01T00:00:01.000Z'
+        }
+    }
+    message = SubscriberMessage.from_repr(message_dict)
+    assert message.ack_id == 'some_ack_id'
+    assert message.attributes is None
+    assert message.message_id == '123'
+    assert message.data is None
+    assert message.publish_time == datetime.datetime(
+        2020, 1, 1, 0, 0, 1)

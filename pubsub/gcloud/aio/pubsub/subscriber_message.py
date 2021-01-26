@@ -17,7 +17,7 @@ def parse_publish_time(publish_time: str) -> datetime.datetime:
 class SubscriberMessage:
     def __init__(self, ack_id: str, message_id: str,
                  publish_time: 'datetime.datetime',
-                 data: bytes,
+                 data: Optional[bytes],
                  attributes: Optional[Dict[str, Any]]):
         self.ack_id = ack_id
         self.message_id = message_id
@@ -30,7 +30,8 @@ class SubscriberMessage:
                   ) -> 'SubscriberMessage':
         ack_id = received_message['ackId']
         message_id = received_message['message']['messageId']
-        data = base64.b64decode(received_message['message']['data'])
+        raw_data = received_message['message'].get('data')
+        data = base64.b64decode(raw_data) if raw_data is not None else None
         attributes = received_message['message'].get('attributes')
         publish_time: datetime.datetime = parse_publish_time(
             received_message['message']['publishTime'])
@@ -39,12 +40,15 @@ class SubscriberMessage:
                                  attributes=attributes)
 
     def to_repr(self) -> Dict[str, Any]:
-        return {
+        r = {
             'ackId': self.ack_id,
             'message': {
                 'messageId': self.message_id,
-                'attributes': self.attributes,
-                'data': base64.b64encode(self.data),
                 'publishTime': self.publish_time.strftime('%Y-%m-%dT%H:%M:%SZ')
             }
         }
+        if self.attributes:
+            r['message']['attributes'] = self.attributes  # type: ignore
+        if self.data:
+            r['message']['data'] = base64.b64encode(self.data)  # type: ignore
+        return r
