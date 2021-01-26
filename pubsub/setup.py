@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-pubsub',
-    version='4.2.0',
+    version='4.2.1',
     description='Python Client for Google Cloud Pub/Sub',
     long_description=README,
     namespace_packages=[
