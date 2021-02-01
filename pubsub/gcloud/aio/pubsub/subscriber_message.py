@@ -19,7 +19,7 @@ class SubscriberMessage:
                  publish_time: 'datetime.datetime',
                  data: Optional[bytes],
                  attributes: Optional[Dict[str, Any]],
-                 delivery_attempt: Optional[int]):
+                 delivery_attempt: Optional[int] = None):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
