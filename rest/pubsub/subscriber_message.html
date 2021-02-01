@@ -56,12 +56,14 @@ class SubscriberMessage(object):
     def __init__(self, ack_id     , message_id     ,
                  publish_time                     ,
                  data                 ,
-                 attributes                          ):
+                 attributes                          ,
+                 delivery_attempt                = None):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
         self.data = data
         self.attributes = attributes
+        self.delivery_attempt = delivery_attempt
 
     @staticmethod
     def from_repr(received_message                
@@ -73,9 +75,11 @@ class SubscriberMessage(object):
         attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
         publish_time                    = parse_publish_time(
             received_message[&#39;message&#39;][&#39;publishTime&#39;])
+        delivery_attempt = received_message.get(&#39;deliveryAttempt&#39;)
         return SubscriberMessage(ack_id=ack_id, message_id=message_id,
                                  publish_time=publish_time, data=data,
-                                 attributes=attributes)
+                                 attributes=attributes,
+                                 delivery_attempt=delivery_attempt)
 
     def to_repr(self)                  :
         r                 = {
@@ -89,6 +93,8 @@ class SubscriberMessage(object):
             r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
         if self.data is not None:
             r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+        if self.delivery_attempt is not None:
+            r[&#39;deliveryAttempt&#39;] = self.delivery_attempt
         return r</code></pre>
 </details>
 </section>
@@ -124,7 +130,7 @@ class SubscriberMessage(object):
 <dl>
 <dt id="gcloud.rest.pubsub.subscriber_message.SubscriberMessage"><code class="flex name class">
 <span>class <span class="ident">SubscriberMessage</span></span>
-<span>(</span><span>ack_id, message_id, publish_time, data, attributes)</span>
+<span>(</span><span>ack_id, message_id, publish_time, data, attributes, delivery_attempt=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -136,12 +142,14 @@ class SubscriberMessage(object):
     def __init__(self, ack_id     , message_id     ,
                  publish_time                     ,
                  data                 ,
-                 attributes                          ):
+                 attributes                          ,
+                 delivery_attempt                = None):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
         self.data = data
         self.attributes = attributes
+        self.delivery_attempt = delivery_attempt
 
     @staticmethod
     def from_repr(received_message                
@@ -153,9 +161,11 @@ class SubscriberMessage(object):
         attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
         publish_time                    = parse_publish_time(
             received_message[&#39;message&#39;][&#39;publishTime&#39;])
+        delivery_attempt = received_message.get(&#39;deliveryAttempt&#39;)
         return SubscriberMessage(ack_id=ack_id, message_id=message_id,
                                  publish_time=publish_time, data=data,
-                                 attributes=attributes)
+                                 attributes=attributes,
+                                 delivery_attempt=delivery_attempt)
 
     def to_repr(self)                  :
         r                 = {
@@ -169,6 +179,8 @@ class SubscriberMessage(object):
             r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
         if self.data is not None:
             r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+        if self.delivery_attempt is not None:
+            r[&#39;deliveryAttempt&#39;] = self.delivery_attempt
         return r</code></pre>
 </details>
 <h3>Static methods</h3>
@@ -192,9 +204,11 @@ def from_repr(received_message
     attributes = received_message[&#39;message&#39;].get(&#39;attributes&#39;)
     publish_time                    = parse_publish_time(
         received_message[&#39;message&#39;][&#39;publishTime&#39;])
+    delivery_attempt = received_message.get(&#39;deliveryAttempt&#39;)
     return SubscriberMessage(ack_id=ack_id, message_id=message_id,
                              publish_time=publish_time, data=data,
-                             attributes=attributes)</code></pre>
+                             attributes=attributes,
+                             delivery_attempt=delivery_attempt)</code></pre>
 </details>
 </dd>
 </dl>
@@ -221,6 +235,8 @@ def from_repr(received_message
         r[&#39;message&#39;][&#39;attributes&#39;] = self.attributes
     if self.data is not None:
         r[&#39;message&#39;][&#39;data&#39;] = base64.b64encode(self.data)
+    if self.delivery_attempt is not None:
+        r[&#39;deliveryAttempt&#39;] = self.delivery_attempt
     return r</code></pre>
 </details>
 </dd>
