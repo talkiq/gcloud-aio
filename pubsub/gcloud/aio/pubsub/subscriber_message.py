@@ -18,12 +18,14 @@ class SubscriberMessage:
     def __init__(self, ack_id: str, message_id: str,
                  publish_time: 'datetime.datetime',
                  data: Optional[bytes],
-                 attributes: Optional[Dict[str, Any]]):
+                 attributes: Optional[Dict[str, Any]],
+                 delivery_attempt: Optional[int] = None):
         self.ack_id = ack_id
         self.message_id = message_id
         self.publish_time = publish_time
         self.data = data
         self.attributes = attributes
+        self.delivery_attempt = delivery_attempt
 
     @staticmethod
     def from_repr(received_message: Dict[str, Any]
@@ -35,9 +37,11 @@ class SubscriberMessage:
         attributes = received_message['message'].get('attributes')
         publish_time: datetime.datetime = parse_publish_time(
             received_message['message']['publishTime'])
+        delivery_attempt = received_message.get('deliveryAttempt')
         return SubscriberMessage(ack_id=ack_id, message_id=message_id,
                                  publish_time=publish_time, data=data,
-                                 attributes=attributes)
+                                 attributes=attributes,
+                                 delivery_attempt=delivery_attempt)
 
     def to_repr(self) -> Dict[str, Any]:
         r: Dict[str, Any] = {
@@ -51,4 +55,6 @@ class SubscriberMessage:
             r['message']['attributes'] = self.attributes
         if self.data is not None:
             r['message']['data'] = base64.b64encode(self.data)
+        if self.delivery_attempt is not None:
+            r['deliveryAttempt'] = self.delivery_attempt
         return r
