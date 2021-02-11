@@ -106,11 +106,12 @@ else:
                     aiohttp.client_exceptions.ClientResponseError)
                 if is_response_error and e.status == 400:  # type: ignore # pylint: disable=no-member
                     log.warning(
-                        'Ack error is unrecoverable, dropping the whole batch')
-                    for i in ack_ids:
+                        'Ack error is unrecoverable, '
+                        'one or more messages may be dropped')
+                    for ack_id in ack_ids:
                         asyncio.ensure_future(
                             subscriber_client.acknowledge(subscription,
-                                                          ack_ids=[i])
+                                                          ack_ids=[ack_id])
                         )
                     ack_ids = []
 
@@ -157,13 +158,13 @@ else:
                     aiohttp.client_exceptions.ClientResponseError)
                 if is_response_error and e.status == 400:  # type: ignore # pylint: disable=no-member
                     log.warning(
-                        'Nack error is unrecoverable,'
-                        ' dropping the whole batch')
-                    for i in ack_ids:
+                        'Nack error is unrecoverable, '
+                        'one or more messages may be dropped')
+                    for ack_id in ack_ids:
                         asyncio.ensure_future(
                             subscriber_client.modify_ack_deadline(
                                 subscription,
-                                ack_ids=[i],
+                                ack_ids=[ack_id],
                                 ack_deadline_seconds=0)
                         )
                     ack_ids = []
