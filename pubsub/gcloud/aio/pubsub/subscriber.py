@@ -3,6 +3,7 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST
 if BUILD_GCLOUD_REST:
     pass
 else:
+    import aiohttp
     import asyncio
     import logging
     import time
@@ -99,6 +100,20 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+
+                is_response_error = isinstance(
+                    e,
+                    aiohttp.client_exceptions.ClientResponseError)
+                if is_response_error and e.status == 400:  # type: ignore # pylint: disable=no-member
+                    log.warning(
+                        'Ack error is unrecoverable, dropping the whole batch')
+                    for i in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.acknowledge(subscription,
+                                                          ack_ids=[i])
+                        )
+                    ack_ids = []
+
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
@@ -136,6 +151,23 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+
+                is_response_error = isinstance(
+                    e,
+                    aiohttp.client_exceptions.ClientResponseError)
+                if is_response_error and e.status == 400:  # type: ignore # pylint: disable=no-member
+                    log.warning(
+                        'Nack error is unrecoverable,'
+                        ' dropping the whole batch')
+                    for i in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.modify_ack_deadline(
+                                subscription,
+                                ack_ids=[i],
+                                ack_deadline_seconds=0)
+                        )
+                    ack_ids = []
+
                 continue
 
             metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))

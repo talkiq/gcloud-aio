@@ -4,6 +4,7 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST
 if BUILD_GCLOUD_REST:
     pass
 else:
+    import aiohttp
     import asyncio
     import time
     from unittest.mock import call
@@ -641,6 +642,40 @@ else:
             ]
         )
 
+    @pytest.mark.asyncio
+    async def test_acker_batches_not_retried_on_400(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise aiohttp.client_exceptions.ClientResponseError(
+                None, None, status=400)
+        subscriber_client.acknowledge = f
+
+        queue = asyncio.Queue()
+        acker_task = asyncio.ensure_future(
+            acker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.1,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id_1')
+        await queue.put('ack_id_2')
+        await asyncio.sleep(0.3)
+        acker_task.cancel()
+        assert queue.qsize() == 0
+        mock.assert_has_calls(
+            [
+                call('fake_subscription', ack_ids=['ack_id_1', 'ack_id_2']),
+                call('fake_subscription', ack_ids=['ack_id_1']),
+                call('fake_subscription', ack_ids=['ack_id_2']),
+            ]
+        )
+
     # ========
     # nacker
     # ========
@@ -745,6 +780,43 @@ else:
                      ack_ids=['ack_id_1', 'ack_id_2'], ack_deadline_seconds=0),
                 call('fake_subscription',
                      ack_ids=['ack_id_1', 'ack_id_2'], ack_deadline_seconds=0),
+            ]
+        )
+
+    @pytest.mark.asyncio
+    async def test_nacker_batches_not_retried_on_400(subscriber_client):
+        mock = MagicMock()
+
+        async def f(*args, **kwargs):
+            await asyncio.sleep(0)
+            mock(*args, **kwargs)
+            raise aiohttp.client_exceptions.ClientResponseError(
+                None, None, status=400)
+        subscriber_client.modify_ack_deadline = f
+
+        queue = asyncio.Queue()
+        nacker_task = asyncio.ensure_future(
+            nacker(
+                'fake_subscription',
+                queue,
+                subscriber_client,
+                0.1,
+                MagicMock()
+            )
+        )
+        await queue.put('ack_id_1')
+        await queue.put('ack_id_2')
+        await asyncio.sleep(0.3)
+        nacker_task.cancel()
+        assert queue.qsize() == 0
+        mock.assert_has_calls(
+            [
+                call('fake_subscription',
+                     ack_ids=['ack_id_1', 'ack_id_2'], ack_deadline_seconds=0),
+                call('fake_subscription',
+                     ack_ids=['ack_id_1'], ack_deadline_seconds=0),
+                call('fake_subscription',
+                     ack_ids=['ack_id_2'], ack_deadline_seconds=0),
             ]
         )
 
