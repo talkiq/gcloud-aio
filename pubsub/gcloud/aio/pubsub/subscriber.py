@@ -3,6 +3,7 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST
 if BUILD_GCLOUD_REST:
     pass
 else:
+    import aiohttp
     import asyncio
     import logging
     import time
@@ -95,10 +96,28 @@ else:
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
+            except aiohttp.client_exceptions.ClientResponseError as e:
+                if e.status == 400:
+                    log.error(
+                        'Ack error is unrecoverable, '
+                        'one or more messages may be dropped', exc_info=e)
+                    for ack_id in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.acknowledge(subscription,
+                                                          ack_ids=[ack_id])
+                        )
+                    ack_ids = []
+
+                log.warning(
+                    'Ack request failed, better luck next batch', exc_info=e)
+                metrics_client.increment('pubsub.acker.batch.failed')
+
+                continue
             except Exception as e:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
@@ -132,10 +151,30 @@ else:
                     ack_deadline_seconds=0)
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
                 raise
+            except aiohttp.client_exceptions.ClientResponseError as e:
+                if e.status == 400:
+                    log.error(
+                        'Nack error is unrecoverable, '
+                        'one or more messages may be dropped', exc_info=e)
+                    for ack_id in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.modify_ack_deadline(
+                                subscription,
+                                ack_ids=[ack_id],
+                                ack_deadline_seconds=0)
+                        )
+                    ack_ids = []
+
+                log.warning(
+                    'Nack request failed, better luck next batch', exc_info=e)
+                metrics_client.increment('pubsub.nacker.batch.failed')
+
+                continue
             except Exception as e:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+
                 continue
 
             metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
