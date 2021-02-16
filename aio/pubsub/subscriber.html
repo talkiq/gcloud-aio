@@ -31,6 +31,7 @@
 if BUILD_GCLOUD_REST:
     pass
 else:
+    import aiohttp
     import asyncio
     import logging
     import time
@@ -123,10 +124,28 @@ else:
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
+            except aiohttp.client_exceptions.ClientResponseError as e:
+                if e.status == 400:
+                    log.error(
+                        &#39;Ack error is unrecoverable, &#39;
+                        &#39;one or more messages may be dropped&#39;, exc_info=e)
+                    for ack_id in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.acknowledge(subscription,
+                                                          ack_ids=[ack_id])
+                        )
+                    ack_ids = []
+
+                log.warning(
+                    &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+                metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+
+                continue
             except Exception as e:
                 log.warning(
                     &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
                 metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+
                 continue
 
             metrics_client.histogram(&#39;pubsub.acker.batch&#39;, len(ack_ids))
@@ -160,10 +179,30 @@ else:
                     ack_deadline_seconds=0)
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
                 raise
+            except aiohttp.client_exceptions.ClientResponseError as e:
+                if e.status == 400:
+                    log.error(
+                        &#39;Nack error is unrecoverable, &#39;
+                        &#39;one or more messages may be dropped&#39;, exc_info=e)
+                    for ack_id in ack_ids:
+                        asyncio.ensure_future(
+                            subscriber_client.modify_ack_deadline(
+                                subscription,
+                                ack_ids=[ack_id],
+                                ack_deadline_seconds=0)
+                        )
+                    ack_ids = []
+
+                log.warning(
+                    &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
+                metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
+
+                continue
             except Exception as e:
                 log.warning(
                     &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
                 metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
+
                 continue
 
             metrics_client.histogram(&#39;pubsub.nacker.batch&#39;, len(ack_ids))
@@ -400,10 +439,28 @@ else:
         try:
             await subscriber_client.acknowledge(subscription,
                                                 ack_ids=ack_ids)
+        except aiohttp.client_exceptions.ClientResponseError as e:
+            if e.status == 400:
+                log.error(
+                    &#39;Ack error is unrecoverable, &#39;
+                    &#39;one or more messages may be dropped&#39;, exc_info=e)
+                for ack_id in ack_ids:
+                    asyncio.ensure_future(
+                        subscriber_client.acknowledge(subscription,
+                                                      ack_ids=[ack_id])
+                    )
+                ack_ids = []
+
+            log.warning(
+                &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+            metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+
+            continue
         except Exception as e:
             log.warning(
                 &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
             metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
+
             continue
 
         metrics_client.histogram(&#39;pubsub.acker.batch&#39;, len(ack_ids))
@@ -509,10 +566,30 @@ else:
                 ack_deadline_seconds=0)
         except asyncio.CancelledError:  # pylint: disable=try-except-raise
             raise
+        except aiohttp.client_exceptions.ClientResponseError as e:
+            if e.status == 400:
+                log.error(
+                    &#39;Nack error is unrecoverable, &#39;
+                    &#39;one or more messages may be dropped&#39;, exc_info=e)
+                for ack_id in ack_ids:
+                    asyncio.ensure_future(
+                        subscriber_client.modify_ack_deadline(
+                            subscription,
+                            ack_ids=[ack_id],
+                            ack_deadline_seconds=0)
+                    )
+                ack_ids = []
+
+            log.warning(
+                &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
+            metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
+
+            continue
         except Exception as e:
             log.warning(
                 &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
             metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
+
             continue
 
         metrics_client.histogram(&#39;pubsub.nacker.batch&#39;, len(ack_ids))
