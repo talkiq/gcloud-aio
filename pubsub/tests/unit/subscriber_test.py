@@ -7,6 +7,7 @@ else:
     import aiohttp
     import asyncio
     import time
+    import logging
     from unittest.mock import call
     from unittest.mock import MagicMock
     from unittest.mock import patch
@@ -643,7 +644,10 @@ else:
         )
 
     @pytest.mark.asyncio
-    async def test_acker_batches_not_retried_on_400(subscriber_client):
+    async def test_acker_batches_not_retried_on_400(caplog,
+                                                    subscriber_client):
+        caplog.set_level(logging.WARNING,
+                         logger='gcloud.aio.pubsub.subscriber')
         mock = MagicMock()
 
         async def f(*args, **kwargs):
@@ -675,6 +679,12 @@ else:
                 call('fake_subscription', ack_ids=['ack_id_2']),
             ]
         )
+        assert ('gcloud.aio.pubsub.subscriber',
+                logging.WARNING,
+                'Ack failed for ack_id=ack_id_1') in caplog.record_tuples
+        assert ('gcloud.aio.pubsub.subscriber',
+                logging.WARNING,
+                'Ack failed for ack_id=ack_id_2') in caplog.record_tuples
 
     # ========
     # nacker
@@ -784,7 +794,11 @@ else:
         )
 
     @pytest.mark.asyncio
-    async def test_nacker_batches_not_retried_on_400(subscriber_client):
+    async def test_nacker_batches_not_retried_on_400(caplog,
+                                                     subscriber_client):
+        caplog.set_level(logging.WARNING,
+                         logger='gcloud.aio.pubsub.subscriber')
+
         mock = MagicMock()
 
         async def f(*args, **kwargs):
@@ -819,6 +833,12 @@ else:
                      ack_ids=['ack_id_2'], ack_deadline_seconds=0),
             ]
         )
+        assert ('gcloud.aio.pubsub.subscriber',
+                logging.WARNING,
+                'Nack failed for ack_id=ack_id_1') in caplog.record_tuples
+        assert ('gcloud.aio.pubsub.subscriber',
+                logging.WARNING,
+                'Nack failed for ack_id=ack_id_2') in caplog.record_tuples
 
     # =========
     # subscribe
