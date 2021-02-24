@@ -129,11 +129,19 @@ else:
                     log.error(
                         &#39;Ack error is unrecoverable, &#39;
                         &#39;one or more messages may be dropped&#39;, exc_info=e)
+
+                    async def maybe_ack(ack_id: str) -&gt; None:
+                        try:
+                            await subscriber_client.acknowledge(
+                                subscription,
+                                ack_ids=[ack_id])
+                        except Exception as e:
+                            log.warning(&#39;Ack failed for ack_id=%s&#39;,
+                                        ack_id,
+                                        exc_info=e)
+
                     for ack_id in ack_ids:
-                        asyncio.ensure_future(
-                            subscriber_client.acknowledge(subscription,
-                                                          ack_ids=[ack_id])
-                        )
+                        asyncio.ensure_future(maybe_ack(ack_id))
                     ack_ids = []
 
                 log.warning(
@@ -184,13 +192,19 @@ else:
                     log.error(
                         &#39;Nack error is unrecoverable, &#39;
                         &#39;one or more messages may be dropped&#39;, exc_info=e)
-                    for ack_id in ack_ids:
-                        asyncio.ensure_future(
-                            subscriber_client.modify_ack_deadline(
+
+                    async def maybe_nack(ack_id: str) -&gt; None:
+                        try:
+                            await subscriber_client.modify_ack_deadline(
                                 subscription,
                                 ack_ids=[ack_id],
                                 ack_deadline_seconds=0)
-                        )
+                        except Exception as e:
+                            log.warning(&#39;Nack failed for ack_id=%s&#39;,
+                                        ack_id,
+                                        exc_info=e)
+                    for ack_id in ack_ids:
+                        asyncio.ensure_future(maybe_nack(ack_id))
                     ack_ids = []
 
                 log.warning(
@@ -444,11 +458,19 @@ else:
                 log.error(
                     &#39;Ack error is unrecoverable, &#39;
                     &#39;one or more messages may be dropped&#39;, exc_info=e)
+
+                async def maybe_ack(ack_id: str) -&gt; None:
+                    try:
+                        await subscriber_client.acknowledge(
+                            subscription,
+                            ack_ids=[ack_id])
+                    except Exception as e:
+                        log.warning(&#39;Ack failed for ack_id=%s&#39;,
+                                    ack_id,
+                                    exc_info=e)
+
                 for ack_id in ack_ids:
-                    asyncio.ensure_future(
-                        subscriber_client.acknowledge(subscription,
-                                                      ack_ids=[ack_id])
-                    )
+                    asyncio.ensure_future(maybe_ack(ack_id))
                 ack_ids = []
 
             log.warning(
@@ -571,13 +593,19 @@ else:
                 log.error(
                     &#39;Nack error is unrecoverable, &#39;
                     &#39;one or more messages may be dropped&#39;, exc_info=e)
-                for ack_id in ack_ids:
-                    asyncio.ensure_future(
-                        subscriber_client.modify_ack_deadline(
+
+                async def maybe_nack(ack_id: str) -&gt; None:
+                    try:
+                        await subscriber_client.modify_ack_deadline(
                             subscription,
                             ack_ids=[ack_id],
                             ack_deadline_seconds=0)
-                    )
+                    except Exception as e:
+                        log.warning(&#39;Nack failed for ack_id=%s&#39;,
+                                    ack_id,
+                                    exc_info=e)
+                for ack_id in ack_ids:
+                    asyncio.ensure_future(maybe_nack(ack_id))
                 ack_ids = []
 
             log.warning(
