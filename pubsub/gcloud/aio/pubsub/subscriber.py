@@ -288,14 +288,17 @@ else:
             while True:
                 new_messages = []
                 try:
-                    new_messages = await subscriber_client.pull(
-                        subscription=subscription,
-                        max_messages=max_messages,
-                        # it is important to have this value reasonably high
-                        # as long lived connections may be left hanging
-                        # on a server which will cause delay in message
-                        # delivery or even false deadlettering if it is enabled
-                        timeout=30)
+                    pull_task = asyncio.ensure_future(
+                        subscriber_client.pull(
+                            subscription=subscription,
+                            max_messages=max_messages,
+                            # it is important to have this value reasonably
+                            # high as long lived connections may be left
+                            # hanging on a server which will cause delay in
+                            # message delivery or even false deadlettering if
+                            # it is enabled
+                            timeout=30))
+                    new_messages = await asyncio.shield(pull_task)
                 except (asyncio.TimeoutError, KeyError):
                     continue
 
@@ -310,6 +313,15 @@ else:
                 await message_queue.join()
         except asyncio.CancelledError:
             log.info('Producer worker cancelled. Gracefully terminating...')
+
+            if not pull_task.done():
+                # Leaving the connection hanging can result in redelivered
+                # messages, so try to finish before shutting down
+                try:
+                    new_messages += await asyncio.wait_for(pull_task, 5)
+                except (asyncio.TimeoutError, KeyError):
+                    pass
+
             pulled_at = time.perf_counter()
             for m in new_messages:
                 await message_queue.put((m, pulled_at))

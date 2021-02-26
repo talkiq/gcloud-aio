@@ -213,6 +213,7 @@ else:
         )
         await asyncio.sleep(0)
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
         mock.assert_called_once()
         assert queue.qsize() == 0
         assert not producer_task.done()
@@ -238,6 +239,7 @@ else:
                 metrics_client=MagicMock()
             )
         )
+        await asyncio.sleep(0)
         await asyncio.sleep(0)
         await asyncio.sleep(0)
         mock.assert_called_once()
@@ -267,6 +269,9 @@ else:
         )
         await asyncio.sleep(0)
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
         mock.assert_called_once()
         assert queue.qsize() == 0
         assert producer_task.done()
@@ -286,6 +291,7 @@ else:
                     metrics_client=MagicMock()
                 )
             )
+            await asyncio.sleep(0)
             await asyncio.sleep(0)
             await asyncio.sleep(0)
             await asyncio.sleep(0)
