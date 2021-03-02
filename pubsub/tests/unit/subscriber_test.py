@@ -563,11 +563,11 @@ else:
             )
         )
         await queue.put('ack_id')
-        await asyncio.sleep(0)
-        acker_task.cancel()
+        await queue.join()
         subscriber_client.acknowledge.assert_called_once_with(
             'fake_subscription', ack_ids=['ack_id'])
         assert queue.qsize() == 0
+        acker_task.cancel()
 
     @pytest.mark.asyncio
     async def test_acker_handles_exception(subscriber_client):
@@ -692,30 +692,6 @@ else:
                 logging.WARNING,
                 'Ack failed for ack_id=ack_id_2') in caplog.record_tuples
 
-    @pytest.mark.asyncio
-    async def test_acker_graceful_shutdown(subscriber_client):
-
-        mock = MagicMock()
-
-        async def f(*args, **kwargs):
-            mock(*args, **kwargs)
-
-        subscriber_client.acknowledge = f
-        queue = asyncio.Queue()
-        acker_task = asyncio.ensure_future(
-            acker(
-                'fake_subscription',
-                queue,
-                subscriber_client,
-                0.1,
-                MagicMock()
-            )
-        )
-        await queue.put('ack_id_1')
-        await asyncio.wait_for(queue.join(), 1.)
-        mock.assert_called_with('fake_subscription', ack_ids=['ack_id_1'])
-        acker_task.cancel()
-
     # ========
     # nacker
     # ========
@@ -733,11 +709,11 @@ else:
             )
         )
         await queue.put('ack_id')
-        await asyncio.sleep(0)
-        nacker_task.cancel()
+        await queue.join()
         subscriber_client.modify_ack_deadline.assert_called_once_with(
             'fake_subscription', ack_ids=['ack_id'], ack_deadline_seconds=0)
         assert queue.qsize() == 0
+        nacker_task.cancel()
 
     @pytest.mark.asyncio
     async def test_nacker_handles_exception(subscriber_client):
@@ -869,31 +845,6 @@ else:
         assert ('gcloud.aio.pubsub.subscriber',
                 logging.WARNING,
                 'Nack failed for ack_id=ack_id_2') in caplog.record_tuples
-
-    @pytest.mark.asyncio
-    async def test_nacker_graceful_shutdown(subscriber_client):
-
-        mock = MagicMock()
-
-        async def f(*args, **kwargs):
-            mock(*args, **kwargs)
-
-        subscriber_client.modify_ack_deadline = f
-        queue = asyncio.Queue()
-        nacker_task = asyncio.ensure_future(
-            nacker(
-                'fake_subscription',
-                queue,
-                subscriber_client,
-                0.1,
-                MagicMock()
-            )
-        )
-        await queue.put('ack_id_1')
-        await asyncio.wait_for(queue.join(), 1.)
-        mock.assert_called_with('fake_subscription', ack_ids=['ack_id_1'],
-                                ack_deadline_seconds=0)
-        nacker_task.cancel()
 
     # =========
     # subscribe
