@@ -67,7 +67,6 @@ else:
                 message = await asyncio.wait_for(
                     queue.get(), timeout=time_budget)
                 result.append(message)
-                queue.task_done()
             except asyncio.TimeoutError:
                 break
             time_budget -= (time.perf_counter() - start)
@@ -82,7 +81,6 @@ else:
         while True:
             if not ack_ids:
                 ack_ids.append(await ack_queue.get())
-                ack_queue.task_done()
 
             ack_ids += await _budgeted_queue_get(ack_queue, ack_window)
 
@@ -93,9 +91,14 @@ else:
                     'acker is falling behind, dropping %d unacked messages',
                     len(ack_ids) - 2500)
                 ack_ids = ack_ids[-2500:]
+                for _ in range(len(ack_ids) - 2500):
+                    ack_queue.task_done()
+
             try:
                 await subscriber_client.acknowledge(subscription,
                                                     ack_ids=ack_ids)
+                for _ in ack_ids:
+                    ack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
                     log.error(
@@ -111,6 +114,8 @@ else:
                             log.warning('Ack failed for ack_id=%s',
                                         ack_id,
                                         exc_info=e)
+                        finally:
+                            ack_queue.task_done()
 
                     for ack_id in ack_ids:
                         asyncio.ensure_future(maybe_ack(ack_id))
@@ -121,6 +126,8 @@ else:
                 metrics_client.increment('pubsub.acker.batch.failed')
 
                 continue
+            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+                raise
             except Exception as e:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
@@ -141,7 +148,6 @@ else:
         while True:
             if not ack_ids:
                 ack_ids.append(await nack_queue.get())
-                nack_queue.task_done()
 
             ack_ids += await _budgeted_queue_get(nack_queue, nack_window)
 
@@ -152,13 +158,15 @@ else:
                     'nacker is falling behind, dropping %d unacked messages',
                     len(ack_ids) - 2500)
                 ack_ids = ack_ids[-2500:]
+                for _ in range(len(ack_ids) - 2500):
+                    nack_queue.task_done()
             try:
                 await subscriber_client.modify_ack_deadline(
                     subscription,
                     ack_ids=ack_ids,
                     ack_deadline_seconds=0)
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
-                raise
+                for _ in ack_ids:
+                    nack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
                     log.error(
@@ -175,6 +183,8 @@ else:
                             log.warning('Nack failed for ack_id=%s',
                                         ack_id,
                                         exc_info=e)
+                        finally:
+                            nack_queue.task_done()
                     for ack_id in ack_ids:
                         asyncio.ensure_future(maybe_nack(ack_id))
                     ack_ids = []
@@ -184,6 +194,8 @@ else:
                 metrics_client.increment('pubsub.nacker.batch.failed')
 
                 continue
+            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+                raise
             except Exception as e:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
@@ -276,14 +288,17 @@ else:
             while True:
                 new_messages = []
                 try:
-                    new_messages = await subscriber_client.pull(
-                        subscription=subscription,
-                        max_messages=max_messages,
-                        # it is important to have this value reasonably high
-                        # as long lived connections may be left hanging
-                        # on a server which will cause delay in message
-                        # delivery or even false deadlettering if it is enabled
-                        timeout=30)
+                    pull_task = asyncio.ensure_future(
+                        subscriber_client.pull(
+                            subscription=subscription,
+                            max_messages=max_messages,
+                            # it is important to have this value reasonably
+                            # high as long lived connections may be left
+                            # hanging on a server which will cause delay in
+                            # message delivery or even false deadlettering if
+                            # it is enabled
+                            timeout=30))
+                    new_messages = await asyncio.shield(pull_task)
                 except (asyncio.TimeoutError, KeyError):
                     continue
 
@@ -298,6 +313,15 @@ else:
                 await message_queue.join()
         except asyncio.CancelledError:
             log.info('Producer worker cancelled. Gracefully terminating...')
+
+            if not pull_task.done():
+                # Leaving the connection hanging can result in redelivered
+                # messages, so try to finish before shutting down
+                try:
+                    new_messages += await asyncio.wait_for(pull_task, 5)
+                except (asyncio.TimeoutError, KeyError):
+                    pass
+
             pulled_at = time.perf_counter()
             for m in new_messages:
                 await message_queue.put((m, pulled_at))

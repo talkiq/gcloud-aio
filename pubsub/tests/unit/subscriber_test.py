@@ -213,6 +213,7 @@ else:
         )
         await asyncio.sleep(0)
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
         mock.assert_called_once()
         assert queue.qsize() == 0
         assert not producer_task.done()
@@ -238,6 +239,7 @@ else:
                 metrics_client=MagicMock()
             )
         )
+        await asyncio.sleep(0)
         await asyncio.sleep(0)
         await asyncio.sleep(0)
         mock.assert_called_once()
@@ -267,6 +269,9 @@ else:
         )
         await asyncio.sleep(0)
         await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
         mock.assert_called_once()
         assert queue.qsize() == 0
         assert producer_task.done()
@@ -286,6 +291,7 @@ else:
                     metrics_client=MagicMock()
                 )
             )
+            await asyncio.sleep(0)
             await asyncio.sleep(0)
             await asyncio.sleep(0)
             await asyncio.sleep(0)
@@ -557,11 +563,11 @@ else:
             )
         )
         await queue.put('ack_id')
-        await asyncio.sleep(0)
-        acker_task.cancel()
+        await queue.join()
         subscriber_client.acknowledge.assert_called_once_with(
             'fake_subscription', ack_ids=['ack_id'])
         assert queue.qsize() == 0
+        acker_task.cancel()
 
     @pytest.mark.asyncio
     async def test_acker_handles_exception(subscriber_client):
@@ -703,11 +709,11 @@ else:
             )
         )
         await queue.put('ack_id')
-        await asyncio.sleep(0)
-        nacker_task.cancel()
+        await queue.join()
         subscriber_client.modify_ack_deadline.assert_called_once_with(
             'fake_subscription', ack_ids=['ack_id'], ack_deadline_seconds=0)
         assert queue.qsize() == 0
+        nacker_task.cancel()
 
     @pytest.mark.asyncio
     async def test_nacker_handles_exception(subscriber_client):
