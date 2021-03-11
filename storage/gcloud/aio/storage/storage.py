@@ -40,6 +40,7 @@ SCOPES = [
 ]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
+WRITE_BUFFER_SIZE = 4096
 
 
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
@@ -216,8 +217,13 @@ class Storage:
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
         with open(filename, 'wb+') as file_object:
-            file_object.write(await self.download(bucket, object_name,
-                                                  **kwargs))
+            content = await self.get_content(bucket, object_name,
+                                                  **kwargs)
+            while True:
+                chunk = await content.read(WRITE_BUFFER_SIZE)
+                if not chunk:
+                    break
+                file_object.write(chunk)
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
@@ -227,6 +233,14 @@ class Storage:
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
+
+    async def get_content(self, bucket: str, object_name: str, *,
+                       headers: Optional[Dict[str, Any]] = None,
+                       timeout: int = 10,
+                       session: Optional[Session] = None) -> bytes:
+        return await self._download(bucket, object_name, headers=headers,
+                                    timeout=timeout, params={'alt': 'media'},
+                                    session=session, get_content=True)
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
@@ -368,7 +382,8 @@ class Storage:
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
-                        session: Optional[Session] = None) -> bytes:
+                        session: Optional[Session] = None,
+                        get_content: bool = False) -> bytes:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
@@ -378,6 +393,10 @@ class Storage:
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
+        if get_content:
+            return response.content
+
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
