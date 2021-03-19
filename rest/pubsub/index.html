@@ -539,7 +539,7 @@ def topic_path(cls, project     , topic     )       :
         resp = resp.json()
         return [
             SubscriberMessage.from_repr(m)
-            for m in resp[&#39;receivedMessages&#39;]
+            for m in resp.get(&#39;receivedMessages&#39;, [])
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
@@ -822,7 +822,7 @@ def topic_path(cls, project     , topic     )       :
     resp = resp.json()
     return [
         SubscriberMessage.from_repr(m)
-        for m in resp[&#39;receivedMessages&#39;]
+        for m in resp.get(&#39;receivedMessages&#39;, [])
     ]</code></pre>
 </details>
 </dd>
