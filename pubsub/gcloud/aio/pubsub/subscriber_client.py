@@ -112,7 +112,7 @@ class SubscriberClient:
         resp = await resp.json()
         return [
             SubscriberMessage.from_repr(m)
-            for m in resp['receivedMessages']
+            for m in resp.get('receivedMessages', [])
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
