@@ -20,6 +20,7 @@ To upload a file, you might do something like the following:
 
 .. code-block:: python
 
+    import aiofiles
     import aiohttp
     from gcloud.aio.storage import Storage
 
@@ -27,10 +28,13 @@ To upload a file, you might do something like the following:
     async with aiohttp.ClientSession() as session:
         client = Storage(session=session)
 
-        with open('/path/to/my/file', mode='r') as f:
-            status = await client.upload('my-bucket-name',
-                                         'path/to/gcs/folder',
-                                         f.read())
+        async with aiofiles.open(source, mode="r") as f:
+            output = await f.read()
+            status = await client.upload(
+                'my-bucket-name',
+                'path/to/gcs/folder',
+                output,
+            )
             print(status)
 
 Note that there are multiple ways to accomplish the above, ie,. by making use
@@ -54,12 +58,16 @@ more complicated operations:
         # Prepare all our upload data
         uploads = []
         for local_name, gcs_name in my_files.items():
-            with open(local_name, mode='r') as f:
-                uploads.append((gcs_name, f.read()))
+            async with aiofiles.open(local_name, mode="r") as f:
+                output = await f.read()
+                uploads.append((gcs_name, output))
 
         # Simultaneously upload all files
-        await asyncio.gather(*[client.upload('my-bucket-name', path, file_)
-                               for path, file_ in uploads])
+        await asyncio.gather(
+            *[
+                client.upload('my-bucket-name', path, file_) for path, file_ in uploads
+            ]
+        )
 
 You can also refer `smoke test`_ for more info and examples.
 
