@@ -28,8 +28,8 @@ To upload a file, you might do something like the following:
     async with aiohttp.ClientSession() as session:
         client = Storage(session=session)
 
-        async with aiofiles.open(source, mode="r") as f:
-            output = await f.read()
+        async with aiofiles.open('/path/to/my/file', mode="r") as f:
+            contents = await f.read()
             status = await client.upload(
                 'my-bucket-name',
                 'path/to/gcs/folder',
@@ -59,8 +59,8 @@ more complicated operations:
         uploads = []
         for local_name, gcs_name in my_files.items():
             async with aiofiles.open(local_name, mode="r") as f:
-                output = await f.read()
-                uploads.append((gcs_name, output))
+                contents = await f.read()
+                uploads.append((gcs_name, contents))
 
         # Simultaneously upload all files
         await asyncio.gather(
