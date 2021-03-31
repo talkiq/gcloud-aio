@@ -1,2 +1,2 @@
-gcloud-aio-auth>= 3.3.0,< 4.0.0
 aiofiles>=0.6.0,<1.0.0
+gcloud-aio-auth>= 3.3.0,< 4.0.0
