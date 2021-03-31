@@ -30,8 +30,7 @@ else:
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-    from aiofiles import open
-
+    from aiofiles import open  # pylint: disable=W0622
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -42,13 +41,11 @@ SCOPES = [
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
-
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
 if STORAGE_EMULATOR_HOST:
     API_ROOT = f'https://{STORAGE_EMULATOR_HOST}/storage/v1/b'
     API_ROOT_UPLOAD = f'https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
     VERIFY_SSL = False
-
 
 log = logging.getLogger(__name__)
 
@@ -217,8 +214,9 @@ class Storage:
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
         async with open(filename, mode='wb+') as file_object:
-            await file_object.write(await self.download(bucket, object_name,
-                                                  **kwargs))
+            await file_object.write(
+                await self.download(bucket, object_name, **kwargs)
+            )
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
