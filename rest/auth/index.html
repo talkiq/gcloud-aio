@@ -468,6 +468,15 @@ def service_account_email(self)                 :
         resp.raise_for_status()
         return resp
 
+    def patch(self, url     , headers                ,
+                    data                = None, timeout      = 10,
+                    params                           = None)            :
+        with self.google_api_lock:
+            resp = self.session.patch(url, data=data, headers=headers,
+                                      timeout=timeout, params=params)
+        resp.raise_for_status()
+        return resp
+
     def put(self, url     , headers                , data         ,
                   timeout      = 10)            :
         with self.google_api_lock:
@@ -584,6 +593,25 @@ def session(self)           :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
                                 params=params)
+    resp.raise_for_status()
+    return resp</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.auth.SyncSession.patch"><code class="name flex">
+<span>def <span class="ident">patch</span></span>(<span>self, url, headers, data=None, timeout=10, params=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def patch(self, url     , headers                ,
+                data                = None, timeout      = 10,
+                params                           = None)            :
+    with self.google_api_lock:
+        resp = self.session.patch(url, data=data, headers=headers,
+                                  timeout=timeout, params=params)
     resp.raise_for_status()
     return resp</code></pre>
 </details>
@@ -966,6 +994,7 @@ def acquire_access_token(self, timeout      = 10)        :
 <li><code><a title="gcloud.rest.auth.SyncSession.delete" href="#gcloud.rest.auth.SyncSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.rest.auth.SyncSession.get" href="#gcloud.rest.auth.SyncSession.get">get</a></code></li>
 <li><code><a title="gcloud.rest.auth.SyncSession.google_api_lock" href="#gcloud.rest.auth.SyncSession.google_api_lock">google_api_lock</a></code></li>
+<li><code><a title="gcloud.rest.auth.SyncSession.patch" href="#gcloud.rest.auth.SyncSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.rest.auth.SyncSession.post" href="#gcloud.rest.auth.SyncSession.post">post</a></code></li>
 <li><code><a title="gcloud.rest.auth.SyncSession.put" href="#gcloud.rest.auth.SyncSession.put">put</a></code></li>
 <li><code><a title="gcloud.rest.auth.SyncSession.request" href="#gcloud.rest.auth.SyncSession.request">request</a></code></li>

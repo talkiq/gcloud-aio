@@ -75,6 +75,12 @@ class BaseSession:
         pass
 
     @abstractmethod
+    async def patch(self, url: str, headers: Dict[str, str],
+                    data: Optional[str], timeout: int,
+                    params: Optional[Dict[str, str]]) -&gt; Response:
+        pass
+
+    @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                   timeout: int) -&gt; Response:
         pass
@@ -152,6 +158,15 @@ if not BUILD_GCLOUD_REST:
             await _raise_for_status(resp)
             return resp
 
+        async def patch(self, url: str, headers: Dict[str, str],
+                        data: Optional[str] = None, timeout: int = 10,
+                        params: Optional[Dict[str, str]] = None
+                        ) -&gt; aiohttp.ClientResponse:
+            resp = await self.session.patch(url, data=data, headers=headers,
+                                            timeout=timeout, params=params)
+            await _raise_for_status(resp)
+            return resp
+
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: int = 10) -&gt; aiohttp.ClientResponse:
             resp = await self.session.put(url, data=data, headers=headers,
@@ -214,6 +229,15 @@ if BUILD_GCLOUD_REST:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
+            resp.raise_for_status()
+            return resp
+
+        async def patch(self, url: str, headers: Dict[str, str],
+                        data: Optional[str] = None, timeout: int = 10,
+                        params: Optional[Dict[str, str]] = None) -&gt; Response:
+            with self.google_api_lock:
+                resp = self.session.patch(url, data=data, headers=headers,
+                                          timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
@@ -292,6 +316,15 @@ if BUILD_GCLOUD_REST:
                   ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.get(url, headers=headers,
                                       timeout=timeout, params=params)
+        await _raise_for_status(resp)
+        return resp
+
+    async def patch(self, url: str, headers: Dict[str, str],
+                    data: Optional[str] = None, timeout: int = 10,
+                    params: Optional[Dict[str, str]] = None
+                    ) -&gt; aiohttp.ClientResponse:
+        resp = await self.session.patch(url, data=data, headers=headers,
+                                        timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
@@ -400,6 +433,25 @@ def session(self) -&gt; aiohttp.ClientSession:
     return resp</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.auth.session.AioSession.patch"><code class="name flex">
+<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def patch(self, url: str, headers: Dict[str, str],
+                data: Optional[str] = None, timeout: int = 10,
+                params: Optional[Dict[str, str]] = None
+                ) -&gt; aiohttp.ClientResponse:
+    resp = await self.session.patch(url, data=data, headers=headers,
+                                    timeout=timeout, params=params)
+    await _raise_for_status(resp)
+    return resp</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.auth.session.AioSession.post"><code class="name flex">
 <span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
@@ -492,6 +544,12 @@ def session(self) -&gt; aiohttp.ClientSession:
         pass
 
     @abstractmethod
+    async def patch(self, url: str, headers: Dict[str, str],
+                    data: Optional[str], timeout: int,
+                    params: Optional[Dict[str, str]]) -&gt; Response:
+        pass
+
+    @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                   timeout: int) -&gt; Response:
         pass
@@ -576,6 +634,22 @@ async def get(self, url: str, headers: Optional[Dict[str, str]],
     pass</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.auth.session.BaseSession.patch"><code class="name flex">
+<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str], timeout: int, params: Optional[Dict[str, str]]) ‑> aiohttp.client_reqrep.ClientResponse</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+async def patch(self, url: str, headers: Dict[str, str],
+                data: Optional[str], timeout: int,
+                params: Optional[Dict[str, str]]) -&gt; Response:
+    pass</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.auth.session.BaseSession.post"><code class="name flex">
 <span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str], timeout: int, params: Optional[Dict[str, str]]) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
@@ -647,6 +721,7 @@ async def request(self, method: str, url: str, headers: Dict[str, str],
 <li><code><a title="gcloud.aio.auth.session.AioSession.close" href="#gcloud.aio.auth.session.AioSession.close">close</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.AioSession.delete" href="#gcloud.aio.auth.session.AioSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.AioSession.get" href="#gcloud.aio.auth.session.AioSession.get">get</a></code></li>
+<li><code><a title="gcloud.aio.auth.session.AioSession.patch" href="#gcloud.aio.auth.session.AioSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.AioSession.post" href="#gcloud.aio.auth.session.AioSession.post">post</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.AioSession.put" href="#gcloud.aio.auth.session.AioSession.put">put</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.AioSession.request" href="#gcloud.aio.auth.session.AioSession.request">request</a></code></li>
@@ -659,6 +734,7 @@ async def request(self, method: str, url: str, headers: Dict[str, str],
 <li><code><a title="gcloud.aio.auth.session.BaseSession.close" href="#gcloud.aio.auth.session.BaseSession.close">close</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.BaseSession.delete" href="#gcloud.aio.auth.session.BaseSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.BaseSession.get" href="#gcloud.aio.auth.session.BaseSession.get">get</a></code></li>
+<li><code><a title="gcloud.aio.auth.session.BaseSession.patch" href="#gcloud.aio.auth.session.BaseSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.BaseSession.post" href="#gcloud.aio.auth.session.BaseSession.post">post</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.BaseSession.put" href="#gcloud.aio.auth.session.BaseSession.put">put</a></code></li>
 <li><code><a title="gcloud.aio.auth.session.BaseSession.request" href="#gcloud.aio.auth.session.BaseSession.request">request</a></code></li>

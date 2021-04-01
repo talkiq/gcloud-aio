@@ -167,6 +167,15 @@ standard Base64 are respectively replaced by - and _.</p>
         await _raise_for_status(resp)
         return resp
 
+    async def patch(self, url: str, headers: Dict[str, str],
+                    data: Optional[str] = None, timeout: int = 10,
+                    params: Optional[Dict[str, str]] = None
+                    ) -&gt; aiohttp.ClientResponse:
+        resp = await self.session.patch(url, data=data, headers=headers,
+                                        timeout=timeout, params=params)
+        await _raise_for_status(resp)
+        return resp
+
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                   timeout: int = 10) -&gt; aiohttp.ClientResponse:
         resp = await self.session.put(url, data=data, headers=headers,
@@ -268,6 +277,25 @@ def session(self) -&gt; aiohttp.ClientSession:
               ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.get(url, headers=headers,
                                   timeout=timeout, params=params)
+    await _raise_for_status(resp)
+    return resp</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.auth.AioSession.patch"><code class="name flex">
+<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def patch(self, url: str, headers: Dict[str, str],
+                data: Optional[str] = None, timeout: int = 10,
+                params: Optional[Dict[str, str]] = None
+                ) -&gt; aiohttp.ClientResponse:
+    resp = await self.session.patch(url, data=data, headers=headers,
+                                    timeout=timeout, params=params)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
@@ -920,6 +948,7 @@ async def acquire_access_token(self, timeout: int = 10) -&gt; None:
 <li><code><a title="gcloud.aio.auth.AioSession.close" href="#gcloud.aio.auth.AioSession.close">close</a></code></li>
 <li><code><a title="gcloud.aio.auth.AioSession.delete" href="#gcloud.aio.auth.AioSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.aio.auth.AioSession.get" href="#gcloud.aio.auth.AioSession.get">get</a></code></li>
+<li><code><a title="gcloud.aio.auth.AioSession.patch" href="#gcloud.aio.auth.AioSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.aio.auth.AioSession.post" href="#gcloud.aio.auth.AioSession.post">post</a></code></li>
 <li><code><a title="gcloud.aio.auth.AioSession.put" href="#gcloud.aio.auth.AioSession.put">put</a></code></li>
 <li><code><a title="gcloud.aio.auth.AioSession.request" href="#gcloud.aio.auth.AioSession.request">request</a></code></li>

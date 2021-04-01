@@ -85,6 +85,12 @@ class BaseSession(object):
         pass
 
     @abstractmethod
+    def patch(self, url     , headers                ,
+                    data               , timeout     ,
+                    params                          )            :
+        pass
+
+    @abstractmethod
     def put(self, url     , headers                , data         ,
                   timeout     )            :
         pass
@@ -162,6 +168,15 @@ if not BUILD_GCLOUD_REST:
             _raise_for_status(resp)
             return resp
 
+        def patch(self, url     , headers                ,
+                        data                = None, timeout      = 10,
+                        params                           = None
+                        )                          :
+            resp = self.session.patch(url, data=data, headers=headers,
+                                            timeout=timeout, params=params)
+            _raise_for_status(resp)
+            return resp
+
         def put(self, url     , headers                , data         ,
                       timeout      = 10)                          :
             resp = self.session.put(url, data=data, headers=headers,
@@ -224,6 +239,15 @@ if BUILD_GCLOUD_REST:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
+            resp.raise_for_status()
+            return resp
+
+        def patch(self, url     , headers                ,
+                        data                = None, timeout      = 10,
+                        params                           = None)            :
+            with self.google_api_lock:
+                resp = self.session.patch(url, data=data, headers=headers,
+                                          timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
@@ -301,6 +325,12 @@ if BUILD_GCLOUD_REST:
     @abstractmethod
     def get(self, url     , headers                          ,
                   timeout     , params                          )            :
+        pass
+
+    @abstractmethod
+    def patch(self, url     , headers                ,
+                    data               , timeout     ,
+                    params                          )            :
         pass
 
     @abstractmethod
@@ -385,6 +415,22 @@ def delete(self, url     , headers                ,
 <pre><code class="python">@abstractmethod
 def get(self, url     , headers                          ,
               timeout     , params                          )            :
+    pass</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.auth.session.BaseSession.patch"><code class="name flex">
+<span>def <span class="ident">patch</span></span>(<span>self, url, headers, data, timeout, params)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def patch(self, url     , headers                ,
+                data               , timeout     ,
+                params                          )            :
     pass</code></pre>
 </details>
 </dd>
@@ -478,6 +524,15 @@ def request(self, method     , url     , headers                ,
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
                                     params=params)
+        resp.raise_for_status()
+        return resp
+
+    def patch(self, url     , headers                ,
+                    data                = None, timeout      = 10,
+                    params                           = None)            :
+        with self.google_api_lock:
+            resp = self.session.patch(url, data=data, headers=headers,
+                                      timeout=timeout, params=params)
         resp.raise_for_status()
         return resp
 
@@ -601,6 +656,25 @@ def session(self)           :
     return resp</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.auth.session.SyncSession.patch"><code class="name flex">
+<span>def <span class="ident">patch</span></span>(<span>self, url, headers, data=None, timeout=10, params=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def patch(self, url     , headers                ,
+                data                = None, timeout      = 10,
+                params                           = None)            :
+    with self.google_api_lock:
+        resp = self.session.patch(url, data=data, headers=headers,
+                                  timeout=timeout, params=params)
+    resp.raise_for_status()
+    return resp</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.auth.session.SyncSession.post"><code class="name flex">
 <span>def <span class="ident">post</span></span>(<span>self, url, headers, data=None, timeout=10, params=None)</span>
 </code></dt>
@@ -682,6 +756,7 @@ def session(self)           :
 <li><code><a title="gcloud.rest.auth.session.BaseSession.close" href="#gcloud.rest.auth.session.BaseSession.close">close</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.BaseSession.delete" href="#gcloud.rest.auth.session.BaseSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.BaseSession.get" href="#gcloud.rest.auth.session.BaseSession.get">get</a></code></li>
+<li><code><a title="gcloud.rest.auth.session.BaseSession.patch" href="#gcloud.rest.auth.session.BaseSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.BaseSession.post" href="#gcloud.rest.auth.session.BaseSession.post">post</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.BaseSession.put" href="#gcloud.rest.auth.session.BaseSession.put">put</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.BaseSession.request" href="#gcloud.rest.auth.session.BaseSession.request">request</a></code></li>
@@ -695,6 +770,7 @@ def session(self)           :
 <li><code><a title="gcloud.rest.auth.session.SyncSession.delete" href="#gcloud.rest.auth.session.SyncSession.delete">delete</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.SyncSession.get" href="#gcloud.rest.auth.session.SyncSession.get">get</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.SyncSession.google_api_lock" href="#gcloud.rest.auth.session.SyncSession.google_api_lock">google_api_lock</a></code></li>
+<li><code><a title="gcloud.rest.auth.session.SyncSession.patch" href="#gcloud.rest.auth.session.SyncSession.patch">patch</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.SyncSession.post" href="#gcloud.rest.auth.session.SyncSession.post">post</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.SyncSession.put" href="#gcloud.rest.auth.session.SyncSession.put">put</a></code></li>
 <li><code><a title="gcloud.rest.auth.session.SyncSession.request" href="#gcloud.rest.auth.session.SyncSession.request">request</a></code></li>
