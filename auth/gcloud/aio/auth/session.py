@@ -47,6 +47,12 @@ class BaseSession:
         pass
 
     @abstractmethod
+    async def patch(self, url: str, headers: Dict[str, str],
+                    data: Optional[str], timeout: int,
+                    params: Optional[Dict[str, str]]) -> Response:
+        pass
+
+    @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                   timeout: int) -> Response:
         pass
@@ -124,6 +130,15 @@ if not BUILD_GCLOUD_REST:
             await _raise_for_status(resp)
             return resp
 
+        async def patch(self, url: str, headers: Dict[str, str],
+                        data: Optional[str] = None, timeout: int = 10,
+                        params: Optional[Dict[str, str]] = None
+                        ) -> aiohttp.ClientResponse:
+            resp = await self.session.patch(url, data=data, headers=headers,
+                                            timeout=timeout, params=params)
+            await _raise_for_status(resp)
+            return resp
+
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: int = 10) -> aiohttp.ClientResponse:
             resp = await self.session.put(url, data=data, headers=headers,
@@ -186,6 +201,15 @@ if BUILD_GCLOUD_REST:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
                                         params=params)
+            resp.raise_for_status()
+            return resp
+
+        async def patch(self, url: str, headers: Dict[str, str],
+                        data: Optional[str] = None, timeout: int = 10,
+                        params: Optional[Dict[str, str]] = None) -> Response:
+            with self.google_api_lock:
+                resp = self.session.patch(url, data=data, headers=headers,
+                                          timeout=timeout, params=params)
             resp.raise_for_status()
             return resp
 
