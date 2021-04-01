@@ -302,6 +302,38 @@ class Storage:
             return await self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
+    async def set_temporary_hold(
+            self, bucket: str, object_name: str, *, hold: bool = True,
+            params: Optional[Dict[str, str]] = None,
+            session: Optional[Session] = None, timeout: int = 10
+    ) -> Dict[str, Any]:
+
+        async def _raise_for_status(resp) -> None:  # type: ignore
+            # TODO: remove after adding BaseSession.patch()
+            import aiohttp  # pylint: disable=import-outside-toplevel
+            if resp.status >= 400:
+                assert resp.reason is not None
+                # Google's error messages are useful, pass 'em through
+                body = await resp.text(errors='replace')
+                resp.release()
+                raise aiohttp.ClientResponseError(
+                    resp.request_info, resp.history,
+                    status=resp.status,
+                    message=f'{resp.reason}: {body}',
+                    headers=resp.headers)
+
+        url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        s = AioSession(session) if session else self.session
+        headers = await self._headers()
+        headers.update({'Content-Type': 'application/json'})
+        metadata = json.dumps({'temporaryHold': hold}).encode('utf-8')
+        resp = await s.session.patch(  # TODO: add BaseSession.patch()
+            url, data=metadata, headers=headers, params=params,
+            timeout=timeout)
+        await _raise_for_status(resp)  # TODO: remove after BaseSession.patch()
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
         current = stream.tell()
