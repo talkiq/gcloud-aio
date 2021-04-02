@@ -63,7 +63,7 @@ repos:
     -   id: reorder-python-imports
         args: [--py26-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.790
+    rev: v0.812
     hooks:
     -   &mypy
         id: mypy
