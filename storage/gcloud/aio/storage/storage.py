@@ -27,10 +27,10 @@ if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
     from requests import Session
 else:
+    import aiofiles
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-    from aiofiles import open  # pylint: disable=W0622
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -213,7 +213,7 @@ class Storage:
 
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
-        async with open(filename, mode='wb+') as file_object:
+        async with aiofiles.open(filename, mode='wb+') as file_object:
             await file_object.write(
                 await self.download(bucket, object_name, **kwargs)
             )
@@ -297,7 +297,7 @@ class Storage:
     async def upload_from_filename(self, bucket: str, object_name: str,
                                    filename: str,
                                    **kwargs: Any) -> Dict[str, Any]:
-        async with open(filename, 'rb') as file_object:
+        async with aiofiles.open(filename, 'rb') as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents,
                                      **kwargs)
