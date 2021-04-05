@@ -304,36 +304,32 @@ class Storage:
 
     async def _patch_metadata(
             self, bucket: str, object_name: str, metadata: Dict[str, Any],
-            *, params: Optional[Dict[str, str]] = None,
-            session: Optional[Session] = None,
+            params: Dict[str, str], headers: Dict[str, str],
+            *, session: Optional[Session] = None,
             timeout: int = 10) -> Dict[str, Any]:
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        headers.update(await self._headers())
+        headers['Content-Type'] = 'application/json'
+
         s = AioSession(session) if session else self.session
-        headers = await self._headers()
-        headers.update({'Content-Type': 'application/json'})
-        resp = await s.patch(
-            url, data=json.dumps(metadata).encode('utf-8'),
-            headers=headers, params=params, timeout=timeout)
+        resp = await s.patch(url, data=json.dumps(metadata).encode('utf-8'),
+                             headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
     async def set_temporary_hold(
             self, bucket: str, object_name: str, *, hold: bool = True,
             params: Optional[Dict[str, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None, timeout: int = 10
     ) -> Dict[str, Any]:
-        """
-        Set a temporary hold on a storage blob.
-        https://cloud.google.com/storage/docs/json_api/v1/objects/patch
-        """
+        params = params or {}
+        headers = headers or {}
         return await self._patch_metadata(
-            bucket=bucket,
-            object_name=object_name,
+            bucket=bucket, object_name=object_name,
             metadata={'temporaryHold': hold},
-            params=params,
-            session=session,
-            timeout=timeout,
-        )
+            params=params, headers=headers, session=session, timeout=timeout,)
 
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
