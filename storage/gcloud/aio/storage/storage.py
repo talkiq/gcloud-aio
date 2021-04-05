@@ -26,8 +26,9 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
+    from builtins import open as file_open
 else:
-    import aiofiles
+    from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
@@ -213,7 +214,10 @@ class Storage:
 
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
-        async with aiofiles.open(filename, mode='wb+') as file_object:
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode='wb+',
+        ) as file_object:
             await file_object.write(
                 await self.download(bucket, object_name, **kwargs)
             )
@@ -297,7 +301,10 @@ class Storage:
     async def upload_from_filename(self, bucket: str, object_name: str,
                                    filename: str,
                                    **kwargs: Any) -> Dict[str, Any]:
-        async with aiofiles.open(filename, 'rb') as file_object:
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode='rb',
+        ) as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents,
                                      **kwargs)
