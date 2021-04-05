@@ -40,7 +40,6 @@ SCOPES = [
 ]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
-WRITE_BUFFER_SIZE = 4096
 
 
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
@@ -217,13 +216,8 @@ class Storage:
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
         with open(filename, 'wb+') as file_object:
-            content = await self.get_content(bucket, object_name,
-                                                  **kwargs)
-            while True:
-                chunk = await content.read(WRITE_BUFFER_SIZE)
-                if not chunk:
-                    break
-                file_object.write(chunk)
+            file_object.write(await self.download(bucket, object_name,
+                                                  **kwargs))
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
@@ -234,7 +228,7 @@ class Storage:
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
 
-    async def get_content(self, bucket: str, object_name: str, *,
+    async def download_stream(self, bucket: str, object_name: str, *,
                        headers: Optional[Dict[str, Any]] = None,
                        timeout: int = 10,
                        session: Optional[Session] = None) -> bytes:
