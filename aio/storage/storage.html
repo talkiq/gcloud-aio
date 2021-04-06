@@ -54,11 +54,12 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
+    from builtins import open as file_open
 else:
+    from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-
 
 API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
 API_ROOT_UPLOAD = &#39;https://www.googleapis.com/upload/storage/v1/b&#39;
@@ -69,13 +70,11 @@ SCOPES = [
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
-
 STORAGE_EMULATOR_HOST = os.environ.get(&#39;STORAGE_EMULATOR_HOST&#39;)
 if STORAGE_EMULATOR_HOST:
     API_ROOT = f&#39;https://{STORAGE_EMULATOR_HOST}/storage/v1/b&#39;
     API_ROOT_UPLOAD = f&#39;https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b&#39;
     VERIFY_SSL = False
-
 
 log = logging.getLogger(__name__)
 
@@ -243,9 +242,13 @@ class Storage:
 
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -&gt; None:
-        with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(await self.download(bucket, object_name,
-                                                  **kwargs))
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;wb+&#39;,
+        ) as file_object:
+            await file_object.write(
+                await self.download(bucket, object_name, **kwargs)
+            )
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
@@ -326,8 +329,12 @@ class Storage:
     async def upload_from_filename(self, bucket: str, object_name: str,
                                    filename: str,
                                    **kwargs: Any) -&gt; Dict[str, Any]:
-        with open(filename, &#39;rb&#39;) as file_object:
-            return await self.upload(bucket, object_name, file_object,
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;rb&#39;,
+        ) as file_object:
+            contents = await file_object.read()
+            return await self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -752,9 +759,13 @@ requests, not aiohttp).</p></div>
 
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -&gt; None:
-        with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(await self.download(bucket, object_name,
-                                                  **kwargs))
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;wb+&#39;,
+        ) as file_object:
+            await file_object.write(
+                await self.download(bucket, object_name, **kwargs)
+            )
 
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
@@ -835,8 +846,12 @@ requests, not aiohttp).</p></div>
     async def upload_from_filename(self, bucket: str, object_name: str,
                                    filename: str,
                                    **kwargs: Any) -&gt; Dict[str, Any]:
-        with open(filename, &#39;rb&#39;) as file_object:
-            return await self.upload(bucket, object_name, file_object,
+        async with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;rb&#39;,
+        ) as file_object:
+            contents = await file_object.read()
+            return await self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -1231,9 +1246,13 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def download_to_filename(self, bucket: str, object_name: str,
                                filename: str, **kwargs: Any) -&gt; None:
-    with open(filename, &#39;wb+&#39;) as file_object:
-        file_object.write(await self.download(bucket, object_name,
-                                              **kwargs))</code></pre>
+    async with file_open(  # type: ignore[attr-defined]
+        filename,
+        mode=&#39;wb+&#39;,
+    ) as file_object:
+        await file_object.write(
+            await self.download(bucket, object_name, **kwargs)
+        )</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.get_bucket"><code class="name flex">
@@ -1371,8 +1390,12 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <pre><code class="python">async def upload_from_filename(self, bucket: str, object_name: str,
                                filename: str,
                                **kwargs: Any) -&gt; Dict[str, Any]:
-    with open(filename, &#39;rb&#39;) as file_object:
-        return await self.upload(bucket, object_name, file_object,
+    async with file_open(  # type: ignore[attr-defined]
+        filename,
+        mode=&#39;rb&#39;,
+    ) as file_object:
+        contents = await file_object.read()
+        return await self.upload(bucket, object_name, contents,
                                  **kwargs)</code></pre>
 </details>
 </dd>

@@ -31,7 +31,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import range
-from builtins import open
 from builtins import str
 from builtins import object
 import warnings
@@ -67,11 +66,12 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
+    from builtins import open as file_open
 else:
+    from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-
 
 API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
 API_ROOT_UPLOAD = &#39;https://www.googleapis.com/upload/storage/v1/b&#39;
@@ -82,13 +82,11 @@ SCOPES = [
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
-
 STORAGE_EMULATOR_HOST = os.environ.get(&#39;STORAGE_EMULATOR_HOST&#39;)
 if STORAGE_EMULATOR_HOST:
     API_ROOT = &#39;https://{}/storage/v1/b&#39;.format((STORAGE_EMULATOR_HOST))
     API_ROOT_UPLOAD = &#39;https://{}/upload/storage/v1/b&#39;.format((STORAGE_EMULATOR_HOST))
     VERIFY_SSL = False
-
 
 log = logging.getLogger(__name__)
 
@@ -274,9 +272,13 @@ class Storage(object):
 
     def download_to_filename(self, bucket     , object_name     ,
                                    filename     , **kwargs     )        :
-        with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(self.download(bucket, object_name,
-                                                  **kwargs))
+        with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;wb+&#39;,
+        ) as file_object:
+            file_object.write(
+                self.download(bucket, object_name, **kwargs)
+            )
 
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
@@ -371,8 +373,12 @@ class Storage(object):
     def upload_from_filename(self, bucket     , object_name     ,
                                    filename     ,
                                    **kwargs     )                  :
-        with open(filename, &#39;rb&#39;) as file_object:
-            return self.upload(bucket, object_name, file_object,
+        with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;rb&#39;,
+        ) as file_object:
+            contents = file_object.read()
+            return self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -836,9 +842,13 @@ requests, not aiohttp).</p></div>
 
     def download_to_filename(self, bucket     , object_name     ,
                                    filename     , **kwargs     )        :
-        with open(filename, &#39;wb+&#39;) as file_object:
-            file_object.write(self.download(bucket, object_name,
-                                                  **kwargs))
+        with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;wb+&#39;,
+        ) as file_object:
+            file_object.write(
+                self.download(bucket, object_name, **kwargs)
+            )
 
     def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
@@ -933,8 +943,12 @@ requests, not aiohttp).</p></div>
     def upload_from_filename(self, bucket     , object_name     ,
                                    filename     ,
                                    **kwargs     )                  :
-        with open(filename, &#39;rb&#39;) as file_object:
-            return self.upload(bucket, object_name, file_object,
+        with file_open(  # type: ignore[attr-defined]
+            filename,
+            mode=&#39;rb&#39;,
+        ) as file_object:
+            contents = file_object.read()
+            return self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -1358,9 +1372,13 @@ requests, not aiohttp).</p></div>
 </summary>
 <pre><code class="python">def download_to_filename(self, bucket     , object_name     ,
                                filename     , **kwargs     )        :
-    with open(filename, &#39;wb+&#39;) as file_object:
-        file_object.write(self.download(bucket, object_name,
-                                              **kwargs))</code></pre>
+    with file_open(  # type: ignore[attr-defined]
+        filename,
+        mode=&#39;wb+&#39;,
+    ) as file_object:
+        file_object.write(
+            self.download(bucket, object_name, **kwargs)
+        )</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.storage.Storage.get_bucket"><code class="name flex">
@@ -1513,8 +1531,12 @@ requests, not aiohttp).</p></div>
 <pre><code class="python">def upload_from_filename(self, bucket     , object_name     ,
                                filename     ,
                                **kwargs     )                  :
-    with open(filename, &#39;rb&#39;) as file_object:
-        return self.upload(bucket, object_name, file_object,
+    with file_open(  # type: ignore[attr-defined]
+        filename,
+        mode=&#39;rb&#39;,
+    ) as file_object:
+        contents = file_object.read()
+        return self.upload(bucket, object_name, contents,
                                  **kwargs)</code></pre>
 </details>
 </dd>
