@@ -302,19 +302,6 @@ class Storage:
             return await self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
-    async def set_temporary_hold(
-            self, bucket: str, object_name: str, *, hold: bool = True,
-            params: Optional[Dict[str, str]] = None,
-            headers: Optional[Dict[str, str]] = None,
-            session: Optional[Session] = None, timeout: int = 10
-    ) -> Dict[str, Any]:
-        params = params or {}
-        headers = headers or {}
-        return await self._patch_metadata(
-            bucket=bucket, object_name=object_name,
-            metadata={'temporaryHold': hold},
-            params=params, headers=headers, session=session, timeout=timeout,)
-
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
         current = stream.tell()
@@ -512,13 +499,16 @@ class Storage:
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    async def _patch_metadata(
+    async def patch_metadata(
             self, bucket: str, object_name: str, metadata: Dict[str, Any],
-            params: Dict[str, str], headers: Dict[str, str],
-            *, session: Optional[Session] = None,
+            *, params: Optional[Dict[str, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            session: Optional[Session] = None,
             timeout: int = 10) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        params = params or {}
+        headers = headers or {}
         headers.update(await self._headers())
         headers['Content-Type'] = 'application/json'
 
