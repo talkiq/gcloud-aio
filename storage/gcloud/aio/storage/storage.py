@@ -9,6 +9,7 @@ import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
+from typing import Generator
 from typing import IO
 from typing import List
 from typing import Optional
@@ -26,10 +27,12 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
+    StreamResponse = Generator[bytes]
 else:
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    StreamResponse = aiohttp.StreamReader
 
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
@@ -231,8 +234,9 @@ class Storage:
     async def download_stream(self, bucket: str, object_name: str, *,
                        headers: Optional[Dict[str, Any]] = None,
                        timeout: int = 10,
-                       session: Optional[Session] = None) -> bytes:
-        return await self._download(bucket, object_name, headers=headers,
+                       session: Optional[Session] = None
+                       ) -> StreamResponse:
+        return await self._download_stream(bucket, object_name, headers=headers,
                                     timeout=timeout, params={'alt': 'media'},
                                     session=session, get_content=True)
 
@@ -376,8 +380,7 @@ class Storage:
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
-                        session: Optional[Session] = None,
-                        get_content: bool = False) -> bytes:
+                        session: Optional[Session] = None) -> bytes:
         # https://cloud.google.com/storage/docs/json_api/#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
@@ -388,9 +391,6 @@ class Storage:
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
 
-        if get_content:
-            return response.content
-
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -400,6 +400,25 @@ class Storage:
             data = response.content
 
         return data
+
+    async def _download_stream(self, bucket: str, object_name: str, *,
+                        params: Optional[Dict[str, str]] = None,
+                        headers: Optional[Dict[str, str]] = None,
+                        timeout: int = 10,
+                        session: Optional[Session] = None) -> StreamResponse:
+        # https://cloud.google.com/storage/docs/json_api/#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        headers = headers or {}
+        headers.update(await self._headers())
+
+        s = AioSession(session) if session else self.session
+        response = await s.get(url, headers=headers, params=params or {},
+                               timeout=timeout, stream=True)
+
+        if BUILD_GCLOUD_REST:
+            return response.iter_content
+        return response.content
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
