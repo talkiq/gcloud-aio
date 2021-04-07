@@ -506,6 +506,25 @@ class Storage:
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
+    async def patch_metadata(
+            self, bucket: str, object_name: str, metadata: Dict[str, Any],
+            *, params: Optional[Dict[str, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            session: Optional[Session] = None,
+            timeout: int = 10) -> Dict[str, Any]:
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+        url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        params = params or {}
+        headers = headers or {}
+        headers.update(await self._headers())
+        headers['Content-Type'] = 'application/json'
+
+        s = AioSession(session) if session else self.session
+        resp = await s.patch(url, data=json.dumps(metadata).encode('utf-8'),
+                             headers=headers, params=params, timeout=timeout)
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
     async def get_bucket_metadata(self, bucket: str, *,
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
