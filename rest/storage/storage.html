@@ -595,6 +595,29 @@ class Storage(object):
         data                 = resp.json()
         return data
 
+    def patch_metadata(
+            self, bucket     , object_name     , metadata                , **_3to2kwargs)                  :
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+        params = params or {}
+        headers = headers or {}
+        headers.update(self._headers())
+        headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+
+        s = SyncSession(session) if session else self.session
+        resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+                             headers=headers, params=params, timeout=timeout)
+        data                 = resp.json()
+        return data
+
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
@@ -1165,6 +1188,29 @@ requests, not aiohttp).</p></div>
         data                 = resp.json()
         return data
 
+    def patch_metadata(
+            self, bucket     , object_name     , metadata                , **_3to2kwargs)                  :
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+        params = params or {}
+        headers = headers or {}
+        headers.update(self._headers())
+        headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+
+        s = SyncSession(session) if session else self.session
+        resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+                             headers=headers, params=params, timeout=timeout)
+        data                 = resp.json()
+        return data
+
     def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
@@ -1452,6 +1498,39 @@ requests, not aiohttp).</p></div>
     return data</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.storage.storage.Storage.patch_metadata"><code class="name flex">
+<span>def <span class="ident">patch_metadata</span></span>(<span>self, bucket, object_name, metadata, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def patch_metadata(
+        self, bucket     , object_name     , metadata                , **_3to2kwargs)                  :
+    # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+    else: params =  None
+    url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+    params = params or {}
+    headers = headers or {}
+    headers.update(self._headers())
+    headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+
+    s = SyncSession(session) if session else self.session
+    resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+                         headers=headers, params=params, timeout=timeout)
+    data                 = resp.json()
+    return data</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.storage.storage.Storage.upload"><code class="name flex">
 <span>def <span class="ident">upload</span></span>(<span>self, bucket, object_name, file_data, **_3to2kwargs)</span>
 </code></dt>
@@ -1611,6 +1690,7 @@ requests, not aiohttp).</p></div>
 <li><code><a title="gcloud.rest.storage.storage.Storage.get_bucket" href="#gcloud.rest.storage.storage.Storage.get_bucket">get_bucket</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.get_bucket_metadata" href="#gcloud.rest.storage.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.list_objects" href="#gcloud.rest.storage.storage.Storage.list_objects">list_objects</a></code></li>
+<li><code><a title="gcloud.rest.storage.storage.Storage.patch_metadata" href="#gcloud.rest.storage.storage.Storage.patch_metadata">patch_metadata</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.upload" href="#gcloud.rest.storage.storage.Storage.upload">upload</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.upload_from_filename" href="#gcloud.rest.storage.storage.Storage.upload_from_filename">upload_from_filename</a></code></li>
 </ul>

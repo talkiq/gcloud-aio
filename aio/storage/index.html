@@ -891,6 +891,25 @@ with the link.</p>
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
+    async def patch_metadata(
+            self, bucket: str, object_name: str, metadata: Dict[str, Any],
+            *, params: Optional[Dict[str, str]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            session: Optional[Session] = None,
+            timeout: int = 10) -&gt; Dict[str, Any]:
+        # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+        url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
+        params = params or {}
+        headers = headers or {}
+        headers.update(await self._headers())
+        headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+
+        s = AioSession(session) if session else self.session
+        resp = await s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+                             headers=headers, params=params, timeout=timeout)
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
     async def get_bucket_metadata(self, bucket: str, *,
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
@@ -1158,6 +1177,35 @@ copy operation, you then have 1 week to complete the copy job.</p>
     return data</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.storage.Storage.patch_metadata"><code class="name flex">
+<span>async def <span class="ident">patch_metadata</span></span>(<span>self, bucket: str, object_name: str, metadata: Dict[str, Any], *, params: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def patch_metadata(
+        self, bucket: str, object_name: str, metadata: Dict[str, Any],
+        *, params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        session: Optional[Session] = None,
+        timeout: int = 10) -&gt; Dict[str, Any]:
+    # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
+    url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
+    params = params or {}
+    headers = headers or {}
+    headers.update(await self._headers())
+    headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+
+    s = AioSession(session) if session else self.session
+    resp = await s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+                         headers=headers, params=params, timeout=timeout)
+    data: Dict[str, Any] = await resp.json(content_type=None)
+    return data</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.storage.Storage.upload"><code class="name flex">
 <span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: Optional[str] = None, parameters: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, metadata: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, force_resumable_upload: Optional[bool] = None, timeout: int = 30) ‑> Dict[str, Any]</span>
 </code></dt>
@@ -1295,6 +1343,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <li><code><a title="gcloud.aio.storage.Storage.get_bucket" href="#gcloud.aio.storage.Storage.get_bucket">get_bucket</a></code></li>
 <li><code><a title="gcloud.aio.storage.Storage.get_bucket_metadata" href="#gcloud.aio.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
 <li><code><a title="gcloud.aio.storage.Storage.list_objects" href="#gcloud.aio.storage.Storage.list_objects">list_objects</a></code></li>
+<li><code><a title="gcloud.aio.storage.Storage.patch_metadata" href="#gcloud.aio.storage.Storage.patch_metadata">patch_metadata</a></code></li>
 <li><code><a title="gcloud.aio.storage.Storage.upload" href="#gcloud.aio.storage.Storage.upload">upload</a></code></li>
 <li><code><a title="gcloud.aio.storage.Storage.upload_from_filename" href="#gcloud.aio.storage.Storage.upload_from_filename">upload_from_filename</a></code></li>
 </ul>
