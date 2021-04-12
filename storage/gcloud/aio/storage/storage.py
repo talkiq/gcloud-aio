@@ -187,7 +187,7 @@ class Storage:
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -> str:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
@@ -376,7 +376,7 @@ class Storage:
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
