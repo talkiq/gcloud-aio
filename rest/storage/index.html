@@ -588,7 +588,7 @@ with the link.</p>
         return data
 
     def delete(self, bucket     , object_name     , **_3to2kwargs)       :
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -798,7 +798,7 @@ with the link.</p>
         return &#39;&#39;.join(parts)
 
     def _download(self, bucket     , object_name     , **_3to2kwargs)         :
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
@@ -1099,7 +1099,7 @@ with the link.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, bucket     , object_name     , **_3to2kwargs)       :
-    # https://cloud.google.com/storage/docs/json_api/#encoding
+    # https://cloud.google.com/storage/docs/request-endpoints#encoding
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]

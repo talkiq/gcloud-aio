@@ -215,7 +215,7 @@ class Storage:
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -&gt; str:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
         headers = headers or {}
@@ -404,7 +404,7 @@ class Storage:
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -&gt; bytes:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
         headers = headers or {}
@@ -751,7 +751,7 @@ requests, not aiohttp).</p></div>
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -&gt; str:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
         headers = headers or {}
@@ -940,7 +940,7 @@ requests, not aiohttp).</p></div>
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -&gt; bytes:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
         headers = headers or {}
@@ -1218,7 +1218,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
                  params: Optional[Dict[str, str]] = None,
                  headers: Optional[Dict[str, str]] = None,
                  session: Optional[Session] = None) -&gt; str:
-    # https://cloud.google.com/storage/docs/json_api/#encoding
+    # https://cloud.google.com/storage/docs/request-endpoints#encoding
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
     headers = headers or {}
