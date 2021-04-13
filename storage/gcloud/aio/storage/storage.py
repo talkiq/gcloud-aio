@@ -27,12 +27,13 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
-    StreamResponse = Generator[bytes]
+    StreamResponse = Generator[bytes, None, None]
 else:
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-    StreamResponse = aiohttp.StreamReader
+    from aiohttp import StreamReader
+    StreamResponse = StreamReader  # type: ignore[misc]
 
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
@@ -191,7 +192,7 @@ class Storage:
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -> str:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
@@ -232,13 +233,14 @@ class Storage:
         return metadata
 
     async def download_stream(self, bucket: str, object_name: str, *,
-                       headers: Optional[Dict[str, Any]] = None,
-                       timeout: int = 10,
-                       session: Optional[Session] = None
-                       ) -> StreamResponse:
-        return await self._download_stream(bucket, object_name, headers=headers,
-                                    timeout=timeout, params={'alt': 'media'},
-                                    session=session, get_content=True)
+                              headers: Optional[Dict[str, Any]] = None,
+                              timeout: int = 10,
+                              session: Optional[Session] = None
+                              ) -> StreamResponse:
+        return await self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={'alt': 'media'},
+                                           session=session)
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
@@ -381,7 +383,7 @@ class Storage:
                         headers: Optional[Dict[str, str]] = None,
                         timeout: int = 10,
                         session: Optional[Session] = None) -> bytes:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
@@ -402,23 +404,28 @@ class Storage:
         return data
 
     async def _download_stream(self, bucket: str, object_name: str, *,
-                        params: Optional[Dict[str, str]] = None,
-                        headers: Optional[Dict[str, str]] = None,
-                        timeout: int = 10,
-                        session: Optional[Session] = None) -> StreamResponse:
-        # https://cloud.google.com/storage/docs/json_api/#encoding
+                               params: Optional[Dict[str, str]] = None,
+                               headers: Optional[Dict[str, str]] = None,
+                               timeout: int = 10,
+                               session: Optional[Session] = None
+                               ) -> StreamResponse:
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
         headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
-        response = await s.get(url, headers=headers, params=params or {},
-                               timeout=timeout, stream=True)
 
         if BUILD_GCLOUD_REST:
-            return response.iter_content
-        return response.content
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            response = s.get(url, headers=headers, params=params or {},
+                             timeout=timeout, stream=True)
+            return response.iter_content  # type: ignore[no-any-return]
+        response = await s.get(url, headers=headers, params=params or {},
+                               timeout=timeout)
+        return response.content  # type: ignore[no-any-return]
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
