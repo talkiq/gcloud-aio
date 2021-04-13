@@ -9,7 +9,6 @@ import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
-from typing import Generator
 from typing import IO
 from typing import List
 from typing import Optional
@@ -27,13 +26,10 @@ if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
     from requests import Session
-    StreamResponse = Generator[bytes, None, None]
 else:
     from asyncio import sleep  # type: ignore[misc]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
-    from aiohttp import StreamReader
-    StreamResponse = StreamReader  # type: ignore[misc]
 
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
@@ -108,6 +104,22 @@ class UploadType(enum.Enum):
     SIMPLE = 1
     RESUMABLE = 2
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
+
+
+class StreamResponse():
+    """This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    """
+    def __init__(self, response: Any) -> None:
+        self.response = response
+
+    async def read(self, size: int = -1) -> bytes:
+        chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = await self.response.content.read(size)
+        return chunk
 
 
 class Storage:
@@ -420,12 +432,12 @@ class Storage:
         if BUILD_GCLOUD_REST:
             # stream argument is only expected by requests.Session.
             # pylint: disable=unexpected-keyword-arg
-            response = s.get(url, headers=headers, params=params or {},
-                             timeout=timeout, stream=True)
-            return response.iter_content  # type: ignore[no-any-return]
-        response = await s.get(url, headers=headers, params=params or {},
-                               timeout=timeout)
-        return response.content  # type: ignore[no-any-return]
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(await s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
