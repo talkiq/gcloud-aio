@@ -10,6 +10,7 @@ from typing import Any
 from typing import AnyStr
 from typing import Dict
 from typing import IO
+from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -110,14 +111,17 @@ class StreamResponse:
     recommended streaming implementations between requests and aiohttp.
     """
     def __init__(self, response: Any) -> None:
-        self.response = response
+        self._response = response
+        self._iter: Optional[Iterator[bytes]] = None
 
     async def read(self, size: int = -1) -> bytes:
         chunk: bytes
         if BUILD_GCLOUD_REST:
-            chunk = self.response.iter_content(chunk_size=size)
+            if self._iter is None:
+                self._iter = self._response.iter_content(chunk_size=size)
+            chunk = next(self._iter, b'')
         else:
-            chunk = await self.response.content.read(size)
+            chunk = await self._response.content.read(size)
         return chunk
 
 
