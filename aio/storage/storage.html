@@ -133,7 +133,7 @@ class UploadType(enum.Enum):
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
-class StreamResponse():
+class StreamResponse:
     &#34;&#34;&#34;This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     &#34;&#34;&#34;
@@ -283,7 +283,7 @@ class Storage:
         &#34;&#34;&#34;Download a GCS object in a buffered stream.
 
         Args:
-            bucket (str): The bucket from which to dowonload.
+            bucket (str): The bucket from which to download.
             object_name (str): The object within the bucket to download.
             headers (Optional[Dict[str, Any]], optional): Custom header values
                 for the request, such as range. Defaults to None.
@@ -871,7 +871,7 @@ requests, not aiohttp).</p></div>
         &#34;&#34;&#34;Download a GCS object in a buffered stream.
 
         Args:
-            bucket (str): The bucket from which to dowonload.
+            bucket (str): The bucket from which to download.
             object_name (str): The object within the bucket to download.
             headers (Optional[Dict[str, Any]], optional): Custom header values
                 for the request, such as range. Defaults to None.
@@ -1401,7 +1401,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>bucket</code></strong> :&ensp;<code>str</code></dt>
-<dd>The bucket from which to dowonload.</dd>
+<dd>The bucket from which to download.</dd>
 <dt><strong><code>object_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The object within the bucket to download.</dd>
 <dt><strong><code>headers</code></strong> :&ensp;<code>Optional[Dict[str, Any]]</code>, optional</dt>
@@ -1433,7 +1433,7 @@ the response data (TTFB). Defaults to 10.</dd>
     &#34;&#34;&#34;Download a GCS object in a buffered stream.
 
     Args:
-        bucket (str): The bucket from which to dowonload.
+        bucket (str): The bucket from which to download.
         object_name (str): The object within the bucket to download.
         headers (Optional[Dict[str, Any]], optional): Custom header values
             for the request, such as range. Defaults to None.
@@ -1659,7 +1659,7 @@ recommended streaming implementations between requests and aiohttp.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class StreamResponse():
+<pre><code class="python">class StreamResponse:
     &#34;&#34;&#34;This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     &#34;&#34;&#34;
