@@ -7,4 +7,5 @@ from gcloud.aio.storage.storage import SCOPES
 from gcloud.aio.storage.storage import Storage
 
 
-__all__ = ['__version__', 'Blob', 'Bucket', 'SCOPES', 'Storage']
+__all__ = ['__version__', 'Blob', 'Bucket', 'SCOPES', 'Storage',
+           'StreamResponse']

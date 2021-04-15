@@ -249,6 +249,23 @@ class Storage:
                               timeout: int = 10,
                               session: Optional[Session] = None
                               ) -> StreamResponse:
+        """Download a GCS object in a buffered stream. 
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        """
         return await self._download_stream(bucket, object_name,
                                            headers=headers, timeout=timeout,
                                            params={'alt': 'media'},
