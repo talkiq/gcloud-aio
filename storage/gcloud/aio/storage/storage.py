@@ -105,7 +105,7 @@ class UploadType(enum.Enum):
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
-class StreamResponse():
+class StreamResponse:
     """This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     """
@@ -255,7 +255,7 @@ class Storage:
         """Download a GCS object in a buffered stream.
 
         Args:
-            bucket (str): The bucket from which to dowonload.
+            bucket (str): The bucket from which to download.
             object_name (str): The object within the bucket to download.
             headers (Optional[Dict[str, Any]], optional): Custom header values
                 for the request, such as range. Defaults to None.
