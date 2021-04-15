@@ -249,7 +249,7 @@ class Storage:
                               timeout: int = 10,
                               session: Optional[Session] = None
                               ) -> StreamResponse:
-        """Download a GCS object in a buffered stream. 
+        """Download a GCS object in a buffered stream.
 
         Args:
             bucket (str): The bucket from which to dowonload.

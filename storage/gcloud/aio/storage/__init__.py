@@ -5,6 +5,7 @@ from gcloud.aio.storage.blob import Blob
 from gcloud.aio.storage.bucket import Bucket
 from gcloud.aio.storage.storage import SCOPES
 from gcloud.aio.storage.storage import Storage
+from gcloud.aio.storage.storage import StreamResponse
 
 
 __all__ = ['__version__', 'Blob', 'Bucket', 'SCOPES', 'Storage',
