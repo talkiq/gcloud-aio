@@ -43,7 +43,8 @@ class BaseSession:
 
     @abstractmethod
     async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]]) -> Response:
+                  timeout: int, params: Optional[Dict[str, str]],
+                  stream: bool) -> Response:
         pass
 
     @abstractmethod
@@ -123,8 +124,12 @@ if not BUILD_GCLOUD_REST:
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None
-                      ) -> aiohttp.ClientResponse:
+                      params: Optional[Dict[str, str]] = None,
+                      stream: Optional[bool] = None) -> aiohttp.ClientResponse:
+            if stream is not None:
+                log.warning('passed unused argument stream=%s to AioSession: '
+                            'this argument is only used by SyncSession',
+                            stream)
             resp = await self.session.get(url, headers=headers,
                                           timeout=timeout, params=params)
             await _raise_for_status(resp)
@@ -197,10 +202,11 @@ if BUILD_GCLOUD_REST:
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None) -> Response:
+                      params: Optional[Dict[str, str]] = None,
+                      stream: bool = False) -> Response:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
-                                        params=params)
+                                        params=params, stream=stream)
             resp.raise_for_status()
             return resp
 
