@@ -145,6 +145,22 @@ class UploadType(enum.Enum):
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
+class StreamResponse(object):
+    &#34;&#34;&#34;This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    &#34;&#34;&#34;
+    def __init__(self, response     )        :
+        self.response = response
+
+    def read(self, size      = -1)         :
+        #chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = self.response.content.read(size)
+        return chunk
+
+
 class Storage(object):
     def __init__(self, **_3to2kwargs)        :
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -291,6 +307,36 @@ class Storage(object):
                                     timeout=timeout, session=session)
         metadata                 = json.loads(data.decode())
         return metadata
+
+    def download_stream(self, bucket     , object_name     , **_3to2kwargs
+                              )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        &#34;&#34;&#34;
+        return self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={&#39;alt&#39;: &#39;media&#39;},
+                                           session=session)
 
     def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
@@ -461,6 +507,7 @@ class Storage(object):
         s = SyncSession(session) if session else self.session
         response = s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
         # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -470,6 +517,34 @@ class Storage(object):
             data = response.content
 
         return data
+
+    def _download_stream(self, bucket     , object_name     , **_3to2kwargs
+                               )                  :
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
+        headers = headers or {}
+        headers.update(self._headers())
+
+        s = SyncSession(session) if session else self.session
+
+        if BUILD_GCLOUD_REST:
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     def _upload_simple(self, url     , object_name     ,
                              stream            , params                ,
@@ -885,6 +960,36 @@ requests, not aiohttp).</p></div>
         metadata                 = json.loads(data.decode())
         return metadata
 
+    def download_stream(self, bucket     , object_name     , **_3to2kwargs
+                              )                  :
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        &#34;&#34;&#34;
+        return self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={&#39;alt&#39;: &#39;media&#39;},
+                                           session=session)
+
     def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
@@ -1054,6 +1159,7 @@ requests, not aiohttp).</p></div>
         s = SyncSession(session) if session else self.session
         response = s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
         # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -1063,6 +1169,34 @@ requests, not aiohttp).</p></div>
             data = response.content
 
         return data
+
+    def _download_stream(self, bucket     , object_name     , **_3to2kwargs
+                               )                  :
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
+        if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+        else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  10
+        if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+        else: headers =  None
+        if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
+        else: params =  None
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
+        headers = headers or {}
+        headers.update(self._headers())
+
+        s = SyncSession(session) if session else self.session
+
+        if BUILD_GCLOUD_REST:
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     def _upload_simple(self, url     , object_name     ,
                              stream            , params                ,
@@ -1407,6 +1541,46 @@ requests, not aiohttp).</p></div>
     return metadata</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.storage.storage.Storage.download_stream"><code class="name flex">
+<span>def <span class="ident">download_stream</span></span>(<span>self, bucket, object_name, **_3to2kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_stream(self, bucket     , object_name     , **_3to2kwargs
+                          )                  :
+    if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
+    else: session =  None
+    if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+    else: timeout =  10
+    if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
+    else: headers =  None
+    &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+    Args:
+        bucket (str): The bucket from which to dowonload.
+        object_name (str): The object within the bucket to download.
+        headers (Optional[Dict[str, Any]], optional): Custom header values
+            for the request, such as range. Defaults to None.
+        timeout (int, optional): Timeout, in seconds, for the request. Note
+            that with this function, this is the time to the beginning of
+            the response data (TTFB). Defaults to 10.
+        session (Optional[Session], optional): A specific session to
+            (re)use. Defaults to None.
+
+    Returns:
+        StreamResponse: A object encapsulating the stream, similar to
+        io.BufferedIOBase, but it only supports the read() function.
+    &#34;&#34;&#34;
+    return self._download_stream(bucket, object_name,
+                                       headers=headers, timeout=timeout,
+                                       params={&#39;alt&#39;: &#39;media&#39;},
+                                       session=session)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.storage.storage.Storage.download_to_filename"><code class="name flex">
 <span>def <span class="ident">download_to_filename</span></span>(<span>self, bucket, object_name, filename, **kwargs)</span>
 </code></dt>
@@ -1621,6 +1795,54 @@ requests, not aiohttp).</p></div>
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.rest.storage.storage.StreamResponse"><code class="flex name class">
+<span>class <span class="ident">StreamResponse</span></span>
+<span>(</span><span>response)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class provides an abstraction between the slightly different
+recommended streaming implementations between requests and aiohttp.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StreamResponse(object):
+    &#34;&#34;&#34;This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    &#34;&#34;&#34;
+    def __init__(self, response     )        :
+        self.response = response
+
+    def read(self, size      = -1)         :
+        #chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = self.response.content.read(size)
+        return chunk</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.rest.storage.storage.StreamResponse.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>self, size=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read(self, size      = -1)         :
+    #chunk: bytes
+    if BUILD_GCLOUD_REST:
+        chunk = self.response.iter_content(chunk_size=size)
+    else:
+        chunk = self.response.content.read(size)
+    return chunk</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gcloud.rest.storage.storage.UploadType"><code class="flex name class">
 <span>class <span class="ident">UploadType</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
@@ -1686,6 +1908,7 @@ requests, not aiohttp).</p></div>
 <li><code><a title="gcloud.rest.storage.storage.Storage.delete" href="#gcloud.rest.storage.storage.Storage.delete">delete</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.download" href="#gcloud.rest.storage.storage.Storage.download">download</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.download_metadata" href="#gcloud.rest.storage.storage.Storage.download_metadata">download_metadata</a></code></li>
+<li><code><a title="gcloud.rest.storage.storage.Storage.download_stream" href="#gcloud.rest.storage.storage.Storage.download_stream">download_stream</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.download_to_filename" href="#gcloud.rest.storage.storage.Storage.download_to_filename">download_to_filename</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.get_bucket" href="#gcloud.rest.storage.storage.Storage.get_bucket">get_bucket</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.get_bucket_metadata" href="#gcloud.rest.storage.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
@@ -1693,6 +1916,12 @@ requests, not aiohttp).</p></div>
 <li><code><a title="gcloud.rest.storage.storage.Storage.patch_metadata" href="#gcloud.rest.storage.storage.Storage.patch_metadata">patch_metadata</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.upload" href="#gcloud.rest.storage.storage.Storage.upload">upload</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage.Storage.upload_from_filename" href="#gcloud.rest.storage.storage.Storage.upload_from_filename">upload_from_filename</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.storage.storage.StreamResponse" href="#gcloud.rest.storage.storage.StreamResponse">StreamResponse</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.rest.storage.storage.StreamResponse.read" href="#gcloud.rest.storage.storage.StreamResponse.read">read</a></code></li>
 </ul>
 </li>
 <li>

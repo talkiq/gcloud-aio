@@ -133,6 +133,22 @@ class UploadType(enum.Enum):
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
+class StreamResponse():
+    &#34;&#34;&#34;This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    &#34;&#34;&#34;
+    def __init__(self, response: Any) -&gt; None:
+        self.response = response
+
+    async def read(self, size: int = -1) -&gt; bytes:
+        chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = await self.response.content.read(size)
+        return chunk
+
+
 class Storage:
     def __init__(self, *,
                  service_file: Optional[Union[str, IO[AnyStr]]] = None,
@@ -258,6 +274,33 @@ class Storage:
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
+
+    async def download_stream(self, bucket: str, object_name: str, *,
+                              headers: Optional[Dict[str, Any]] = None,
+                              timeout: int = 10,
+                              session: Optional[Session] = None
+                              ) -&gt; StreamResponse:
+        &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        &#34;&#34;&#34;
+        return await self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={&#39;alt&#39;: &#39;media&#39;},
+                                           session=session)
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
@@ -413,6 +456,7 @@ class Storage:
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
         # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -422,6 +466,30 @@ class Storage:
             data = response.content
 
         return data
+
+    async def _download_stream(self, bucket: str, object_name: str, *,
+                               params: Optional[Dict[str, str]] = None,
+                               headers: Optional[Dict[str, str]] = None,
+                               timeout: int = 10,
+                               session: Optional[Session] = None
+                               ) -&gt; StreamResponse:
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = headers or {}
+        headers.update(await self._headers())
+
+        s = AioSession(session) if session else self.session
+
+        if BUILD_GCLOUD_REST:
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(await s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
@@ -795,6 +863,33 @@ requests, not aiohttp).</p></div>
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
 
+    async def download_stream(self, bucket: str, object_name: str, *,
+                              headers: Optional[Dict[str, Any]] = None,
+                              timeout: int = 10,
+                              session: Optional[Session] = None
+                              ) -&gt; StreamResponse:
+        &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        &#34;&#34;&#34;
+        return await self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={&#39;alt&#39;: &#39;media&#39;},
+                                           session=session)
+
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
                            headers: Optional[Dict[str, Any]] = None,
@@ -949,6 +1044,7 @@ requests, not aiohttp).</p></div>
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
         # N.B. the GCS API sometimes returns &#39;application/octet-stream&#39; when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -958,6 +1054,30 @@ requests, not aiohttp).</p></div>
             data = response.content
 
         return data
+
+    async def _download_stream(self, bucket: str, object_name: str, *,
+                               params: Optional[Dict[str, str]] = None,
+                               headers: Optional[Dict[str, str]] = None,
+                               timeout: int = 10,
+                               session: Optional[Session] = None
+                               ) -&gt; StreamResponse:
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
+        headers = headers or {}
+        headers.update(await self._headers())
+
+        s = AioSession(session) if session else self.session
+
+        if BUILD_GCLOUD_REST:
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(await s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
@@ -1273,6 +1393,66 @@ copy operation, you then have 1 week to complete the copy job.</p>
     return metadata</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.storage.storage.Storage.download_stream"><code class="name flex">
+<span>async def <span class="ident">download_stream</span></span>(<span>self, bucket: str, object_name: str, *, headers: Optional[Dict[str, Any]] = None, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> <a title="gcloud.aio.storage.storage.StreamResponse" href="#gcloud.aio.storage.storage.StreamResponse">StreamResponse</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download a GCS object in a buffered stream.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>bucket</code></strong> :&ensp;<code>str</code></dt>
+<dd>The bucket from which to dowonload.</dd>
+<dt><strong><code>object_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The object within the bucket to download.</dd>
+<dt><strong><code>headers</code></strong> :&ensp;<code>Optional[Dict[str, Any]]</code>, optional</dt>
+<dd>Custom header values
+for the request, such as range. Defaults to None.</dd>
+<dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Timeout, in seconds, for the request. Note
+that with this function, this is the time to the beginning of
+the response data (TTFB). Defaults to 10.</dd>
+<dt><strong><code>session</code></strong> :&ensp;<code>Optional[Session]</code>, optional</dt>
+<dd>A specific session to
+(re)use. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="gcloud.aio.storage.storage.StreamResponse" href="#gcloud.aio.storage.storage.StreamResponse">StreamResponse</a></code></dt>
+<dd>A object encapsulating the stream, similar to</dd>
+</dl>
+<p>io.BufferedIOBase, but it only supports the read() function.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def download_stream(self, bucket: str, object_name: str, *,
+                          headers: Optional[Dict[str, Any]] = None,
+                          timeout: int = 10,
+                          session: Optional[Session] = None
+                          ) -&gt; StreamResponse:
+    &#34;&#34;&#34;Download a GCS object in a buffered stream.
+
+    Args:
+        bucket (str): The bucket from which to dowonload.
+        object_name (str): The object within the bucket to download.
+        headers (Optional[Dict[str, Any]], optional): Custom header values
+            for the request, such as range. Defaults to None.
+        timeout (int, optional): Timeout, in seconds, for the request. Note
+            that with this function, this is the time to the beginning of
+            the response data (TTFB). Defaults to 10.
+        session (Optional[Session], optional): A specific session to
+            (re)use. Defaults to None.
+
+    Returns:
+        StreamResponse: A object encapsulating the stream, similar to
+        io.BufferedIOBase, but it only supports the read() function.
+    &#34;&#34;&#34;
+    return await self._download_stream(bucket, object_name,
+                                       headers=headers, timeout=timeout,
+                                       params={&#39;alt&#39;: &#39;media&#39;},
+                                       session=session)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.storage.storage.Storage.download_to_filename"><code class="name flex">
 <span>async def <span class="ident">download_to_filename</span></span>(<span>self, bucket: str, object_name: str, filename: str, **kwargs: Any) ‑> NoneType</span>
 </code></dt>
@@ -1468,6 +1648,54 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.aio.storage.storage.StreamResponse"><code class="flex name class">
+<span>class <span class="ident">StreamResponse</span></span>
+<span>(</span><span>response: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class provides an abstraction between the slightly different
+recommended streaming implementations between requests and aiohttp.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StreamResponse():
+    &#34;&#34;&#34;This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    &#34;&#34;&#34;
+    def __init__(self, response: Any) -&gt; None:
+        self.response = response
+
+    async def read(self, size: int = -1) -&gt; bytes:
+        chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = await self.response.content.read(size)
+        return chunk</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="gcloud.aio.storage.storage.StreamResponse.read"><code class="name flex">
+<span>async def <span class="ident">read</span></span>(<span>self, size: int = -1) ‑> bytes</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def read(self, size: int = -1) -&gt; bytes:
+    chunk: bytes
+    if BUILD_GCLOUD_REST:
+        chunk = self.response.iter_content(chunk_size=size)
+    else:
+        chunk = await self.response.content.read(size)
+    return chunk</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="gcloud.aio.storage.storage.UploadType"><code class="flex name class">
 <span>class <span class="ident">UploadType</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
@@ -1533,6 +1761,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <li><code><a title="gcloud.aio.storage.storage.Storage.delete" href="#gcloud.aio.storage.storage.Storage.delete">delete</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.download" href="#gcloud.aio.storage.storage.Storage.download">download</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.download_metadata" href="#gcloud.aio.storage.storage.Storage.download_metadata">download_metadata</a></code></li>
+<li><code><a title="gcloud.aio.storage.storage.Storage.download_stream" href="#gcloud.aio.storage.storage.Storage.download_stream">download_stream</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.download_to_filename" href="#gcloud.aio.storage.storage.Storage.download_to_filename">download_to_filename</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.get_bucket" href="#gcloud.aio.storage.storage.Storage.get_bucket">get_bucket</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.get_bucket_metadata" href="#gcloud.aio.storage.storage.Storage.get_bucket_metadata">get_bucket_metadata</a></code></li>
@@ -1540,6 +1769,12 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <li><code><a title="gcloud.aio.storage.storage.Storage.patch_metadata" href="#gcloud.aio.storage.storage.Storage.patch_metadata">patch_metadata</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.upload" href="#gcloud.aio.storage.storage.Storage.upload">upload</a></code></li>
 <li><code><a title="gcloud.aio.storage.storage.Storage.upload_from_filename" href="#gcloud.aio.storage.storage.Storage.upload_from_filename">upload_from_filename</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.storage.storage.StreamResponse" href="#gcloud.aio.storage.storage.StreamResponse">StreamResponse</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.storage.storage.StreamResponse.read" href="#gcloud.aio.storage.storage.StreamResponse.read">read</a></code></li>
 </ul>
 </li>
 <li>
