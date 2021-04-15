@@ -105,6 +105,22 @@ class UploadType(enum.Enum):
     MULTIPART = 3  # unused: SIMPLE upgrades to MULTIPART when metadata exists
 
 
+class StreamResponse():
+    """This class provides an abstraction between the slightly different
+    recommended streaming implementations between requests and aiohttp.
+    """
+    def __init__(self, response: Any) -> None:
+        self.response = response
+
+    async def read(self, size: int = -1) -> bytes:
+        chunk: bytes
+        if BUILD_GCLOUD_REST:
+            chunk = self.response.iter_content(chunk_size=size)
+        else:
+            chunk = await self.response.content.read(size)
+        return chunk
+
+
 class Storage:
     def __init__(self, *,
                  service_file: Optional[Union[str, IO[AnyStr]]] = None,
@@ -230,6 +246,33 @@ class Storage:
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
+
+    async def download_stream(self, bucket: str, object_name: str, *,
+                              headers: Optional[Dict[str, Any]] = None,
+                              timeout: int = 10,
+                              session: Optional[Session] = None
+                              ) -> StreamResponse:
+        """Download a GCS object in a buffered stream.
+
+        Args:
+            bucket (str): The bucket from which to dowonload.
+            object_name (str): The object within the bucket to download.
+            headers (Optional[Dict[str, Any]], optional): Custom header values
+                for the request, such as range. Defaults to None.
+            timeout (int, optional): Timeout, in seconds, for the request. Note
+                that with this function, this is the time to the beginning of
+                the response data (TTFB). Defaults to 10.
+            session (Optional[Session], optional): A specific session to
+                (re)use. Defaults to None.
+
+        Returns:
+            StreamResponse: A object encapsulating the stream, similar to
+            io.BufferedIOBase, but it only supports the read() function.
+        """
+        return await self._download_stream(bucket, object_name,
+                                           headers=headers, timeout=timeout,
+                                           params={'alt': 'media'},
+                                           session=session)
 
     async def list_objects(self, bucket: str, *,
                            params: Optional[Dict[str, str]] = None,
@@ -385,6 +428,7 @@ class Storage:
         s = AioSession(session) if session else self.session
         response = await s.get(url, headers=headers, params=params or {},
                                timeout=timeout)
+
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
         # bytes object.
@@ -394,6 +438,30 @@ class Storage:
             data = response.content
 
         return data
+
+    async def _download_stream(self, bucket: str, object_name: str, *,
+                               params: Optional[Dict[str, str]] = None,
+                               headers: Optional[Dict[str, str]] = None,
+                               timeout: int = 10,
+                               session: Optional[Session] = None
+                               ) -> StreamResponse:
+        # https://cloud.google.com/storage/docs/request-endpoints#encoding
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        headers = headers or {}
+        headers.update(await self._headers())
+
+        s = AioSession(session) if session else self.session
+
+        if BUILD_GCLOUD_REST:
+            # stream argument is only expected by requests.Session.
+            # pylint: disable=unexpected-keyword-arg
+            return StreamResponse(s.get(url, headers=headers,
+                                        params=params or {},
+                                        timeout=timeout, stream=True))
+        return StreamResponse(await s.get(url, headers=headers,
+                                          params=params or {},
+                                          timeout=timeout))
 
     async def _upload_simple(self, url: str, object_name: str,
                              stream: IO[AnyStr], params: Dict[str, str],
