@@ -160,8 +160,12 @@ standard Base64 are respectively replaced by - and _.</p>
 
     async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                   timeout: int = 10,
-                  params: Optional[Dict[str, str]] = None
-                  ) -&gt; aiohttp.ClientResponse:
+                  params: Optional[Dict[str, str]] = None,
+                  stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
+        if stream is not None:
+            log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
+                        &#39;this argument is only used by SyncSession&#39;,
+                        stream)
         resp = await self.session.get(url, headers=headers,
                                       timeout=timeout, params=params)
         await _raise_for_status(resp)
@@ -263,7 +267,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -273,8 +277,12 @@ def session(self) -&gt; aiohttp.ClientSession:
 </summary>
 <pre><code class="python">async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
               timeout: int = 10,
-              params: Optional[Dict[str, str]] = None
-              ) -&gt; aiohttp.ClientResponse:
+              params: Optional[Dict[str, str]] = None,
+              stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
+    if stream is not None:
+        log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
+                    &#39;this argument is only used by SyncSession&#39;,
+                    stream)
     resp = await self.session.get(url, headers=headers,
                                   timeout=timeout, params=params)
     await _raise_for_status(resp)

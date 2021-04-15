@@ -71,7 +71,8 @@ class BaseSession:
 
     @abstractmethod
     async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]]) -&gt; Response:
+                  timeout: int, params: Optional[Dict[str, str]],
+                  stream: bool) -&gt; Response:
         pass
 
     @abstractmethod
@@ -151,8 +152,12 @@ if not BUILD_GCLOUD_REST:
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None
-                      ) -&gt; aiohttp.ClientResponse:
+                      params: Optional[Dict[str, str]] = None,
+                      stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
+            if stream is not None:
+                log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
+                            &#39;this argument is only used by SyncSession&#39;,
+                            stream)
             resp = await self.session.get(url, headers=headers,
                                           timeout=timeout, params=params)
             await _raise_for_status(resp)
@@ -225,10 +230,11 @@ if BUILD_GCLOUD_REST:
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None) -&gt; Response:
+                      params: Optional[Dict[str, str]] = None,
+                      stream: bool = False) -&gt; Response:
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
-                                        params=params)
+                                        params=params, stream=stream)
             resp.raise_for_status()
             return resp
 
@@ -312,8 +318,12 @@ if BUILD_GCLOUD_REST:
 
     async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                   timeout: int = 10,
-                  params: Optional[Dict[str, str]] = None
-                  ) -&gt; aiohttp.ClientResponse:
+                  params: Optional[Dict[str, str]] = None,
+                  stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
+        if stream is not None:
+            log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
+                        &#39;this argument is only used by SyncSession&#39;,
+                        stream)
         resp = await self.session.get(url, headers=headers,
                                       timeout=timeout, params=params)
         await _raise_for_status(resp)
@@ -415,7 +425,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -425,8 +435,12 @@ def session(self) -&gt; aiohttp.ClientSession:
 </summary>
 <pre><code class="python">async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
               timeout: int = 10,
-              params: Optional[Dict[str, str]] = None
-              ) -&gt; aiohttp.ClientResponse:
+              params: Optional[Dict[str, str]] = None,
+              stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
+    if stream is not None:
+        log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
+                    &#39;this argument is only used by SyncSession&#39;,
+                    stream)
     resp = await self.session.get(url, headers=headers,
                                   timeout=timeout, params=params)
     await _raise_for_status(resp)
@@ -540,7 +554,8 @@ def session(self) -&gt; aiohttp.ClientSession:
 
     @abstractmethod
     async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]]) -&gt; Response:
+                  timeout: int, params: Optional[Dict[str, str]],
+                  stream: bool) -&gt; Response:
         pass
 
     @abstractmethod
@@ -620,7 +635,7 @@ async def delete(self, url: str, headers: Dict[str, str],
 </details>
 </dd>
 <dt id="gcloud.aio.auth.session.BaseSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]], timeout: int, params: Optional[Dict[str, str]]) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]], timeout: int, params: Optional[Dict[str, str]], stream: bool) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -630,7 +645,8 @@ async def delete(self, url: str, headers: Dict[str, str],
 </summary>
 <pre><code class="python">@abstractmethod
 async def get(self, url: str, headers: Optional[Dict[str, str]],
-              timeout: int, params: Optional[Dict[str, str]]) -&gt; Response:
+              timeout: int, params: Optional[Dict[str, str]],
+              stream: bool) -&gt; Response:
     pass</code></pre>
 </details>
 </dd>

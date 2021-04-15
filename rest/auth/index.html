@@ -461,10 +461,11 @@ def service_account_email(self)                 :
 
     def get(self, url     , headers                           = None,
                   timeout      = 10,
-                  params                           = None)            :
+                  params                           = None,
+                  stream       = False)            :
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
-                                    params=params)
+                                    params=params, stream=stream)
         resp.raise_for_status()
         return resp
 
@@ -579,7 +580,7 @@ def session(self)           :
 </details>
 </dd>
 <dt id="gcloud.rest.auth.SyncSession.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, url, headers=None, timeout=10, params=None)</span>
+<span>def <span class="ident">get</span></span>(<span>self, url, headers=None, timeout=10, params=None, stream=False)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -589,10 +590,11 @@ def session(self)           :
 </summary>
 <pre><code class="python">def get(self, url     , headers                           = None,
               timeout      = 10,
-              params                           = None)            :
+              params                           = None,
+              stream       = False)            :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
-                                params=params)
+                                params=params, stream=stream)
     resp.raise_for_status()
     return resp</code></pre>
 </details>
