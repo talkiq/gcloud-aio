@@ -101,7 +101,7 @@ repos:
     hooks:
     -   id: yesqa
 -   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.0
+    rev: 3.9.1
     hooks:
     -   id: flake8
         args:
