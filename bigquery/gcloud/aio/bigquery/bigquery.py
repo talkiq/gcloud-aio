@@ -146,7 +146,9 @@ class Job:
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     async def get_query_results(self, session: Optional[Session] = None,
-                                timeout: int = 60) -> Dict[str, Any]:
+                                timeout: int = 60,
+                                params: Optional[Dict[str, Any]] = None,
+                                ) -> Dict[str, Any]:
         """Get the specified jobQueryResults by job ID."""
 
         project = await self.project()
@@ -155,7 +157,8 @@ class Job:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, timeout=timeout)
+        resp = await s.get(url, headers=headers, timeout=timeout,
+                           params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
 
