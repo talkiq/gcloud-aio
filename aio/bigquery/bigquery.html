@@ -174,7 +174,9 @@ class Job:
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     async def get_query_results(self, session: Optional[Session] = None,
-                                timeout: int = 60) -&gt; Dict[str, Any]:
+                                timeout: int = 60,
+                                params: Optional[Dict[str, Any]] = None,
+                                ) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
 
         project = await self.project()
@@ -183,7 +185,8 @@ class Job:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, timeout=timeout)
+        resp = await s.get(url, headers=headers, timeout=timeout,
+                           params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -677,7 +680,9 @@ class Table:
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     async def get_query_results(self, session: Optional[Session] = None,
-                                timeout: int = 60) -&gt; Dict[str, Any]:
+                                timeout: int = 60,
+                                params: Optional[Dict[str, Any]] = None,
+                                ) -&gt; Dict[str, Any]:
         &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
 
         project = await self.project()
@@ -686,7 +691,8 @@ class Table:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, timeout=timeout)
+        resp = await s.get(url, headers=headers, timeout=timeout,
+                           params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -790,7 +796,7 @@ class Table:
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.bigquery.Job.get_query_results"><code class="name flex">
-<span>async def <span class="ident">get_query_results</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">get_query_results</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60, params: Optional[Dict[str, Any]] = None) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the specified jobQueryResults by job ID.</p></div>
@@ -799,7 +805,9 @@ class Table:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def get_query_results(self, session: Optional[Session] = None,
-                            timeout: int = 60) -&gt; Dict[str, Any]:
+                            timeout: int = 60,
+                            params: Optional[Dict[str, Any]] = None,
+                            ) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
 
     project = await self.project()
@@ -808,7 +816,8 @@ class Table:
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.get(url, headers=headers, timeout=timeout)
+    resp = await s.get(url, headers=headers, timeout=timeout,
+                       params=params or {})
     data: Dict[str, Any] = await resp.json()
     return data</code></pre>
 </details>

@@ -204,7 +204,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     def get_query_results(self, session                    = None,
-                                timeout      = 60)                  :
+                                timeout      = 60,
+                                params                           = None,
+                                )                  :
         &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
 
         project = self.project()
@@ -213,7 +215,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers, timeout=timeout)
+        resp = s.get(url, headers=headers, timeout=timeout,
+                           params=params or {})
         data                 = resp.json()
         return data
 
@@ -317,7 +320,7 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Job.get_query_results"><code class="name flex">
-<span>def <span class="ident">get_query_results</span></span>(<span>self, session=None, timeout=60)</span>
+<span>def <span class="ident">get_query_results</span></span>(<span>self, session=None, timeout=60, params=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the specified jobQueryResults by job ID.</p></div>
@@ -326,7 +329,9 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_query_results(self, session                    = None,
-                            timeout      = 60)                  :
+                            timeout      = 60,
+                            params                           = None,
+                            )                  :
     &#34;&#34;&#34;Get the specified jobQueryResults by job ID.&#34;&#34;&#34;
 
     project = self.project()
@@ -335,7 +340,8 @@ __all__ = [&#39;__version__&#39;, &#39;Disposition&#39;, &#39;SCOPES&#39;, &#39;
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.get(url, headers=headers, timeout=timeout)
+    resp = s.get(url, headers=headers, timeout=timeout,
+                       params=params or {})
     data                 = resp.json()
     return data</code></pre>
 </details>
