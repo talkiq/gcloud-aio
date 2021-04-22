@@ -2,7 +2,6 @@ import uuid
 
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
-from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Bucket
 from gcloud.aio.storage import Storage
 
@@ -26,9 +25,7 @@ async def test_gcs_signed_url(bucket_name, creds, data):
         bucket = Bucket(storage, bucket_name)
         blob = await bucket.get_blob(object_name, session=session)
 
-        iam_client = IamClient(service_file=creds, session=session)
-
-        signed_url = await blob.get_signed_url(60, iam_client=iam_client)
+        signed_url = await blob.get_signed_url(60)
 
         resp = await session.get(signed_url)
 
