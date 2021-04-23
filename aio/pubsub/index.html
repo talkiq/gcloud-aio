@@ -669,7 +669,16 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
         resp = await s.get(url, headers=headers, params=query_params,
                            timeout=timeout)
         result: Dict[str, Any] = await resp.json()
-        return result</code></pre>
+        return result
+
+    async def close(self) -&gt; None:
+        await self.session.close()
+
+    async def __aenter__(self) -&gt; &#39;SubscriberClient&#39;:
+        return self
+
+    async def __aexit__(self, *args: Any) -&gt; None:
+        await self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -696,6 +705,19 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
     encoded = json.dumps(payload).encode()
     s = AioSession(session) if session else self.session
     await s.post(url, data=encoded, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.aio.pubsub.SubscriberClient.close"><code class="name flex">
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def close(self) -&gt; None:
+    await self.session.close()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.create_subscription"><code class="name flex">
@@ -1037,6 +1059,7 @@ def from_repr(received_message: Dict[str, Any]
 <h4><code><a title="gcloud.aio.pubsub.SubscriberClient" href="#gcloud.aio.pubsub.SubscriberClient">SubscriberClient</a></code></h4>
 <ul class="two-column">
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.acknowledge" href="#gcloud.aio.pubsub.SubscriberClient.acknowledge">acknowledge</a></code></li>
+<li><code><a title="gcloud.aio.pubsub.SubscriberClient.close" href="#gcloud.aio.pubsub.SubscriberClient.close">close</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.create_subscription" href="#gcloud.aio.pubsub.SubscriberClient.create_subscription">create_subscription</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.delete_subscription" href="#gcloud.aio.pubsub.SubscriberClient.delete_subscription">delete_subscription</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.SubscriberClient.get_subscription" href="#gcloud.aio.pubsub.SubscriberClient.get_subscription">get_subscription</a></code></li>

@@ -235,7 +235,16 @@ class SubscriberClient(object):
         resp = s.get(url, headers=headers, params=query_params,
                            timeout=timeout)
         result                 = resp.json()
-        return result</code></pre>
+        return result
+
+    def close(self)        :
+        self.session.close()
+
+    def __enter__(self)                      :
+        return self
+
+    def __exit__(self, *args     )        :
+        self.close()</code></pre>
 </details>
 </section>
 <section>
@@ -421,7 +430,16 @@ class SubscriberClient(object):
         resp = s.get(url, headers=headers, params=query_params,
                            timeout=timeout)
         result                 = resp.json()
-        return result</code></pre>
+        return result
+
+    def close(self)        :
+        self.session.close()
+
+    def __enter__(self)                      :
+        return self
+
+    def __exit__(self, *args     )        :
+        self.close()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -450,6 +468,19 @@ class SubscriberClient(object):
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
     s.post(url, data=encoded, headers=headers, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self)        :
+    self.session.close()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription"><code class="name flex">
@@ -652,6 +683,7 @@ class SubscriberClient(object):
 <h4><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a></code></h4>
 <ul class="two-column">
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.acknowledge" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.acknowledge">acknowledge</a></code></li>
+<li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.close" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.close">close</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.create_subscription">create_subscription</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.delete_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.delete_subscription">delete_subscription</a></code></li>
 <li><code><a title="gcloud.rest.pubsub.subscriber_client.SubscriberClient.get_subscription" href="#gcloud.rest.pubsub.subscriber_client.SubscriberClient.get_subscription">get_subscription</a></code></li>
