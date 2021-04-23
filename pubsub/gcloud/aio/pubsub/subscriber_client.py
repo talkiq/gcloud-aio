@@ -183,3 +183,12 @@ class SubscriberClient:
                            timeout=timeout)
         result: Dict[str, Any] = await resp.json()
         return result
+
+    async def close(self) -> None:
+        await self.session.close()
+
+    async def __aenter__(self) -> 'SubscriberClient':
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self.close()
