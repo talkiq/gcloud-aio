@@ -97,7 +97,7 @@ repos:
         name: mypy-taskqueue
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa
-    rev: v1.2.2
+    rev: v1.2.3
     hooks:
     -   id: yesqa
 -   repo: https://gitlab.com/pycqa/flake8
