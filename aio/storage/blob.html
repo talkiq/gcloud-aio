@@ -29,19 +29,21 @@
 <pre><code class="python">import binascii
 import collections
 import datetime
+import enum
 import hashlib
 import io
 from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import TYPE_CHECKING
-from typing import Union
 from urllib.parse import quote
 
+import rsa
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
-from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
-from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+from pyasn1.codec.der import decoder
+from pyasn1_modules import pem
+from pyasn1_modules.rfc5208 import PrivateKeyInfo
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -54,6 +56,36 @@ if TYPE_CHECKING:
 
 
 HOST = &#39;storage.googleapis.com&#39;
+
+PKCS1_MARKER = (&#39;-----BEGIN RSA PRIVATE KEY-----&#39;,
+                &#39;-----END RSA PRIVATE KEY-----&#39;)
+PKCS8_MARKER = (&#39;-----BEGIN PRIVATE KEY-----&#39;,
+                &#39;-----END PRIVATE KEY-----&#39;)
+PKCS8_SPEC = PrivateKeyInfo()
+
+
+class PemKind(enum.Enum):
+    &#34;&#34;&#34;
+    Tracks the response of ``pem.readPemBlocksFromFile(key, *args)``&gt;
+
+    Note that the specified method returns ``(marker_id, key_bytes)``, where
+    ``marker_id`` is the integer index of the matching ``arg`` (or -1 if no
+    match was found.
+
+    For example::
+
+        (marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
+                                                   PCKS8_MARKER)
+        if marker_id == -1:
+            # &#34;key&#34; did not match either type or was invalid
+        if marker_id == 0:
+            # &#34;key&#34; matched the zeroth provided marker arg, eg. PKCS1_MARKER
+        if marker_id == 1:
+            # &#34;key&#34; matched the zeroth provided marker arg, eg. PKCS8_MARKER
+    &#34;&#34;&#34;
+    INVALID = -1
+    PKCS1 = 0
+    PKCS8 = 1
 
 
 class Blob:
@@ -84,12 +116,7 @@ class Blob:
     async def get_signed_url(  # pylint: disable=too-many-locals
             self, expiration: int, headers: Optional[Dict[str, str]] = None,
             query_params: Optional[Dict[str, Any]] = None,
-            http_method: str = &#39;GET&#39;,
-            iam_client: Optional[IamClient] = None,
-            service_account_email: Optional[str] = None,
-            service_file: Optional[Union[str, io.IOBase]] = None,
-            token: Optional[Token] = None,
-            session: Optional[Session] = None) -&gt; str:
+            http_method: str = &#39;GET&#39;, token: Optional[Token] = None) -&gt; str:
         &#34;&#34;&#34;
         Create a temporary access URL for Storage Blob accessible by anyone
         with the link.
@@ -101,23 +128,33 @@ class Blob:
             raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
                              &#39;seconds (7 days)&#39;)
 
-        iam_client = iam_client or IamClient(service_file=service_file,
-                                             token=token, session=session)
-
-        quoted_name = quote(self.name, safe=&#39;&#39;)
-        canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+        quoted_name = quote(self.name, safe=b&#39;/~&#39;)
+        canonical_uri = f&#39;/{quoted_name}&#39;
 
         datetime_now = datetime.datetime.utcnow()
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email
-                                 or iam_client.service_account_email)
+        # TODO: support for GCE_METADATA and AUTHORIZED_USER tokens. It should
+        # be possible via API, but seems to not be working for us in some
+        # cases.
+        #
+        # https://cloud.google.com/iam/docs/reference/credentials/rest/v1/
+        # projects.serviceAccounts/signBlob
+        token = token or self.bucket.storage.token
+        client_email = token.service_data.get(&#39;client_email&#39;)
+        private_key = token.service_data.get(&#39;private_key&#39;)
+        if not client_email or not private_key:
+            raise KeyError(&#39;Blob signing is only suported for tokens with &#39;
+                           &#39;explicit client_email and private_key data; &#39;
+                           &#39;please check your token points to a JSON service &#39;
+                           &#39;account file&#39;)
+
         credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
-        credential = f&#39;{service_account_email}/{credential_scope}&#39;
+        credential = f&#39;{client_email}/{credential_scope}&#39;
 
         headers = headers or {}
-        headers[&#39;host&#39;] = HOST
+        headers[&#39;host&#39;] = f&#39;{self.bucket.name}.{HOST}&#39;
 
         ordered_headers = collections.OrderedDict(sorted(headers.items()))
         canonical_headers = &#39;&#39;.join(
@@ -148,15 +185,31 @@ class Blob:
 
         str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
                                  credential_scope, canonical_req_hash])
-        signed_resp = await iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email,
-            session=session)
 
-        signature = binascii.hexlify(
-            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+        # N.B. see the ``PemKind`` enum
+        marker_id, key_bytes = pem.readPemBlocksFromFile(
+            io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER)
+        if marker_id == PemKind.INVALID.value:
+            raise ValueError(&#39;private key is invalid or unsupported&#39;)
 
-        return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
-                f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+        if marker_id == PemKind.PKCS8.value:
+            # convert from pkcs8 to pkcs1
+            key_info, remaining = decoder.decode(key_bytes,
+                                                 asn1Spec=PKCS8_SPEC)
+            if remaining != b&#39;&#39;:
+                raise ValueError(&#39;could not read PKCS8 key: found extra bytes&#39;,
+                                 remaining)
+
+            private_key_info = key_info.getComponentByName(&#39;privateKey&#39;)
+            key_bytes = private_key_info.asOctets()
+
+        key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format=&#39;DER&#39;)
+        signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, &#39;SHA-256&#39;)
+
+        signature = binascii.hexlify(signed_blob).decode()
+
+        return (f&#39;https://{self.bucket.name}.{HOST}{canonical_uri}?&#39;
+                f&#39;{canonical_query_str}&amp;X-Goog-Signature={signature}&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -206,12 +259,7 @@ class Blob:
     async def get_signed_url(  # pylint: disable=too-many-locals
             self, expiration: int, headers: Optional[Dict[str, str]] = None,
             query_params: Optional[Dict[str, Any]] = None,
-            http_method: str = &#39;GET&#39;,
-            iam_client: Optional[IamClient] = None,
-            service_account_email: Optional[str] = None,
-            service_file: Optional[Union[str, io.IOBase]] = None,
-            token: Optional[Token] = None,
-            session: Optional[Session] = None) -&gt; str:
+            http_method: str = &#39;GET&#39;, token: Optional[Token] = None) -&gt; str:
         &#34;&#34;&#34;
         Create a temporary access URL for Storage Blob accessible by anyone
         with the link.
@@ -223,23 +271,33 @@ class Blob:
             raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
                              &#39;seconds (7 days)&#39;)
 
-        iam_client = iam_client or IamClient(service_file=service_file,
-                                             token=token, session=session)
-
-        quoted_name = quote(self.name, safe=&#39;&#39;)
-        canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+        quoted_name = quote(self.name, safe=b&#39;/~&#39;)
+        canonical_uri = f&#39;/{quoted_name}&#39;
 
         datetime_now = datetime.datetime.utcnow()
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email
-                                 or iam_client.service_account_email)
+        # TODO: support for GCE_METADATA and AUTHORIZED_USER tokens. It should
+        # be possible via API, but seems to not be working for us in some
+        # cases.
+        #
+        # https://cloud.google.com/iam/docs/reference/credentials/rest/v1/
+        # projects.serviceAccounts/signBlob
+        token = token or self.bucket.storage.token
+        client_email = token.service_data.get(&#39;client_email&#39;)
+        private_key = token.service_data.get(&#39;private_key&#39;)
+        if not client_email or not private_key:
+            raise KeyError(&#39;Blob signing is only suported for tokens with &#39;
+                           &#39;explicit client_email and private_key data; &#39;
+                           &#39;please check your token points to a JSON service &#39;
+                           &#39;account file&#39;)
+
         credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
-        credential = f&#39;{service_account_email}/{credential_scope}&#39;
+        credential = f&#39;{client_email}/{credential_scope}&#39;
 
         headers = headers or {}
-        headers[&#39;host&#39;] = HOST
+        headers[&#39;host&#39;] = f&#39;{self.bucket.name}.{HOST}&#39;
 
         ordered_headers = collections.OrderedDict(sorted(headers.items()))
         canonical_headers = &#39;&#39;.join(
@@ -270,15 +328,31 @@ class Blob:
 
         str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
                                  credential_scope, canonical_req_hash])
-        signed_resp = await iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email,
-            session=session)
 
-        signature = binascii.hexlify(
-            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+        # N.B. see the ``PemKind`` enum
+        marker_id, key_bytes = pem.readPemBlocksFromFile(
+            io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER)
+        if marker_id == PemKind.INVALID.value:
+            raise ValueError(&#39;private key is invalid or unsupported&#39;)
 
-        return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
-                f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+        if marker_id == PemKind.PKCS8.value:
+            # convert from pkcs8 to pkcs1
+            key_info, remaining = decoder.decode(key_bytes,
+                                                 asn1Spec=PKCS8_SPEC)
+            if remaining != b&#39;&#39;:
+                raise ValueError(&#39;could not read PKCS8 key: found extra bytes&#39;,
+                                 remaining)
+
+            private_key_info = key_info.getComponentByName(&#39;privateKey&#39;)
+            key_bytes = private_key_info.asOctets()
+
+        key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format=&#39;DER&#39;)
+        signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, &#39;SHA-256&#39;)
+
+        signature = binascii.hexlify(signed_blob).decode()
+
+        return (f&#39;https://{self.bucket.name}.{HOST}{canonical_uri}?&#39;
+                f&#39;{canonical_query_str}&amp;X-Goog-Signature={signature}&#39;)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -312,7 +386,7 @@ def chunk_size(self) -&gt; int:
 </details>
 </dd>
 <dt id="gcloud.aio.storage.blob.Blob.get_signed_url"><code class="name flex">
-<span>async def <span class="ident">get_signed_url</span></span>(<span>self, expiration: int, headers: Optional[Dict[str, str]] = None, query_params: Optional[Dict[str, Any]] = None, http_method: str = 'GET', iam_client: Optional[<a title="gcloud.aio.auth.iam.IamClient" href="../auth/iam.html#gcloud.aio.auth.iam.IamClient">IamClient</a>] = None, service_account_email: Optional[str] = None, service_file: Union[str, io.IOBase, NoneType] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None, session: Optional[aiohttp.client.ClientSession] = None) ‑> str</span>
+<span>async def <span class="ident">get_signed_url</span></span>(<span>self, expiration: int, headers: Optional[Dict[str, str]] = None, query_params: Optional[Dict[str, Any]] = None, http_method: str = 'GET', token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a temporary access URL for Storage Blob accessible by anyone
@@ -326,12 +400,7 @@ with the link.</p>
 <pre><code class="python">async def get_signed_url(  # pylint: disable=too-many-locals
         self, expiration: int, headers: Optional[Dict[str, str]] = None,
         query_params: Optional[Dict[str, Any]] = None,
-        http_method: str = &#39;GET&#39;,
-        iam_client: Optional[IamClient] = None,
-        service_account_email: Optional[str] = None,
-        service_file: Optional[Union[str, io.IOBase]] = None,
-        token: Optional[Token] = None,
-        session: Optional[Session] = None) -&gt; str:
+        http_method: str = &#39;GET&#39;, token: Optional[Token] = None) -&gt; str:
     &#34;&#34;&#34;
     Create a temporary access URL for Storage Blob accessible by anyone
     with the link.
@@ -343,23 +412,33 @@ with the link.</p>
         raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
                          &#39;seconds (7 days)&#39;)
 
-    iam_client = iam_client or IamClient(service_file=service_file,
-                                         token=token, session=session)
-
-    quoted_name = quote(self.name, safe=&#39;&#39;)
-    canonical_uri = f&#39;/{self.bucket.name}/{quoted_name}&#39;
+    quoted_name = quote(self.name, safe=b&#39;/~&#39;)
+    canonical_uri = f&#39;/{quoted_name}&#39;
 
     datetime_now = datetime.datetime.utcnow()
     request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
     datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-    service_account_email = (service_account_email
-                             or iam_client.service_account_email)
+    # TODO: support for GCE_METADATA and AUTHORIZED_USER tokens. It should
+    # be possible via API, but seems to not be working for us in some
+    # cases.
+    #
+    # https://cloud.google.com/iam/docs/reference/credentials/rest/v1/
+    # projects.serviceAccounts/signBlob
+    token = token or self.bucket.storage.token
+    client_email = token.service_data.get(&#39;client_email&#39;)
+    private_key = token.service_data.get(&#39;private_key&#39;)
+    if not client_email or not private_key:
+        raise KeyError(&#39;Blob signing is only suported for tokens with &#39;
+                       &#39;explicit client_email and private_key data; &#39;
+                       &#39;please check your token points to a JSON service &#39;
+                       &#39;account file&#39;)
+
     credential_scope = f&#39;{datestamp}/auto/storage/goog4_request&#39;
-    credential = f&#39;{service_account_email}/{credential_scope}&#39;
+    credential = f&#39;{client_email}/{credential_scope}&#39;
 
     headers = headers or {}
-    headers[&#39;host&#39;] = HOST
+    headers[&#39;host&#39;] = f&#39;{self.bucket.name}.{HOST}&#39;
 
     ordered_headers = collections.OrderedDict(sorted(headers.items()))
     canonical_headers = &#39;&#39;.join(
@@ -390,15 +469,31 @@ with the link.</p>
 
     str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
                              credential_scope, canonical_req_hash])
-    signed_resp = await iam_client.sign_blob(
-        str_to_sign, service_account_email=service_account_email,
-        session=session)
 
-    signature = binascii.hexlify(
-        decode(signed_resp[&#39;signedBlob&#39;])).decode()
+    # N.B. see the ``PemKind`` enum
+    marker_id, key_bytes = pem.readPemBlocksFromFile(
+        io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER)
+    if marker_id == PemKind.INVALID.value:
+        raise ValueError(&#39;private key is invalid or unsupported&#39;)
 
-    return (f&#39;https://{HOST}{canonical_uri}?{canonical_query_str}&#39;
-            f&#39;&amp;X-Goog-Signature={signature}&#39;)</code></pre>
+    if marker_id == PemKind.PKCS8.value:
+        # convert from pkcs8 to pkcs1
+        key_info, remaining = decoder.decode(key_bytes,
+                                             asn1Spec=PKCS8_SPEC)
+        if remaining != b&#39;&#39;:
+            raise ValueError(&#39;could not read PKCS8 key: found extra bytes&#39;,
+                             remaining)
+
+        private_key_info = key_info.getComponentByName(&#39;privateKey&#39;)
+        key_bytes = private_key_info.asOctets()
+
+    key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format=&#39;DER&#39;)
+    signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, &#39;SHA-256&#39;)
+
+    signature = binascii.hexlify(signed_blob).decode()
+
+    return (f&#39;https://{self.bucket.name}.{HOST}{canonical_uri}?&#39;
+            f&#39;{canonical_query_str}&amp;X-Goog-Signature={signature}&#39;)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.blob.Blob.upload"><code class="name flex">
@@ -418,6 +513,72 @@ with the link.</p>
     self.__dict__.update(metadata)
     return metadata</code></pre>
 </details>
+</dd>
+</dl>
+</dd>
+<dt id="gcloud.aio.storage.blob.PemKind"><code class="flex name class">
+<span>class <span class="ident">PemKind</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tracks the response of <code>pem.readPemBlocksFromFile(key, *args)</code>&gt;</p>
+<p>Note that the specified method returns <code>(marker_id, key_bytes)</code>, where
+<code>marker_id</code> is the integer index of the matching <code>arg</code> (or -1 if no
+match was found.</p>
+<p>For example::</p>
+<pre><code>(marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
+                                           PCKS8_MARKER)
+if marker_id == -1:
+    # "key" did not match either type or was invalid
+if marker_id == 0:
+    # "key" matched the zeroth provided marker arg, eg. PKCS1_MARKER
+if marker_id == 1:
+    # "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PemKind(enum.Enum):
+    &#34;&#34;&#34;
+    Tracks the response of ``pem.readPemBlocksFromFile(key, *args)``&gt;
+
+    Note that the specified method returns ``(marker_id, key_bytes)``, where
+    ``marker_id`` is the integer index of the matching ``arg`` (or -1 if no
+    match was found.
+
+    For example::
+
+        (marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
+                                                   PCKS8_MARKER)
+        if marker_id == -1:
+            # &#34;key&#34; did not match either type or was invalid
+        if marker_id == 0:
+            # &#34;key&#34; matched the zeroth provided marker arg, eg. PKCS1_MARKER
+        if marker_id == 1:
+            # &#34;key&#34; matched the zeroth provided marker arg, eg. PKCS8_MARKER
+    &#34;&#34;&#34;
+    INVALID = -1
+    PKCS1 = 0
+    PKCS8 = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="gcloud.aio.storage.blob.PemKind.INVALID"><code class="name">var <span class="ident">INVALID</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.aio.storage.blob.PemKind.PKCS1"><code class="name">var <span class="ident">PKCS1</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="gcloud.aio.storage.blob.PemKind.PKCS8"><code class="name">var <span class="ident">PKCS8</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -444,6 +605,14 @@ with the link.</p>
 <li><code><a title="gcloud.aio.storage.blob.Blob.download" href="#gcloud.aio.storage.blob.Blob.download">download</a></code></li>
 <li><code><a title="gcloud.aio.storage.blob.Blob.get_signed_url" href="#gcloud.aio.storage.blob.Blob.get_signed_url">get_signed_url</a></code></li>
 <li><code><a title="gcloud.aio.storage.blob.Blob.upload" href="#gcloud.aio.storage.blob.Blob.upload">upload</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.storage.blob.PemKind" href="#gcloud.aio.storage.blob.PemKind">PemKind</a></code></h4>
+<ul class="">
+<li><code><a title="gcloud.aio.storage.blob.PemKind.INVALID" href="#gcloud.aio.storage.blob.PemKind.INVALID">INVALID</a></code></li>
+<li><code><a title="gcloud.aio.storage.blob.PemKind.PKCS1" href="#gcloud.aio.storage.blob.PemKind.PKCS1">PKCS1</a></code></li>
+<li><code><a title="gcloud.aio.storage.blob.PemKind.PKCS8" href="#gcloud.aio.storage.blob.PemKind.PKCS8">PKCS8</a></code></li>
 </ul>
 </li>
 </ul>

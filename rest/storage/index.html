@@ -111,12 +111,7 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
     def get_signed_url(  # pylint: disable=too-many-locals
             self, expiration     , headers                           = None,
             query_params                           = None,
-            http_method      = &#39;GET&#39;,
-            iam_client                      = None,
-            service_account_email                = None,
-            service_file                                  = None,
-            token                  = None,
-            session                    = None)       :
+            http_method      = &#39;GET&#39;, token                  = None)       :
         &#34;&#34;&#34;
         Create a temporary access URL for Storage Blob accessible by anyone
         with the link.
@@ -128,23 +123,33 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
             raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
                              &#39;seconds (7 days)&#39;)
 
-        iam_client = iam_client or IamClient(service_file=service_file,
-                                             token=token, session=session)
-
-        quoted_name = quote(self.name, safe=&#39;&#39;)
-        canonical_uri = &#39;/{}/{}&#39;.format((self.bucket.name), (quoted_name))
+        quoted_name = quote(self.name, safe=b&#39;/~&#39;)
+        canonical_uri = &#39;/{}&#39;.format((quoted_name))
 
         datetime_now = datetime.datetime.utcnow()
         request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
         datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-        service_account_email = (service_account_email
-                                 or iam_client.service_account_email)
+        # TODO: support for GCE_METADATA and AUTHORIZED_USER tokens. It should
+        # be possible via API, but seems to not be working for us in some
+        # cases.
+        #
+        # https://cloud.google.com/iam/docs/reference/credentials/rest/v1/
+        # projects.serviceAccounts/signBlob
+        token = token or self.bucket.storage.token
+        client_email = token.service_data.get(&#39;client_email&#39;)
+        private_key = token.service_data.get(&#39;private_key&#39;)
+        if not client_email or not private_key:
+            raise KeyError(&#39;Blob signing is only suported for tokens with &#39;
+                           &#39;explicit client_email and private_key data; &#39;
+                           &#39;please check your token points to a JSON service &#39;
+                           &#39;account file&#39;)
+
         credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
-        credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
+        credential = &#39;{}/{}&#39;.format((client_email), (credential_scope))
 
         headers = headers or {}
-        headers[&#39;host&#39;] = HOST
+        headers[&#39;host&#39;] = &#39;{}.{}&#39;.format((self.bucket.name), (HOST))
 
         ordered_headers = collections.OrderedDict(sorted(headers.items()))
         canonical_headers = &#39;&#39;.join(
@@ -175,15 +180,31 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
 
         str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
                                  credential_scope, canonical_req_hash])
-        signed_resp = iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email,
-            session=session)
 
-        signature = binascii.hexlify(
-            decode(signed_resp[&#39;signedBlob&#39;])).decode()
+        # N.B. see the ``PemKind`` enum
+        marker_id, key_bytes = pem.readPemBlocksFromFile(
+            io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER)
+        if marker_id == PemKind.INVALID.value:
+            raise ValueError(&#39;private key is invalid or unsupported&#39;)
 
-        return (&#39;https://{}{}?{}&#39;
-                &#39;&amp;X-Goog-Signature={}&#39;.format((HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
+        if marker_id == PemKind.PKCS8.value:
+            # convert from pkcs8 to pkcs1
+            key_info, remaining = decoder.decode(key_bytes,
+                                                 asn1Spec=PKCS8_SPEC)
+            if remaining != b&#39;&#39;:
+                raise ValueError(&#39;could not read PKCS8 key: found extra bytes&#39;,
+                                 remaining)
+
+            private_key_info = key_info.getComponentByName(&#39;privateKey&#39;)
+            key_bytes = private_key_info.asOctets()
+
+        key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format=&#39;DER&#39;)
+        signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, &#39;SHA-256&#39;)
+
+        signature = binascii.hexlify(signed_blob).decode()
+
+        return (&#39;https://{}.{}{}?&#39;
+                &#39;{}&amp;X-Goog-Signature={}&#39;.format((self.bucket.name), (HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -217,7 +238,7 @@ def chunk_size(self)       :
 </details>
 </dd>
 <dt id="gcloud.rest.storage.Blob.get_signed_url"><code class="name flex">
-<span>def <span class="ident">get_signed_url</span></span>(<span>self, expiration, headers=None, query_params=None, http_method='GET', iam_client=None, service_account_email=None, service_file=None, token=None, session=None)</span>
+<span>def <span class="ident">get_signed_url</span></span>(<span>self, expiration, headers=None, query_params=None, http_method='GET', token=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a temporary access URL for Storage Blob accessible by anyone
@@ -231,12 +252,7 @@ with the link.</p>
 <pre><code class="python">def get_signed_url(  # pylint: disable=too-many-locals
         self, expiration     , headers                           = None,
         query_params                           = None,
-        http_method      = &#39;GET&#39;,
-        iam_client                      = None,
-        service_account_email                = None,
-        service_file                                  = None,
-        token                  = None,
-        session                    = None)       :
+        http_method      = &#39;GET&#39;, token                  = None)       :
     &#34;&#34;&#34;
     Create a temporary access URL for Storage Blob accessible by anyone
     with the link.
@@ -248,23 +264,33 @@ with the link.</p>
         raise ValueError(&#34;expiration time can&#39;t be longer than 604800 &#34;
                          &#39;seconds (7 days)&#39;)
 
-    iam_client = iam_client or IamClient(service_file=service_file,
-                                         token=token, session=session)
-
-    quoted_name = quote(self.name, safe=&#39;&#39;)
-    canonical_uri = &#39;/{}/{}&#39;.format((self.bucket.name), (quoted_name))
+    quoted_name = quote(self.name, safe=b&#39;/~&#39;)
+    canonical_uri = &#39;/{}&#39;.format((quoted_name))
 
     datetime_now = datetime.datetime.utcnow()
     request_timestamp = datetime_now.strftime(&#39;%Y%m%dT%H%M%SZ&#39;)
     datestamp = datetime_now.strftime(&#39;%Y%m%d&#39;)
 
-    service_account_email = (service_account_email
-                             or iam_client.service_account_email)
+    # TODO: support for GCE_METADATA and AUTHORIZED_USER tokens. It should
+    # be possible via API, but seems to not be working for us in some
+    # cases.
+    #
+    # https://cloud.google.com/iam/docs/reference/credentials/rest/v1/
+    # projects.serviceAccounts/signBlob
+    token = token or self.bucket.storage.token
+    client_email = token.service_data.get(&#39;client_email&#39;)
+    private_key = token.service_data.get(&#39;private_key&#39;)
+    if not client_email or not private_key:
+        raise KeyError(&#39;Blob signing is only suported for tokens with &#39;
+                       &#39;explicit client_email and private_key data; &#39;
+                       &#39;please check your token points to a JSON service &#39;
+                       &#39;account file&#39;)
+
     credential_scope = &#39;{}/auto/storage/goog4_request&#39;.format((datestamp))
-    credential = &#39;{}/{}&#39;.format((service_account_email), (credential_scope))
+    credential = &#39;{}/{}&#39;.format((client_email), (credential_scope))
 
     headers = headers or {}
-    headers[&#39;host&#39;] = HOST
+    headers[&#39;host&#39;] = &#39;{}.{}&#39;.format((self.bucket.name), (HOST))
 
     ordered_headers = collections.OrderedDict(sorted(headers.items()))
     canonical_headers = &#39;&#39;.join(
@@ -295,15 +321,31 @@ with the link.</p>
 
     str_to_sign = &#39;\n&#39;.join([&#39;GOOG4-RSA-SHA256&#39;, request_timestamp,
                              credential_scope, canonical_req_hash])
-    signed_resp = iam_client.sign_blob(
-        str_to_sign, service_account_email=service_account_email,
-        session=session)
 
-    signature = binascii.hexlify(
-        decode(signed_resp[&#39;signedBlob&#39;])).decode()
+    # N.B. see the ``PemKind`` enum
+    marker_id, key_bytes = pem.readPemBlocksFromFile(
+        io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER)
+    if marker_id == PemKind.INVALID.value:
+        raise ValueError(&#39;private key is invalid or unsupported&#39;)
 
-    return (&#39;https://{}{}?{}&#39;
-            &#39;&amp;X-Goog-Signature={}&#39;.format((HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
+    if marker_id == PemKind.PKCS8.value:
+        # convert from pkcs8 to pkcs1
+        key_info, remaining = decoder.decode(key_bytes,
+                                             asn1Spec=PKCS8_SPEC)
+        if remaining != b&#39;&#39;:
+            raise ValueError(&#39;could not read PKCS8 key: found extra bytes&#39;,
+                             remaining)
+
+        private_key_info = key_info.getComponentByName(&#39;privateKey&#39;)
+        key_bytes = private_key_info.asOctets()
+
+    key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format=&#39;DER&#39;)
+    signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, &#39;SHA-256&#39;)
+
+    signature = binascii.hexlify(signed_blob).decode()
+
+    return (&#39;https://{}.{}{}?&#39;
+            &#39;{}&amp;X-Goog-Signature={}&#39;.format((self.bucket.name), (HOST), (canonical_uri), (canonical_query_str), (signature)))</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.Blob.upload"><code class="name flex">
