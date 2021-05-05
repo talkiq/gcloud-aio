@@ -1,1 +1,2 @@
+backoff>=1.0.0,<2.0.0
 gcloud-aio-auth >= 3.3.0, < 4.0.0

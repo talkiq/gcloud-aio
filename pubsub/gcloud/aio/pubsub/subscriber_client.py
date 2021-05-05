@@ -9,6 +9,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+import backoff
 from gcloud.aio.auth import AioSession
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token
@@ -93,6 +94,7 @@ class SubscriberClient:
         await s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
     async def pull(self, subscription: str, max_messages: int,
                    *, session: Optional[Session] = None,
                    timeout: Optional[int] = 30
