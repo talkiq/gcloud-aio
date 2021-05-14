@@ -70,7 +70,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 
     @classmethod
     def from_repr(cls, data                )           :
-        return cls([value.Value.from_repr(x) for x in data[&#39;values&#39;]])
+        return cls([value.Value.from_repr(x) for x in data.get(&#39;values&#39;, [])])
 
     def to_repr(self)                  :
         return {&#39;values&#39;: [x.to_repr() for x in self]}</code></pre>
@@ -118,7 +118,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 
     @classmethod
     def from_repr(cls, data                )           :
-        return cls([value.Value.from_repr(x) for x in data[&#39;values&#39;]])
+        return cls([value.Value.from_repr(x) for x in data.get(&#39;values&#39;, [])])
 
     def to_repr(self)                  :
         return {&#39;values&#39;: [x.to_repr() for x in self]}</code></pre>
@@ -145,7 +145,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 </summary>
 <pre><code class="python">@classmethod
 def from_repr(cls, data                )           :
-    return cls([value.Value.from_repr(x) for x in data[&#39;values&#39;]])</code></pre>
+    return cls([value.Value.from_repr(x) for x in data.get(&#39;values&#39;, [])])</code></pre>
 </details>
 </dd>
 </dl>
