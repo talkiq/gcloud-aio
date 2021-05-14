@@ -60,9 +60,9 @@ class Query(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -> 'Query':
         kind = data['kind'] or ''  # Kind is required
         if not isinstance(kind, str):
-          # If 'kind' is not a str, then the only other acceptable format
-          # is the list of a single dict [{'name' : kind}] (see to_repr)
-          kind = kind[0].get('name') or ''
+            # If 'kind' is not a str, then the only other acceptable format
+            # is the list of a single dict [{'name' : kind}] (see to_repr)
+            kind = kind[0].get('name') or ''
         orders = [PropertyOrder.from_repr(o) for o in data.get('order', [])]
         start_cursor = data.get('startCursor') or ''
         end_cursor = data.get('endCursor') or ''
