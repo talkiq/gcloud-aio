@@ -2496,6 +2496,10 @@ def from_repr(cls, data                )                   :
     @classmethod
     def from_repr(cls, data                )           :
         kind = data[&#39;kind&#39;] or &#39;&#39;  # Kind is required
+        if not isinstance(kind, str):
+            # If &#39;kind&#39; is not a str, then the only other acceptable format
+            # is the list of a single dict [{&#39;name&#39; : kind}] (see to_repr)
+            kind = kind[0].get(&#39;name&#39;) or &#39;&#39;
         orders = [PropertyOrder.from_repr(o) for o in data.get(&#39;order&#39;, [])]
         start_cursor = data.get(&#39;startCursor&#39;) or &#39;&#39;
         end_cursor = data.get(&#39;endCursor&#39;) or &#39;&#39;
@@ -2560,6 +2564,10 @@ def from_repr(cls, data                )                   :
 <pre><code class="python">@classmethod
 def from_repr(cls, data                )           :
     kind = data[&#39;kind&#39;] or &#39;&#39;  # Kind is required
+    if not isinstance(kind, str):
+        # If &#39;kind&#39; is not a str, then the only other acceptable format
+        # is the list of a single dict [{&#39;name&#39; : kind}] (see to_repr)
+        kind = kind[0].get(&#39;name&#39;) or &#39;&#39;
     orders = [PropertyOrder.from_repr(o) for o in data.get(&#39;order&#39;, [])]
     start_cursor = data.get(&#39;startCursor&#39;) or &#39;&#39;
     end_cursor = data.get(&#39;endCursor&#39;) or &#39;&#39;
