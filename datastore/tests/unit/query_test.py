@@ -109,6 +109,11 @@ class TestQuery:
         assert repr(query) == str(query.to_repr())
 
     @staticmethod
+    def test_from_to_repr(query):
+        new_query = Query.from_repr(query.to_repr())
+        assert new_query == query
+
+    @staticmethod
     @pytest.fixture(scope='session')
     def query(query_filter) -> Query:
         return Query('query_kind', query_filter)
