@@ -31,7 +31,7 @@ class Array(Sequence):  # type: ignore[type-arg]
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Array':
-        return cls([value.Value.from_repr(x) for x in data['values']])
+        return cls([value.Value.from_repr(x) for x in data.get('values', [])])
 
     def to_repr(self) -> Dict[str, Any]:
         return {'values': [x.to_repr() for x in self]}
