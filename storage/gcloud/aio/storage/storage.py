@@ -542,9 +542,18 @@ class Storage:
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
-        metadict = (metadata or {}).copy()
-        metadict.update({'name': object_name})
-        metadata_ = json.dumps(metadict)
+        # metadict = (metadata or {}).copy()
+        # metadict.update({'name': object_name})
+        # metadata_ = json.dumps(metadict)
+
+        metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+        custom_metadata = metadata.pop('metadata')        
+        metadata_content = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata_content['name'] = object_name
+        if custom_metadata:
+            metadata_content['metadata'] = custom_metadata
+        metadata_ = json.dumps(metadata_content)
 
         post_headers = headers.copy()
         post_headers.update({
