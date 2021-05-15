@@ -66,7 +66,7 @@ def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary urllib3 dependencies (since that's only included with
+    to avoid unnecessary urllib3 dependencies (since that's only included with
     requests, not aiohttp).
     """
     body: List[bytes] = []
@@ -492,9 +492,12 @@ class Storage:
         params['uploadType'] = 'multipart'
 
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-        metadata = {self._format_metadata_key(k): v
+        custom_metadata = metadata.pop('metadata')        
+        metadata_content = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
-        metadata['name'] = object_name
+        metadata_content['name'] = object_name
+        if custom_metadata:
+            metadata_content['metadata'] = custom_metadata
 
         raw_body: AnyStr = stream.read()
         if isinstance(raw_body, str):
@@ -503,8 +506,8 @@ class Storage:
             bytes_body = raw_body
 
         parts = [
-            (metadata_headers, json.dumps(metadata).encode('utf-8')),
-            ({'Content-Type': headers['Content-Type']}, bytes_body),
+            (metadata_headers, json.dumps(metadata_content).encode('utf-8')),
+            ({'content-type': headers['Content-Type']}, bytes_body),
         ]
         boundary = choose_boundary()
         body, content_type = encode_multipart_formdata(parts, boundary)
