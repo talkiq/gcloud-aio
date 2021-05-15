@@ -490,11 +490,12 @@ class Storage:
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
         params['uploadType'] = 'multipart'
-
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-        custom_metadata = metadata.pop('metadata')        
+        metadict = (metadata or {}).copy()
+        custom_metadata = metadict.pop('metadata', None)
         metadata_content = {self._format_metadata_key(k): v
-                    for k, v in metadata.items()}
+                    for k, v in metadict.items()}
+
         metadata_content['name'] = object_name
         if custom_metadata:
             metadata_content['metadata'] = custom_metadata
@@ -547,9 +548,10 @@ class Storage:
         # metadata_ = json.dumps(metadict)
 
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-        custom_metadata = metadata.pop('metadata')        
+        metadict = (metadata or {}).copy()
+        custom_metadata = metadict.pop('metadata', None)
         metadata_content = {self._format_metadata_key(k): v
-                    for k, v in metadata.items()}
+                    for k, v in metadict.items()}
         metadata_content['name'] = object_name
         if custom_metadata:
             metadata_content['metadata'] = custom_metadata
