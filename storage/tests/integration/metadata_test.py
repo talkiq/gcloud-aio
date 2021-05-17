@@ -1,7 +1,6 @@
 import uuid
 
 import pytest
-
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.storage import Storage
 
@@ -15,7 +14,7 @@ else:
 @pytest.mark.asyncio
 async def test_metadata_multipart(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
-    original_data = f"{uuid.uuid4().hex}"
+    original_data = f'{uuid.uuid4().hex}'
     original_metadata = {'Content-Disposition': 'inline',
                          'metadata': {'a': 1, 'b': 2}}
 
