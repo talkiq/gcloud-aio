@@ -11,12 +11,13 @@ if BUILD_GCLOUD_REST:
 else:
     from aiohttp import ClientSession as Session
 
+
 @pytest.mark.asyncio
 async def test_metadata_multipart(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
     original_data = f"{uuid.uuid4().hex}"
     original_metadata = {'Content-Disposition': 'inline',
-                'metadata': {'a':1, 'b':2}}
+                         'metadata': {'a': 1, 'b': 2}}
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
@@ -25,8 +26,7 @@ async def test_metadata_multipart(bucket_name, creds):
         res0 = await storage.upload(bucket_name, object_name, original_data,
                                     force_resumable_upload=False)
         data0 = await storage.download(bucket_name, res0['name'])
-        data_metadata0 = await storage.download_metadata(bucket_name,
-                                                        res0['name'])
+        await storage.download_metadata(bucket_name, res0['name'])
 
         # With metadata
         res = await storage.upload(bucket_name, object_name, original_data,
@@ -43,12 +43,13 @@ async def test_metadata_multipart(bucket_name, creds):
         assert data_metadata['metadata']['a'] == '1'
         assert data_metadata['metadata']['b'] == '2'
 
+
 @pytest.mark.asyncio
 async def test_metadata_resumable(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
     original_data = f"{uuid.uuid4().hex}"
     original_metadata = {'Content-Disposition': 'inline',
-                'metadata': {'a':1, 'b':2}}
+                         'metadata': {'a': 1, 'b': 2}}
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
@@ -57,8 +58,7 @@ async def test_metadata_resumable(bucket_name, creds):
         res0 = await storage.upload(bucket_name, object_name, original_data,
                                     force_resumable_upload=True)
         data0 = await storage.download(bucket_name, res0['name'])
-        data_metadata0 = await storage.download_metadata(bucket_name,
-                                                        res0['name'])
+        await storage.download_metadata(bucket_name, res0['name'])
 
         # With metadata
         res = await storage.upload(bucket_name, object_name, original_data,

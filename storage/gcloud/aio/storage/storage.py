@@ -494,7 +494,7 @@ class Storage:
         metadict = (metadata or {}).copy()
         custom_metadata = metadict.pop('metadata', None)
         metadata_content = {self._format_metadata_key(k): v
-                    for k, v in metadict.items()}
+                            for k, v in metadict.items()}
 
         metadata_content['name'] = object_name
         if custom_metadata:
@@ -543,15 +543,10 @@ class Storage:
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
-        # metadict = (metadata or {}).copy()
-        # metadict.update({'name': object_name})
-        # metadata_ = json.dumps(metadict)
-
-        metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
         metadict = (metadata or {}).copy()
         custom_metadata = metadict.pop('metadata', None)
         metadata_content = {self._format_metadata_key(k): v
-                    for k, v in metadict.items()}
+                            for k, v in metadict.items()}
         metadata_content['name'] = object_name
         if custom_metadata:
             metadata_content['metadata'] = custom_metadata

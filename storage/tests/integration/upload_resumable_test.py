@@ -38,16 +38,19 @@ async def test_upload_resumable(bucket_name, creds, uploaded_data,
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
-        res = await storage.upload(bucket_name, object_name, uploaded_data,
-                                   force_resumable_upload=True,
-                                   metadata={'Content-Disposition': 'inline',
-                                   "metadata": {'a':1, 'b':2}})
+        res = await storage.upload(
+            bucket_name,
+            object_name,
+            uploaded_data,
+            force_resumable_upload=True,
+            metadata={'Content-Disposition': 'inline',
+                      'metadata': {'a': 1, 'b': 2}})
 
         downloaded_data = await storage.download(bucket_name, res['name'])
         assert expected_data == downloaded_data
 
         downloaded_metadata = await storage.download_metadata(bucket_name,
-                                                                res['name'])
+                                                              res['name'])
         assert downloaded_metadata.pop('contentDisposition') == 'inline'
         assert downloaded_metadata['metadata']['a'] == '1'
         assert downloaded_metadata['metadata']['b'] == '2'

@@ -38,9 +38,12 @@ async def test_upload_multipart(bucket_name, creds, uploaded_data,
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
-        res = await storage.upload(bucket_name, object_name, uploaded_data,
-                                   metadata={'Content-Disposition': 'inline',
-                                   "metadata": {'a':1, 'b':2}})
+        res = await storage.upload(
+            bucket_name,
+            object_name,
+            uploaded_data,
+            metadata={'Content-Disposition': 'inline',
+                      'metadata': {'a': 1, 'b': 2}})
 
         try:
             assert res['name'] == object_name
