@@ -2,6 +2,7 @@
 An asynchronous push queue for Google Appengine Task Queues
 """
 import io
+import json
 import logging
 import os
 from typing import Any
@@ -56,42 +57,36 @@ class PushQueue:
             'Content-Type': 'application/json',
         }
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
-    async def _request(self, method: str, url: str,
-                       session: Optional[Session] = None,
-                       **kwargs: Any) -> Any:
-        s = AioSession(session) if session else self.session
-        headers = await self.headers()
-
-        resp = await s.request(method, url, headers=headers,
-                               auto_raise_for_status=False, **kwargs)
-        # N.B. This is awaited early to give an extra helping hand to various
-        # debug tools, which tend to be able to capture assigned variables but
-        # not un-awaited data.
-        data = await resp.json()
-        resp.raise_for_status()
-
-        return data
-
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def create(self, task: Dict[str, Any],
                      session: Optional[Session] = None) -> Any:
         url = f'{self.api_root}/tasks'
-        body = {
+        payload = json.dumps({
             'task': task,
             'responseView': 'FULL',
-        }
+        }).encode('utf-8')
 
-        return await self._request('POST', url, json=body, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, data=payload)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def delete(self, tname: str,
                      session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
 
-        return await self._request('DELETE', url, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def get(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
@@ -99,9 +94,14 @@ class PushQueue:
             'responseView': 'FULL' if full else 'BASIC',
         }
 
-        return await self._request('GET', url, params=params, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def list(self, full: bool = False, page_size: int = 1000,
                    page_token: str = '',
                    session: Optional[Session] = None) -> Any:
@@ -112,17 +112,26 @@ class PushQueue:
             'pageToken': page_token,
         }
 
-        return await self._request('GET', url, params=params, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def run(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}:run'
-        body = {
+        payload = json.dumps({
             'responseView': 'FULL' if full else 'BASIC',
-        }
+        }).encode('utf-8')
 
-        return await self._request('POST', url, json=body, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, data=payload)
+        return await resp.json()
 
     async def close(self) -> None:
         await self.session.close()
