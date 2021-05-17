@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-datastore',
-    version='6.2.2',
+    version='6.2.3',
     description='Python Client for Google Cloud Datastore',
     long_description=README,
     namespace_packages=[
