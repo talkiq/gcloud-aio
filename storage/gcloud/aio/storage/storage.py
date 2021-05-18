@@ -490,15 +490,11 @@ class Storage:
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
         params['uploadType'] = 'multipart'
-        metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-        metadict = (metadata or {}).copy()
-        custom_metadata = metadict.pop('metadata', None)
-        metadata_content = {self._format_metadata_key(k): v
-                            for k, v in metadict.items()}
 
-        metadata_content['name'] = object_name
-        if custom_metadata:
-            metadata_content['metadata'] = custom_metadata
+        metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+        metadata = {self._format_metadata_key(k): v
+                    for k, v in metadata.items()}
+        metadata['name'] = object_name
 
         raw_body: AnyStr = stream.read()
         if isinstance(raw_body, str):
@@ -507,7 +503,7 @@ class Storage:
             bytes_body = raw_body
 
         parts = [
-            (metadata_headers, json.dumps(metadata_content).encode('utf-8')),
+            (metadata_headers, json.dumps(metadata).encode('utf-8')),
             ({'content-type': headers['Content-Type']}, bytes_body),
         ]
         boundary = choose_boundary()
@@ -544,13 +540,11 @@ class Storage:
         params['uploadType'] = 'resumable'
 
         metadict = (metadata or {}).copy()
-        custom_metadata = metadict.pop('metadata', None)
-        metadata_content = {self._format_metadata_key(k): v
-                            for k, v in metadict.items()}
-        metadata_content['name'] = object_name
-        if custom_metadata:
-            metadata_content['metadata'] = custom_metadata
-        metadata_ = json.dumps(metadata_content)
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        metadict.update({'name': object_name})
+        metadata_ = json.dumps(metadict)
 
         post_headers = headers.copy()
         post_headers.update({
