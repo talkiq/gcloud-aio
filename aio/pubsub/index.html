@@ -460,7 +460,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.PubsubMessage"><code class="flex name class">
 <span>class <span class="ident">PubsubMessage</span></span>
-<span>(</span><span>data: Union[bytes, str], ordering_key: str = '', **kwargs: Dict[str, Any])</span>
+<span>(</span><span>data: Union[bytes, str], ordering_key: str = '', **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -470,7 +470,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </summary>
 <pre><code class="python">class PubsubMessage:
     def __init__(self, data: Union[bytes, str], ordering_key: str = &#39;&#39;,
-                 **kwargs: Dict[str, Any]) -&gt; None:
+                 **kwargs: Any) -&gt; None:
         self.data = data
         self.attributes = kwargs
         self.ordering_key = ordering_key

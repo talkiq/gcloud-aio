@@ -36,7 +36,7 @@ from gcloud.aio.auth import encode  # pylint: disable=no-name-in-module
 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
 class PubsubMessage:
     def __init__(self, data: Union[bytes, str], ordering_key: str = &#39;&#39;,
-                 **kwargs: Dict[str, Any]) -&gt; None:
+                 **kwargs: Any) -&gt; None:
         self.data = data
         self.attributes = kwargs
         self.ordering_key = ordering_key
@@ -65,7 +65,7 @@ class PubsubMessage:
 <dl>
 <dt id="gcloud.aio.pubsub.utils.PubsubMessage"><code class="flex name class">
 <span>class <span class="ident">PubsubMessage</span></span>
-<span>(</span><span>data: Union[bytes, str], ordering_key: str = '', **kwargs: Dict[str, Any])</span>
+<span>(</span><span>data: Union[bytes, str], ordering_key: str = '', **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -75,7 +75,7 @@ class PubsubMessage:
 </summary>
 <pre><code class="python">class PubsubMessage:
     def __init__(self, data: Union[bytes, str], ordering_key: str = &#39;&#39;,
-                 **kwargs: Dict[str, Any]) -&gt; None:
+                 **kwargs: Any) -&gt; None:
         self.data = data
         self.attributes = kwargs
         self.ordering_key = ordering_key
