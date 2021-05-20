@@ -120,11 +120,15 @@ class Datastore:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
+        mutation_properties = {}
+        for k, v in (properties or {}).items():
+            value = v if isinstance(v, cls.value_kind) else cls.value_kind(v)
+            mutation_properties[k] = value.to_repr()
+
         return {
             operation.value: {
                 'key': key.to_repr(),
-                'properties': {k: cls.value_kind(v).to_repr()
-                               for k, v in (properties or {}).items()},
+                'properties': mutation_properties,
             }
         }
 

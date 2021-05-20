@@ -80,6 +80,18 @@ async def test_mutation_result(creds: str, kind: str, project: str) -> None:
 
 
 @pytest.mark.asyncio  # type: ignore
+async def test_insert_value_object(creds: str, kind: str, project: str
+                                   ) -> None:
+    key = Key(project, [PathElement(kind)])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        properties = {'value': Value(30, exclude_from_indexes=True)}
+        insert_result = await ds.insert(key, properties)
+        assert len(insert_result['mutationResults']) == 1
+
+
+@pytest.mark.asyncio  # type: ignore
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
