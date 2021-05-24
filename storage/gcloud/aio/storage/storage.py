@@ -508,7 +508,7 @@ class Storage:
 
         parts = [
             (metadata_headers, json.dumps(metadata).encode('utf-8')),
-            ({'content-type': headers['Content-Type']}, bytes_body),
+            ({'Content-Type': headers['Content-Type']}, bytes_body),
         ]
         boundary = choose_boundary()
         body, content_type = encode_multipart_formdata(parts, boundary)
