@@ -299,7 +299,7 @@ class Storage:
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, str]] = None,
+                     metadata: Optional[Dict[str, Any]] = None,
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -> Dict[str, Any]:
@@ -485,7 +485,7 @@ class Storage:
     async def _upload_multipart(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str],
-                                metadata: Dict[str, Union[str, Dict[str, Any]]], *,
+                                metadata: Dict[str, Any], *,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
@@ -527,7 +527,7 @@ class Storage:
     async def _upload_resumable(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str], *,
-                                metadata: Optional[Dict[str, Union[str, Dict[str, Any]]]] = None,
+                                metadata: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
@@ -539,7 +539,7 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, Union[str, Dict[str, Any]]]] = None,
+                               *, metadata: Optional[Dict[str, Any]] = None,
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
