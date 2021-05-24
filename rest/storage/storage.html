@@ -582,8 +582,7 @@ class Storage(object):
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
-
-        if &#39;metadata&#39; in metadata.keys():
+        if &#39;metadata&#39; in metadata:
             metadata[&#39;metadata&#39;] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadata[&#39;metadata&#39;].items()}
@@ -641,8 +640,7 @@ class Storage(object):
         metadict = (metadata or {}).copy()
         metadict = {self._format_metadata_key(k): v
                     for k, v in metadict.items()}
-
-        if &#39;metadata&#39; in metadict.keys():
+        if &#39;metadata&#39; in metadict:
             metadict[&#39;metadata&#39;] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadict[&#39;metadata&#39;].items()}
@@ -1248,8 +1246,7 @@ requests, not aiohttp).</p></div>
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
-
-        if &#39;metadata&#39; in metadata.keys():
+        if &#39;metadata&#39; in metadata:
             metadata[&#39;metadata&#39;] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadata[&#39;metadata&#39;].items()}
@@ -1307,8 +1304,7 @@ requests, not aiohttp).</p></div>
         metadict = (metadata or {}).copy()
         metadict = {self._format_metadata_key(k): v
                     for k, v in metadict.items()}
-
-        if &#39;metadata&#39; in metadict.keys():
+        if &#39;metadata&#39; in metadict:
             metadict[&#39;metadata&#39;] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadict[&#39;metadata&#39;].items()}
