@@ -496,7 +496,10 @@ class Storage:
                     for k, v in metadata.items()}
 
         if 'metadata' in metadata.keys():
-            metadata['metadata'] = {str(k): str(v) if v is not None else None for k, v in metadata['metadata'].items()}
+            metadata['metadata'] = {
+                str(k): str(v) if v is not None else None \
+                    for k, v in metadata['metadata'].items()
+                }
 
         metadata['name'] = object_name
 
@@ -548,7 +551,10 @@ class Storage:
                     for k, v in metadict.items()}
 
         if 'metadata' in metadict.keys():
-            metadict['metadata'] = {str(k): str(v) if v is not None else None for k, v in metadict['metadata'].items()}
+            metadict['metadata'] = {
+                str(k): str(v) if v is not None else None \
+                    for k, v in metadict['metadata'].items()
+                }
 
         metadict.update({'name': object_name})
         metadata_ = json.dumps(metadict)
