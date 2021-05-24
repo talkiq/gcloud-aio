@@ -59,10 +59,10 @@ async def test_metadata_resumable(bucket_name, creds):
     original_data = f'{uuid.uuid4().hex}'
     original_metadata = {'Content-Disposition': 'inline',
                          'metadata':
-                            {'a': 1,
-                             'b': 2,
-                             'c': [1, 2, 3],
-                             'd': {'a': 4, 'b': 5}}}
+                         {'a': 1,
+                          'b': 2,
+                          'c': [1, 2, 3],
+                          'd': {'a': 4, 'b': 5}}}
     # Google casts all metadata elements as string.
     google_metadata = {'Content-Disposition': 'inline',
                        'metadata':
