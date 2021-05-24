@@ -369,11 +369,15 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
+        mutation_properties = {}
+        for k, v in (properties or {}).items():
+            value = v if isinstance(v, cls.value_kind) else cls.value_kind(v)
+            mutation_properties[k] = value.to_repr()
+
         return {
             operation.value: {
                 &#39;key&#39;: key.to_repr(),
-                &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                               for k, v in (properties or {}).items()},
+                &#39;properties&#39;: mutation_properties,
             }
         }
 
@@ -696,11 +700,15 @@ def make_mutation(
     if operation == Operation.DELETE:
         return {operation.value: key.to_repr()}
 
+    mutation_properties = {}
+    for k, v in (properties or {}).items():
+        value = v if isinstance(v, cls.value_kind) else cls.value_kind(v)
+        mutation_properties[k] = value.to_repr()
+
     return {
         operation.value: {
             &#39;key&#39;: key.to_repr(),
-            &#39;properties&#39;: {k: cls.value_kind(v).to_repr()
-                           for k, v in (properties or {}).items()},
+            &#39;properties&#39;: mutation_properties,
         }
     }</code></pre>
 </details>
