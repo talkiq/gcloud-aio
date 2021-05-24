@@ -494,8 +494,7 @@ class Storage:
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
-
-        if 'metadata' in metadata.keys():
+        if 'metadata' in metadata:
             metadata['metadata'] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadata['metadata'].items()}
@@ -548,8 +547,7 @@ class Storage:
         metadict = (metadata or {}).copy()
         metadict = {self._format_metadata_key(k): v
                     for k, v in metadict.items()}
-
-        if 'metadata' in metadict.keys():
+        if 'metadata' in metadict:
             metadict['metadata'] = {
                 str(k): str(v) if v is not None else None
                 for k, v in metadict['metadata'].items()}
