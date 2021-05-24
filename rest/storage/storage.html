@@ -107,7 +107,7 @@ def encode_multipart_formdata(fields                                    ,
     Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
+    to avoid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
     requests, not aiohttp).
     &#34;&#34;&#34;
     body              = []
@@ -582,6 +582,12 @@ class Storage(object):
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+
+        if &#39;metadata&#39; in metadata.keys():
+            metadata[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata[&#39;metadata&#39;].items()}
+
         metadata[&#39;name&#39;] = object_name
 
         raw_body         = stream.read()
@@ -633,6 +639,14 @@ class Storage(object):
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        if &#39;metadata&#39; in metadict.keys():
+            metadict[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict[&#39;metadata&#39;].items()}
+
         metadict.update({&#39;name&#39;: object_name})
         metadata_ = json.dumps(metadict)
 
@@ -757,7 +771,7 @@ class Storage(object):
 <dd>
 <div class="desc"><p>Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.</p>
 <p>Very heavily modified to be compatible with our gcloud-rest converter and
-to avboid unnecessary six.moves.urllib3 dependencies (since that's only included with
+to avoid unnecessary six.moves.urllib3 dependencies (since that's only included with
 requests, not aiohttp).</p></div>
 <details class="source">
 <summary>
@@ -769,7 +783,7 @@ requests, not aiohttp).</p></div>
     Stolen from six.moves.urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
+    to avoid unnecessary six.moves.urllib3 dependencies (since that&#39;s only included with
     requests, not aiohttp).
     &#34;&#34;&#34;
     body              = []
@@ -1234,6 +1248,12 @@ requests, not aiohttp).</p></div>
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+
+        if &#39;metadata&#39; in metadata.keys():
+            metadata[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata[&#39;metadata&#39;].items()}
+
         metadata[&#39;name&#39;] = object_name
 
         raw_body         = stream.read()
@@ -1285,6 +1305,14 @@ requests, not aiohttp).</p></div>
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        if &#39;metadata&#39; in metadict.keys():
+            metadict[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict[&#39;metadata&#39;].items()}
+
         metadict.update({&#39;name&#39;: object_name})
         metadata_ = json.dumps(metadict)
 

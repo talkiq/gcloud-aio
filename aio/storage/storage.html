@@ -94,7 +94,7 @@ def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary urllib3 dependencies (since that&#39;s only included with
+    to avoid unnecessary urllib3 dependencies (since that&#39;s only included with
     requests, not aiohttp).
     &#34;&#34;&#34;
     body: List[bytes] = []
@@ -327,7 +327,7 @@ class Storage:
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, str]] = None,
+                     metadata: Optional[Dict[str, Any]] = None,
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -&gt; Dict[str, Any]:
@@ -513,7 +513,7 @@ class Storage:
     async def _upload_multipart(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str],
-                                metadata: Dict[str, str], *,
+                                metadata: Dict[str, Any], *,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -&gt; Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
@@ -522,6 +522,12 @@ class Storage:
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+
+        if &#39;metadata&#39; in metadata.keys():
+            metadata[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata[&#39;metadata&#39;].items()}
+
         metadata[&#39;name&#39;] = object_name
 
         raw_body: AnyStr = stream.read()
@@ -563,11 +569,19 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, str]] = None,
+                               *, metadata: Optional[Dict[str, Any]] = None,
                                session: Optional[Session] = None) -&gt; str:
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        if &#39;metadata&#39; in metadict.keys():
+            metadict[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict[&#39;metadata&#39;].items()}
+
         metadict.update({&#39;name&#39;: object_name})
         metadata_ = json.dumps(metadict)
 
@@ -680,7 +694,7 @@ class Storage:
 <dd>
 <div class="desc"><p>Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.</p>
 <p>Very heavily modified to be compatible with our gcloud-rest converter and
-to avboid unnecessary urllib3 dependencies (since that's only included with
+to avoid unnecessary urllib3 dependencies (since that's only included with
 requests, not aiohttp).</p></div>
 <details class="source">
 <summary>
@@ -692,7 +706,7 @@ requests, not aiohttp).</p></div>
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary urllib3 dependencies (since that&#39;s only included with
+    to avoid unnecessary urllib3 dependencies (since that&#39;s only included with
     requests, not aiohttp).
     &#34;&#34;&#34;
     body: List[bytes] = []
@@ -915,7 +929,7 @@ requests, not aiohttp).</p></div>
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, str]] = None,
+                     metadata: Optional[Dict[str, Any]] = None,
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -&gt; Dict[str, Any]:
@@ -1101,7 +1115,7 @@ requests, not aiohttp).</p></div>
     async def _upload_multipart(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str],
-                                metadata: Dict[str, str], *,
+                                metadata: Dict[str, Any], *,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -&gt; Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
@@ -1110,6 +1124,12 @@ requests, not aiohttp).</p></div>
         metadata_headers = {&#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+
+        if &#39;metadata&#39; in metadata.keys():
+            metadata[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata[&#39;metadata&#39;].items()}
+
         metadata[&#39;name&#39;] = object_name
 
         raw_body: AnyStr = stream.read()
@@ -1151,11 +1171,19 @@ requests, not aiohttp).</p></div>
 
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, str]] = None,
+                               *, metadata: Optional[Dict[str, Any]] = None,
                                session: Optional[Session] = None) -&gt; str:
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        if &#39;metadata&#39; in metadict.keys():
+            metadict[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict[&#39;metadata&#39;].items()}
+
         metadict.update({&#39;name&#39;: object_name})
         metadata_ = json.dumps(metadict)
 
@@ -1570,7 +1598,7 @@ the response data (TTFB). Defaults to 10.</dd>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.storage.Storage.upload"><code class="name flex">
-<span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: Optional[str] = None, parameters: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, metadata: Optional[Dict[str, str]] = None, session: Optional[aiohttp.client.ClientSession] = None, force_resumable_upload: Optional[bool] = None, timeout: int = 30) ‑> Dict[str, Any]</span>
+<span>async def <span class="ident">upload</span></span>(<span>self, bucket: str, object_name: str, file_data: Any, *, content_type: Optional[str] = None, parameters: Optional[Dict[str, str]] = None, headers: Optional[Dict[str, str]] = None, metadata: Optional[Dict[str, Any]] = None, session: Optional[aiohttp.client.ClientSession] = None, force_resumable_upload: Optional[bool] = None, timeout: int = 30) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1582,7 +1610,7 @@ the response data (TTFB). Defaults to 10.</dd>
                  *, content_type: Optional[str] = None,
                  parameters: Optional[Dict[str, str]] = None,
                  headers: Optional[Dict[str, str]] = None,
-                 metadata: Optional[Dict[str, str]] = None,
+                 metadata: Optional[Dict[str, Any]] = None,
                  session: Optional[Session] = None,
                  force_resumable_upload: Optional[bool] = None,
                  timeout: int = 30) -&gt; Dict[str, Any]:
