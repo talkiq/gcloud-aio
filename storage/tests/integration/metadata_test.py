@@ -16,10 +16,10 @@ async def test_metadata_multipart(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
     original_data = f'{uuid.uuid4().hex}'
     original_metadata = {'Content-Disposition': 'inline',
-                         'metadata': {'a': 1, 'b': 2, 'c': [1,2,3], 'd': {'a': 4, 'b': 5}}}
+                         'metadata': {'a': 1, 'b': 2, 'c': [1, 2, 3], 'd': {'a': 4, 'b': 5}}}
     # Google casts all metadata elements as string.
     google_metadata = {'Content-Disposition': 'inline',
-                       'metadata': {'a': str(1), 'b': str(2), 'c': str([1,2,3]), 'd': str({'a': 4, 'b': 5})}}
+                       'metadata': {'a': str(1), 'b': str(2), 'c': str([1, 2, 3]), 'd': str({'a': 4, 'b': 5})}}
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
@@ -50,10 +50,10 @@ async def test_metadata_resumable(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
     original_data = f'{uuid.uuid4().hex}'
     original_metadata = {'Content-Disposition': 'inline',
-                         'metadata': {'a': 1, 'b': 2, 'c': [1,2,3], 'd': {'a': 4, 'b': 5}}}
+                         'metadata': {'a': 1, 'b': 2, 'c': [1, 2, 3], 'd': {'a': 4, 'b': 5}}}
     # Google casts all metadata elements as string.
     google_metadata = {'Content-Disposition': 'inline',
-                       'metadata': {'a': str(1), 'b': str(2), 'c': str([1,2,3]), 'd': str({'a': 4, 'b': 5})}}
+                       'metadata': {'a': str(1), 'b': str(2), 'c': str([1, 2, 3]), 'd': str({'a': 4, 'b': 5})}}
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
