@@ -66,7 +66,7 @@ def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary urllib3 dependencies (since that's only included with
+    to avoid unnecessary urllib3 dependencies (since that's only included with
     requests, not aiohttp).
     """
     body: List[bytes] = []
@@ -299,7 +299,7 @@ class Storage:
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, str]] = None,
+                     metadata: Optional[Dict[str, Any]] = None,
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -> Dict[str, Any]:
@@ -485,7 +485,7 @@ class Storage:
     async def _upload_multipart(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str],
-                                metadata: Dict[str, str], *,
+                                metadata: Dict[str, Any], *,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
@@ -494,6 +494,12 @@ class Storage:
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+
+        if 'metadata' in metadata.keys():
+            metadata['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata['metadata'].items()}
+
         metadata['name'] = object_name
 
         raw_body: AnyStr = stream.read()
@@ -535,11 +541,19 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, str]] = None,
+                               *, metadata: Optional[Dict[str, Any]] = None,
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+
+        if 'metadata' in metadict.keys():
+            metadict['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict['metadata'].items()}
+
         metadict.update({'name': object_name})
         metadata_ = json.dumps(metadict)
 
