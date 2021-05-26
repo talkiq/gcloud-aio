@@ -41,6 +41,7 @@ with warnings.catch_warnings():
 standard_library.install_aliases()
 from builtins import object
 import io
+import json
 import logging
 import os
 from typing import Any
@@ -95,42 +96,36 @@ class PushQueue(object):
             &#39;Content-Type&#39;: &#39;application/json&#39;,
         }
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
-    def _request(self, method     , url     ,
-                       session                    = None,
-                       **kwargs     )       :
-        s = SyncSession(session) if session else self.session
-        headers = self.headers()
-
-        resp = s.request(method, url, headers=headers,
-                               auto_raise_for_status=False, **kwargs)
-        # N.B. This is awaited early to give an extra helping hand to various
-        # debug tools, which tend to be able to capture assigned variables but
-        # not un-awaited data.
-        data = resp.json()
-        resp.raise_for_status()
-
-        return data
-
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def create(self, task                ,
                      session                    = None)       :
         url = &#39;{}/tasks&#39;.format((self.api_root))
-        body = {
+        payload = json.dumps({
             &#39;task&#39;: task,
             &#39;responseView&#39;: &#39;FULL&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, data=payload)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def delete(self, tname     ,
                      session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
 
-        return self._request(&#39;DELETE&#39;, url, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.delete(url, headers=headers)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def get(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -138,9 +133,14 @@ class PushQueue(object):
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
         }
 
-        return self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def list(self, full       = False, page_size      = 1000,
                    page_token      = &#39;&#39;,
                    session                    = None)       :
@@ -151,17 +151,26 @@ class PushQueue(object):
             &#39;pageToken&#39;: page_token,
         }
 
-        return self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def run(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
-        body = {
+        payload = json.dumps({
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, data=payload)
+        return resp.json()
 
     def close(self)        :
         self.session.close()
@@ -215,42 +224,36 @@ class PushQueue(object):
             &#39;Content-Type&#39;: &#39;application/json&#39;,
         }
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
-    def _request(self, method     , url     ,
-                       session                    = None,
-                       **kwargs     )       :
-        s = SyncSession(session) if session else self.session
-        headers = self.headers()
-
-        resp = s.request(method, url, headers=headers,
-                               auto_raise_for_status=False, **kwargs)
-        # N.B. This is awaited early to give an extra helping hand to various
-        # debug tools, which tend to be able to capture assigned variables but
-        # not un-awaited data.
-        data = resp.json()
-        resp.raise_for_status()
-
-        return data
-
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def create(self, task                ,
                      session                    = None)       :
         url = &#39;{}/tasks&#39;.format((self.api_root))
-        body = {
+        payload = json.dumps({
             &#39;task&#39;: task,
             &#39;responseView&#39;: &#39;FULL&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, data=payload)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def delete(self, tname     ,
                      session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
 
-        return self._request(&#39;DELETE&#39;, url, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.delete(url, headers=headers)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def get(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -258,9 +261,14 @@ class PushQueue(object):
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
         }
 
-        return self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def list(self, full       = False, page_size      = 1000,
                    page_token      = &#39;&#39;,
                    session                    = None)       :
@@ -271,17 +279,26 @@ class PushQueue(object):
             &#39;pageToken&#39;: page_token,
         }
 
-        return self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.get(url, headers=headers, params=params)
+        return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     def run(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
-        body = {
+        payload = json.dumps({
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = self.headers()
+
+        s = SyncSession(session) if session else self.session
+        resp = s.post(url, headers=headers, data=payload)
+        return resp.json()
 
     def close(self)        :
         self.session.close()
@@ -316,15 +333,20 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create(self, task                ,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+def create(self, task                ,
                  session                    = None)       :
     url = &#39;{}/tasks&#39;.format((self.api_root))
-    body = {
+    payload = json.dumps({
         &#39;task&#39;: task,
         &#39;responseView&#39;: &#39;FULL&#39;,
-    }
+    }).encode(&#39;utf-8&#39;)
 
-    return self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, headers=headers, data=payload)
+    return resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.taskqueue.queue.PushQueue.delete"><code class="name flex">
@@ -336,11 +358,16 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete(self, tname     ,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+def delete(self, tname     ,
                  session                    = None)       :
     url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
 
-    return self._request(&#39;DELETE&#39;, url, session=session)</code></pre>
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.delete(url, headers=headers)
+    return resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.taskqueue.queue.PushQueue.get"><code class="name flex">
@@ -352,14 +379,19 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, tname     , full       = False,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+def get(self, tname     , full       = False,
               session                    = None)       :
     url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
     params = {
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
     }
 
-    return self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=params)
+    return resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.taskqueue.queue.PushQueue.headers"><code class="name flex">
@@ -391,7 +423,8 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def list(self, full       = False, page_size      = 1000,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+def list(self, full       = False, page_size      = 1000,
                page_token      = &#39;&#39;,
                session                    = None)       :
     url = &#39;{}/tasks&#39;.format((self.api_root))
@@ -401,7 +434,11 @@ class PushQueue(object):
         &#39;pageToken&#39;: page_token,
     }
 
-    return self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.get(url, headers=headers, params=params)
+    return resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.taskqueue.queue.PushQueue.run"><code class="name flex">
@@ -413,14 +450,19 @@ class PushQueue(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def run(self, tname     , full       = False,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+def run(self, tname     , full       = False,
               session                    = None)       :
     url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
-    body = {
+    payload = json.dumps({
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
-    }
+    }).encode(&#39;utf-8&#39;)
 
-    return self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+    headers = self.headers()
+
+    s = SyncSession(session) if session else self.session
+    resp = s.post(url, headers=headers, data=payload)
+    return resp.json()</code></pre>
 </details>
 </dd>
 </dl>

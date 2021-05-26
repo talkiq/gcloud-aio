@@ -139,42 +139,36 @@ Base64 are respectively replaced by - and _</p></div>
             &#39;Content-Type&#39;: &#39;application/json&#39;,
         }
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
-    async def _request(self, method: str, url: str,
-                       session: Optional[Session] = None,
-                       **kwargs: Any) -&gt; Any:
-        s = AioSession(session) if session else self.session
-        headers = await self.headers()
-
-        resp = await s.request(method, url, headers=headers,
-                               auto_raise_for_status=False, **kwargs)
-        # N.B. This is awaited early to give an extra helping hand to various
-        # debug tools, which tend to be able to capture assigned variables but
-        # not un-awaited data.
-        data = await resp.json()
-        resp.raise_for_status()
-
-        return data
-
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def create(self, task: Dict[str, Any],
                      session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.api_root}/tasks&#39;
-        body = {
+        payload = json.dumps({
             &#39;task&#39;: task,
             &#39;responseView&#39;: &#39;FULL&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return await self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, data=payload)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def delete(self, tname: str,
                      session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}&#39;
 
-        return await self._request(&#39;DELETE&#39;, url, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def get(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}&#39;
@@ -182,9 +176,14 @@ Base64 are respectively replaced by - and _</p></div>
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
         }
 
-        return await self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def list(self, full: bool = False, page_size: int = 1000,
                    page_token: str = &#39;&#39;,
                    session: Optional[Session] = None) -&gt; Any:
@@ -195,17 +194,26 @@ Base64 are respectively replaced by - and _</p></div>
             &#39;pageToken&#39;: page_token,
         }
 
-        return await self._request(&#39;GET&#39;, url, params=params, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, params=params)
+        return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
     async def run(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}:run&#39;
-        body = {
+        payload = json.dumps({
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
-        }
+        }).encode(&#39;utf-8&#39;)
 
-        return await self._request(&#39;POST&#39;, url, json=body, session=session)
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(url, headers=headers, data=payload)
+        return await resp.json()
 
     async def close(self) -&gt; None:
         await self.session.close()
@@ -240,15 +248,20 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def create(self, task: Dict[str, Any],
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+async def create(self, task: Dict[str, Any],
                  session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.api_root}/tasks&#39;
-    body = {
+    payload = json.dumps({
         &#39;task&#39;: task,
         &#39;responseView&#39;: &#39;FULL&#39;,
-    }
+    }).encode(&#39;utf-8&#39;)
 
-    return await self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.post(url, headers=headers, data=payload)
+    return await resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.PushQueue.delete"><code class="name flex">
@@ -260,11 +273,16 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def delete(self, tname: str,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+async def delete(self, tname: str,
                  session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}&#39;
 
-    return await self._request(&#39;DELETE&#39;, url, session=session)</code></pre>
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.delete(url, headers=headers)
+    return await resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.PushQueue.get"><code class="name flex">
@@ -276,14 +294,19 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def get(self, tname: str, full: bool = False,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+async def get(self, tname: str, full: bool = False,
               session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}&#39;
     params = {
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
     }
 
-    return await self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, params=params)
+    return await resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.PushQueue.headers"><code class="name flex">
@@ -315,7 +338,8 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def list(self, full: bool = False, page_size: int = 1000,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+async def list(self, full: bool = False, page_size: int = 1000,
                page_token: str = &#39;&#39;,
                session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.api_root}/tasks&#39;
@@ -325,7 +349,11 @@ Base64 are respectively replaced by - and _</p></div>
         &#39;pageToken&#39;: page_token,
     }
 
-    return await self._request(&#39;GET&#39;, url, params=params, session=session)</code></pre>
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.get(url, headers=headers, params=params)
+    return await resp.json()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.taskqueue.PushQueue.run"><code class="name flex">
@@ -337,14 +365,19 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def run(self, tname: str, full: bool = False,
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+async def run(self, tname: str, full: bool = False,
               session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}:run&#39;
-    body = {
+    payload = json.dumps({
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
-    }
+    }).encode(&#39;utf-8&#39;)
 
-    return await self._request(&#39;POST&#39;, url, json=body, session=session)</code></pre>
+    headers = await self.headers()
+
+    s = AioSession(session) if session else self.session
+    resp = await s.post(url, headers=headers, data=payload)
+    return await resp.json()</code></pre>
 </details>
 </dd>
 </dl>
