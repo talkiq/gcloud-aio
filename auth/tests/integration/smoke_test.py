@@ -17,7 +17,7 @@ else:
     from aiohttp import ClientSession as Session
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_token_is_created(creds: str) -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
@@ -31,7 +31,7 @@ async def test_token_is_created(creds: str) -> None:
     assert token.access_token_acquired_at != datetime.datetime(1970, 1, 1)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_token_does_not_require_session(creds: str) -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
@@ -44,7 +44,7 @@ async def test_token_does_not_require_session(creds: str) -> None:
     assert token.access_token_acquired_at != datetime.datetime(1970, 1, 1)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_token_does_not_require_creds() -> None:
     scopes = ['https://www.googleapis.com/auth/taskqueue']
 
@@ -70,7 +70,7 @@ async def verify_signature(data, signature, key_name, iam_client):
                   hashes.SHA256())
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_sign_blob(creds: str) -> None:
     data = 'Testing Can be confidential!'
 
@@ -81,7 +81,7 @@ async def test_sign_blob(creds: str) -> None:
         await verify_signature(data, signed_data, resp['keyId'], iam_client)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_get_service_account_public_key_names(creds: str) -> None:
     async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
@@ -89,7 +89,7 @@ async def test_get_service_account_public_key_names(creds: str) -> None:
         assert len(resp) >= 1, '0 public keys found.'
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_get_service_account_public_key(creds: str) -> None:
     async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)

@@ -69,7 +69,13 @@ repos:
     -   &mypy
         id: mypy
         name: mypy-auth
+        entry: env MYPYPATH=./stubs mypy
         require_serial: True
+        additional_dependencies:
+        - types-cryptography
+        - types-jwt
+        - types-pkg_resources
+        - types-requests
         args:
         - --ignore-missing-imports
         - --follow-imports=silent
@@ -81,21 +87,40 @@ repos:
         exclude: (tests/.*)|(noxfile.py)
     -   <<: *mypy
         name: mypy-bigquery
+        additional_dependencies:
+        - types-pkg_resources
+        - types-requests
         files: bigquery/
     -   <<: *mypy
         name: mypy-datastore
+        additional_dependencies:
+        - types-pkg_resources
+        - types-requests
         files: datastore/
     -   <<: *mypy
         name: mypy-kms
+        additional_dependencies:
+        - types-pkg_resources
+        - types-requests
         files: kms/
     -   <<: *mypy
         name: mypy-pubsub
+        additional_dependencies:
+        - types-pkg_resources
+        - types-requests
         files: pubsub/
     -   <<: *mypy
         name: mypy-storage
+        additional_dependencies:
+        - types-aiofiles
+        - types-pkg_resources
+        - types-requests
         files: storage/
     -   <<: *mypy
         name: mypy-taskqueue
+        additional_dependencies:
+        - types-pkg_resources
+        - types-requests
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa
     rev: v1.2.3
