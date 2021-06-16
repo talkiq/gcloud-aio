@@ -73,6 +73,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
     import asyncio
 
+
 GCE_METADATA_BASE = &#39;http://metadata.google.internal/computeMetadata/v1&#39;
 GCE_METADATA_HEADERS = {&#39;metadata-flavor&#39;: &#39;Google&#39;}
 GCE_ENDPOINT_PROJECT = (f&#39;{GCE_METADATA_BASE}/project/project-id&#39;)
@@ -234,7 +235,7 @@ class Token:
                                                  timeout=timeout)
         return resp
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self, timeout: int = 10) -&gt; None:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
@@ -439,7 +440,7 @@ class Token:
                                                  timeout=timeout)
         return resp
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self, timeout: int = 10) -&gt; None:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
@@ -477,7 +478,7 @@ class Token:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)
 async def acquire_access_token(self, timeout: int = 10) -&gt; None:
     if self.token_type == Type.AUTHORIZED_USER:
         resp = await self._refresh_authorized_user(timeout=timeout)

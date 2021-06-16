@@ -149,7 +149,7 @@ Base64 are respectively replaced by - and _</p></div>
         }
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     def create(self, task                ,
                      session                    = None)       :
         url = &#39;{}/tasks&#39;.format((self.api_root))
@@ -165,7 +165,7 @@ Base64 are respectively replaced by - and _</p></div>
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     def delete(self, tname     ,
                      session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -177,7 +177,7 @@ Base64 are respectively replaced by - and _</p></div>
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     def get(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -192,7 +192,7 @@ Base64 are respectively replaced by - and _</p></div>
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     def list(self, full       = False, page_size      = 1000,
                    page_token      = &#39;&#39;,
                    session                    = None)       :
@@ -210,7 +210,7 @@ Base64 are respectively replaced by - and _</p></div>
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     def run(self, tname     , full       = False,
                   session                    = None)       :
         url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))
@@ -257,7 +257,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 def create(self, task                ,
                  session                    = None)       :
     url = &#39;{}/tasks&#39;.format((self.api_root))
@@ -282,7 +282,7 @@ def create(self, task                ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 def delete(self, tname     ,
                  session                    = None)       :
     url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -303,7 +303,7 @@ def delete(self, tname     ,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 def get(self, tname     , full       = False,
               session                    = None)       :
     url = &#39;{}/{}&#39;.format((self.base_api_root), (tname))
@@ -347,7 +347,7 @@ def get(self, tname     , full       = False,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 def list(self, full       = False, page_size      = 1000,
                page_token      = &#39;&#39;,
                session                    = None)       :
@@ -374,7 +374,7 @@ def list(self, full       = False, page_size      = 1000,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 def run(self, tname     , full       = False,
               session                    = None)       :
     url = &#39;{}/{}:run&#39;.format((self.base_api_root), (tname))

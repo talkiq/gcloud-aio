@@ -802,7 +802,7 @@ def session(self)           :
                                                  timeout=timeout)
         return resp
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     def acquire_access_token(self, timeout      = 10)        :
         if self.token_type == Type.AUTHORIZED_USER:
             resp = self._refresh_authorized_user(timeout=timeout)
@@ -840,7 +840,7 @@ def session(self)           :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)
 def acquire_access_token(self, timeout      = 10)        :
     if self.token_type == Type.AUTHORIZED_USER:
         resp = self._refresh_authorized_user(timeout=timeout)

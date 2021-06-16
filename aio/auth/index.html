@@ -774,7 +774,7 @@ def service_account_email(self) -&gt; Optional[str]:
                                                  timeout=timeout)
         return resp
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self, timeout: int = 10) -&gt; None:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
@@ -812,7 +812,7 @@ def service_account_email(self) -&gt; Optional[str]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=5)
 async def acquire_access_token(self, timeout: int = 10) -&gt; None:
     if self.token_type == Type.AUTHORIZED_USER:
         resp = await self._refresh_authorized_user(timeout=timeout)

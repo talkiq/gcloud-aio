@@ -65,7 +65,7 @@ from gcloud.rest.datastore.value import Value
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session   # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 
 
 try:

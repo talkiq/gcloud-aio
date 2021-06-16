@@ -140,7 +140,7 @@ Base64 are respectively replaced by - and _</p></div>
         }
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def create(self, task: Dict[str, Any],
                      session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.api_root}/tasks&#39;
@@ -156,7 +156,7 @@ Base64 are respectively replaced by - and _</p></div>
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def delete(self, tname: str,
                      session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}&#39;
@@ -168,7 +168,7 @@ Base64 are respectively replaced by - and _</p></div>
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def get(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}&#39;
@@ -183,7 +183,7 @@ Base64 are respectively replaced by - and _</p></div>
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def list(self, full: bool = False, page_size: int = 1000,
                    page_token: str = &#39;&#39;,
                    session: Optional[Session] = None) -&gt; Any:
@@ -201,7 +201,7 @@ Base64 are respectively replaced by - and _</p></div>
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def run(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.base_api_root}/{tname}:run&#39;
@@ -248,7 +248,7 @@ Base64 are respectively replaced by - and _</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def create(self, task: Dict[str, Any],
                  session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.api_root}/tasks&#39;
@@ -273,7 +273,7 @@ async def create(self, task: Dict[str, Any],
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def delete(self, tname: str,
                  session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}&#39;
@@ -294,7 +294,7 @@ async def delete(self, tname: str,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def get(self, tname: str, full: bool = False,
               session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}&#39;
@@ -338,7 +338,7 @@ async def get(self, tname: str, full: bool = False,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def list(self, full: bool = False, page_size: int = 1000,
                page_token: str = &#39;&#39;,
                session: Optional[Session] = None) -&gt; Any:
@@ -365,7 +365,7 @@ async def list(self, full: bool = False, page_size: int = 1000,
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+<pre><code class="python">@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def run(self, tname: str, full: bool = False,
               session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.base_api_root}/{tname}:run&#39;
