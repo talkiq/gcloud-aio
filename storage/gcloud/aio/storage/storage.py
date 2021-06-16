@@ -352,8 +352,7 @@ class Storage:
             filename,
             mode='rb',
         ) as file_object:
-            contents = await file_object.read()
-            return await self.upload(bucket, object_name, contents,
+            return await self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
     @staticmethod
