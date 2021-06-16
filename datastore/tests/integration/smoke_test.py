@@ -24,7 +24,7 @@ else:
     from asyncio import sleep
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
@@ -58,7 +58,7 @@ async def test_item_lifecycle(creds: str, kind: str, project: str) -> None:
         assert len(actual['missing']) == 1
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_mutation_result(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 
@@ -79,7 +79,7 @@ async def test_mutation_result(creds: str, kind: str, project: str) -> None:
         assert delete_result['mutationResults'][0].key is None
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_insert_value_object(creds: str, kind: str, project: str
                                    ) -> None:
     key = Key(project, [PathElement(kind)])
@@ -91,7 +91,7 @@ async def test_insert_value_object(creds: str, kind: str, project: str
         assert len(insert_result['mutationResults']) == 1
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_transaction(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
 
@@ -114,7 +114,7 @@ async def test_transaction(creds: str, kind: str, project: str) -> None:
         assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_rollback(creds: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -123,7 +123,7 @@ async def test_rollback(creds: str, project: str) -> None:
         await ds.rollback(transaction, session=s)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_query_with_key_projection(creds: str, kind: str,
                                          project: str) -> None:
     async with Session() as s:
@@ -144,7 +144,7 @@ async def test_query_with_key_projection(creds: str, kind: str,
         await ds.delete(result.entity_results[0].entity.key, s)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_query_with_value_projection(creds: str, kind: str,
                                            project: str) -> None:
     async with Session() as s:
@@ -161,7 +161,7 @@ async def test_query_with_value_projection(creds: str, kind: str,
         await ds.delete(result.entity_results[0].entity.key, s)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_query_with_distinct_on(creds: str, kind: str,
                                       project: str) -> None:
     keys1 = [Key(project, [PathElement(kind)]) for i in range(3)]
@@ -186,8 +186,8 @@ async def test_query_with_distinct_on(creds: str, kind: str,
             await ds.delete(key2, s)
 
 
-@pytest.mark.asyncio  # type: ignore
-@pytest.mark.xfail(strict=False)  # type: ignore
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
 async def test_query(creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -215,8 +215,8 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         assert len(after.entity_results) == num_results + 2
 
 
-@pytest.mark.asyncio  # type: ignore
-@pytest.mark.xfail(strict=False)  # type: ignore
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
 async def test_gql_query(creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -245,7 +245,7 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         assert len(after.entity_results) == num_results + 3
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_datastore_export(creds: str, project: str,
                                 export_bucket_name: str):
     # N.B. when modifying this test, please also see `test_table_load_copy` in

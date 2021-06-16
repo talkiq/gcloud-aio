@@ -44,6 +44,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
     import asyncio
 
+
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
 GCE_ENDPOINT_PROJECT = (f'{GCE_METADATA_BASE}/project/project-id')
@@ -205,7 +206,7 @@ class Token:
                                                  timeout=timeout)
         return resp
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self, timeout: int = 10) -> None:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)

@@ -58,7 +58,7 @@ class PushQueue:
         }
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def create(self, task: Dict[str, Any],
                      session: Optional[Session] = None) -> Any:
         url = f'{self.api_root}/tasks'
@@ -74,7 +74,7 @@ class PushQueue:
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def delete(self, tname: str,
                      session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
@@ -86,7 +86,7 @@ class PushQueue:
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def get(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}'
@@ -101,7 +101,7 @@ class PushQueue:
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def list(self, full: bool = False, page_size: int = 1000,
                    page_token: str = '',
                    session: Optional[Session] = None) -> Any:
@@ -119,7 +119,7 @@ class PushQueue:
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)  # type: ignore
+    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def run(self, tname: str, full: bool = False,
                   session: Optional[Session] = None) -> Any:
         url = f'{self.base_api_root}/{tname}:run'
