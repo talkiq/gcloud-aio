@@ -31,10 +31,10 @@ else:
 
     class AckDeadlineCache:
         def __init__(self, subscriber_client: SubscriberClient,
-                     subscription: str, cache_timout: int):
+                     subscription: str, cache_timeout: float):
             self.subscriber_client = subscriber_client
             self.subscription = subscription
-            self.cache_timeout = cache_timout
+            self.cache_timeout = cache_timeout
             self.ack_deadline: float = float('inf')
             self.last_refresh: float = float('-inf')
 
@@ -54,7 +54,8 @@ else:
             self.last_refresh = time.perf_counter()
 
         def cache_outdated(self) -> bool:
-            if (time.perf_counter() - self.last_refresh) > self.cache_timeout:
+            if (time.perf_counter() - self.last_refresh > self.cache_timeout
+                    or self.ack_deadline == float('inf')):
                 return True
             return False
 
@@ -337,7 +338,7 @@ else:
                         num_producers: int = 1,
                         max_messages_per_producer: int = 100,
                         ack_window: float = 0.3,
-                        ack_deadline_cache_timeout: int = 60,
+                        ack_deadline_cache_timeout: float = float('inf'),
                         num_tasks_per_consumer: int = 1,
                         enable_nack: bool = True,
                         nack_window: float = 0.3,
