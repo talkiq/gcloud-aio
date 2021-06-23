@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import pytest
@@ -90,6 +91,48 @@ async def test_metadata_resumable(bucket_name, creds):
 
         assert res['name'] == object_name
         assert str(data, 'utf-8') == original_data
+        assert data == data0
+
+        assert data_metadata.pop('contentDisposition') == 'inline'
+        assert data_metadata['metadata'] == google_metadata['metadata']
+
+
+@pytest.mark.asyncio
+async def test_metadata_copy(bucket_name, creds):
+    object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
+    copied_object_name = f'copyof_{object_name}'
+    original_data = f'{uuid.uuid4().hex}'
+    original_metadata = {'Content-Disposition': 'inline',
+                         'metadata':
+                         {'a': 1,
+                          'b': 2,
+                          'c': [1, 2, 3],
+                          'd': {'a': 4, 'b': 5}}}
+    # Google casts all metadata elements as string.
+    google_metadata = {'Content-Disposition': 'inline',
+                       'metadata':
+                       {'a': str(1),
+                        'b': str(2),
+                        'c': str([1, 2, 3]),
+                        'd': str({'a': 4, 'b': 5})}}
+
+    async with Session() as session:
+        storage = Storage(service_file=creds, session=session)
+
+        # Without metadata
+        res0 = await storage.upload(bucket_name, object_name, original_data,
+                                    force_resumable_upload=True)
+        data0 = await storage.download(bucket_name, res0['name'])
+
+        await storage.copy(bucket_name, object_name, bucket_name,
+                           new_name=copied_object_name,
+                           data=json.dumps(original_metadata))
+
+        data = await storage.download(bucket_name, copied_object_name)
+        data_metadata = await storage.download_metadata(
+            bucket_name, copied_object_name
+        )
+
         assert data == data0
 
         assert data_metadata.pop('contentDisposition') == 'inline'
