@@ -27,6 +27,7 @@ class BaseSession:
 
     def __init__(self, session: Optional[Session] = None, timeout: int = 10,
                  verify_ssl: bool = True) -> None:
+        self._shared_session = bool(session)
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
@@ -170,7 +171,7 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def close(self) -> None:
-            if self._session:
+            if not self._shared_session and self._session:
                 await self._session.close()  # type: ignore[func-returns-value]
 
 
@@ -248,5 +249,5 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def close(self) -> None:
-            if self._session:
+            if not self._shared_session and self._session:
                 self._session.close()
