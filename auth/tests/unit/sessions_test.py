@@ -17,9 +17,6 @@ if BUILD_GCLOUD_REST:
         @property
         def closed(self) -> bool:
             return self._called
-
-    requests.Session = Session
-    # Required to be here to ensure inclusion after monkeypatch
 else:
     from aiohttp import ClientSession as Session
 
