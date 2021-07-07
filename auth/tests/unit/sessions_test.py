@@ -1,6 +1,5 @@
 import pytest
 from gcloud.aio.auth.build_constants import BUILD_GCLOUD_REST
-from gcloud.aio.auth.session import AioSession
 
 if BUILD_GCLOUD_REST:
     import requests
@@ -19,8 +18,11 @@ if BUILD_GCLOUD_REST:
             return self._called
 
     requests.Session = Session
+    # Required to be here to ensure inclusion after monkeypatch
+    from gcloud.aio.auth.session import AioSession
 else:
     from aiohttp import ClientSession as Session
+    from gcloud.aio.auth.session import AioSession
 
 
 @pytest.mark.asyncio
