@@ -17,6 +17,8 @@ if BUILD_GCLOUD_REST:
         @property
         def closed(self) -> bool:
             return self._called
+
+    requests.Session = Session
 else:
     from aiohttp import ClientSession as Session
 
