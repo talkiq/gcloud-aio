@@ -1,5 +1,6 @@
 import pytest
 from gcloud.aio.auth.build_constants import BUILD_GCLOUD_REST
+from gcloud.aio.auth.session import AioSession
 
 if BUILD_GCLOUD_REST:
     import requests
@@ -19,10 +20,8 @@ if BUILD_GCLOUD_REST:
 
     requests.Session = Session
     # Required to be here to ensure inclusion after monkeypatch
-    from gcloud.aio.auth.session import AioSession
 else:
     from aiohttp import ClientSession as Session
-    from gcloud.aio.auth.session import AioSession
 
 
 @pytest.mark.asyncio
@@ -38,8 +37,11 @@ async def test_unmanaged_session():
 @pytest.mark.asyncio
 async def test_managed_session():
     gcloud_session = AioSession()
-    internal_session = gcloud_session.session
+    # create new session
+    gcloud_session.session  # pylint: disable=pointless-statement
+    if BUILD_GCLOUD_REST:
+        gcloud_session._session = Session()  # pylint: disable=protected-access
     assert not gcloud_session._shared_session  # pylint: disable=protected-access
     await gcloud_session.close()
 
-    assert internal_session.closed
+    assert gcloud_session._session.closed  # pylint: disable=protected-access
