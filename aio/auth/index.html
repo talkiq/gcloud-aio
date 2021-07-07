@@ -206,7 +206,7 @@ standard Base64 are respectively replaced by - and _.</p>
         return resp
 
     async def close(self) -&gt; None:
-        if self._session:
+        if not self._shared_session and self._session:
             await self._session.close()  # type: ignore[func-returns-value]</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -243,7 +243,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def close(self) -&gt; None:
-    if self._session:
+    if not self._shared_session and self._session:
         await self._session.close()  # type: ignore[func-returns-value]</code></pre>
 </details>
 </dd>

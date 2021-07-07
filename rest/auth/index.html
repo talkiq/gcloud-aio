@@ -507,7 +507,7 @@ def service_account_email(self)                 :
         return resp
 
     def close(self)        :
-        if self._session:
+        if not self._shared_session and self._session:
             self._session.close()</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -555,7 +555,7 @@ def session(self)           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def close(self)        :
-    if self._session:
+    if not self._shared_session and self._session:
         self._session.close()</code></pre>
 </details>
 </dd>
