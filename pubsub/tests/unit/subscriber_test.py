@@ -81,6 +81,7 @@ else:
     async def test_ack_deadline_cache_cache_outdated_false(subscriber_client):
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1000)
+        cache.ack_deadline = 10
         cache.last_refresh = time.perf_counter()
         assert not cache.cache_outdated()
 
@@ -89,6 +90,12 @@ else:
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 0)
         cache.last_refresh = time.perf_counter()
+        assert cache.cache_outdated()
+
+        cache = AckDeadlineCache(
+            subscriber_client, 'fake_subscription', 1000)
+        cache.last_refresh = time.perf_counter()
+        cache.ack_deadline = float('inf')
         assert cache.cache_outdated()
 
     @pytest.mark.asyncio
@@ -139,14 +146,14 @@ else:
         subscriber_client.get_subscription.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_ack_deadline_cache_get_no_call_first_time_if_not_outdated(
+    async def test_ack_deadline_cache_get_call_first_time(
         subscriber_client
     ):
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1000)
         cache.last_refresh = time.perf_counter()
-        assert await cache.get() == float('inf')
-        subscriber_client.get_subscription.assert_not_called()
+        assert await cache.get() == 42
+        subscriber_client.get_subscription.assert_called()
 
     @pytest.mark.asyncio
     async def test_ack_deadline_cache_get_refreshes_if_outdated(
