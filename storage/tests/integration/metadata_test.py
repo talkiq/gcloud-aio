@@ -126,7 +126,7 @@ async def test_metadata_copy(bucket_name, creds):
 
         await storage.copy(bucket_name, object_name, bucket_name,
                            new_name=copied_object_name,
-                           data=json.dumps(original_metadata))
+                           metadata=json.dumps(original_metadata))
 
         data = await storage.download(bucket_name, copied_object_name)
         data_metadata = await storage.download_metadata(

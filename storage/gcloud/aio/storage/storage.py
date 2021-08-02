@@ -148,7 +148,7 @@ class Storage:
 
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
-                   data: Optional[str] = None,
+                   metadata: Optional[str] = None,
                    params: Optional[Dict[str, str]] = None,
                    headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                    session: Optional[Session] = None) -> Dict[str, Any]:
@@ -177,7 +177,7 @@ class Storage:
 
         # We may optionally supply metadata* to apply to the rewritten
         # object, which explains why `rewriteTo` is a POST endpoint; when no
-        # data is given, we have to send an empty body. Therefore
+        # metadata is given, we have to send an empty body. Therefore
         # the `Content-Length` and `Content-Type` indicate an empty body.
         #
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
@@ -187,8 +187,8 @@ class Storage:
             'Content-Length': '0',
             'Content-Type': '',
         }
-        if data:
-            headers_update['Content-Length'] = str(len(data))
+        if metadata:
+            headers_update['Content-Length'] = str(len(metadata))
             headers_update['Content-Type'] = 'application/json'
         headers.update(headers_update)
 
@@ -196,7 +196,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, params=params,
-                            timeout=timeout, data=data)
+                            timeout=timeout, data=metadata)
 
         resp_data: Dict[str, Any] = await resp.json(content_type=None)
 
