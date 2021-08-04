@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gcloud.aio.pubsub API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -78,7 +78,7 @@ if not BUILD_GCLOUD_REST:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gcloud.aio.pubsub.subscribe"><code class="name flex">
-<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, enable_nack: bool = True, nack_window: float = 0.3, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
+<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[None]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: float = inf, num_tasks_per_consumer: int = 1, enable_nack: bool = True, nack_window: float = 0.3, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -93,7 +93,7 @@ if not BUILD_GCLOUD_REST:
                     num_producers: int = 1,
                     max_messages_per_producer: int = 100,
                     ack_window: float = 0.3,
-                    ack_deadline_cache_timeout: int = 60,
+                    ack_deadline_cache_timeout: float = float(&#39;inf&#39;),
                     num_tasks_per_consumer: int = 1,
                     enable_nack: bool = True,
                     nack_window: float = 0.3,
@@ -173,7 +173,7 @@ if not BUILD_GCLOUD_REST:
 <dl>
 <dt id="gcloud.aio.pubsub.PublisherClient"><code class="flex name class">
 <span>class <span class="ident">PublisherClient</span></span>
-<span>(</span><span>*, service_file: Union[str, io.IOBase, NoneType] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>*, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -340,7 +340,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.PublisherClient.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -379,7 +379,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.PublisherClient.delete_topic"><code class="name flex">
-<span>async def <span class="ident">delete_topic</span></span>(<span>self, topic: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> NoneType</span>
+<span>async def <span class="ident">delete_topic</span></span>(<span>self, topic: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete topic.</p></div>
@@ -512,7 +512,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient"><code class="flex name class">
 <span>class <span class="ident">SubscriberClient</span></span>
-<span>(</span><span>*, service_file: Union[str, IO[~AnyStr], NoneType] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None, session: Optional[aiohttp.client.ClientSession] = None)</span>
+<span>(</span><span>*, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None, session: Optional[aiohttp.client.ClientSession] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -683,7 +683,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.aio.pubsub.SubscriberClient.acknowledge"><code class="name flex">
-<span>async def <span class="ident">acknowledge</span></span>(<span>self, subscription: str, ack_ids: List[str], *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> NoneType</span>
+<span>async def <span class="ident">acknowledge</span></span>(<span>self, subscription: str, ack_ids: List[str], *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Acknowledge messages by ackIds</p></div>
@@ -708,7 +708,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.close"><code class="name flex">
-<span>async def <span class="ident">close</span></span>(<span>self) ‑> NoneType</span>
+<span>async def <span class="ident">close</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -753,7 +753,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.delete_subscription"><code class="name flex">
-<span>async def <span class="ident">delete_subscription</span></span>(<span>self, subscription: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> NoneType</span>
+<span>async def <span class="ident">delete_subscription</span></span>(<span>self, subscription: str, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete subscription.</p></div>
@@ -827,7 +827,7 @@ def topic_path(cls, project: str, topic: str) -&gt; str:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.SubscriberClient.modify_ack_deadline"><code class="name flex">
-<span>async def <span class="ident">modify_ack_deadline</span></span>(<span>self, subscription: str, ack_ids: List[str], ack_deadline_seconds: int, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> NoneType</span>
+<span>async def <span class="ident">modify_ack_deadline</span></span>(<span>self, subscription: str, ack_ids: List[str], ack_deadline_seconds: int, *, session: Optional[aiohttp.client.ClientSession] = None, timeout: Optional[int] = 10) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Modify messages' ack deadline.
@@ -1081,7 +1081,7 @@ def from_repr(received_message: Dict[str, Any]
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

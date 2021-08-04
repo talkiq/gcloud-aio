@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>gcloud.aio.pubsub.subscriber API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -59,10 +59,10 @@ else:
 
     class AckDeadlineCache:
         def __init__(self, subscriber_client: SubscriberClient,
-                     subscription: str, cache_timout: int):
+                     subscription: str, cache_timeout: float):
             self.subscriber_client = subscriber_client
             self.subscription = subscription
-            self.cache_timeout = cache_timout
+            self.cache_timeout = cache_timeout
             self.ack_deadline: float = float(&#39;inf&#39;)
             self.last_refresh: float = float(&#39;-inf&#39;)
 
@@ -82,7 +82,8 @@ else:
             self.last_refresh = time.perf_counter()
 
         def cache_outdated(self) -&gt; bool:
-            if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+            if (time.perf_counter() - self.last_refresh &gt; self.cache_timeout
+                    or self.ack_deadline == float(&#39;inf&#39;)):
                 return True
             return False
 
@@ -365,7 +366,7 @@ else:
                         num_producers: int = 1,
                         max_messages_per_producer: int = 100,
                         ack_window: float = 0.3,
-                        ack_deadline_cache_timeout: int = 60,
+                        ack_deadline_cache_timeout: float = float(&#39;inf&#39;),
                         num_tasks_per_consumer: int = 1,
                         enable_nack: bool = True,
                         nack_window: float = 0.3,
@@ -446,7 +447,7 @@ else:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gcloud.aio.pubsub.subscriber.acker"><code class="name flex">
-<span>async def <span class="ident">acker</span></span>(<span>subscription: str, ack_queue: asyncio.Queue[str], subscriber_client: SubscriberClient, ack_window: float, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+<span>async def <span class="ident">acker</span></span>(<span>subscription: str, ack_queue: asyncio.Queue[str], subscriber_client: SubscriberClient, ack_window: float, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -523,7 +524,7 @@ else:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber.consumer"><code class="name flex">
-<span>async def <span class="ident">consumer</span></span>(<span>message_queue: asyncio.queues.Queue, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], ack_queue: asyncio.Queue[str], ack_deadline_cache: <a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache">AckDeadlineCache</a>, max_tasks: int, nack_queue: Optional[asyncio.Queue[str]], metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+<span>async def <span class="ident">consumer</span></span>(<span>message_queue: asyncio.queues.Queue, callback: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[None]], ack_queue: asyncio.Queue[str], ack_deadline_cache: <a title="gcloud.aio.pubsub.subscriber.AckDeadlineCache" href="#gcloud.aio.pubsub.subscriber.AckDeadlineCache">AckDeadlineCache</a>, max_tasks: int, nack_queue: Optional[asyncio.Queue[str]], metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -585,7 +586,7 @@ else:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber.nacker"><code class="name flex">
-<span>async def <span class="ident">nacker</span></span>(<span>subscription: str, nack_queue: asyncio.Queue[str], subscriber_client: SubscriberClient, nack_window: float, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+<span>async def <span class="ident">nacker</span></span>(<span>subscription: str, nack_queue: asyncio.Queue[str], subscriber_client: SubscriberClient, nack_window: float, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -663,7 +664,7 @@ else:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber.producer"><code class="name flex">
-<span>async def <span class="ident">producer</span></span>(<span>subscription: str, message_queue: asyncio.queues.Queue, subscriber_client: SubscriberClient, max_messages: int, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> NoneType</span>
+<span>async def <span class="ident">producer</span></span>(<span>subscription: str, message_queue: asyncio.queues.Queue, subscriber_client: SubscriberClient, max_messages: int, metrics_client: <a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -725,7 +726,7 @@ else:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber.subscribe"><code class="name flex">
-<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[NoneType]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: int = 60, num_tasks_per_consumer: int = 1, enable_nack: bool = True, nack_window: float = 0.3, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> NoneType</span>
+<span>async def <span class="ident">subscribe</span></span>(<span>subscription: str, handler: Callable[[<a title="gcloud.aio.pubsub.subscriber_message.SubscriberMessage" href="subscriber_message.html#gcloud.aio.pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a>], Awaitable[None]], subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, *, num_producers: int = 1, max_messages_per_producer: int = 100, ack_window: float = 0.3, ack_deadline_cache_timeout: float = inf, num_tasks_per_consumer: int = 1, enable_nack: bool = True, nack_window: float = 0.3, metrics_client: Optional[<a title="gcloud.aio.pubsub.metrics_agent.MetricsAgent" href="metrics_agent.html#gcloud.aio.pubsub.metrics_agent.MetricsAgent">MetricsAgent</a>] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -740,7 +741,7 @@ else:
                     num_producers: int = 1,
                     max_messages_per_producer: int = 100,
                     ack_window: float = 0.3,
-                    ack_deadline_cache_timeout: int = 60,
+                    ack_deadline_cache_timeout: float = float(&#39;inf&#39;),
                     num_tasks_per_consumer: int = 1,
                     enable_nack: bool = True,
                     nack_window: float = 0.3,
@@ -820,7 +821,7 @@ else:
 <dl>
 <dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache"><code class="flex name class">
 <span>class <span class="ident">AckDeadlineCache</span></span>
-<span>(</span><span>subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, subscription: str, cache_timout: int)</span>
+<span>(</span><span>subscriber_client: <a title="gcloud.aio.pubsub.subscriber_client.SubscriberClient" href="subscriber_client.html#gcloud.aio.pubsub.subscriber_client.SubscriberClient">SubscriberClient</a>, subscription: str, cache_timeout: float)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -830,10 +831,10 @@ else:
 </summary>
 <pre><code class="python">class AckDeadlineCache:
     def __init__(self, subscriber_client: SubscriberClient,
-                 subscription: str, cache_timout: int):
+                 subscription: str, cache_timeout: float):
         self.subscriber_client = subscriber_client
         self.subscription = subscription
-        self.cache_timeout = cache_timout
+        self.cache_timeout = cache_timeout
         self.ack_deadline: float = float(&#39;inf&#39;)
         self.last_refresh: float = float(&#39;-inf&#39;)
 
@@ -853,7 +854,8 @@ else:
         self.last_refresh = time.perf_counter()
 
     def cache_outdated(self) -&gt; bool:
-        if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+        if (time.perf_counter() - self.last_refresh &gt; self.cache_timeout
+                or self.ack_deadline == float(&#39;inf&#39;)):
             return True
         return False</code></pre>
 </details>
@@ -869,7 +871,8 @@ else:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def cache_outdated(self) -&gt; bool:
-    if (time.perf_counter() - self.last_refresh) &gt; self.cache_timeout:
+    if (time.perf_counter() - self.last_refresh &gt; self.cache_timeout
+            or self.ack_deadline == float(&#39;inf&#39;)):
         return True
     return False</code></pre>
 </details>
@@ -890,7 +893,7 @@ else:
 </details>
 </dd>
 <dt id="gcloud.aio.pubsub.subscriber.AckDeadlineCache.refresh"><code class="name flex">
-<span>async def <span class="ident">refresh</span></span>(<span>self) ‑> NoneType</span>
+<span>async def <span class="ident">refresh</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -950,7 +953,7 @@ else:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
