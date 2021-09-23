@@ -235,14 +235,16 @@ class Storage(object):
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update(self._headers())
-        headers_update = {
-            &#39;Content-Length&#39;: &#39;0&#39;,
-            &#39;Content-Type&#39;: &#39;&#39;,
-        }
         if metadata:
-            headers_update[&#39;Content-Length&#39;] = str(len(metadata))
-            headers_update[&#39;Content-Type&#39;] = &#39;application/json&#39;
-        headers.update(headers_update)
+            headers.update({
+                &#39;Content-Length&#39;: str(len(metadata)),
+                &#39;Content-Type&#39;: &#39;application/json&#39;,
+            })
+        else:
+            headers.update({
+                &#39;Content-Length&#39;: &#39;0&#39;,
+                &#39;Content-Type&#39;: &#39;&#39;,
+            })
 
         params = params or {}
 
@@ -250,15 +252,15 @@ class Storage(object):
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout, data=metadata)
 
-        resp_data                 = resp.json()
+        data                 = resp.json()
 
-        while not resp_data.get(&#39;done&#39;) and resp_data.get(&#39;rewriteToken&#39;):
-            params[&#39;rewriteToken&#39;] = resp_data[&#39;rewriteToken&#39;]
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            resp_data = resp.json()
+            data = resp.json()
 
-        return resp_data
+        return data
 
     def delete(self, bucket     , object_name     , **_3to2kwargs)       :
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
@@ -904,14 +906,16 @@ requests, not aiohttp).</p></div>
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update(self._headers())
-        headers_update = {
-            &#39;Content-Length&#39;: &#39;0&#39;,
-            &#39;Content-Type&#39;: &#39;&#39;,
-        }
         if metadata:
-            headers_update[&#39;Content-Length&#39;] = str(len(metadata))
-            headers_update[&#39;Content-Type&#39;] = &#39;application/json&#39;
-        headers.update(headers_update)
+            headers.update({
+                &#39;Content-Length&#39;: str(len(metadata)),
+                &#39;Content-Type&#39;: &#39;application/json&#39;,
+            })
+        else:
+            headers.update({
+                &#39;Content-Length&#39;: &#39;0&#39;,
+                &#39;Content-Type&#39;: &#39;&#39;,
+            })
 
         params = params or {}
 
@@ -919,15 +923,15 @@ requests, not aiohttp).</p></div>
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout, data=metadata)
 
-        resp_data                 = resp.json()
+        data                 = resp.json()
 
-        while not resp_data.get(&#39;done&#39;) and resp_data.get(&#39;rewriteToken&#39;):
-            params[&#39;rewriteToken&#39;] = resp_data[&#39;rewriteToken&#39;]
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            resp_data = resp.json()
+            data = resp.json()
 
-        return resp_data
+        return data
 
     def delete(self, bucket     , object_name     , **_3to2kwargs)       :
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
@@ -1481,14 +1485,16 @@ requests, not aiohttp).</p></div>
     # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
     headers = headers or {}
     headers.update(self._headers())
-    headers_update = {
-        &#39;Content-Length&#39;: &#39;0&#39;,
-        &#39;Content-Type&#39;: &#39;&#39;,
-    }
     if metadata:
-        headers_update[&#39;Content-Length&#39;] = str(len(metadata))
-        headers_update[&#39;Content-Type&#39;] = &#39;application/json&#39;
-    headers.update(headers_update)
+        headers.update({
+            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+    else:
+        headers.update({
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;&#39;,
+        })
 
     params = params or {}
 
@@ -1496,15 +1502,15 @@ requests, not aiohttp).</p></div>
     resp = s.post(url, headers=headers, params=params,
                         timeout=timeout, data=metadata)
 
-    resp_data                 = resp.json()
+    data                 = resp.json()
 
-    while not resp_data.get(&#39;done&#39;) and resp_data.get(&#39;rewriteToken&#39;):
-        params[&#39;rewriteToken&#39;] = resp_data[&#39;rewriteToken&#39;]
+    while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+        params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
         resp = s.post(url, headers=headers, params=params,
                             timeout=timeout)
-        resp_data = resp.json()
+        data = resp.json()
 
-    return resp_data</code></pre>
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.storage.Storage.delete"><code class="name flex">

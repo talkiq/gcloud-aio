@@ -592,14 +592,16 @@ with the link.</p>
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update(await self._headers())
-        headers_update = {
-            &#39;Content-Length&#39;: &#39;0&#39;,
-            &#39;Content-Type&#39;: &#39;&#39;,
-        }
         if metadata:
-            headers_update[&#39;Content-Length&#39;] = str(len(metadata))
-            headers_update[&#39;Content-Type&#39;] = &#39;application/json&#39;
-        headers.update(headers_update)
+            headers.update({
+                &#39;Content-Length&#39;: str(len(metadata)),
+                &#39;Content-Type&#39;: &#39;application/json&#39;,
+            })
+        else:
+            headers.update({
+                &#39;Content-Length&#39;: &#39;0&#39;,
+                &#39;Content-Type&#39;: &#39;&#39;,
+            })
 
         params = params or {}
 
@@ -607,15 +609,15 @@ with the link.</p>
         resp = await s.post(url, headers=headers, params=params,
                             timeout=timeout, data=metadata)
 
-        resp_data: Dict[str, Any] = await resp.json(content_type=None)
+        data: Dict[str, Any] = await resp.json(content_type=None)
 
-        while not resp_data.get(&#39;done&#39;) and resp_data.get(&#39;rewriteToken&#39;):
-            params[&#39;rewriteToken&#39;] = resp_data[&#39;rewriteToken&#39;]
+        while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+            params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
             resp = await s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            resp_data = await resp.json(content_type=None)
+            data = await resp.json(content_type=None)
 
-        return resp_data
+        return data
 
     async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                      params: Optional[Dict[str, str]] = None,
@@ -1117,14 +1119,16 @@ copy operation, you then have 1 week to complete the copy job.</p>
     # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
     headers = headers or {}
     headers.update(await self._headers())
-    headers_update = {
-        &#39;Content-Length&#39;: &#39;0&#39;,
-        &#39;Content-Type&#39;: &#39;&#39;,
-    }
     if metadata:
-        headers_update[&#39;Content-Length&#39;] = str(len(metadata))
-        headers_update[&#39;Content-Type&#39;] = &#39;application/json&#39;
-    headers.update(headers_update)
+        headers.update({
+            &#39;Content-Length&#39;: str(len(metadata)),
+            &#39;Content-Type&#39;: &#39;application/json&#39;,
+        })
+    else:
+        headers.update({
+            &#39;Content-Length&#39;: &#39;0&#39;,
+            &#39;Content-Type&#39;: &#39;&#39;,
+        })
 
     params = params or {}
 
@@ -1132,15 +1136,15 @@ copy operation, you then have 1 week to complete the copy job.</p>
     resp = await s.post(url, headers=headers, params=params,
                         timeout=timeout, data=metadata)
 
-    resp_data: Dict[str, Any] = await resp.json(content_type=None)
+    data: Dict[str, Any] = await resp.json(content_type=None)
 
-    while not resp_data.get(&#39;done&#39;) and resp_data.get(&#39;rewriteToken&#39;):
-        params[&#39;rewriteToken&#39;] = resp_data[&#39;rewriteToken&#39;]
+    while not data.get(&#39;done&#39;) and data.get(&#39;rewriteToken&#39;):
+        params[&#39;rewriteToken&#39;] = data[&#39;rewriteToken&#39;]
         resp = await s.post(url, headers=headers, params=params,
                             timeout=timeout)
-        resp_data = await resp.json(content_type=None)
+        data = await resp.json(content_type=None)
 
-    return resp_data</code></pre>
+    return data</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Storage.delete"><code class="name flex">
