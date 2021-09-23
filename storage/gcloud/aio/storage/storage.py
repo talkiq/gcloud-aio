@@ -146,9 +146,10 @@ class Storage:
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
+    # pylint: disable=too-many-locals
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
-                   metadata: Optional[str] = None,
+                   metadata: Optional[Dict[str, Any]] = None,
                    params: Optional[Dict[str, str]] = None,
                    headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                    session: Optional[Session] = None) -> Dict[str, Any]:
@@ -177,28 +178,30 @@ class Storage:
 
         # We may optionally supply metadata* to apply to the rewritten
         # object, which explains why `rewriteTo` is a POST endpoint; when no
-        # metadata is given, we have to send an empty body. Therefore
-        # the `Content-Length` and `Content-Type` indicate an empty body.
-        #
+        # metadata is given, we have to send an empty body.
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+        if 'metadata' in metadict:
+            metadict['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict['metadata'].items()}
+
+        metadata_ = json.dumps(metadict)
+
         headers = headers or {}
         headers.update(await self._headers())
-        if metadata:
-            headers.update({
-                'Content-Length': str(len(metadata)),
-                'Content-Type': 'application/json',
-            })
-        else:
-            headers.update({
-                'Content-Length': '0',
-                'Content-Type': '',
-            })
+        headers.update({
+            'Content-Length': str(len(metadata_)),
+            'Content-Type': 'application/json; charset=UTF-8',
+        })
 
         params = params or {}
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, params=params,
-                            timeout=timeout, data=metadata)
+                            timeout=timeout, data=metadata_)
 
         data: Dict[str, Any] = await resp.json(content_type=None)
 

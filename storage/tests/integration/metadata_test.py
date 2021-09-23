@@ -1,4 +1,3 @@
-import json
 import uuid
 
 import pytest
@@ -100,7 +99,7 @@ async def test_metadata_resumable(bucket_name, creds):
 @pytest.mark.asyncio
 async def test_metadata_copy(bucket_name, creds):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
-    copied_object_name = f'copyof_{object_name}'
+    copied_object_name = f'{object_name}.copy'
     original_data = f'{uuid.uuid4().hex}'
     original_metadata = {'Content-Disposition': 'inline',
                          'metadata':
@@ -126,7 +125,7 @@ async def test_metadata_copy(bucket_name, creds):
 
         await storage.copy(bucket_name, object_name, bucket_name,
                            new_name=copied_object_name,
-                           metadata=json.dumps(original_metadata))
+                           metadata=original_metadata)
 
         data = await storage.download(bucket_name, copied_object_name)
         data_metadata = await storage.download_metadata(
