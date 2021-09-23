@@ -148,6 +148,7 @@ class Storage:
 
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
+                   metadata: Optional[str] = None,
                    params: Optional[Dict[str, str]] = None,
                    headers: Optional[Dict[str, str]] = None, timeout: int = 10,
                    session: Optional[Session] = None) -> Dict[str, Any]:
@@ -175,33 +176,37 @@ class Storage:
                f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
 
         # We may optionally supply metadata* to apply to the rewritten
-        # object, which explains why `rewriteTo` is a POST endpoint; however,
-        # we don't expose that here so we have to send an empty body. Therefore
+        # object, which explains why `rewriteTo` is a POST endpoint; when no
+        # metadata is given, we have to send an empty body. Therefore
         # the `Content-Length` and `Content-Type` indicate an empty body.
         #
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update(await self._headers())
-        headers.update({
+        headers_update = {
             'Content-Length': '0',
             'Content-Type': '',
-        })
+        }
+        if metadata:
+            headers_update['Content-Length'] = str(len(metadata))
+            headers_update['Content-Type'] = 'application/json'
+        headers.update(headers_update)
 
         params = params or {}
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, params=params,
-                            timeout=timeout)
+                            timeout=timeout, data=metadata)
 
-        data: Dict[str, Any] = await resp.json(content_type=None)
+        resp_data: Dict[str, Any] = await resp.json(content_type=None)
 
-        while not data.get('done') and data.get('rewriteToken'):
-            params['rewriteToken'] = data['rewriteToken']
+        while not resp_data.get('done') and resp_data.get('rewriteToken'):
+            params['rewriteToken'] = resp_data['rewriteToken']
             resp = await s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            data = await resp.json(content_type=None)
+            resp_data = await resp.json(content_type=None)
 
-        return data
+        return resp_data
 
     async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                      params: Optional[Dict[str, str]] = None,
