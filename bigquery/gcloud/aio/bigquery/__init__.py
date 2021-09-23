@@ -5,9 +5,10 @@ from gcloud.aio.bigquery.bigquery import Disposition
 from gcloud.aio.bigquery.bigquery import SCOPES
 from gcloud.aio.bigquery.bigquery import SourceFormat
 from gcloud.aio.bigquery.bigquery import SchemaUpdateOption
-from gcloud.aio.bigquery.bigquery import Table
-from gcloud.aio.bigquery.bigquery import Job
+from gcloud.aio.bigquery.table import Table
+from gcloud.aio.bigquery.job import Job
+from gcloud.aio.bigquery.dataset import Dataset
 
 
 __all__ = ['__version__', 'Disposition', 'SCOPES', 'SourceFormat',
-           'SchemaUpdateOption', 'Table', 'Job']
+           'SchemaUpdateOption', 'Table', 'Job', 'Dataset']
