@@ -183,14 +183,16 @@ class Storage:
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         headers = headers or {}
         headers.update(await self._headers())
-        headers_update = {
-            'Content-Length': '0',
-            'Content-Type': '',
-        }
         if metadata:
-            headers_update['Content-Length'] = str(len(metadata))
-            headers_update['Content-Type'] = 'application/json'
-        headers.update(headers_update)
+            headers.update({
+                'Content-Length': str(len(metadata)),
+                'Content-Type': 'application/json',
+            })
+        else:
+            headers.update({
+                'Content-Length': '0',
+                'Content-Type': '',
+            })
 
         params = params or {}
 
@@ -198,15 +200,15 @@ class Storage:
         resp = await s.post(url, headers=headers, params=params,
                             timeout=timeout, data=metadata)
 
-        resp_data: Dict[str, Any] = await resp.json(content_type=None)
+        data: Dict[str, Any] = await resp.json(content_type=None)
 
-        while not resp_data.get('done') and resp_data.get('rewriteToken'):
-            params['rewriteToken'] = resp_data['rewriteToken']
+        while not data.get('done') and data.get('rewriteToken'):
+            params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(url, headers=headers, params=params,
                                 timeout=timeout)
-            resp_data = await resp.json(content_type=None)
+            data = await resp.json(content_type=None)
 
-        return resp_data
+        return data
 
     async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
                      params: Optional[Dict[str, str]] = None,
