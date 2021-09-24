@@ -140,13 +140,12 @@ class Table(BigqueryBase):
         project = await self.project()
         url = (f'{API_ROOT}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables')
-        if 'tableReference' not in table:
-            table_reference = {
-                'projectId': project,
-                'datasetId': self.dataset_name,
-                'tableId': self.table_name
-            }
-            table['tableReference'] = table_reference
+
+        table['tableReference'] = {
+            'projectId': project,
+            'datasetId': self.dataset_name,
+            'tableId': self.table_name
+        }
 
         return await self._post_json(url, table, session, timeout)
 
@@ -304,12 +303,3 @@ class Table(BigqueryBase):
         job_id = response['jobReference']['jobId'] if not dry_run else None
         return Job(job_id, self._project,
                    session=self.session, token=self.token)
-
-    async def close(self) -> None:
-        await self.session.close()
-
-    async def __aenter__(self) -> 'Table':
-        return self
-
-    async def __aexit__(self, *args: Any) -> None:
-        await self.close()

@@ -111,3 +111,12 @@ class BigqueryBase:
                            params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
+
+    async def close(self) -> None:
+        await self.session.close()
+
+    async def __aenter__(self) -> 'BigqueryBase':
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self.close()
