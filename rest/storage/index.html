@@ -567,6 +567,7 @@ with the link.</p>
     def get_bucket(self, bucket_name     )          :
         return Bucket(self, bucket_name)
 
+    # pylint: disable=too-many-locals
     def copy(self, bucket     , object_name     ,
                    destination_bucket     , **_3to2kwargs)                  :
 
@@ -606,28 +607,30 @@ with the link.</p>
 
         # We may optionally supply metadata* to apply to the rewritten
         # object, which explains why `rewriteTo` is a POST endpoint; when no
-        # metadata is given, we have to send an empty body. Therefore
-        # the `Content-Length` and `Content-Type` indicate an empty body.
-        #
+        # metadata is given, we have to send an empty body.
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+        if &#39;metadata&#39; in metadict:
+            metadict[&#39;metadata&#39;] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict[&#39;metadata&#39;].items()}
+
+        metadata_ = json.dumps(metadict)
+
         headers = headers or {}
         headers.update(self._headers())
-        if metadata:
-            headers.update({
-                &#39;Content-Length&#39;: str(len(metadata)),
-                &#39;Content-Type&#39;: &#39;application/json&#39;,
-            })
-        else:
-            headers.update({
-                &#39;Content-Length&#39;: &#39;0&#39;,
-                &#39;Content-Type&#39;: &#39;&#39;,
-            })
+        headers.update({
+            &#39;Content-Length&#39;: str(len(metadata_)),
+            &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
+        })
 
         params = params or {}
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=headers, params=params,
-                            timeout=timeout, data=metadata)
+                            timeout=timeout, data=metadata_)
 
         data                 = resp.json()
 
@@ -1185,28 +1188,30 @@ with the link.</p>
 
     # We may optionally supply metadata* to apply to the rewritten
     # object, which explains why `rewriteTo` is a POST endpoint; when no
-    # metadata is given, we have to send an empty body. Therefore
-    # the `Content-Length` and `Content-Type` indicate an empty body.
-    #
+    # metadata is given, we have to send an empty body.
     # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+    metadict = (metadata or {}).copy()
+    metadict = {self._format_metadata_key(k): v
+                for k, v in metadict.items()}
+    if &#39;metadata&#39; in metadict:
+        metadict[&#39;metadata&#39;] = {
+            str(k): str(v) if v is not None else None
+            for k, v in metadict[&#39;metadata&#39;].items()}
+
+    metadata_ = json.dumps(metadict)
+
     headers = headers or {}
     headers.update(self._headers())
-    if metadata:
-        headers.update({
-            &#39;Content-Length&#39;: str(len(metadata)),
-            &#39;Content-Type&#39;: &#39;application/json&#39;,
-        })
-    else:
-        headers.update({
-            &#39;Content-Length&#39;: &#39;0&#39;,
-            &#39;Content-Type&#39;: &#39;&#39;,
-        })
+    headers.update({
+        &#39;Content-Length&#39;: str(len(metadata_)),
+        &#39;Content-Type&#39;: &#39;application/json; charset=UTF-8&#39;,
+    })
 
     params = params or {}
 
     s = SyncSession(session) if session else self.session
     resp = s.post(url, headers=headers, params=params,
-                        timeout=timeout, data=metadata)
+                        timeout=timeout, data=metadata_)
 
     data                 = resp.json()
 
