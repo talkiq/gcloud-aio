@@ -7,7 +7,7 @@ orbs:
 jobs:
   nox:
     docker:
-      - image: thekevjames/nox:2021.6.12
+      - image: thekevjames/nox:2021.10.1
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
@@ -23,7 +23,7 @@ jobs:
 
   nox-rest:
     docker:
-      - image: thekevjames/nox:2021.6.12
+      - image: thekevjames/nox:2021.10.1
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     parameters:
