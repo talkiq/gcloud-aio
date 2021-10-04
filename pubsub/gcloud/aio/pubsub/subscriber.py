@@ -387,7 +387,12 @@ else:
                              metrics_client=metrics_client)
                 ))
 
-            all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
+            # TODO: since this is in a `not BUILD_GCLOUD_REST` section, we
+            # shouldn't have to care about py2 support. Using splat syntax
+            # here, though, breaks the coverage.py reporter for this file even
+            # though it would never be loaded at runtime in py2.
+            # all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
+            all_tasks = producer_tasks + consumer_tasks + acker_tasks
             done, _ = await asyncio.wait(all_tasks,
                                          return_when=asyncio.FIRST_COMPLETED)
             for task in done:

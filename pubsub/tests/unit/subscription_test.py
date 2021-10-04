@@ -2,19 +2,17 @@ import base64
 import datetime
 import json
 
+import pytest
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
-from gcloud.aio.pubsub.subscriber_message import SubscriberMessage  # pylint: disable=unused-import
+from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
 
 
-def test_importable():
-    assert True
-
-
-def test_construct_subscriber_client():
+@pytest.mark.asyncio
+async def test_construct_subscriber_client():
     SubscriberClient()
 
 
-def test_construct_subscriber_message_from_message_dict():
+def test_construct_subscriber_message_from_message():
     message_dict = {
         'ackId': 'some_ack_id',
         'message': {
@@ -36,7 +34,7 @@ def test_construct_subscriber_message_from_message_dict():
     assert message.delivery_attempt == 1
 
 
-def test_construct_subscriber_message_no_data_no_attrs_no_delivery_attempt():
+def test_construct_subscriber_message_no_metadata():
     message_dict = {
         'ackId': 'some_ack_id',
         'message': {
