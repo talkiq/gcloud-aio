@@ -30,7 +30,6 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-# TODO: this file is copied from gcloud-rest-taskqueue
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter(&#34;ignore&#34;)
@@ -40,14 +39,18 @@ import base64
 from typing import Union
 
 
-def decode(payload     )       :
+def decode(payload     )         :
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
     Base64 are respectively replaced by - and _
+
+    Does not make any assumptions about encoding -- if you&#39;re encoding a bytes
+    payload then `foo == decode(encode(foo))`, but if `foo` is a string you&#39;ll
+    need to `.decode()` manually according to your expected encoding scheme.
     &#34;&#34;&#34;
     variant = payload.replace(&#39;-&#39;, &#39;+&#39;).replace(&#39;_&#39;, &#39;/&#39;)
-    return base64.b64decode(variant).decode()
+    return base64.b64decode(variant)
 
 
 def encode(payload                   )       :
@@ -76,19 +79,26 @@ def encode(payload                   )       :
 <dd>
 <div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
 for URL variants exist, where the + and / characters of standard
-Base64 are respectively replaced by - and _</p></div>
+Base64 are respectively replaced by - and _</p>
+<p>Does not make any assumptions about encoding &ndash; if you're encoding a bytes
+payload then <code>foo == decode(encode(foo))</code>, but if <code>foo</code> is a string you'll
+need to <code>.<a title="gcloud.rest.kms.utils.decode" href="#gcloud.rest.kms.utils.decode">decode()</a></code> manually according to your expected encoding scheme.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode(payload     )       :
+<pre><code class="python">def decode(payload     )         :
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
     Base64 are respectively replaced by - and _
+
+    Does not make any assumptions about encoding -- if you&#39;re encoding a bytes
+    payload then `foo == decode(encode(foo))`, but if `foo` is a string you&#39;ll
+    need to `.decode()` manually according to your expected encoding scheme.
     &#34;&#34;&#34;
     variant = payload.replace(&#39;-&#39;, &#39;+&#39;).replace(&#39;_&#39;, &#39;/&#39;)
-    return base64.b64decode(variant).decode()</code></pre>
+    return base64.b64decode(variant)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.kms.utils.encode"><code class="name flex">

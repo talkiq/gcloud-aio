@@ -57,24 +57,31 @@ __all__ = [&#39;__version__&#39;, &#39;decode&#39;, &#39;encode&#39;, &#39;KMS&#
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="gcloud.aio.kms.decode"><code class="name flex">
-<span>def <span class="ident">decode</span></span>(<span>payload: str) ‑> str</span>
+<span>def <span class="ident">decode</span></span>(<span>payload: str) ‑> bytes</span>
 </code></dt>
 <dd>
 <div class="desc"><p><a href="https://en.wikipedia.org/wiki/Base64#URL_applications">https://en.wikipedia.org/wiki/Base64#URL_applications</a> modified Base64
 for URL variants exist, where the + and / characters of standard
-Base64 are respectively replaced by - and _</p></div>
+Base64 are respectively replaced by - and _</p>
+<p>Does not make any assumptions about encoding &ndash; if you're encoding a bytes
+payload then <code>foo == decode(encode(foo))</code>, but if <code>foo</code> is a string you'll
+need to <code>.<a title="gcloud.aio.kms.decode" href="#gcloud.aio.kms.decode">decode()</a></code> manually according to your expected encoding scheme.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode(payload: str) -&gt; str:
+<pre><code class="python">def decode(payload: str) -&gt; bytes:
     &#34;&#34;&#34;
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard
     Base64 are respectively replaced by - and _
+
+    Does not make any assumptions about encoding -- if you&#39;re encoding a bytes
+    payload then `foo == decode(encode(foo))`, but if `foo` is a string you&#39;ll
+    need to `.decode()` manually according to your expected encoding scheme.
     &#34;&#34;&#34;
     variant = payload.replace(&#39;-&#39;, &#39;+&#39;).replace(&#39;_&#39;, &#39;/&#39;)
-    return base64.b64decode(variant).decode()</code></pre>
+    return base64.b64decode(variant)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.kms.encode"><code class="name flex">
