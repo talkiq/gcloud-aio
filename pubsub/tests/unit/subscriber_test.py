@@ -70,7 +70,7 @@ else:
     # ================
 
     @pytest.mark.asyncio
-    async def test_ack_dealine_cache_defaults(subscriber_client):
+    async def test_ack_deadline_cache_defaults(subscriber_client):
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1)
         assert cache.cache_timeout == 1
@@ -340,34 +340,36 @@ else:
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
         nack_queue = asyncio.Queue()
+
         consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                application_callback,
-                ack_queue,
-                ack_deadline_cache,
-                1,
-                nack_queue,
-                MagicMock()
-            )
-        )
+            consumer(queue, application_callback, ack_queue,
+                     ack_deadline_cache, 1, nack_queue, MagicMock()))
+
         await queue.put((message, 0.0))
         await asyncio.sleep(0)
         consumer_task.cancel()
+
         result = await asyncio.wait_for(ack_queue.get(), 1)
         assert result == 'ack_id'
+        ack_queue.task_done()
+
         application_callback.assert_called_once()
         assert queue.qsize() == 0
         assert nack_queue.qsize() == 0
+
+        # verify that the consumer shuts down gracefully
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(consumer_task, 1)
 
     @pytest.mark.asyncio
     async def test_consumer_tasks_limited_by_pool_size(ack_deadline_cache):
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
+        pause = asyncio.Event()
 
         async def callback(mock):
             mock()
-            await asyncio.sleep(10)
+            await pause.wait()
 
         mock1 = MagicMock()
         mock1.ack_id = 'ack_id'
@@ -378,25 +380,32 @@ else:
         mock4 = MagicMock()
         mock4.ack_id = 'ack_id'
 
-        asyncio.ensure_future(
-            consumer(
-                queue,
-                callback,
-                ack_queue,
-                ack_deadline_cache,
-                2,
-                None,
-                MagicMock()
-            )
-        )
+        consumer_task = asyncio.ensure_future(
+            consumer(queue, callback, ack_queue, ack_deadline_cache, 2, None,
+                     MagicMock()))
+
         for m in [mock1, mock2, mock3, mock4]:
             await queue.put((m, 0.0))
         await asyncio.sleep(0.1)
+
         mock1.assert_called_once()
         mock2.assert_called_once()
         mock3.assert_not_called()
-        assert queue.qsize() == 1
+        mock4.assert_not_called()
+        assert queue.qsize() == 1  # two running, one dequeued
         assert ack_queue.qsize() == 0
+
+        # clean up
+        pause.set()
+        await queue.join()
+
+        while not ack_queue.empty():
+            await ack_queue.get()
+            ack_queue.task_done()
+
+        consumer_task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(consumer_task, 1)
 
     @pytest.mark.asyncio
     async def test_consumer_drops_expired_messages(ack_deadline_cache,
@@ -410,19 +419,13 @@ else:
         ack_queue = asyncio.Queue()
         nack_queue = asyncio.Queue()
         consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                application_callback,
-                ack_queue,
-                ack_deadline_cache,
-                1,
-                nack_queue,
-                MagicMock()
-            )
-        )
+            consumer(queue, application_callback, ack_queue,
+                     ack_deadline_cache, 1, nack_queue, MagicMock()))
+
         await queue.put((message, 0.0))
         await asyncio.sleep(0)
         consumer_task.cancel()
+
         application_callback.assert_not_called()
         assert ack_queue.qsize() == 0
         assert nack_queue.qsize() == 0
@@ -441,19 +444,12 @@ else:
             raise RuntimeError
 
         consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                f,
-                ack_queue,
-                ack_deadline_cache,
-                1,
-                None,
-                MagicMock()
-            )
-        )
+            consumer(queue, f, ack_queue, ack_deadline_cache, 1, None,
+                     MagicMock()))
         await queue.put((message, 0.0))
         await asyncio.sleep(0.1)
         consumer_task.cancel()
+
         mock.assert_called_once()
         assert ack_queue.qsize() == 0
         assert queue.qsize() == 0
@@ -472,23 +468,24 @@ else:
             raise RuntimeError
 
         consumer_task = asyncio.ensure_future(
-            consumer(
-                queue,
-                f,
-                ack_queue,
-                ack_deadline_cache,
-                1,
-                nack_queue,
-                MagicMock()
-            )
-        )
+            consumer(queue, f, ack_queue, ack_deadline_cache, 1, nack_queue,
+                     MagicMock()))
+
         await queue.put((message, 0.0))
         await asyncio.sleep(0.1)
         consumer_task.cancel()
+
         mock.assert_called_once()
         assert ack_queue.qsize() == 0
         assert nack_queue.qsize() == 1
         assert queue.qsize() == 0
+
+        # cleanup
+        nack_queue.get_nowait()
+        nack_queue.task_done()
+
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(consumer_task, 1)
 
     @pytest.mark.asyncio
     async def test_consumer_gracefull_shutdown(
@@ -861,21 +858,19 @@ else:
     async def test_subscribe_integrates_whole_chain(subscriber_client,
                                                     application_callback):
         subscribe_task = asyncio.ensure_future(
-            subscribe(
-                'fake_subscription',
-                application_callback,
-                subscriber_client,
-                num_producers=1,
-                max_messages_per_producer=100,
-                ack_window=0.0,
-                ack_deadline_cache_timeout=1000,
-                num_tasks_per_consumer=1,
-                enable_nack=True,
-                nack_window=0.0
-            )
-        )
+            subscribe('fake_subscription', application_callback,
+                      subscriber_client, num_producers=1,
+                      max_messages_per_producer=100, ack_window=0.0,
+                      ack_deadline_cache_timeout=1000,
+                      num_tasks_per_consumer=1, enable_nack=True,
+                      nack_window=0.0))
         await asyncio.sleep(0.1)
         subscribe_task.cancel()
+
         application_callback.assert_called()
         subscriber_client.acknowledge.assert_called_with(
             'fake_subscription', ack_ids=['ack_id'])
+
+        # verify that the subscriber shuts down gracefully
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(subscribe_task, 1)
