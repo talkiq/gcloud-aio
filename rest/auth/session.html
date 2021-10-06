@@ -147,9 +147,10 @@ if not BUILD_GCLOUD_REST:
     class AioSession(BaseSession):
         @property
         def session(self)                         :
-            connector = aiohttp.TCPConnector(ssl=self._ssl)
-            self._session = self._session or aiohttp.ClientSession(
-                connector=connector, timeout=self._timeout)
+            if not self._session:
+                connector = aiohttp.TCPConnector(ssl=self._ssl)
+                self._session = aiohttp.ClientSession(connector=connector,
+                                                      timeout=self._timeout)
             return self._session
 
         def post(self, url     , headers                ,
@@ -223,8 +224,9 @@ if BUILD_GCLOUD_REST:
 
         @property
         def session(self)           :
-            self._session = self._session or Session()
-            self._session.verify = self._ssl
+            if not self._session:
+                self._session = Session()
+                self._session.verify = self._ssl
             return self._session
 
         # N.B.: none of these will be `async` in compiled form, but adding the
@@ -512,8 +514,9 @@ def request(self, method     , url     , headers                ,
 
     @property
     def session(self)           :
-        self._session = self._session or Session()
-        self._session.verify = self._ssl
+        if not self._session:
+            self._session = Session()
+            self._session.verify = self._ssl
         return self._session
 
     # N.B.: none of these will be `async` in compiled form, but adding the
@@ -606,8 +609,9 @@ def google_api_lock(self)                   :
 </summary>
 <pre><code class="python">@property
 def session(self)           :
-    self._session = self._session or Session()
-    self._session.verify = self._ssl
+    if not self._session:
+        self._session = Session()
+        self._session.verify = self._ssl
     return self._session</code></pre>
 </details>
 </dd>

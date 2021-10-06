@@ -144,9 +144,10 @@ standard Base64 are respectively replaced by - and _.</p>
 <pre><code class="python">class AioSession(BaseSession):
     @property
     def session(self) -&gt; aiohttp.ClientSession:
-        connector = aiohttp.TCPConnector(ssl=self._ssl)
-        self._session = self._session or aiohttp.ClientSession(
-            connector=connector, timeout=self._timeout)
+        if not self._session:
+            connector = aiohttp.TCPConnector(ssl=self._ssl)
+            self._session = aiohttp.ClientSession(connector=connector,
+                                                  timeout=self._timeout)
         return self._session
 
     async def post(self, url: str, headers: Dict[str, str],
@@ -224,9 +225,10 @@ standard Base64 are respectively replaced by - and _.</p>
 </summary>
 <pre><code class="python">@property
 def session(self) -&gt; aiohttp.ClientSession:
-    connector = aiohttp.TCPConnector(ssl=self._ssl)
-    self._session = self._session or aiohttp.ClientSession(
-        connector=connector, timeout=self._timeout)
+    if not self._session:
+        connector = aiohttp.TCPConnector(ssl=self._ssl)
+        self._session = aiohttp.ClientSession(connector=connector,
+                                              timeout=self._timeout)
     return self._session</code></pre>
 </details>
 </dd>
