@@ -38,7 +38,7 @@ jobs:
 
   docs:
     docker:
-      - image: python:3.9.5
+      - image: python:3.9.7
     steps:
       - run: pip install pdoc3
       - run:
@@ -94,7 +94,7 @@ jobs:
 
   pypi:
     docker:
-      - image: python:3.9.5-slim
+      - image: python:3.9.7-slim
     steps:
       - run: pip install pyopenssl==19.0.0 twine==1.14.0
       - checkout
@@ -107,7 +107,7 @@ jobs:
 
   pypi-rest:
     docker:
-      - image: python:3.9.5-slim
+      - image: python:3.9.7-slim
     steps:
       - run: pip install future==0.18.2 pyopenssl==19.0.0 twine==1.14.0
       - attach_workspace:
@@ -141,7 +141,7 @@ jobs:
 
   py3to2:
     docker:
-      - image: python:3.9.5-slim
+      - image: python:3.9.7-slim
     steps:
       - checkout
       - run: pip install -r requirements.txt
