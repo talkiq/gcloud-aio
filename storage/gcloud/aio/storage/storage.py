@@ -606,7 +606,8 @@ class Storage:
             session: Optional[Session] = None,
             timeout: int = 10) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
-        url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         params = params or {}
         headers = headers or {}
         headers.update(await self._headers())
