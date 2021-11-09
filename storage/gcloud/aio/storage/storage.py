@@ -153,7 +153,8 @@ class Storage:
                    destination_bucket: str, *, new_name: Optional[str] = None,
                    metadata: Optional[Dict[str, Any]] = None,
                    params: Optional[Dict[str, str]] = None,
-                   headers: Optional[Dict[str, str]] = None, timeout: int = DEFAULT_TIMEOUT,
+                   headers: Optional[Dict[str, str]] = None,
+                   timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -> Dict[str, Any]:
 
         """
@@ -215,7 +216,8 @@ class Storage:
 
         return data
 
-    async def delete(self, bucket: str, object_name: str, *, timeout: int = DEFAULT_TIMEOUT,
+    async def delete(self, bucket: str, object_name: str, *,
+                     timeout: int = DEFAULT_TIMEOUT,
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -> str:
@@ -257,7 +259,8 @@ class Storage:
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
-                                timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+                                timeout: int = DEFAULT_TIMEOUT
+                                ) -> Dict[str, Any]:
         data = await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
@@ -624,7 +627,8 @@ class Storage:
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
-                                  timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+                                  timeout: int = DEFAULT_TIMEOUT
+                                  ) -> Dict[str, Any]:
         url = f'{API_ROOT}/{bucket}'
         headers = headers or {}
         headers.update(await self._headers())

@@ -75,8 +75,13 @@ class Blob:
     def chunk_size(self) -> int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self, timeout: int = DEFAULT_TIMEOUT, session: Optional[Session] = None) -> Any:
-        return await self.bucket.storage.download(self.bucket.name, self.name, timeout=timeout,
+    async def download(self,
+                       timeout: int = DEFAULT_TIMEOUT,
+                       session: Optional[Session] = None
+                       ) -> Any:
+        return await self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  timeout=timeout,
                                                   session=session)
 
     async def upload(self, data: Any,
