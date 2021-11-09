@@ -363,7 +363,7 @@ class Storage:
         # We cannot use `aiofiles.open` here
         # since it returns AsyncBufferedReader,
         # `aiohttp` is not able to deal with it neither.
-        with open(filename, "rb") as file_object:
+        with open(filename, 'rb') as file_object:
             return await self.upload(bucket, object_name, file_object,
                                      **kwargs)
 
