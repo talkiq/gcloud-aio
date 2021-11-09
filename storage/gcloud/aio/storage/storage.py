@@ -359,8 +359,9 @@ class Storage:
                                    filename: str,
                                    **kwargs: Any) -> Dict[str, Any]:
         # `upload` method requires `file_object`
-        # to be an instance of str, bytes or io.IOBase
-        # we cannot use `aiofiles.open` here since it returns AsyncBufferedReader
+        # to be an instance of str, bytes or io.IOBase.
+        # We cannot use `aiofiles.open` here
+        # since it returns AsyncBufferedReader,
         # `aiohttp` is not able to deal with it neither.
         with open(filename, "rb") as file_object:
             return await self.upload(bucket, object_name, file_object,
