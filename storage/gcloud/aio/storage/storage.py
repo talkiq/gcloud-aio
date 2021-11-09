@@ -21,8 +21,10 @@ from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
+
 if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
@@ -42,7 +44,6 @@ SCOPES = [
 ]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
-DEFAULT_TIMEOUT = 10  # by default, timeout in 10 seconds on requests
 
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
 if STORAGE_EMULATOR_HOST:

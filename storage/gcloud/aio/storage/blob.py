@@ -16,9 +16,9 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from pyasn1.codec.der import decoder
 from pyasn1_modules import pem
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
-from .storage import DEFAULT_TIMEOUT
 
 if BUILD_GCLOUD_REST:
     from requests import Session
