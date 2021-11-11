@@ -100,10 +100,8 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
     def chunk_size(self)       :
         return self.size + (262144 - (self.size % 262144))
 
-    def download(self,
-                       timeout      = DEFAULT_TIMEOUT,
-                       session                    = None
-                       )       :
+    def download(self, timeout      = DEFAULT_TIMEOUT,
+                       session                    = None)       :
         return self.bucket.storage.download(self.bucket.name,
                                                   self.name,
                                                   timeout=timeout,
@@ -241,10 +239,8 @@ def chunk_size(self)       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download(self,
-                   timeout      = DEFAULT_TIMEOUT,
-                   session                    = None
-                   )       :
+<pre><code class="python">def download(self, timeout      = DEFAULT_TIMEOUT,
+                   session                    = None)       :
     return self.bucket.storage.download(self.bucket.name,
                                               self.name,
                                               timeout=timeout,
@@ -1035,6 +1031,8 @@ with the link.</p>
                                params                , headers                , **_3to2kwargs)       :
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
+        if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;metadata&#39; in _3to2kwargs: metadata = _3to2kwargs[&#39;metadata&#39;]; del _3to2kwargs[&#39;metadata&#39;]
         else: metadata =  None
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
@@ -1060,7 +1058,7 @@ with the link.</p>
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=DEFAULT_TIMEOUT)
+                            data=metadata_, timeout=timeout)
         session_uri      = resp.headers[&#39;Location&#39;]
         return session_uri
 

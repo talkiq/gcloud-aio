@@ -47,7 +47,6 @@ from pyasn1_modules import pem
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
@@ -103,10 +102,8 @@ class Blob:
     def chunk_size(self) -&gt; int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self,
-                       timeout: int = DEFAULT_TIMEOUT,
-                       session: Optional[Session] = None
-                       ) -&gt; Any:
+    async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                       session: Optional[Session] = None) -&gt; Any:
         return await self.bucket.storage.download(self.bucket.name,
                                                   self.name,
                                                   timeout=timeout,
@@ -251,10 +248,8 @@ class Blob:
     def chunk_size(self) -&gt; int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self,
-                       timeout: int = DEFAULT_TIMEOUT,
-                       session: Optional[Session] = None
-                       ) -&gt; Any:
+    async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                       session: Optional[Session] = None) -&gt; Any:
         return await self.bucket.storage.download(self.bucket.name,
                                                   self.name,
                                                   timeout=timeout,
@@ -392,10 +387,8 @@ def chunk_size(self) -&gt; int:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def download(self,
-                   timeout: int = DEFAULT_TIMEOUT,
-                   session: Optional[Session] = None
-                   ) -&gt; Any:
+<pre><code class="python">async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                   session: Optional[Session] = None) -&gt; Any:
     return await self.bucket.storage.download(self.bucket.name,
                                               self.name,
                                               timeout=timeout,

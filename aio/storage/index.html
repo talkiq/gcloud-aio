@@ -91,10 +91,8 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
     def chunk_size(self) -&gt; int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self,
-                       timeout: int = DEFAULT_TIMEOUT,
-                       session: Optional[Session] = None
-                       ) -&gt; Any:
+    async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                       session: Optional[Session] = None) -&gt; Any:
         return await self.bucket.storage.download(self.bucket.name,
                                                   self.name,
                                                   timeout=timeout,
@@ -232,10 +230,8 @@ def chunk_size(self) -&gt; int:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def download(self,
-                   timeout: int = DEFAULT_TIMEOUT,
-                   session: Optional[Session] = None
-                   ) -&gt; Any:
+<pre><code class="python">async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                   session: Optional[Session] = None) -&gt; Any:
     return await self.bucket.storage.download(self.bucket.name,
                                               self.name,
                                               timeout=timeout,
@@ -976,6 +972,7 @@ with the link.</p>
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
                                *, metadata: Optional[Dict[str, Any]] = None,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None) -&gt; str:
         params[&#39;uploadType&#39;] = &#39;resumable&#39;
 
@@ -1000,7 +997,7 @@ with the link.</p>
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=DEFAULT_TIMEOUT)
+                            data=metadata_, timeout=timeout)
         session_uri: str = resp.headers[&#39;Location&#39;]
         return session_uri
 
