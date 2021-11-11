@@ -711,7 +711,8 @@ class Storage(object):
         else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         params = params or {}
         headers = headers or {}
         headers.update(self._headers())
@@ -1387,7 +1388,8 @@ requests, not aiohttp).</p></div>
         else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
-        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         params = params or {}
         headers = headers or {}
         headers.update(self._headers())
@@ -1759,7 +1761,8 @@ requests, not aiohttp).</p></div>
     else: headers =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
-    url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (object_name))
+    encoded_object_name = quote(object_name, safe=&#39;&#39;)
+    url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
     params = params or {}
     headers = headers or {}
     headers.update(self._headers())

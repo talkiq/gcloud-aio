@@ -1032,7 +1032,8 @@ with the link.</p>
             session: Optional[Session] = None,
             timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
-        url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
+        encoded_object_name = quote(object_name, safe=&#39;&#39;)
+        url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
         params = params or {}
         headers = headers or {}
         headers.update(await self._headers())
@@ -1401,7 +1402,8 @@ the response data (TTFB). Defaults to 10.</dd>
         session: Optional[Session] = None,
         timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
     # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
-    url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
+    encoded_object_name = quote(object_name, safe=&#39;&#39;)
+    url = f&#39;{API_ROOT}/{bucket}/o/{encoded_object_name}&#39;
     params = params or {}
     headers = headers or {}
     headers.update(await self._headers())
