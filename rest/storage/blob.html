@@ -53,11 +53,13 @@ from six.moves.urllib.parse import quote
 import rsa
 from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
+from gcloud.rest.storage.constants import DEFAULT_TIMEOUT
 from pyasn1.codec.der import decoder
 from pyasn1_modules import pem
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
 
 # Selectively load libraries based on the package
+
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
@@ -113,8 +115,13 @@ class Blob(object):
     def chunk_size(self)       :
         return self.size + (262144 - (self.size % 262144))
 
-    def download(self, session                    = None)       :
-        return self.bucket.storage.download(self.bucket.name, self.name,
+    def download(self,
+                       timeout      = DEFAULT_TIMEOUT,
+                       session                    = None
+                       )       :
+        return self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  timeout=timeout,
                                                   session=session)
 
     def upload(self, data     ,
@@ -256,8 +263,13 @@ class Blob(object):
     def chunk_size(self)       :
         return self.size + (262144 - (self.size % 262144))
 
-    def download(self, session                    = None)       :
-        return self.bucket.storage.download(self.bucket.name, self.name,
+    def download(self,
+                       timeout      = DEFAULT_TIMEOUT,
+                       session                    = None
+                       )       :
+        return self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  timeout=timeout,
                                                   session=session)
 
     def upload(self, data     ,
@@ -384,7 +396,7 @@ def chunk_size(self)       :
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.rest.storage.blob.Blob.download"><code class="name flex">
-<span>def <span class="ident">download</span></span>(<span>self, session=None)</span>
+<span>def <span class="ident">download</span></span>(<span>self, timeout=10, session=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -392,8 +404,13 @@ def chunk_size(self)       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download(self, session                    = None)       :
-    return self.bucket.storage.download(self.bucket.name, self.name,
+<pre><code class="python">def download(self,
+                   timeout      = DEFAULT_TIMEOUT,
+                   session                    = None
+                   )       :
+    return self.bucket.storage.download(self.bucket.name,
+                                              self.name,
+                                              timeout=timeout,
                                               session=session)</code></pre>
 </details>
 </dd>

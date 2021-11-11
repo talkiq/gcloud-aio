@@ -49,8 +49,10 @@ from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
+
 if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
@@ -179,7 +181,8 @@ class Storage:
                    destination_bucket: str, *, new_name: Optional[str] = None,
                    metadata: Optional[Dict[str, Any]] = None,
                    params: Optional[Dict[str, str]] = None,
-                   headers: Optional[Dict[str, str]] = None, timeout: int = 10,
+                   headers: Optional[Dict[str, str]] = None,
+                   timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -&gt; Dict[str, Any]:
 
         &#34;&#34;&#34;
@@ -241,7 +244,8 @@ class Storage:
 
         return data
 
-    async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
+    async def delete(self, bucket: str, object_name: str, *,
+                     timeout: int = DEFAULT_TIMEOUT,
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -&gt; str:
@@ -264,7 +268,7 @@ class Storage:
 
     async def download(self, bucket: str, object_name: str, *,
                        headers: Optional[Dict[str, Any]] = None,
-                       timeout: int = 10,
+                       timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -&gt; bytes:
         return await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
@@ -283,7 +287,8 @@ class Storage:
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
-                                timeout: int = 10) -&gt; Dict[str, Any]:
+                                timeout: int = DEFAULT_TIMEOUT
+                                ) -&gt; Dict[str, Any]:
         data = await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
@@ -291,7 +296,7 @@ class Storage:
 
     async def download_stream(self, bucket: str, object_name: str, *,
                               headers: Optional[Dict[str, Any]] = None,
-                              timeout: int = 10,
+                              timeout: int = DEFAULT_TIMEOUT,
                               session: Optional[Session] = None
                               ) -&gt; StreamResponse:
         &#34;&#34;&#34;Download a GCS object in a buffered stream.
@@ -320,7 +325,7 @@ class Storage:
                            params: Optional[Dict[str, str]] = None,
                            headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
-                           timeout: int = 10) -&gt; Dict[str, Any]:
+                           timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}/o&#39;
         headers = headers or {}
         headers.update(await self._headers())
@@ -458,7 +463,7 @@ class Storage:
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
-                        timeout: int = 10,
+                        timeout: int = DEFAULT_TIMEOUT,
                         session: Optional[Session] = None) -&gt; bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
@@ -483,7 +488,7 @@ class Storage:
     async def _download_stream(self, bucket: str, object_name: str, *,
                                params: Optional[Dict[str, str]] = None,
                                headers: Optional[Dict[str, str]] = None,
-                               timeout: int = 10,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None
                                ) -&gt; StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
@@ -602,7 +607,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=10)
+                            data=metadata_, timeout=DEFAULT_TIMEOUT)
         session_uri: str = resp.headers[&#39;Location&#39;]
         return session_uri
 
@@ -632,7 +637,7 @@ class Storage:
             *, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None,
-            timeout: int = 10) -&gt; Dict[str, Any]:
+            timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
         params = params or {}
@@ -650,7 +655,8 @@ class Storage:
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
-                                  timeout: int = 10) -&gt; Dict[str, Any]:
+                                  timeout: int = DEFAULT_TIMEOUT
+                                  ) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}&#39;
         headers = headers or {}
         headers.update(await self._headers())
@@ -788,7 +794,8 @@ requests, not aiohttp).</p></div>
                    destination_bucket: str, *, new_name: Optional[str] = None,
                    metadata: Optional[Dict[str, Any]] = None,
                    params: Optional[Dict[str, str]] = None,
-                   headers: Optional[Dict[str, str]] = None, timeout: int = 10,
+                   headers: Optional[Dict[str, str]] = None,
+                   timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -&gt; Dict[str, Any]:
 
         &#34;&#34;&#34;
@@ -850,7 +857,8 @@ requests, not aiohttp).</p></div>
 
         return data
 
-    async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
+    async def delete(self, bucket: str, object_name: str, *,
+                     timeout: int = DEFAULT_TIMEOUT,
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -&gt; str:
@@ -873,7 +881,7 @@ requests, not aiohttp).</p></div>
 
     async def download(self, bucket: str, object_name: str, *,
                        headers: Optional[Dict[str, Any]] = None,
-                       timeout: int = 10,
+                       timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -&gt; bytes:
         return await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
@@ -892,7 +900,8 @@ requests, not aiohttp).</p></div>
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
-                                timeout: int = 10) -&gt; Dict[str, Any]:
+                                timeout: int = DEFAULT_TIMEOUT
+                                ) -&gt; Dict[str, Any]:
         data = await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
@@ -900,7 +909,7 @@ requests, not aiohttp).</p></div>
 
     async def download_stream(self, bucket: str, object_name: str, *,
                               headers: Optional[Dict[str, Any]] = None,
-                              timeout: int = 10,
+                              timeout: int = DEFAULT_TIMEOUT,
                               session: Optional[Session] = None
                               ) -&gt; StreamResponse:
         &#34;&#34;&#34;Download a GCS object in a buffered stream.
@@ -929,7 +938,7 @@ requests, not aiohttp).</p></div>
                            params: Optional[Dict[str, str]] = None,
                            headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
-                           timeout: int = 10) -&gt; Dict[str, Any]:
+                           timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}/o&#39;
         headers = headers or {}
         headers.update(await self._headers())
@@ -1067,7 +1076,7 @@ requests, not aiohttp).</p></div>
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
-                        timeout: int = 10,
+                        timeout: int = DEFAULT_TIMEOUT,
                         session: Optional[Session] = None) -&gt; bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
@@ -1092,7 +1101,7 @@ requests, not aiohttp).</p></div>
     async def _download_stream(self, bucket: str, object_name: str, *,
                                params: Optional[Dict[str, str]] = None,
                                headers: Optional[Dict[str, str]] = None,
-                               timeout: int = 10,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None
                                ) -&gt; StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
@@ -1211,7 +1220,7 @@ requests, not aiohttp).</p></div>
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=10)
+                            data=metadata_, timeout=DEFAULT_TIMEOUT)
         session_uri: str = resp.headers[&#39;Location&#39;]
         return session_uri
 
@@ -1241,7 +1250,7 @@ requests, not aiohttp).</p></div>
             *, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None,
-            timeout: int = 10) -&gt; Dict[str, Any]:
+            timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
         params = params or {}
@@ -1259,7 +1268,8 @@ requests, not aiohttp).</p></div>
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
-                                  timeout: int = 10) -&gt; Dict[str, Any]:
+                                  timeout: int = DEFAULT_TIMEOUT
+                                  ) -&gt; Dict[str, Any]:
         url = f&#39;{API_ROOT}/{bucket}&#39;
         headers = headers or {}
         headers.update(await self._headers())
@@ -1317,7 +1327,8 @@ copy operation, you then have 1 week to complete the copy job.</p>
                destination_bucket: str, *, new_name: Optional[str] = None,
                metadata: Optional[Dict[str, Any]] = None,
                params: Optional[Dict[str, str]] = None,
-               headers: Optional[Dict[str, str]] = None, timeout: int = 10,
+               headers: Optional[Dict[str, str]] = None,
+               timeout: int = DEFAULT_TIMEOUT,
                session: Optional[Session] = None) -&gt; Dict[str, Any]:
 
     &#34;&#34;&#34;
@@ -1389,7 +1400,8 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
+<pre><code class="python">async def delete(self, bucket: str, object_name: str, *,
+                 timeout: int = DEFAULT_TIMEOUT,
                  params: Optional[Dict[str, str]] = None,
                  headers: Optional[Dict[str, str]] = None,
                  session: Optional[Session] = None) -&gt; str:
@@ -1422,7 +1434,7 @@ copy operation, you then have 1 week to complete the copy job.</p>
 </summary>
 <pre><code class="python">async def download(self, bucket: str, object_name: str, *,
                    headers: Optional[Dict[str, Any]] = None,
-                   timeout: int = 10,
+                   timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -&gt; bytes:
     return await self._download(bucket, object_name, headers=headers,
                                 timeout=timeout, params={&#39;alt&#39;: &#39;media&#39;},
@@ -1441,7 +1453,8 @@ copy operation, you then have 1 week to complete the copy job.</p>
 <pre><code class="python">async def download_metadata(self, bucket: str, object_name: str, *,
                             headers: Optional[Dict[str, Any]] = None,
                             session: Optional[Session] = None,
-                            timeout: int = 10) -&gt; Dict[str, Any]:
+                            timeout: int = DEFAULT_TIMEOUT
+                            ) -&gt; Dict[str, Any]:
     data = await self._download(bucket, object_name, headers=headers,
                                 timeout=timeout, session=session)
     metadata: Dict[str, Any] = json.loads(data.decode())
@@ -1482,7 +1495,7 @@ the response data (TTFB). Defaults to 10.</dd>
 </summary>
 <pre><code class="python">async def download_stream(self, bucket: str, object_name: str, *,
                           headers: Optional[Dict[str, Any]] = None,
-                          timeout: int = 10,
+                          timeout: int = DEFAULT_TIMEOUT,
                           session: Optional[Session] = None
                           ) -&gt; StreamResponse:
     &#34;&#34;&#34;Download a GCS object in a buffered stream.
@@ -1554,7 +1567,8 @@ the response data (TTFB). Defaults to 10.</dd>
                               params: Optional[Dict[str, str]] = None,
                               headers: Optional[Dict[str, str]] = None,
                               session: Optional[Session] = None,
-                              timeout: int = 10) -&gt; Dict[str, Any]:
+                              timeout: int = DEFAULT_TIMEOUT
+                              ) -&gt; Dict[str, Any]:
     url = f&#39;{API_ROOT}/{bucket}&#39;
     headers = headers or {}
     headers.update(await self._headers())
@@ -1579,7 +1593,7 @@ the response data (TTFB). Defaults to 10.</dd>
                        params: Optional[Dict[str, str]] = None,
                        headers: Optional[Dict[str, Any]] = None,
                        session: Optional[Session] = None,
-                       timeout: int = 10) -&gt; Dict[str, Any]:
+                       timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
     url = f&#39;{API_ROOT}/{bucket}/o&#39;
     headers = headers or {}
     headers.update(await self._headers())
@@ -1605,7 +1619,7 @@ the response data (TTFB). Defaults to 10.</dd>
         *, params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         session: Optional[Session] = None,
-        timeout: int = 10) -&gt; Dict[str, Any]:
+        timeout: int = DEFAULT_TIMEOUT) -&gt; Dict[str, Any]:
     # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
     url = f&#39;{API_ROOT}/{bucket}/o/{object_name}&#39;
     params = params or {}

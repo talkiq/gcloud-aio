@@ -60,6 +60,10 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="gcloud.rest.storage.constants" href="constants.html">gcloud.rest.storage.constants</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.rest.storage.storage" href="storage.html">gcloud.rest.storage.storage</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -96,8 +100,13 @@ __all__ = [&#39;__version__&#39;, &#39;Blob&#39;, &#39;Bucket&#39;, &#39;SCOPES&
     def chunk_size(self)       :
         return self.size + (262144 - (self.size % 262144))
 
-    def download(self, session                    = None)       :
-        return self.bucket.storage.download(self.bucket.name, self.name,
+    def download(self,
+                       timeout      = DEFAULT_TIMEOUT,
+                       session                    = None
+                       )       :
+        return self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  timeout=timeout,
                                                   session=session)
 
     def upload(self, data     ,
@@ -224,7 +233,7 @@ def chunk_size(self)       :
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.rest.storage.Blob.download"><code class="name flex">
-<span>def <span class="ident">download</span></span>(<span>self, session=None)</span>
+<span>def <span class="ident">download</span></span>(<span>self, timeout=10, session=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -232,8 +241,13 @@ def chunk_size(self)       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download(self, session                    = None)       :
-    return self.bucket.storage.download(self.bucket.name, self.name,
+<pre><code class="python">def download(self,
+                   timeout      = DEFAULT_TIMEOUT,
+                   session                    = None
+                   )       :
+    return self.bucket.storage.download(self.bucket.name,
+                                              self.name,
+                                              timeout=timeout,
                                               session=session)</code></pre>
 </details>
 </dd>
@@ -574,7 +588,7 @@ with the link.</p>
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
@@ -651,7 +665,7 @@ with the link.</p>
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
         else: params =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         encoded_object_name = quote(object_name, safe=&#39;&#39;)
         url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
         headers = headers or {}
@@ -672,7 +686,7 @@ with the link.</p>
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
         return self._download(bucket, object_name, headers=headers,
@@ -689,9 +703,10 @@ with the link.</p>
                 self.download(bucket, object_name, **kwargs)
             )
 
-    def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
+    def download_metadata(self, bucket     , object_name     , **_3to2kwargs
+                                )                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -706,7 +721,7 @@ with the link.</p>
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
         &#34;&#34;&#34;Download a GCS object in a buffered stream.
@@ -733,7 +748,7 @@ with the link.</p>
 
     def list_objects(self, bucket     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -886,7 +901,7 @@ with the link.</p>
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
@@ -916,7 +931,7 @@ with the link.</p>
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
         else: headers =  None
         if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
@@ -1045,7 +1060,7 @@ with the link.</p>
 
         s = SyncSession(session) if session else self.session
         resp = s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=10)
+                            data=metadata_, timeout=DEFAULT_TIMEOUT)
         session_uri      = resp.headers[&#39;Location&#39;]
         return session_uri
 
@@ -1078,7 +1093,7 @@ with the link.</p>
             self, bucket     , object_name     , metadata                , **_3to2kwargs)                  :
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1097,9 +1112,10 @@ with the link.</p>
         data                 = resp.json()
         return data
 
-    def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
+    def get_bucket_metadata(self, bucket     , **_3to2kwargs
+                                  )                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-        else: timeout =  10
+        else: timeout =  DEFAULT_TIMEOUT
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
         else: session =  None
         if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1155,7 +1171,7 @@ with the link.</p>
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
     else: headers =  None
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
@@ -1242,7 +1258,7 @@ with the link.</p>
     if &#39;params&#39; in _3to2kwargs: params = _3to2kwargs[&#39;params&#39;]; del _3to2kwargs[&#39;params&#39;]
     else: params =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     encoded_object_name = quote(object_name, safe=&#39;&#39;)
     url = &#39;{}/{}/o/{}&#39;.format((API_ROOT), (bucket), (encoded_object_name))
     headers = headers or {}
@@ -1273,7 +1289,7 @@ with the link.</p>
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
     else: headers =  None
     return self._download(bucket, object_name, headers=headers,
@@ -1290,9 +1306,10 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs)                  :
+<pre><code class="python">def download_metadata(self, bucket     , object_name     , **_3to2kwargs
+                            )                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1317,7 +1334,7 @@ with the link.</p>
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
     else: headers =  None
     &#34;&#34;&#34;Download a GCS object in a buffered stream.
@@ -1385,9 +1402,10 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs)                  :
+<pre><code class="python">def get_bucket_metadata(self, bucket     , **_3to2kwargs
+                              )                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1416,7 +1434,7 @@ with the link.</p>
 </summary>
 <pre><code class="python">def list_objects(self, bucket     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1447,7 +1465,7 @@ with the link.</p>
         self, bucket     , object_name     , metadata                , **_3to2kwargs)                  :
     # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
-    else: timeout =  10
+    else: timeout =  DEFAULT_TIMEOUT
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
     else: session =  None
     if &#39;headers&#39; in _3to2kwargs: headers = _3to2kwargs[&#39;headers&#39;]; del _3to2kwargs[&#39;headers&#39;]
@@ -1627,6 +1645,7 @@ recommended streaming implementations between requests and aiohttp.</p></div>
 <ul>
 <li><code><a title="gcloud.rest.storage.blob" href="blob.html">gcloud.rest.storage.blob</a></code></li>
 <li><code><a title="gcloud.rest.storage.bucket" href="bucket.html">gcloud.rest.storage.bucket</a></code></li>
+<li><code><a title="gcloud.rest.storage.constants" href="constants.html">gcloud.rest.storage.constants</a></code></li>
 <li><code><a title="gcloud.rest.storage.storage" href="storage.html">gcloud.rest.storage.storage</a></code></li>
 </ul>
 </li>
