@@ -24,7 +24,6 @@ from gcloud.aio.storage.bucket import Bucket
 from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
-
 if BUILD_GCLOUD_REST:
     from time import sleep
     from requests import HTTPError as ResponseError
@@ -555,6 +554,7 @@ class Storage:
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
                                *, metadata: Optional[Dict[str, Any]] = None,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
@@ -579,7 +579,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=DEFAULT_TIMEOUT)
+                            data=metadata_, timeout=timeout)
         session_uri: str = resp.headers['Location']
         return session_uri
 
