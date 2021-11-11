@@ -441,7 +441,8 @@ class Storage(object):
             filename,
             mode=&#39;rb&#39;,
         ) as file_object:
-            return self.upload(bucket, object_name, file_object,
+            contents = file_object.read()
+            return self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -1120,7 +1121,8 @@ requests, not aiohttp).</p></div>
             filename,
             mode=&#39;rb&#39;,
         ) as file_object:
-            return self.upload(bucket, object_name, file_object,
+            contents = file_object.read()
+            return self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -1861,7 +1863,8 @@ requests, not aiohttp).</p></div>
         filename,
         mode=&#39;rb&#39;,
     ) as file_object:
-        return self.upload(bucket, object_name, file_object,
+        contents = file_object.read()
+        return self.upload(bucket, object_name, contents,
                                  **kwargs)</code></pre>
 </details>
 </dd>

@@ -784,7 +784,8 @@ with the link.</p>
             filename,
             mode=&#39;rb&#39;,
         ) as file_object:
-            return await self.upload(bucket, object_name, file_object,
+            contents = await file_object.read()
+            return await self.upload(bucket, object_name, contents,
                                      **kwargs)
 
     @staticmethod
@@ -1489,7 +1490,8 @@ the response data (TTFB). Defaults to 10.</dd>
         filename,
         mode=&#39;rb&#39;,
     ) as file_object:
-        return await self.upload(bucket, object_name, file_object,
+        contents = await file_object.read()
+        return await self.upload(bucket, object_name, contents,
                                  **kwargs)</code></pre>
 </details>
 </dd>
