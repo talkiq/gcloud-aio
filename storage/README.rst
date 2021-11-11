@@ -123,6 +123,30 @@ will query ``fake-gcs-server`` instead of the official GCS API.
 Note that some emulation systems require disabling SSL -- if you're using a
 custom http session, you may need to disable SSL verification.
 
+Customization
+-------------
+
+This library mostly tries to stay agnostic of potential use-cases; as such, we
+do not implement any sort of retrying or other policies under the assumption
+that we wouldn't get things right for every user's situation.
+
+As such, we recommend configuring your own policies on an as-needed basis. The
+`backoff`_ library can make this quite straightforward! For example, you may
+find it useful to configure something like:
+
+.. code-block:: python
+
+    class StorageWithBackoff(gcloud.aio.storage.Storage):
+        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
+                              max_tries=5, jitter=backoff.full_jitter)
+        async def copy(self, *args: Any, **kwargs: Any):
+            return await super().copy(*args, **kwargs)
+
+        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
+                              max_tries=10, jitter=backoff.full_jitter)
+        async def download(self, *args: Any, **kwargs: Any):
+            return await super().download(*args, **kwargs)
+
 Contributing
 ------------
 
