@@ -111,16 +111,18 @@ if not BUILD_GCLOUD_REST:
         def session(self) -> aiohttp.ClientSession:
             if not self._session:
                 connector = aiohttp.TCPConnector(ssl=self._ssl)
+                timeout = aiohttp.ClientTimeout(self._timeout)
                 self._session = aiohttp.ClientSession(connector=connector,
-                                                      timeout=self._timeout)
+                                                      timeout=timeout)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
                        data: Optional[str] = None, timeout: int = 10,
                        params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout, params=params)
+                                           timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -132,8 +134,9 @@ if not BUILD_GCLOUD_REST:
                 log.warning('passed unused argument stream=%s to AioSession: '
                             'this argument is only used by SyncSession',
                             stream)
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.get(url, headers=headers,
-                                          timeout=timeout, params=params)
+                                          timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -141,15 +144,17 @@ if not BUILD_GCLOUD_REST:
                         data: Optional[str] = None, timeout: int = 10,
                         params: Optional[Dict[str, str]] = None
                         ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.patch(url, data=data, headers=headers,
-                                            timeout=timeout, params=params)
+                                            timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: int = 10) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout)
+                                          timeout=timeout_)
             await _raise_for_status(resp)
             return resp
 
@@ -157,8 +162,9 @@ if not BUILD_GCLOUD_REST:
                          params: Optional[Dict[str, str]] = None,
                          timeout: int = 10
                          ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.delete(url, headers=headers,
-                                             params=params, timeout=timeout)
+                                             params=params, timeout=timeout_)
             await _raise_for_status(resp)
             return resp
 
