@@ -260,6 +260,11 @@ else:
             metrics_client.increment(&#39;pubsub.consumer.succeeded&#39;)
             metrics_client.histogram(&#39;pubsub.consumer.latency.runtime&#39;,
                                      time.perf_counter() - start)
+        except asyncio.CancelledError:
+            if nack_queue:
+                nack_queue.put(message.ack_id)
+            log.warning(&#39;Application callback was cancelled&#39;)
+            metrics_client.increment(&#39;pubsub.consumer.cancelled&#39;)
         except Exception:
             if nack_queue:
                 nack_queue.put(message.ack_id)
