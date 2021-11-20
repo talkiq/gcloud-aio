@@ -26,7 +26,7 @@ We're still working on more complete documentation, but roughly you can do:
     kms = KMS('my-kms-project', 'my-keyring', 'my-key-name')
 
     # encrypt
-    plaintext = 'the-best-animal-is-the-aardvark'
+    plaintext = b'the-best-animal-is-the-aardvark'
     ciphertext = await kms.encrypt(encode(plaintext))
 
     # decrypt

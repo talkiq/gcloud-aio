@@ -13,7 +13,7 @@ with open(os.path.join(PACKAGE_ROOT, 'requirements.txt')) as f:
 
 setuptools.setup(
     name='gcloud-aio-bigquery',
-    version='5.2.0',
+    version='5.3.0',
     description='Python Client for Google Cloud BigQuery',
     long_description=README,
     namespace_packages=[

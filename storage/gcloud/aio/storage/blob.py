@@ -13,6 +13,7 @@ from urllib.parse import quote
 import rsa
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 from pyasn1.codec.der import decoder
 from pyasn1_modules import pem
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
@@ -73,8 +74,11 @@ class Blob:
     def chunk_size(self) -> int:
         return self.size + (262144 - (self.size % 262144))
 
-    async def download(self, session: Optional[Session] = None) -> Any:
-        return await self.bucket.storage.download(self.bucket.name, self.name,
+    async def download(self, timeout: int = DEFAULT_TIMEOUT,
+                       session: Optional[Session] = None) -> Any:
+        return await self.bucket.storage.download(self.bucket.name,
+                                                  self.name,
+                                                  timeout=timeout,
                                                   session=session)
 
     async def upload(self, data: Any,

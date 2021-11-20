@@ -18,34 +18,34 @@ def pytest_configure(config):
     )
 
 
-@pytest.fixture(scope='module')  # type: ignore
+@pytest.fixture(scope='module')
 def creds() -> str:
     # TODO: bundle public creds into this repo
     return os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 
 
-@pytest.fixture(scope='module')  # type: ignore
+@pytest.fixture(scope='module')
 def project() -> str:
     return 'dialpad-oss'
 
 
-@pytest.fixture(scope='module')  # type: ignore
+@pytest.fixture(scope='module')
 def push_queue_name() -> str:
     return 'public-test-push'
 
 
-@pytest.fixture(scope='module')  # type: ignore
+@pytest.fixture(scope='module')
 def push_queue_location() -> str:
     return 'us-west2'
 
 
-@pytest.fixture(scope='function')  # type: ignore
+@pytest.fixture(scope='function')
 async def session() -> str:
     async with Session() as session:
         yield session
 
 
-@pytest.fixture(scope='function')  # type: ignore
+@pytest.fixture(scope='function')
 async def push_queue_context(project, creds, push_queue_name,
                              push_queue_location, session):
     # main purpose is to be do proper teardown of tasks created by tests

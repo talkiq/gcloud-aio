@@ -18,7 +18,7 @@ else:
     from asyncio import sleep
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_data_is_inserted(creds: str, dataset: str, project: str,
                                 table: str) -> None:
     rows = [{'key': uuid.uuid4().hex, 'value': uuid.uuid4().hex}
@@ -31,7 +31,7 @@ async def test_data_is_inserted(creds: str, dataset: str, project: str,
         await t.insert(rows)
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_table_load_copy(creds: str, dataset: str, project: str,
                                export_bucket_name: str) -> None:
     # pylint: disable=too-many-locals

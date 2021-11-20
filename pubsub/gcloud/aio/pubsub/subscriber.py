@@ -31,10 +31,10 @@ else:
 
     class AckDeadlineCache:
         def __init__(self, subscriber_client: SubscriberClient,
-                     subscription: str, cache_timout: int):
+                     subscription: str, cache_timeout: float):
             self.subscriber_client = subscriber_client
             self.subscription = subscription
-            self.cache_timeout = cache_timout
+            self.cache_timeout = cache_timeout
             self.ack_deadline: float = float('inf')
             self.last_refresh: float = float('-inf')
 
@@ -54,7 +54,8 @@ else:
             self.last_refresh = time.perf_counter()
 
         def cache_outdated(self) -> bool:
-            if (time.perf_counter() - self.last_refresh) > self.cache_timeout:
+            if (time.perf_counter() - self.last_refresh > self.cache_timeout
+                    or self.ack_deadline == float('inf')):
                 return True
             return False
 
@@ -220,6 +221,11 @@ else:
             metrics_client.increment('pubsub.consumer.succeeded')
             metrics_client.histogram('pubsub.consumer.latency.runtime',
                                      time.perf_counter() - start)
+        except asyncio.CancelledError:
+            if nack_queue:
+                await nack_queue.put(message.ack_id)
+            log.warning('Application callback was cancelled')
+            metrics_client.increment('pubsub.consumer.cancelled')
         except Exception:
             if nack_queue:
                 await nack_queue.put(message.ack_id)
@@ -337,7 +343,7 @@ else:
                         num_producers: int = 1,
                         max_messages_per_producer: int = 100,
                         ack_window: float = 0.3,
-                        ack_deadline_cache_timeout: int = 60,
+                        ack_deadline_cache_timeout: float = float('inf'),
                         num_tasks_per_consumer: int = 1,
                         enable_nack: bool = True,
                         nack_window: float = 0.3,
@@ -386,7 +392,12 @@ else:
                              metrics_client=metrics_client)
                 ))
 
-            all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
+            # TODO: since this is in a `not BUILD_GCLOUD_REST` section, we
+            # shouldn't have to care about py2 support. Using splat syntax
+            # here, though, breaks the coverage.py reporter for this file even
+            # though it would never be loaded at runtime in py2.
+            # all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
+            all_tasks = producer_tasks + consumer_tasks + acker_tasks
             done, _ = await asyncio.wait(all_tasks,
                                          return_when=asyncio.FIRST_COMPLETED)
             for task in done:

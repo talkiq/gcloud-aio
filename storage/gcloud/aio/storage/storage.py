@@ -21,6 +21,7 @@ from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.bucket import Bucket
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -66,7 +67,7 @@ def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
     Very heavily modified to be compatible with our gcloud-rest converter and
-    to avboid unnecessary urllib3 dependencies (since that's only included with
+    to avoid unnecessary urllib3 dependencies (since that's only included with
     requests, not aiohttp).
     """
     body: List[bytes] = []
@@ -146,10 +147,13 @@ class Storage:
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
+    # pylint: disable=too-many-locals
     async def copy(self, bucket: str, object_name: str,
                    destination_bucket: str, *, new_name: Optional[str] = None,
+                   metadata: Optional[Dict[str, Any]] = None,
                    params: Optional[Dict[str, str]] = None,
-                   headers: Optional[Dict[str, str]] = None, timeout: int = 10,
+                   headers: Optional[Dict[str, str]] = None,
+                   timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -> Dict[str, Any]:
 
         """
@@ -175,23 +179,31 @@ class Storage:
                f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
 
         # We may optionally supply metadata* to apply to the rewritten
-        # object, which explains why `rewriteTo` is a POST endpoint; however,
-        # we don't expose that here so we have to send an empty body. Therefore
-        # the `Content-Length` and `Content-Type` indicate an empty body.
-        #
+        # object, which explains why `rewriteTo` is a POST endpoint; when no
+        # metadata is given, we have to send an empty body.
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+        metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+        if 'metadata' in metadict:
+            metadict['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict['metadata'].items()}
+
+        metadata_ = json.dumps(metadict)
+
         headers = headers or {}
         headers.update(await self._headers())
         headers.update({
-            'Content-Length': '0',
-            'Content-Type': '',
+            'Content-Length': str(len(metadata_)),
+            'Content-Type': 'application/json; charset=UTF-8',
         })
 
         params = params or {}
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=headers, params=params,
-                            timeout=timeout)
+                            timeout=timeout, data=metadata_)
 
         data: Dict[str, Any] = await resp.json(content_type=None)
 
@@ -203,7 +215,8 @@ class Storage:
 
         return data
 
-    async def delete(self, bucket: str, object_name: str, *, timeout: int = 10,
+    async def delete(self, bucket: str, object_name: str, *,
+                     timeout: int = DEFAULT_TIMEOUT,
                      params: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
                      session: Optional[Session] = None) -> str:
@@ -226,7 +239,7 @@ class Storage:
 
     async def download(self, bucket: str, object_name: str, *,
                        headers: Optional[Dict[str, Any]] = None,
-                       timeout: int = 10,
+                       timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -> bytes:
         return await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, params={'alt': 'media'},
@@ -245,7 +258,8 @@ class Storage:
     async def download_metadata(self, bucket: str, object_name: str, *,
                                 headers: Optional[Dict[str, Any]] = None,
                                 session: Optional[Session] = None,
-                                timeout: int = 10) -> Dict[str, Any]:
+                                timeout: int = DEFAULT_TIMEOUT
+                                ) -> Dict[str, Any]:
         data = await self._download(bucket, object_name, headers=headers,
                                     timeout=timeout, session=session)
         metadata: Dict[str, Any] = json.loads(data.decode())
@@ -253,7 +267,7 @@ class Storage:
 
     async def download_stream(self, bucket: str, object_name: str, *,
                               headers: Optional[Dict[str, Any]] = None,
-                              timeout: int = 10,
+                              timeout: int = DEFAULT_TIMEOUT,
                               session: Optional[Session] = None
                               ) -> StreamResponse:
         """Download a GCS object in a buffered stream.
@@ -282,7 +296,7 @@ class Storage:
                            params: Optional[Dict[str, str]] = None,
                            headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
-                           timeout: int = 10) -> Dict[str, Any]:
+                           timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
         url = f'{API_ROOT}/{bucket}/o'
         headers = headers or {}
         headers.update(await self._headers())
@@ -299,7 +313,7 @@ class Storage:
                      *, content_type: Optional[str] = None,
                      parameters: Optional[Dict[str, str]] = None,
                      headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, str]] = None,
+                     metadata: Optional[Dict[str, Any]] = None,
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -> Dict[str, Any]:
@@ -421,7 +435,7 @@ class Storage:
     async def _download(self, bucket: str, object_name: str, *,
                         params: Optional[Dict[str, str]] = None,
                         headers: Optional[Dict[str, str]] = None,
-                        timeout: int = 10,
+                        timeout: int = DEFAULT_TIMEOUT,
                         session: Optional[Session] = None) -> bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -446,7 +460,7 @@ class Storage:
     async def _download_stream(self, bucket: str, object_name: str, *,
                                params: Optional[Dict[str, str]] = None,
                                headers: Optional[Dict[str, str]] = None,
-                               timeout: int = 10,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None
                                ) -> StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
@@ -485,7 +499,7 @@ class Storage:
     async def _upload_multipart(self, url: str, object_name: str,
                                 stream: IO[AnyStr], params: Dict[str, str],
                                 headers: Dict[str, str],
-                                metadata: Dict[str, str], *,
+                                metadata: Dict[str, Any], *,
                                 session: Optional[Session] = None,
                                 timeout: int = 30) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
@@ -494,6 +508,11 @@ class Storage:
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
         metadata = {self._format_metadata_key(k): v
                     for k, v in metadata.items()}
+        if 'metadata' in metadata:
+            metadata['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadata['metadata'].items()}
+
         metadata['name'] = object_name
 
         raw_body: AnyStr = stream.read()
@@ -535,11 +554,19 @@ class Storage:
 
     async def _initiate_upload(self, url: str, object_name: str,
                                params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, str]] = None,
+                               *, metadata: Optional[Dict[str, Any]] = None,
+                               timeout: int = DEFAULT_TIMEOUT,
                                session: Optional[Session] = None) -> str:
         params['uploadType'] = 'resumable'
 
         metadict = (metadata or {}).copy()
+        metadict = {self._format_metadata_key(k): v
+                    for k, v in metadict.items()}
+        if 'metadata' in metadict:
+            metadict['metadata'] = {
+                str(k): str(v) if v is not None else None
+                for k, v in metadict['metadata'].items()}
+
         metadict.update({'name': object_name})
         metadata_ = json.dumps(metadict)
 
@@ -553,7 +580,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=10)
+                            data=metadata_, timeout=timeout)
         session_uri: str = resp.headers['Location']
         return session_uri
 
@@ -583,9 +610,10 @@ class Storage:
             *, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None,
-            timeout: int = 10) -> Dict[str, Any]:
+            timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
-        url = f'{API_ROOT}/{bucket}/o/{object_name}'
+        encoded_object_name = quote(object_name, safe='')
+        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
         params = params or {}
         headers = headers or {}
         headers.update(await self._headers())
@@ -601,7 +629,8 @@ class Storage:
                                   params: Optional[Dict[str, str]] = None,
                                   headers: Optional[Dict[str, str]] = None,
                                   session: Optional[Session] = None,
-                                  timeout: int = 10) -> Dict[str, Any]:
+                                  timeout: int = DEFAULT_TIMEOUT
+                                  ) -> Dict[str, Any]:
         url = f'{API_ROOT}/{bucket}'
         headers = headers or {}
         headers.update(await self._headers())

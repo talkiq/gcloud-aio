@@ -27,6 +27,7 @@ class BaseSession:
 
     def __init__(self, session: Optional[Session] = None, timeout: int = 10,
                  verify_ssl: bool = True) -> None:
+        self._shared_session = bool(session)
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
@@ -108,17 +109,20 @@ if not BUILD_GCLOUD_REST:
     class AioSession(BaseSession):
         @property
         def session(self) -> aiohttp.ClientSession:
-            connector = aiohttp.TCPConnector(ssl=self._ssl)
-            self._session = self._session or aiohttp.ClientSession(
-                connector=connector, timeout=self._timeout)
+            if not self._session:
+                connector = aiohttp.TCPConnector(ssl=self._ssl)
+                timeout = aiohttp.ClientTimeout(self._timeout)
+                self._session = aiohttp.ClientSession(connector=connector,
+                                                      timeout=timeout)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
                        data: Optional[str] = None, timeout: int = 10,
                        params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout, params=params)
+                                           timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -130,8 +134,9 @@ if not BUILD_GCLOUD_REST:
                 log.warning('passed unused argument stream=%s to AioSession: '
                             'this argument is only used by SyncSession',
                             stream)
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.get(url, headers=headers,
-                                          timeout=timeout, params=params)
+                                          timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
@@ -139,15 +144,17 @@ if not BUILD_GCLOUD_REST:
                         data: Optional[str] = None, timeout: int = 10,
                         params: Optional[Dict[str, str]] = None
                         ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.patch(url, data=data, headers=headers,
-                                            timeout=timeout, params=params)
+                                            timeout=timeout_, params=params)
             await _raise_for_status(resp)
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: int = 10) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout)
+                                          timeout=timeout_)
             await _raise_for_status(resp)
             return resp
 
@@ -155,8 +162,9 @@ if not BUILD_GCLOUD_REST:
                          params: Optional[Dict[str, str]] = None,
                          timeout: int = 10
                          ) -> aiohttp.ClientResponse:
+            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.delete(url, headers=headers,
-                                             params=params, timeout=timeout)
+                                             params=params, timeout=timeout_)
             await _raise_for_status(resp)
             return resp
 
@@ -170,7 +178,7 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def close(self) -> None:
-            if self._session:
+            if not self._shared_session and self._session:
                 await self._session.close()  # type: ignore[func-returns-value]
 
 
@@ -184,8 +192,9 @@ if BUILD_GCLOUD_REST:
 
         @property
         def session(self) -> Session:
-            self._session = self._session or Session()
-            self._session.verify = self._ssl
+            if not self._session:
+                self._session = Session()
+                self._session.verify = self._ssl
             return self._session
 
         # N.B.: none of these will be `async` in compiled form, but adding the
@@ -248,5 +257,5 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def close(self) -> None:
-            if self._session:
+            if not self._shared_session and self._session:
                 self._session.close()

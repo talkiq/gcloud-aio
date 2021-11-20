@@ -13,7 +13,7 @@ else:
     from aiohttp import ClientSession as Session
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_geo_point_value(creds: str, kind: str, project: str) -> None:
     key = Key(project, [PathElement(kind)])
 

@@ -195,6 +195,25 @@ variable set will query the emulator instead of the official GCS APIs.
 For easier ergonomics, you may be interested in
 `messagebird/gcloud-pubsub-emulator`_.
 
+Customization
+-------------
+
+This library mostly tries to stay agnostic of potential use-cases; as such, we
+do not implement any sort of retrying or other policies under the assumption
+that we wouldn't get things right for every user's situation.
+
+As such, we recommend configuring your own policies on an as-needed basis. The
+`backoff`_ library can make this quite straightforward! For example, you may
+find it useful to configure something like:
+
+.. code-block:: python
+
+    class SubscriberClientWithBackoff(SubscriberClient):
+        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
+                              max_tries=5, jitter=backoff.full_jitter)
+        async def pull(self, *args: Any, **kwargs: Any):
+            return await super().pull(*args, **kwargs)
+
 Contributing
 ------------
 
