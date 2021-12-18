@@ -2,7 +2,6 @@ import logging
 import threading
 from abc import ABCMeta
 from abc import abstractmethod
-from abc import abstractproperty
 from typing import Any
 from typing import Dict
 from typing import IO
@@ -32,7 +31,8 @@ class BaseSession:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def session(self) -> Optional[Session]:
         return self._session
 
