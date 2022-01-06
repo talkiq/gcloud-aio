@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@1
-  tester: talkiq/tester@3.0
+  tester: talkiq/tester@4.0
 
 jobs:
   nox:
