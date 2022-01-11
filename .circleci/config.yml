@@ -76,7 +76,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:17.3.0
+      - image: node:17.3.1
     steps:
       - checkout
       - attach_workspace:
