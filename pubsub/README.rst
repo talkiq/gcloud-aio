@@ -45,12 +45,9 @@ available in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
 
 .. code-block:: python
 
-    from gcloud.aio.pubsub import configure_prometheus
     from gcloud.aio.pubsub import SubscriberClient
     from gcloud.aio.pubsub import subscribe
     from gcloud.aio.pubsub.metrics_agent import MetricsAgent
-
-    configure_prometheus(namespace='my_dept', subsystem='my_app')
 
     subscriber_client = SubscriberClient()
 
@@ -142,10 +139,10 @@ any metrics agent that implements the same interface as ``MetricsAgent``
   in a single request.
 
 
-If you prefer pull-based metrics like Prometheus, then you can configure them
-with a ``namespace`` (ex. the name of your department at your org) and
-``subsystem`` (ex. the name of the application running the PubSub client) to
-emit metrics of the form ``<namespace>_<subsystem>_<metric>``:
+If you prefer pull-based metrics like Prometheus you will be pleased to know that
+the subscriber records Prometheus metrics of the form ``gcloud_aio_<metric>``,
+which will be ignored if you don't use Prometheus and will be automatically
+included if you do:
 
 - ``pubsub_consume`` (labels: ``outcome = {'succeeded', 'cancelled', 'failed',
   'failfast'}``) - [counter] a consume operation has completed with a given

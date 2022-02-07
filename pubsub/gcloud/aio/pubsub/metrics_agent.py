@@ -41,9 +41,4 @@ class PrometheusMetrics:
             ['component'], namespace=namespace, subsystem=subsystem)
 
 
-PROMETHEUS = PrometheusMetrics()
-
-
-def configure_prometheus(*, namespace: str = '', subsystem: str = '') -> None:
-    global PROMETHEUS  # pylint: disable=global-statement
-    PROMETHEUS = PrometheusMetrics(namespace=namespace, subsystem=subsystem)
+PROMETHEUS = PrometheusMetrics(namespace='gcloud', subsystem='aio')
