@@ -18,6 +18,7 @@ else:
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
     from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
     from gcloud.aio.pubsub.metrics_agent import MetricsAgent
+    from gcloud.aio.pubsub.metrics_agent import PROMETHEUS
 
     log = logging.getLogger(__name__)
 
@@ -125,6 +126,7 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+                PROMETHEUS.batch_fail.labels(component='acker').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -133,10 +135,13 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+                PROMETHEUS.batch_fail.labels(component='acker').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
+            PROMETHEUS.messages_processed.labels(component='acker').inc(
+                len(ack_ids))
 
             ack_ids = []
 
@@ -193,6 +198,7 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+                PROMETHEUS.batch_fail.labels(component='nacker').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -201,10 +207,13 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+                PROMETHEUS.batch_fail.labels(component='nacker').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
+            PROMETHEUS.messages_processed.labels(component='nacker').inc(
+                len(ack_ids))
 
             ack_ids = []
 
@@ -215,22 +224,27 @@ else:
                                 metrics_client: MetricsAgent
                                 ) -> None:
         try:
-            start = time.perf_counter()
-            await callback(message)
-            await ack_queue.put(message.ack_id)
-            metrics_client.increment('pubsub.consumer.succeeded')
-            metrics_client.histogram('pubsub.consumer.latency.runtime',
-                                     time.perf_counter() - start)
+            with PROMETHEUS.consume_latency.labels(aspect='runtime').time():
+                start = time.perf_counter()
+                await callback(message)
+                await ack_queue.put(message.ack_id)
+                metrics_client.increment('pubsub.consumer.succeeded')
+                metrics_client.histogram('pubsub.consumer.latency.runtime',
+                                         time.perf_counter() - start)
+                PROMETHEUS.consume.labels(outcome='succeeded').inc()
+
         except asyncio.CancelledError:
             if nack_queue:
                 await nack_queue.put(message.ack_id)
             log.warning('Application callback was cancelled')
             metrics_client.increment('pubsub.consumer.cancelled')
+            PROMETHEUS.consume.labels(outcome='cancelled').inc()
         except Exception:
             if nack_queue:
                 await nack_queue.put(message.ack_id)
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
+            PROMETHEUS.consume.labels(outcome='failed').inc()
 
     async def consumer(  # pylint: disable=too-many-locals
             message_queue: MessageQueue,
@@ -250,6 +264,7 @@ else:
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) >= ack_deadline:
                     metrics_client.increment('pubsub.consumer.failfast')
+                    PROMETHEUS.consume.labels(outcome='failfast').inc()
                     message_queue.task_done()
                     semaphore.release()
                     return
@@ -258,6 +273,8 @@ else:
                     'pubsub.consumer.latency.receive',
                     # publish_time is in UTC Zulu
                     # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                    time.time() - message.publish_time.timestamp())
+                PROMETHEUS.consume_latency.labels(aspect='receive').observe(
                     time.time() - message.publish_time.timestamp())
 
                 task = asyncio.ensure_future(_execute_callback(
@@ -310,6 +327,8 @@ else:
 
                 metrics_client.histogram(
                     'pubsub.producer.batch', len(new_messages))
+                PROMETHEUS.messages_processed.labels(component='producer').inc(
+                    len(new_messages))
 
                 pulled_at = time.perf_counter()
                 while new_messages:
