@@ -199,7 +199,8 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
-                metrics.BATCH.labels(component='nacker', outcome='failed').inc()
+                metrics.BATCH.labels(
+                    component='nacker', outcome='failed').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -208,7 +209,8 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
-                metrics.BATCH.labels(component='nacker', outcome='failed').inc()
+                metrics.BATCH.labels(
+                    component='nacker', outcome='failed').inc()
 
                 continue
 
@@ -273,11 +275,11 @@ else:
 
                 # publish_time is in UTC Zulu
                 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-                receive_latency = time.time() - message.publish_time.timestamp()
-                metrics_client.histogram('pubsub.consumer.latency.receive',
-                    receive_latency)
+                recv_latency = time.time() - message.publish_time.timestamp()
+                metrics_client.histogram(
+                    'pubsub.consumer.latency.receive', recv_latency)
                 metrics.CONSUME_LATENCY.labels(aspect='receive').observe(
-                    receive_latency)
+                    recv_latency)
 
                 task = asyncio.ensure_future(_execute_callback(
                     message,
