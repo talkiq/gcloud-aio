@@ -21,11 +21,15 @@ else:
     from gcloud.aio.pubsub.subscriber import subscribe
     from gcloud.aio.pubsub.subscriber import nacker
 
-    @pytest.fixture(scope='function')
-    def message():
+    def make_message_mock():
         mock = MagicMock()
         mock.ack_id = 'ack_id'
+        mock.publish_time.timestamp = MagicMock(return_value=time.time())
         return mock
+
+    @pytest.fixture(scope='function')
+    def message():
+        return make_message_mock()
 
     @pytest.fixture(scope='function')
     def subscriber_client(message):
@@ -371,14 +375,10 @@ else:
             mock()
             await pause.wait()
 
-        mock1 = MagicMock()
-        mock1.ack_id = 'ack_id'
-        mock2 = MagicMock()
-        mock2.ack_id = 'ack_id'
-        mock3 = MagicMock()
-        mock3.ack_id = 'ack_id'
-        mock4 = MagicMock()
-        mock4.ack_id = 'ack_id'
+        mock1 = make_message_mock()
+        mock2 = make_message_mock()
+        mock3 = make_message_mock()
+        mock4 = make_message_mock()
 
         consumer_task = asyncio.ensure_future(
             consumer(queue, callback, ack_queue, ack_deadline_cache, 2, None,
