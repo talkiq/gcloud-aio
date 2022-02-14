@@ -1,2 +1,2 @@
 gcloud-aio-auth >= 3.3.0, < 4.0.0
-prometheus-client >= 0.13.1, < 1.0.0
+prometheus-client >= 0.13.1, < 1.0.0; python_version>="3.6"
