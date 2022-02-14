@@ -226,14 +226,14 @@ else:
                                 metrics_client: MetricsAgent
                                 ) -> None:
         try:
+            start = time.perf_counter()
             with metrics.CONSUME_LATENCY.labels(aspect='runtime').time():
-                start = time.perf_counter()
                 await callback(message)
                 await ack_queue.put(message.ack_id)
-                metrics_client.increment('pubsub.consumer.succeeded')
-                metrics_client.histogram('pubsub.consumer.latency.runtime',
-                                         time.perf_counter() - start)
-                metrics.CONSUME.labels(outcome='succeeded').inc()
+            metrics_client.histogram('pubsub.consumer.latency.runtime',
+                                     time.perf_counter() - start)
+            metrics_client.increment('pubsub.consumer.succeeded')
+            metrics.CONSUME.labels(outcome='succeeded').inc()
 
         except asyncio.CancelledError:
             if nack_queue:
@@ -271,13 +271,13 @@ else:
                     semaphore.release()
                     return
 
-                metrics_client.histogram(
-                    'pubsub.consumer.latency.receive',
-                    # publish_time is in UTC Zulu
-                    # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-                    time.time() - message.publish_time.timestamp())
+                # publish_time is in UTC Zulu
+                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                receive_latency = time.time() - message.publish_time.timestamp()
+                metrics_client.histogram('pubsub.consumer.latency.receive',
+                    receive_latency)
                 metrics.CONSUME_LATENCY.labels(aspect='receive').observe(
-                    time.time() - message.publish_time.timestamp())
+                    receive_latency)
 
                 task = asyncio.ensure_future(_execute_callback(
                     message,
