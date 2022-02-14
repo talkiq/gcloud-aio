@@ -144,16 +144,18 @@ the subscriber records Prometheus metrics of the form ``gcloud_aio_<metric>``,
 which will be ignored if you don't use Prometheus and will be automatically
 included if you do:
 
-- ``pubsub_consume`` (labels: ``outcome = {'succeeded', 'cancelled', 'failed',
-  'failfast'}``) - [counter] a consume operation has completed with a given
-  outcome
-- ``pubsub_consume_latency`` (labels: ``aspect = {'receive', 'runtime'}``) -
-  [histogram] how many seconds taken to receive a message, or callback runtime
-- ``pubsub_batch_failed`` (labels: ``component = {'acker', 'nacker'}``) -
-  [counter] a batch has failed to be acked or nacked
-- ``pubsub_messages_processed`` (labels: ``component = {'acker', 'nacker',
-  'producer'}``) - [counter] the number of messages that were acked, nacked, or
-  retrieved from pubsub
+- ``pubsub_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
+  'failed', 'failfast'}``) - [counter] a consume operation has completed with a
+  given outcome
+- ``pubsub_consume_latency_seconds`` (labels: ``aspect = {'receive',
+  'runtime'}``) - [histogram] how many seconds taken to receive a message, or
+  callback runtime
+- ``pubsub_batch_total`` (labels: ``component = {'acker', 'nacker'}, outcome =
+  {'succeeded', 'failed'}``) - [counter] a batch has succeeded or failed to be
+  acked or nacked
+- ``pubsub_messages_processed_total`` (labels: ``component = {'acker',
+  'nacker', 'producer'}``) - [counter] the number of messages that were acked,
+  nacked, or retrieved from pubsub
 
 
 Publisher

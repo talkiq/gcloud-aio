@@ -22,10 +22,10 @@ CONSUME_LATENCY = prometheus_client.Histogram(
     subsystem=_SUBSYSTEM,
     unit='seconds')
 
-BATCH_FAIL = prometheus_client.Counter(
-    'subscriber_batch_failed',
-    'Counter for failures to process PubSub message batches',
-    ['component'],
+BATCH = prometheus_client.Counter(
+    'subscriber_batch',
+    'Counter for success/failure to process PubSub message batches',
+    ['component', 'outcome'],
     namespace=_NAMESPACE,
     subsystem=_SUBSYSTEM,
     unit='total')

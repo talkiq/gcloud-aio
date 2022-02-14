@@ -126,7 +126,7 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
-                metrics.BATCH_FAIL.labels(component='acker').inc()
+                metrics.BATCH.labels(component='acker', outcome='failed').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -135,11 +135,12 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
-                metrics.BATCH_FAIL.labels(component='acker').inc()
+                metrics.BATCH.labels(component='acker', outcome='failed').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
+            metrics.BATCH.labels(component='acker', outcome='succeeded').inc()
             metrics.MESSAGES_PROCESSED.labels(component='acker').inc(
                 len(ack_ids))
 
@@ -198,7 +199,7 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
-                metrics.BATCH_FAIL.labels(component='nacker').inc()
+                metrics.BATCH.labels(component='nacker', outcome='failed').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -207,11 +208,12 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
-                metrics.BATCH_FAIL.labels(component='nacker').inc()
+                metrics.BATCH.labels(component='nacker', outcome='failed').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
+            metrics.BATCH.labels(component='nacker', outcome='succeeded').inc()
             metrics.MESSAGES_PROCESSED.labels(component='nacker').inc(
                 len(ack_ids))
 
