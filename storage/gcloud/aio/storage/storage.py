@@ -111,6 +111,7 @@ class StreamResponse:
     """This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     """
+
     def __init__(self, response: Any) -> None:
         self._response = response
         self._iter: Optional[Iterator[bytes]] = None
@@ -124,6 +125,12 @@ class StreamResponse:
         else:
             chunk = await self._response.content.read(size)
         return chunk
+
+    async def __aenter__(self):
+        return await self._response.__aenter__()
+
+    async def __aexit__(self, *exc_info):
+        return await self._response.__aexit__(*exc_info)
 
 
 class Storage:
