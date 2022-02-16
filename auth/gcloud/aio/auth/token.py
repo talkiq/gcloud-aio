@@ -27,13 +27,6 @@ from .session import AioSession
 # where plumbing this error through will require several changes to otherwise-
 # good error handling.
 
-# Handle differences in exceptions
-try:
-    # TODO: Type[Exception] should work here, no?
-    CustomFileError: Any = FileNotFoundError
-except NameError:
-    CustomFileError = IOError
-
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -52,6 +45,7 @@ GCE_ENDPOINT_TOKEN = (f'{GCE_METADATA_BASE}/instance/service-accounts'
                       '/default/token?recursive=true')
 GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
+ServiceFile = Optional[Union[str, IO[AnyStr]]]
 
 
 class Type(enum.Enum):
@@ -60,8 +54,11 @@ class Type(enum.Enum):
     SERVICE_ACCOUNT = 'service_account'
 
 
-def get_service_data(
-        service: Optional[Union[str, IO[AnyStr]]]) -> Dict[str, Any]:
+def get_service_data(service: ServiceFile) -> Dict[str, Any]:
+    # if a stream passed explicitly, try to read it
+    if service and hasattr(service, 'read'):
+        return json.loads(service.read())  # type: ignore
+
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
@@ -74,26 +71,19 @@ def get_service_data(
         set_explicitly = True
 
     try:
-        try:
-            with open(service) as f:  # type: ignore[arg-type]
-                data: Dict[str, Any] = json.loads(f.read())
-                return data
-        except TypeError:
-            data = json.loads(service.read())  # type: ignore[union-attr]
+        with open(service) as f:  # type: ignore[arg-type]
+            data: Dict[str, Any] = json.loads(f.read())
             return data
-    except CustomFileError:
+    except Exception:  # pylint: disable=broad-except
         if set_explicitly:
             # only warn users if they have explicitly set the service_file path
             raise
-
-        return {}
-    except Exception:  # pylint: disable=broad-except
         return {}
 
 
 class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+    def __init__(self, service_file: ServiceFile = None,
                  session: Optional[Session] = None,
                  scopes: Optional[List[str]] = None) -> None:
         self.service_data = get_service_data(service_file)
