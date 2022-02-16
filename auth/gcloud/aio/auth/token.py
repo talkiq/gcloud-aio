@@ -6,6 +6,7 @@ import enum
 import json
 import os
 import time
+from pathlib import Path
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -45,7 +46,7 @@ GCE_ENDPOINT_TOKEN = (f'{GCE_METADATA_BASE}/instance/service-accounts'
                       '/default/token?recursive=true')
 GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
-ServiceFile = Optional[Union[str, IO[AnyStr]]]
+ServiceFile = Optional[Union[str, IO[AnyStr], Path]]
 
 
 class Type(enum.Enum):
@@ -58,25 +59,28 @@ def get_service_data(service: ServiceFile) -> Dict[str, Any]:
     # if a stream passed explicitly, try to read it
     if service and hasattr(service, 'read'):
         return json.loads(service.read())  # type: ignore
+    assert isinstance(service, (str, Path))
 
-    service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    if not service:
+        service = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    set_explicitly = bool(service)
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
-        sdkpath = (cloudsdk_config
-                   or os.path.join(os.path.expanduser('~'), '.config',
-                                   'gcloud'))
-        service = os.path.join(sdkpath, 'application_default_credentials.json')
+        sdkpath = cloudsdk_config or Path.home() / '.config' / 'gcloud'
+        service = Path(sdkpath) / 'application_default_credentials.json'
         set_explicitly = bool(cloudsdk_config)
-    else:
-        set_explicitly = True
+
+    # if passed explicitly and it's not an existing file,
+    # try to read it as a raw content
+    service_path = Path(service)
+    if set_explicitly and not service_path.exists():
+        return json.loads(service)  # type: ignore
 
     try:
-        with open(service) as f:  # type: ignore[arg-type]
-            data: Dict[str, Any] = json.loads(f.read())
-            return data
+        with service_path.open('r') as stream:
+            return json.load(stream)
     except Exception:  # pylint: disable=broad-except
         if set_explicitly:
-            # only warn users if they have explicitly set the service_file path
             raise
         return {}
 
