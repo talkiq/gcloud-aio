@@ -7,6 +7,7 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import cast
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -56,28 +57,30 @@ class Type(enum.Enum):
 
 
 def get_service_data(service: ServiceFile) -> Dict[str, Any]:
-    # if a stream passed explicitly, try to read it
-    if service and hasattr(service, 'read'):
+    # if a stream passed explicitly, read it
+    if hasattr(service, 'read'):
         return json.loads(service.read())  # type: ignore
-    assert isinstance(service, (str, Path))
+    service = cast(Union[None, str, Path], service)
 
+    set_explicitly = True
     if not service:
         service = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-    set_explicitly = bool(service)
     if not service:
-        cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
-        sdkpath = cloudsdk_config or Path.home() / '.config' / 'gcloud'
-        service = Path(sdkpath) / 'application_default_credentials.json'
-        set_explicitly = bool(cloudsdk_config)
+        service = os.environ.get('CLOUDSDK_CONFIG')
+        if not service:
+            service = Path.home() / '.config' / 'gcloud'
+            set_explicitly = False
 
-    # if passed explicitly and it's not an existing file,
-    # try to read it as a raw content
     service_path = Path(service)
-    if set_explicitly and not service_path.exists():
-        return json.loads(service)  # type: ignore
+    if service_path.is_dir():
+        service_path = service_path / 'application_default_credentials.json'
+
+    # if not an existing file, try to read as a raw content
+    if isinstance(service, str) and not service_path.exists():
+        return json.loads(service)
 
     try:
-        with service_path.open('r') as stream:
+        with service_path.open('r', encoding='utf8') as stream:
             return json.load(stream)
     except Exception:  # pylint: disable=broad-except
         if set_explicitly:
