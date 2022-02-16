@@ -56,7 +56,7 @@ class Type(enum.Enum):
     SERVICE_ACCOUNT = 'service_account'
 
 
-def get_service_data(service: ServiceFile) -> Dict[str, Any]:
+def get_service_data(service: ServiceFile) -> Dict[str, str]:
     # if a stream passed explicitly, read it
     if hasattr(service, 'read'):
         return json.loads(service.read())  # type: ignore
