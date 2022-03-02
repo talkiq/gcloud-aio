@@ -33,8 +33,8 @@ class BaseSession:
         self._timeout = timeout
 
     @abstractproperty
-    def session(self) -> Optional[Session]:
-        return self._session
+    def session(self) -> Session:
+        pass
 
     @abstractmethod
     async def post(self, url: str, headers: Dict[str, str],
@@ -114,6 +114,7 @@ if not BUILD_GCLOUD_REST:
                 timeout = aiohttp.ClientTimeout(self._timeout)
                 self._session = aiohttp.ClientSession(connector=connector,
                                                       timeout=timeout)
+            assert self._session is not None
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
@@ -195,6 +196,7 @@ if BUILD_GCLOUD_REST:
             if not self._session:
                 self._session = Session()
                 self._session.verify = self._ssl
+            assert self._session is not None
             return self._session
 
         # N.B.: none of these will be `async` in compiled form, but adding the

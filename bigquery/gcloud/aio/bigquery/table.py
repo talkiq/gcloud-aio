@@ -259,7 +259,7 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -282,7 +282,7 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -302,4 +302,4 @@ class Table(BigqueryBase):
         response = await self._post_json(url, body, session, timeout)
         job_id = response['jobReference']['jobId'] if not dry_run else None
         return Job(job_id, self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
