@@ -72,13 +72,13 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         await t.insert_via_load([gs_file],
                                 source_format=SourceFormat.DATASTORE_BACKUP)
 
-        await sleep(10)
+        await sleep(20)
 
         source_table = await t.get()
         assert int(source_table['numRows']) > 0
 
         await t.insert_via_copy(project, dataset, copy_entity_table)
-        await sleep(10)
+        await sleep(20)
         t1 = Table(dataset, copy_entity_table, project=project,
                    service_file=creds, session=s)
         copy_table = await t1.get()
