@@ -33,8 +33,8 @@ class BaseSession:
         self._timeout = timeout
 
     @abstractproperty
-    def session(self) -> Session:
-        pass
+    def session(self) -> Optional[Session]:
+        return self._session
 
     @abstractmethod
     async def post(self, url: str, headers: Dict[str, str],
