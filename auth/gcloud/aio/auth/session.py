@@ -178,7 +178,7 @@ if not BUILD_GCLOUD_REST:
 
         async def close(self) -> None:
             if not self._shared_session and self._session:
-                await self._session.close()  # type: ignore[func-returns-value]
+                await self._session.close()
 
 
 if BUILD_GCLOUD_REST:
