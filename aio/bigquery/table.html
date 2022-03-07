@@ -287,7 +287,7 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -310,7 +310,7 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -330,7 +330,7 @@ class Table(BigqueryBase):
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
         return Job(job_id, self._project,
-                   session=self.session, token=self.token)</code></pre>
+                   session=self.session.session, token=self.token)</code></pre>
 </details>
 </section>
 <section>
@@ -584,7 +584,7 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -607,7 +607,7 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session, token=self.token)
+                   session=self.session.session, token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -627,7 +627,7 @@ class Table(BigqueryBase):
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
         return Job(job_id, self._project,
-                   session=self.session, token=self.token)</code></pre>
+                   session=self.session.session, token=self.token)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -788,7 +788,7 @@ response JSON containing details on the failing rows.</p></div>
         destination_dataset, destination_table)
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session, token=self.token)</code></pre>
+               session=self.session.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.insert_via_load"><code class="name flex">
@@ -819,7 +819,7 @@ response JSON containing details on the failing rows.</p></div>
     )
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session, token=self.token)</code></pre>
+               session=self.session.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.insert_via_query"><code class="name flex">
@@ -847,7 +847,7 @@ response JSON containing details on the failing rows.</p></div>
     response = await self._post_json(url, body, session, timeout)
     job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
     return Job(job_id, self._project,
-               session=self.session, token=self.token)</code></pre>
+               session=self.session.session, token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.patch"><code class="name flex">
