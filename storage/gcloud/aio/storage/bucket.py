@@ -32,7 +32,8 @@ class Bucket:
 
     async def get_blob(self, blob_name: str, timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -> Blob:
-        metadata = await self.storage.download_metadata(self.name, blob_name, timeout=timeout,
+        metadata = await self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
