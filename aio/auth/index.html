@@ -133,7 +133,7 @@ standard Base64 are respectively replaced by - and _.</p>
 <dl>
 <dt id="gcloud.aio.auth.AioSession"><code class="flex name class">
 <span>class <span class="ident">AioSession</span></span>
-<span>(</span><span>session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10, verify_ssl: bool = True)</span>
+<span>(</span><span>session: Optional[aiohttp.client.ClientSession] = None, timeout: float = 10, verify_ssl: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -142,64 +142,60 @@ standard Base64 are respectively replaced by - and _.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AioSession(BaseSession):
+    _session: aiohttp.ClientSession
+
     @property
     def session(self) -&gt; aiohttp.ClientSession:
         if not self._session:
             connector = aiohttp.TCPConnector(ssl=self._ssl)
-            timeout = aiohttp.ClientTimeout(self._timeout)
             self._session = aiohttp.ClientSession(connector=connector,
-                                                  timeout=timeout)
+                                                  timeout=self._timeout)
         return self._session
 
     async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str] = None, timeout: int = 10,
+                   data: Optional[str] = None, timeout: Timeout = 10,
                    params: Optional[Dict[str, str]] = None
                    ) -&gt; aiohttp.ClientResponse:
-        timeout_ = aiohttp.ClientTimeout(timeout)
         resp = await self.session.post(url, data=data, headers=headers,
-                                       timeout=timeout_, params=params)
+                                       timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
     async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                  timeout: int = 10,
+                  timeout: Timeout = 10,
                   params: Optional[Dict[str, str]] = None,
                   stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
         if stream is not None:
             log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
                         &#39;this argument is only used by SyncSession&#39;,
                         stream)
-        timeout_ = aiohttp.ClientTimeout(timeout)
         resp = await self.session.get(url, headers=headers,
-                                      timeout=timeout_, params=params)
+                                      timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
     async def patch(self, url: str, headers: Dict[str, str],
-                    data: Optional[str] = None, timeout: int = 10,
+                    data: Optional[str] = None, timeout: Timeout = 10,
                     params: Optional[Dict[str, str]] = None
                     ) -&gt; aiohttp.ClientResponse:
-        timeout_ = aiohttp.ClientTimeout(timeout)
         resp = await self.session.patch(url, data=data, headers=headers,
-                                        timeout=timeout_, params=params)
+                                        timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                  timeout: int = 10) -&gt; aiohttp.ClientResponse:
-        timeout_ = aiohttp.ClientTimeout(timeout)
+                  timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
         resp = await self.session.put(url, data=data, headers=headers,
-                                      timeout=timeout_)
+                                      timeout=timeout)
         await _raise_for_status(resp)
         return resp
 
     async def delete(self, url: str, headers: Dict[str, str],
                      params: Optional[Dict[str, str]] = None,
-                     timeout: int = 10
+                     timeout: Timeout = 10
                      ) -&gt; aiohttp.ClientResponse:
-        timeout_ = aiohttp.ClientTimeout(timeout)
         resp = await self.session.delete(url, headers=headers,
-                                         params=params, timeout=timeout_)
+                                         params=params, timeout=timeout)
         await _raise_for_status(resp)
         return resp
 
@@ -214,7 +210,7 @@ standard Base64 are respectively replaced by - and _.</p>
 
     async def close(self) -&gt; None:
         if not self._shared_session and self._session:
-            await self._session.close()  # type: ignore[func-returns-value]</code></pre>
+            await self._session.close()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -233,9 +229,8 @@ standard Base64 are respectively replaced by - and _.</p>
 def session(self) -&gt; aiohttp.ClientSession:
     if not self._session:
         connector = aiohttp.TCPConnector(ssl=self._ssl)
-        timeout = aiohttp.ClientTimeout(self._timeout)
         self._session = aiohttp.ClientSession(connector=connector,
-                                              timeout=timeout)
+                                              timeout=self._timeout)
     return self._session</code></pre>
 </details>
 </dd>
@@ -253,11 +248,11 @@ def session(self) -&gt; aiohttp.ClientSession:
 </summary>
 <pre><code class="python">async def close(self) -&gt; None:
     if not self._shared_session and self._session:
-        await self._session.close()  # type: ignore[func-returns-value]</code></pre>
+        await self._session.close()</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Optional[Dict[str, str]] = None, timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Optional[Dict[str, str]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -267,17 +262,16 @@ def session(self) -&gt; aiohttp.ClientSession:
 </summary>
 <pre><code class="python">async def delete(self, url: str, headers: Dict[str, str],
                  params: Optional[Dict[str, str]] = None,
-                 timeout: int = 10
+                 timeout: Timeout = 10
                  ) -&gt; aiohttp.ClientResponse:
-    timeout_ = aiohttp.ClientTimeout(timeout)
     resp = await self.session.delete(url, headers=headers,
-                                     params=params, timeout=timeout_)
+                                     params=params, timeout=timeout)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -286,22 +280,21 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-              timeout: int = 10,
+              timeout: Timeout = 10,
               params: Optional[Dict[str, str]] = None,
               stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
     if stream is not None:
         log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
                     &#39;this argument is only used by SyncSession&#39;,
                     stream)
-    timeout_ = aiohttp.ClientTimeout(timeout)
     resp = await self.session.get(url, headers=headers,
-                                  timeout=timeout_, params=params)
+                                  timeout=timeout, params=params)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.patch"><code class="name flex">
-<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -310,18 +303,17 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def patch(self, url: str, headers: Dict[str, str],
-                data: Optional[str] = None, timeout: int = 10,
+                data: Optional[str] = None, timeout: Timeout = 10,
                 params: Optional[Dict[str, str]] = None
                 ) -&gt; aiohttp.ClientResponse:
-    timeout_ = aiohttp.ClientTimeout(timeout)
     resp = await self.session.patch(url, data=data, headers=headers,
-                                    timeout=timeout_, params=params)
+                                    timeout=timeout, params=params)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.post"><code class="name flex">
-<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: int = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -330,18 +322,17 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def post(self, url: str, headers: Dict[str, str],
-               data: Optional[str] = None, timeout: int = 10,
+               data: Optional[str] = None, timeout: Timeout = 10,
                params: Optional[Dict[str, str]] = None
                ) -&gt; aiohttp.ClientResponse:
-    timeout_ = aiohttp.ClientTimeout(timeout)
     resp = await self.session.post(url, data=data, headers=headers,
-                                   timeout=timeout_, params=params)
+                                   timeout=timeout, params=params)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.put"><code class="name flex">
-<span>async def <span class="ident">put</span></span>(<span>self, url: str, headers: Dict[str, str], data: IO[Any], timeout: int = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">put</span></span>(<span>self, url: str, headers: Dict[str, str], data: IO[Any], timeout: Union[aiohttp.client.ClientTimeout, float] = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -350,10 +341,9 @@ def session(self) -&gt; aiohttp.ClientSession:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-              timeout: int = 10) -&gt; aiohttp.ClientResponse:
-    timeout_ = aiohttp.ClientTimeout(timeout)
+              timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
     resp = await self.session.put(url, data=data, headers=headers,
-                                  timeout=timeout_)
+                                  timeout=timeout)
     await _raise_for_status(resp)
     return resp</code></pre>
 </details>
