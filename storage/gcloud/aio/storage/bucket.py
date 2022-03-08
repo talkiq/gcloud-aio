@@ -6,6 +6,7 @@ from typing import Optional
 from typing import TYPE_CHECKING
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 
 from .blob import Blob
 
@@ -29,9 +30,10 @@ class Bucket:
         self.storage = storage
         self.name = name
 
-    async def get_blob(self, blob_name: str,
+    async def get_blob(self, blob_name: str, timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -> Blob:
         metadata = await self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
