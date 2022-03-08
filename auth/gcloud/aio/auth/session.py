@@ -7,6 +7,7 @@ from typing import Any
 from typing import Dict
 from typing import IO
 from typing import Optional
+from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
 
@@ -25,7 +26,7 @@ log = logging.getLogger(__name__)
 class BaseSession:
     __metaclass__ = ABCMeta
 
-    def __init__(self, session: Optional[Session] = None, timeout: int = 10,
+    def __init__(self, session: Optional[Session] = None, timeout: float = 10,
                  verify_ssl: bool = True) -> None:
         self._shared_session = bool(session)
         self._session = session
@@ -38,30 +39,30 @@ class BaseSession:
 
     @abstractmethod
     async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str], timeout: int,
+                   data: Optional[str], timeout: float,
                    params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
     async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]],
+                  timeout: float, params: Optional[Dict[str, str]],
                   stream: bool) -> Response:
         pass
 
     @abstractmethod
     async def patch(self, url: str, headers: Dict[str, str],
-                    data: Optional[str], timeout: int,
+                    data: Optional[str], timeout: float,
                     params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                  timeout: int) -> Response:
+                  timeout: float) -> Response:
         pass
 
     @abstractmethod
     async def delete(self, url: str, headers: Dict[str, str],
-                     params: Dict[str, str], timeout: int) -> Response:
+                     params: Dict[str, str], timeout: float) -> Response:
         pass
 
     @abstractmethod
@@ -77,6 +78,8 @@ class BaseSession:
 
 if not BUILD_GCLOUD_REST:
     import aiohttp
+
+    Timeout = Union[aiohttp.ClientTimeout, float]
 
     async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
@@ -107,64 +110,60 @@ if not BUILD_GCLOUD_REST:
                                               headers=resp.headers)
 
     class AioSession(BaseSession):
+        _session: aiohttp.ClientSession
+
         @property
         def session(self) -> aiohttp.ClientSession:
             if not self._session:
                 connector = aiohttp.TCPConnector(ssl=self._ssl)
-                timeout = aiohttp.ClientTimeout(self._timeout)
                 self._session = aiohttp.ClientSession(connector=connector,
-                                                      timeout=timeout)
+                                                      timeout=self._timeout)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
+                       data: Optional[str] = None, timeout: Timeout = 10,
                        params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout_, params=params)
+                                           timeout=timeout, params=params)
             await _raise_for_status(resp)
             return resp
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                      timeout: int = 10,
+                      timeout: Timeout = 10,
                       params: Optional[Dict[str, str]] = None,
                       stream: Optional[bool] = None) -> aiohttp.ClientResponse:
             if stream is not None:
                 log.warning('passed unused argument stream=%s to AioSession: '
                             'this argument is only used by SyncSession',
                             stream)
-            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.get(url, headers=headers,
-                                          timeout=timeout_, params=params)
+                                          timeout=timeout, params=params)
             await _raise_for_status(resp)
             return resp
 
         async def patch(self, url: str, headers: Dict[str, str],
-                        data: Optional[str] = None, timeout: int = 10,
+                        data: Optional[str] = None, timeout: Timeout = 10,
                         params: Optional[Dict[str, str]] = None
                         ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.patch(url, data=data, headers=headers,
-                                            timeout=timeout_, params=params)
+                                            timeout=timeout, params=params)
             await _raise_for_status(resp)
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
+                      timeout: Timeout = 10) -> aiohttp.ClientResponse:
             resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout_)
+                                          timeout=timeout)
             await _raise_for_status(resp)
             return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Optional[Dict[str, str]] = None,
-                         timeout: int = 10
+                         timeout: Timeout = 10
                          ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
             resp = await self.session.delete(url, headers=headers,
-                                             params=params, timeout=timeout_)
+                                             params=params, timeout=timeout)
             await _raise_for_status(resp)
             return resp
 
@@ -179,7 +178,7 @@ if not BUILD_GCLOUD_REST:
 
         async def close(self) -> None:
             if not self._shared_session and self._session:
-                await self._session.close()  # type: ignore[func-returns-value]
+                await self._session.close()
 
 
 if BUILD_GCLOUD_REST:
@@ -201,7 +200,7 @@ if BUILD_GCLOUD_REST:
         # symbol ensures we match the base class's definition for static
         # analysis.
         async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
+                       data: Optional[str] = None, timeout: float = 10,
                        params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
@@ -210,7 +209,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                      timeout: int = 10,
+                      timeout: float = 10,
                       params: Optional[Dict[str, str]] = None,
                       stream: bool = False) -> Response:
             with self.google_api_lock:
@@ -220,7 +219,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def patch(self, url: str, headers: Dict[str, str],
-                        data: Optional[str] = None, timeout: int = 10,
+                        data: Optional[str] = None, timeout: float = 10,
                         params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.patch(url, data=data, headers=headers,
@@ -229,7 +228,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> Response:
+                      timeout: float = 10) -> Response:
             with self.google_api_lock:
                 resp = self.session.put(url, data=data, headers=headers,
                                         timeout=timeout)
@@ -238,7 +237,7 @@ if BUILD_GCLOUD_REST:
 
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Optional[Dict[str, str]] = None,
-                         timeout: int = 10
+                         timeout: float = 10
                          ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
