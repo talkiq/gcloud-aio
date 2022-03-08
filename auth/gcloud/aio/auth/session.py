@@ -39,30 +39,30 @@ class BaseSession:
 
     @abstractmethod
     async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str], timeout: int,
+                   data: Optional[str], timeout: float,
                    params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
     async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]],
+                  timeout: float, params: Optional[Dict[str, str]],
                   stream: bool) -> Response:
         pass
 
     @abstractmethod
     async def patch(self, url: str, headers: Dict[str, str],
-                    data: Optional[str], timeout: int,
+                    data: Optional[str], timeout: float,
                     params: Optional[Dict[str, str]]) -> Response:
         pass
 
     @abstractmethod
     async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                  timeout: int) -> Response:
+                  timeout: float) -> Response:
         pass
 
     @abstractmethod
     async def delete(self, url: str, headers: Dict[str, str],
-                     params: Dict[str, str], timeout: int) -> Response:
+                     params: Dict[str, str], timeout: float) -> Response:
         pass
 
     @abstractmethod
@@ -200,7 +200,7 @@ if BUILD_GCLOUD_REST:
         # symbol ensures we match the base class's definition for static
         # analysis.
         async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: Timeout = 10,
+                       data: Optional[str] = None, timeout: float = 10,
                        params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
@@ -209,7 +209,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                      timeout: Timeout = 10,
+                      timeout: float = 10,
                       params: Optional[Dict[str, str]] = None,
                       stream: bool = False) -> Response:
             with self.google_api_lock:
@@ -219,7 +219,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def patch(self, url: str, headers: Dict[str, str],
-                        data: Optional[str] = None, timeout: Timeout = 10,
+                        data: Optional[str] = None, timeout: float = 10,
                         params: Optional[Dict[str, str]] = None) -> Response:
             with self.google_api_lock:
                 resp = self.session.patch(url, data=data, headers=headers,
@@ -228,7 +228,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: Timeout = 10) -> Response:
+                      timeout: float = 10) -> Response:
             with self.google_api_lock:
                 resp = self.session.put(url, data=data, headers=headers,
                                         timeout=timeout)
@@ -237,7 +237,7 @@ if BUILD_GCLOUD_REST:
 
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Optional[Dict[str, str]] = None,
-                         timeout: Timeout = 10
+                         timeout: float = 10
                          ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
