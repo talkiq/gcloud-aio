@@ -384,9 +384,10 @@ with the link.</p>
         self.storage = storage
         self.name = name
 
-    async def get_blob(self, blob_name: str,
+    async def get_blob(self, blob_name: str, timeout: int = DEFAULT_TIMEOUT,
                        session: Optional[Session] = None) -&gt; Blob:
         metadata = await self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
@@ -460,7 +461,7 @@ with the link.</p>
 </details>
 </dd>
 <dt id="gcloud.aio.storage.Bucket.get_blob"><code class="name flex">
-<span>async def <span class="ident">get_blob</span></span>(<span>self, blob_name: str, session: Optional[aiohttp.client.ClientSession] = None) ‑> <a title="gcloud.aio.storage.blob.Blob" href="blob.html#gcloud.aio.storage.blob.Blob">Blob</a></span>
+<span>async def <span class="ident">get_blob</span></span>(<span>self, blob_name: str, timeout: int = 10, session: Optional[aiohttp.client.ClientSession] = None) ‑> <a title="gcloud.aio.storage.blob.Blob" href="blob.html#gcloud.aio.storage.blob.Blob">Blob</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -468,9 +469,10 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def get_blob(self, blob_name: str,
+<pre><code class="python">async def get_blob(self, blob_name: str, timeout: int = DEFAULT_TIMEOUT,
                    session: Optional[Session] = None) -&gt; Blob:
     metadata = await self.storage.download_metadata(self.name, blob_name,
+                                                    timeout=timeout,
                                                     session=session)
 
     return Blob(self, blob_name, metadata)</code></pre>

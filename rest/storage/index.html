@@ -393,9 +393,10 @@ with the link.</p>
         self.storage = storage
         self.name = name
 
-    def get_blob(self, blob_name     ,
+    def get_blob(self, blob_name     , timeout      = DEFAULT_TIMEOUT,
                        session                    = None)        :
         metadata = self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
@@ -469,7 +470,7 @@ with the link.</p>
 </details>
 </dd>
 <dt id="gcloud.rest.storage.Bucket.get_blob"><code class="name flex">
-<span>def <span class="ident">get_blob</span></span>(<span>self, blob_name, session=None)</span>
+<span>def <span class="ident">get_blob</span></span>(<span>self, blob_name, timeout=10, session=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -477,9 +478,10 @@ with the link.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_blob(self, blob_name     ,
+<pre><code class="python">def get_blob(self, blob_name     , timeout      = DEFAULT_TIMEOUT,
                    session                    = None)        :
     metadata = self.storage.download_metadata(self.name, blob_name,
+                                                    timeout=timeout,
                                                     session=session)
 
     return Blob(self, blob_name, metadata)</code></pre>

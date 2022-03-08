@@ -44,6 +44,7 @@ from typing import Optional
 from typing import TYPE_CHECKING
 
 from gcloud.rest.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.rest.storage.constants import DEFAULT_TIMEOUT
 
 from .blob import Blob
 
@@ -67,9 +68,10 @@ class Bucket(object):
         self.storage = storage
         self.name = name
 
-    def get_blob(self, blob_name     ,
+    def get_blob(self, blob_name     , timeout      = DEFAULT_TIMEOUT,
                        session                    = None)        :
         metadata = self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
@@ -140,9 +142,10 @@ class Bucket(object):
         self.storage = storage
         self.name = name
 
-    def get_blob(self, blob_name     ,
+    def get_blob(self, blob_name     , timeout      = DEFAULT_TIMEOUT,
                        session                    = None)        :
         metadata = self.storage.download_metadata(self.name, blob_name,
+                                                        timeout=timeout,
                                                         session=session)
 
         return Blob(self, blob_name, metadata)
@@ -216,7 +219,7 @@ class Bucket(object):
 </details>
 </dd>
 <dt id="gcloud.rest.storage.bucket.Bucket.get_blob"><code class="name flex">
-<span>def <span class="ident">get_blob</span></span>(<span>self, blob_name, session=None)</span>
+<span>def <span class="ident">get_blob</span></span>(<span>self, blob_name, timeout=10, session=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -224,9 +227,10 @@ class Bucket(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_blob(self, blob_name     ,
+<pre><code class="python">def get_blob(self, blob_name     , timeout      = DEFAULT_TIMEOUT,
                    session                    = None)        :
     metadata = self.storage.download_metadata(self.name, blob_name,
+                                                    timeout=timeout,
                                                     session=session)
 
     return Blob(self, blob_name, metadata)</code></pre>
