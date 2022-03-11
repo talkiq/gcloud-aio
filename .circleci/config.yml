@@ -222,24 +222,52 @@ workflows:
           requires:
             - build-rest
       - poetry/run:
-          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
+          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/unit
           matrix:
-            alias: test-unit
+            alias: test-unit-aio
             parameters:
               cwd: [auth]
               python_version: ['3.6', '3.7', '3.8', '3.9']
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/integration
+          pre-steps:
+            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
+            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-integration-aio
+            parameters:
+              cwd: [auth]
+              python_version: ['3.9']
+      - poetry/run:
+          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/unit
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          matrix:
+            alias: test-unit-rest
+            parameters:
+              cwd: [/rest/auth]
+              python_version: ['2.7', '3.4', '3.5', '3.6', '3.7', '3.8', '3.9']
+          requires:
+            - build-rest
       - poetry/run:
           name: test-integration-<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/integration
           pre-steps:
             - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
             - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - attach_workspace:
+                at: /rest
           matrix:
-            alias: test-unit
+            alias: test-integration-rest
             parameters:
-              cwd: [auth]
-              python_version: ['3.9']
+              cwd: [/rest/auth]
+              python_version: ['2.7', '3.9']
+          requires:
+            - build-rest
 
       - github:
           context: org-global

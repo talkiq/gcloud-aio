@@ -85,12 +85,42 @@ find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/(class\s\w+):/\1(object):/g'
 
 # Physically update files to remove incompatible syntax
+## dependencies
 find . -type f -path '*requirements.txt' \
     | xargs -L1 $SED -Ei 's/aiohttp/# aiohttp/g'
 find . -type f -path '*requirements.txt' \
     | xargs -L1 $SED -Ei 's/aiofiles/# aiofiles/g'
 find . -type f -path '*requirements.txt' \
     | xargs -L1 $SED -Ei 's/# requests/requests/g'
+find . -type f \
+    | grep "pyproject\.toml$" \
+    | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
+find . -type f \
+    | grep "pyproject\.toml$" \
+    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.4, < 4.0"/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^aiohttp/# aiohttp/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^aiofiles/# aiofiles/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^# requests/requests/g'
+for folder in auth; do
+    pushd $folder >/dev/null
+
+    if diff ../../$folder/pyproject.rest.toml pyproject.toml; then
+        cp poetry.rest.lock poetry.lock
+    else
+        echo "$folder/pyproject.toml changed, rebuilding rest lockfile..."
+        cp pyproject.toml ../../$folder/pyproject.rest.toml
+        poetry lock
+        cp poetry.lock ../../$folder/poetry.rest.lock
+    fi
+
+    popd >/dev/null
+done
+## others
 find . -type f \
     | grep -v "session.py" \
     | xargs -L1 $SED -Ei 's/AioSession/SyncSession/g'
@@ -108,7 +138,7 @@ find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aexit__/__exit__/g'
-# aiohttp vs requests
+## aiohttp vs requests
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/content_type=None//g'
 
