@@ -134,6 +134,15 @@ repos:
         - --ignore=E501,W503,F401,F811
 -   repo: local
     hooks:
+    -   &poetry-check
+        id: poetry-check
+        name: poetry-check-auth
+        description: 'Validate the structure of the pyproject.toml file'
+        entry: bash -c 'cd auth && poetry check'
+        language: python
+        additional_dependencies: [poetry]
+        pass_filenames: false
+        types: [toml]
     -   id: pytest-fixture-require-scope
         name: Require explicit scope for pytest fixtures
         description: 'Ensure we explicitly set pytest fixture scopes'

@@ -2,7 +2,8 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@1
-  tester: talkiq/tester@4.0
+  poetry: talkiq/poetry@2
+  tester: talkiq/tester@4
 
 jobs:
   nox:
@@ -241,7 +242,7 @@ workflows:
           matrix:
             alias: pipcheck
             parameters:
-              install_args: [auth/, bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
+              install_args: [bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
 
       # build docs
       - docs:
@@ -266,7 +267,7 @@ workflows:
           matrix:
             alias: test
             parameters:
-              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
+              folder: [bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
@@ -275,12 +276,31 @@ workflows:
           matrix:
             alias: test-rest
             parameters:
-              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
+              folder: [bigquery, datastore, kms, pubsub, storage, taskqueue]
           filters:
             tags:
               only: /.*/
           requires:
             - build-rest
+      - poetry/run:
+          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/unit
+          matrix:
+            alias: test-unit
+            parameters:
+              cwd: [auth]
+              python_version: ['3.6', '3.7', '3.8', '3.9']
+      - poetry/run:
+          name: test-integration-<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/integration
+          pre-steps:
+            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
+            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-unit
+            parameters:
+              cwd: [auth]
+              python_version: ['3.9']
 
       - github:
           context: org-global
@@ -321,5 +341,20 @@ workflows:
               ignore: /.*/
             tags:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+          requires:
+            - hold
+      - poetry/publish:
+          context: org-global
+          name: deploy-<<matrix.cwd>>
+          password: $TWINE_PASSWORD
+          username: $TWINE_USERNAME
+          matrix:
+            parameters:
+              cwd: [auth]
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /<<matrix.cwd>>-.*/
           requires:
             - hold
