@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+rm -rf ./build
+mkdir ./build
+for folder in auth bigquery datastore kms pubsub storage taskqueue; do
+    cp -r $folder ./build
+done
+pushd ./build >/dev/null
+trap "popd >/dev/null" EXIT
+
 
 # Remove caches and config directories
 find . -exec dirname {} \; \
