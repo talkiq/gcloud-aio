@@ -17,6 +17,11 @@ from typing import Tuple
 from typing import Union
 from urllib.parse import quote
 
+try:
+    from cString import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
+
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -534,7 +539,7 @@ class Storage:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=body, headers=headers, params=params,
+        resp = await s.post(url, data=BytesIO(body), headers=headers, params=params,
                             timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
