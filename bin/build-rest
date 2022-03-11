@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    SED=gsed
+else
+    SED=sed
+fi
+
+
 rm -rf ./build
 mkdir ./build
 for folder in auth bigquery datastore kms pubsub storage taskqueue; do
@@ -16,7 +23,7 @@ find . -exec dirname {} \; \
 
 # Rename files and paths to `rest` and make strings py2 compatible
 find . -path '*aio*' -exec dirname {} \; \
-    | sed 's/aio/rest/g' \
+    | $SED 's/aio/rest/g' \
     | xargs -L1 mkdir -p
 for file in $(find . -type f -path '*aio*'); do
     mv $file ${file//aio/rest}
@@ -54,13 +61,13 @@ find . -type f -path '*aio*' \
 
 # Replace build metadata
 find . -type f \
-    | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
+    | xargs -L1 $SED -Ei 's/gcloud(.)aio/gcloud\1rest/g'
 find . -type f \
     | grep "setup\.py$" \
-    | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
+    | xargs -L1 $SED -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
 find . -type f \
     | grep "setup\.py$" \
-    | xargs -L1 sed -Ei "s/classifiers=\[/classifiers=\['Programming Language :: Python :: 2','Programming Language :: Python :: 2.7','Programming Language :: Python :: 3.4','Programming Language :: Python :: 3.5',/g"
+    | xargs -L1 $SED -Ei "s/classifiers=\[/classifiers=\['Programming Language :: Python :: 2','Programming Language :: Python :: 2.7','Programming Language :: Python :: 3.4','Programming Language :: Python :: 3.5',/g"
 
 # Backport other things like type hints, exception handling, etc.
 find . -type f -path '*py' \
@@ -68,51 +75,51 @@ find . -type f -path '*py' \
     | xargs -L1 pasteurize --nobackups --write
 # Delete imports that will be reintroduced later
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei '/import warnings/d'
+    | xargs -L1 $SED -Ei '/import warnings/d'
 # https://github.com/PythonCharmers/python-future/issues/551
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
+    | xargs -L1 $SED -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
 
 # Add object class inheritence where needed for python2
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
+    | xargs -L1 $SED -Ei 's/(class\s\w+):/\1(object):/g'
 
 # Physically update files to remove incompatible syntax
 find . -type f -path '*requirements.txt' \
-    | xargs -L1 sed -Ei 's/aiohttp/# aiohttp/g'
+    | xargs -L1 $SED -Ei 's/aiohttp/# aiohttp/g'
 find . -type f -path '*requirements.txt' \
-    | xargs -L1 sed -Ei 's/aiofiles/# aiofiles/g'
+    | xargs -L1 $SED -Ei 's/aiofiles/# aiofiles/g'
 find . -type f -path '*requirements.txt' \
-    | xargs -L1 sed -Ei 's/# requests/requests/g'
+    | xargs -L1 $SED -Ei 's/# requests/requests/g'
 find . -type f \
     | grep -v "session.py" \
-    | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
+    | xargs -L1 $SED -Ei 's/AioSession/SyncSession/g'
 find . -type f \
-    | xargs -L1 sed -Ei 's/asyncio.ensure_future(.*)/\1/g'
+    | xargs -L1 $SED -Ei 's/asyncio.ensure_future(.*)/\1/g'
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/(async|await) //g'
+    | xargs -L1 $SED -Ei 's/(async|await) //g'
 find . -type f -path '*tests/*' \
-    | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
+    | xargs -L1 $SED -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 find . -type f -path '*tests/*' \
-    | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
+    | xargs -L1 $SED -Ei 's/Session\(.*\)\sas/Session() as/g'
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/urllib/six.moves.urllib/g'
+    | xargs -L1 $SED -Ei 's/urllib/six.moves.urllib/g'
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
+    | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
+    | xargs -L1 $SED -Ei 's/__aexit__/__exit__/g'
 # aiohttp vs requests
 find . -type f -path '*py' \
-    | xargs -L1 sed -Ei 's/content_type=None//g'
+    | xargs -L1 $SED -Ei 's/content_type=None//g'
 
 # Update the nox files
 find . -type f -path '*noxfile.py' \
-    | xargs -L1 sed -Ei "s/'aiohttp',//g"
+    | xargs -L1 $SED -Ei "s/'aiohttp',//g"
 find . -type f -path '*noxfile.py' \
-    | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
+    | xargs -L1 $SED -Ei "s/,\s*'pytest-asyncio'//g"
 ## unit tests
 find . -type f -path '*noxfile.py' \
-    | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
+    | xargs -L1 $SED -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
 ## integration tests
 find . -type f -path '*noxfile.py' \
-    | xargs -L1 sed -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
+    | xargs -L1 $SED -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
