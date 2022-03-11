@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# Remove caches and config directories
+find . -exec dirname {} \; \
+    | sort -u \
+    | grep -E '/\..*' \
+    | xargs -L1 rm -rf
+
+# Rename files and paths to `rest` and make strings py2 compatible
+find . -path '*aio*' -exec dirname {} \; \
+    | sed 's/aio/rest/g' \
+    | xargs -L1 mkdir -p
+for file in $(find . -type f -path '*aio*'); do
+    mv $file ${file//aio/rest}
+done
+
+# For some files with conflicts due to unicode encoding in py2, do not use
+# the automated string conversion tools
+for file in $(find . -type f -path '*py' \
+              | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" \
+              | sort -u); do
+    new_file=${file//aio/rest}
+    temp_file="${new_file}.bkp"
+    cp $file $temp_file
+    strip-hints $temp_file > "${temp_file}.tmp"
+    mv "${temp_file}.tmp" $new_file
+    rm $temp_file
+    echo "Skipped formatting ${new_file}"
+done
+for file in $(find . -type f -path '*py' \
+              | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" \
+              | sort -u); do
+    new_file=${file//aio/rest}
+    temp_file="${new_file}.bkp"
+    future-fstrings-show $file > $temp_file
+    strip-hints $temp_file > "${temp_file}.tmp"
+    mv "${temp_file}.tmp" $new_file
+    rm $temp_file
+    echo "Formatting ${new_file}"
+done
+
+# Remove the files with `aio` in file names (we moved all required files
+# already)
+find . -type f -path '*aio*' \
+    | xargs -L1 rm -rf
+
+# Replace build metadata
+find . -type f \
+    | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
+find . -type f \
+    | grep "setup\.py$" \
+    | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
+find . -type f \
+    | grep "setup\.py$" \
+    | xargs -L1 sed -Ei "s/classifiers=\[/classifiers=\['Programming Language :: Python :: 2','Programming Language :: Python :: 2.7','Programming Language :: Python :: 3.4','Programming Language :: Python :: 3.5',/g"
+
+# Backport other things like type hints, exception handling, etc.
+find . -type f -path '*py' \
+    | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" \
+    | xargs -L1 pasteurize --nobackups --write
+# Delete imports that will be reintroduced later
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei '/import warnings/d'
+# https://github.com/PythonCharmers/python-future/issues/551
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
+
+# Add object class inheritence where needed for python2
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
+
+# Physically update files to remove incompatible syntax
+find . -type f -path '*requirements.txt' \
+    | xargs -L1 sed -Ei 's/aiohttp/# aiohttp/g'
+find . -type f -path '*requirements.txt' \
+    | xargs -L1 sed -Ei 's/aiofiles/# aiofiles/g'
+find . -type f -path '*requirements.txt' \
+    | xargs -L1 sed -Ei 's/# requests/requests/g'
+find . -type f \
+    | grep -v "session.py" \
+    | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
+find . -type f \
+    | xargs -L1 sed -Ei 's/asyncio.ensure_future(.*)/\1/g'
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/(async|await) //g'
+find . -type f -path '*tests/*' \
+    | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
+find . -type f -path '*tests/*' \
+    | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/urllib/six.moves.urllib/g'
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
+# aiohttp vs requests
+find . -type f -path '*py' \
+    | xargs -L1 sed -Ei 's/content_type=None//g'
+
+# Update the nox files
+find . -type f -path '*noxfile.py' \
+    | xargs -L1 sed -Ei "s/'aiohttp',//g"
+find . -type f -path '*noxfile.py' \
+    | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
+## unit tests
+find . -type f -path '*noxfile.py' \
+    | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
+## integration tests
+find . -type f -path '*noxfile.py' \
+    | xargs -L1 sed -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
