@@ -226,10 +226,13 @@ else:
                                 callback: ApplicationHandler,
                                 ack_queue: 'asyncio.Queue[str]',
                                 nack_queue: 'Optional[asyncio.Queue[str]]',
+                                insertion_time: float,
                                 metrics_client: MetricsAgent
                                 ) -> None:
         try:
             start = time.perf_counter()
+            metrics.CONSUME_LATENCY.labels(aspect='queueing').observe(
+                start - insertion_time)
             with metrics.CONSUME_LATENCY.labels(aspect='runtime').time():
                 await callback(message)
                 await ack_queue.put(message.ack_id)
@@ -287,6 +290,7 @@ else:
                     callback,
                     ack_queue,
                     nack_queue,
+                    time.perf_counter(),
                     metrics_client,
                 ))
                 task.add_done_callback(lambda _f: semaphore.release())

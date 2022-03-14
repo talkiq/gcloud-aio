@@ -122,8 +122,8 @@ which will have no effect if you don't use Prometheus to scrape app metrics:
   'failed', 'failfast'}``) - [counter] a consume operation has completed with a
   given outcome
 - ``pubsub_consume_latency_seconds`` (labels: ``aspect = {'receive',
-  'runtime'}``) - [histogram] how many seconds taken to receive a message, or
-  callback runtime
+  'queueing', 'runtime'}``) - [histogram] how many seconds taken to receive a
+  message, while waiting for processing, or to complete the callback
 - ``pubsub_batch_total`` (labels: ``component = {'acker', 'nacker'}, outcome =
   {'succeeded', 'failed'}``) - [counter] a batch has succeeded or failed to be
   acked or nacked
