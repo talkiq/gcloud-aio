@@ -144,6 +144,9 @@ repos:
         pass_filenames: false
         types: [toml]
     -   <<: *poetry-check
+        name: poetry-check-bigquery
+        entry: bash -c 'cd bigquery && poetry check'
+    -   <<: *poetry-check
         name: poetry-check-datastore
         entry: bash -c 'cd datastore && poetry check'
     -   <<: *poetry-check

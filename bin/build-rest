@@ -106,7 +106,7 @@ find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^# requests/requests/g'
-for folder in auth datastore storage; do
+for folder in auth bigquery datastore storage; do
     pushd $folder >/dev/null
 
     if diff ../../$folder/pyproject.rest.toml pyproject.toml; then
