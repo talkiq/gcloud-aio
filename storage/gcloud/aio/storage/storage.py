@@ -539,8 +539,8 @@ class Storage:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=BytesIO(body), headers=headers, params=params,
-                            timeout=timeout)
+        resp = await s.post(url, data=BytesIO(body), headers=headers,
+                            params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
