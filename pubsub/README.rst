@@ -47,7 +47,6 @@ available in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
 
     from gcloud.aio.pubsub import SubscriberClient
     from gcloud.aio.pubsub import subscribe
-    from gcloud.aio.pubsub.metrics_agent import MetricsAgent
 
     subscriber_client = SubscriberClient()
 
@@ -64,7 +63,6 @@ available in ``gcloud-aio-pubsub`` package. The usage is fairly simple:
         num_tasks_per_consumer=1,
         enable_nack=True,
         nack_window=0.3,
-        metrics_client=MetricsAgent()
     )
 
 While defaults are somewhat sensible, it is highly recommended to performance
@@ -113,9 +111,34 @@ Here's a few hints:
     same as ``ack_window`` but for nack requests
 
 
-``subscribe`` has also an optional ``metrics_client`` argument. You can provide
-any metrics agent that implements the same interface as ``MetricsAgent``
-(Datadog client will do ;) ) and get the following metrics:
+Prometheus Metrics
+^^^^^^^^^^^^^^^^^^
+
+If you like pull-based metrics like Prometheus you will be pleased to know that
+the subscriber records Prometheus metrics in the form ``gcloud_aio_<metric>``,
+which will have no effect if you don't use Prometheus to scrape app metrics:
+
+- ``pubsub_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
+  'failed', 'failfast'}``) - [counter] a consume operation has completed with a
+  given outcome
+- ``pubsub_consume_latency_seconds`` (labels: ``aspect = {'receive',
+  'runtime'}``) - [histogram] how many seconds taken to receive a message, or
+  callback runtime
+- ``pubsub_batch_total`` (labels: ``component = {'acker', 'nacker'}, outcome =
+  {'succeeded', 'failed'}``) - [counter] a batch has succeeded or failed to be
+  acked or nacked
+- ``pubsub_messages_processed_total`` (labels: ``component = {'acker',
+  'nacker', 'producer'}``) - [counter] the number of messages that were acked,
+  nacked, or retrieved from pubsub
+
+
+Metrics Agent (Deprecated)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``subscribe`` has also an optional ``metrics_client`` argument which will be
+removed in a future release. You can provide any metrics agent that implements
+the same interface as ``MetricsAgent`` (Datadog client will do ;) ) and get the
+following metrics:
 
 - ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from
   pubsub.
@@ -137,25 +160,6 @@ any metrics agent that implements the same interface as ``MetricsAgent``
 
 - ``pubsub.acker.batch`` - [histogram] actual number of messages that was acked
   in a single request.
-
-
-If you prefer pull-based metrics like Prometheus you will be pleased to know that
-the subscriber records Prometheus metrics of the form ``gcloud_aio_<metric>``,
-which will be ignored if you don't use Prometheus and will be automatically
-included if you do:
-
-- ``pubsub_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
-  'failed', 'failfast'}``) - [counter] a consume operation has completed with a
-  given outcome
-- ``pubsub_consume_latency_seconds`` (labels: ``aspect = {'receive',
-  'runtime'}``) - [histogram] how many seconds taken to receive a message, or
-  callback runtime
-- ``pubsub_batch_total`` (labels: ``component = {'acker', 'nacker'}, outcome =
-  {'succeeded', 'failed'}``) - [counter] a batch has succeeded or failed to be
-  acked or nacked
-- ``pubsub_messages_processed_total`` (labels: ``component = {'acker',
-  'nacker', 'producer'}``) - [counter] the number of messages that were acked,
-  nacked, or retrieved from pubsub
 
 
 Publisher

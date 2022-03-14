@@ -7,6 +7,7 @@ else:
     import asyncio
     import logging
     import time
+    import warnings
     from typing import Awaitable
     from typing import Callable
     from typing import List
@@ -378,6 +379,11 @@ else:
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
+
+        if metrics_client is not None:
+            warnings.warn('Using MetricsAgent in subscribe() is deprecated. '
+                          'Refer to Prometheus metrics instead.',
+                          DeprecationWarning)
         metrics_client = metrics_client or MetricsAgent()
         acker_tasks = []
         consumer_tasks = []
