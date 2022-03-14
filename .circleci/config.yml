@@ -42,6 +42,31 @@ jobs:
           command: poetry run <<parameters.cmd>>
           working_directory: <<parameters.cwd>>
 
+  # inspired by poetry/publish, the addition of `basedir` is meant to support
+  # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
+  # path which breaks the tag filter.
+  poetry-publish-workspace:
+    docker:
+      - image: python:3.9
+    resource_class: small
+    parameters:
+      basedir:
+        enum: [/rest, /root/project]
+        type: enum
+      cwd:
+        type: string
+    steps:
+      - poetry/install
+      - checkout
+      - attach_workspace:
+          at: /rest
+      - run:
+          command: poetry build
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
+      - run:
+          command: poetry publish -r pypi -u $TWINE_USERNAME -p $TWINE_PASSWORD
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
+
   nox:
     docker:
       - image: thekevjames/nox:2021.10.1
@@ -217,7 +242,7 @@ workflows:
           matrix:
             alias: pipcheck
             parameters:
-              install_args: [bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
+              install_args: [bigquery/, datastore/, kms/, pubsub/, taskqueue/]
 
       # build docs
       - docs:
@@ -243,7 +268,7 @@ workflows:
           matrix:
             alias: test
             parameters:
-              folder: [bigquery, datastore, kms, pubsub, storage, taskqueue]
+              folder: [bigquery, datastore, kms, pubsub, taskqueue]
           filters:
             tags:
               only: /.*/
@@ -252,7 +277,7 @@ workflows:
           matrix:
             alias: test-rest
             parameters:
-              folder: [bigquery, datastore, kms, pubsub, storage, taskqueue]
+              folder: [bigquery, datastore, kms, pubsub, taskqueue]
           filters:
             tags:
               only: /.*/
@@ -264,7 +289,7 @@ workflows:
           matrix:
             alias: test-unit-aio
             parameters:
-              cwd: [auth]
+              cwd: [auth, storage]
               python_version: ['3.6', '3.7', '3.8', '3.9']
       - poetry/run:
           name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
@@ -275,7 +300,7 @@ workflows:
           matrix:
             alias: test-integration-aio
             parameters:
-              cwd: [auth]
+              cwd: [auth, storage]
               python_version: ['3.9']
       - poetry-run-deprecated-pythons:
           name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
@@ -286,7 +311,7 @@ workflows:
           matrix:
             alias: test-unit-rest
             parameters:
-              cwd: [/rest/auth]
+              cwd: [/rest/auth, /rest/storage]
               python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
           requires:
             - build-rest
@@ -301,7 +326,7 @@ workflows:
           matrix:
             alias: test-integration-rest
             parameters:
-              cwd: [/rest/auth]
+              cwd: [/rest/auth, /rest/storage]
               python_version: ['2.7', '3.9']
           requires:
             - build-rest
@@ -347,14 +372,13 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - hold
-      - poetry/publish:
+      - poetry-publish-workspace:
           context: org-global
-          name: deploy-<<matrix.cwd>>
-          password: $TWINE_PASSWORD
-          username: $TWINE_USERNAME
+          name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
           matrix:
             parameters:
-              cwd: [auth]
+              cwd: [auth, storage]
+              basedir: [/rest, /root/project]
           filters:
             branches:
               ignore: /.*/

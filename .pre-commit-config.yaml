@@ -143,6 +143,9 @@ repos:
         additional_dependencies: [poetry]
         pass_filenames: false
         types: [toml]
+    -   <<: *poetry-check
+        name: poetry-check-storage
+        entry: bash -c 'cd storage && poetry check'
     -   id: pytest-fixture-require-scope
         name: Require explicit scope for pytest fixtures
         description: 'Ensure we explicitly set pytest fixture scopes'
