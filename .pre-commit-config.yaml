@@ -144,6 +144,9 @@ repos:
         pass_filenames: false
         types: [toml]
     -   <<: *poetry-check
+        name: poetry-check-datastore
+        entry: bash -c 'cd datastore && poetry check'
+    -   <<: *poetry-check
         name: poetry-check-storage
         entry: bash -c 'cd storage && poetry check'
     -   id: pytest-fixture-require-scope
