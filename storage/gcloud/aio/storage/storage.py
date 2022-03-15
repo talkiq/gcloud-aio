@@ -263,8 +263,8 @@ class Storage:
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -> None:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode='wb+',
+                filename,
+                mode='wb+',
         ) as file_object:
             await file_object.write(
                 await self.download(bucket, object_name, **kwargs)
@@ -378,8 +378,8 @@ class Storage:
                                    filename: str,
                                    **kwargs: Any) -> Dict[str, Any]:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode='rb',
+                filename,
+                mode='rb',
         ) as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents,
@@ -612,17 +612,26 @@ class Storage:
                          timeout: int = 30) -> Dict[str, Any]:
         s = AioSession(session) if session else self.session
 
-        for tries in range(retries):
-            try:
-                resp = await s.put(session_uri, headers=headers,
-                                   data=stream, timeout=timeout)
-            except ResponseError:
-                headers.update({'Content-Range': '*/*'})
-                await sleep(2. ** tries)  # type: ignore[func-returns-value]
+        original_close = stream.close
+        original_position = stream.tell()
+        # Prevent the stream being closed if put operation fails
+        stream.close = lambda: None  # type: ignore[assignment]
+        try:
+            for tries in range(retries):
+                try:
+                    resp = await s.put(session_uri, headers=headers,
+                                       data=stream, timeout=timeout)
+                except ResponseError:
+                    headers.update({'Content-Range': '*/*'})
+                    stream.seek(original_position)
 
-                continue
-
-            break
+                    await sleep(  # type: ignore[func-returns-value]
+                        2. ** tries
+                    )
+                else:
+                    break
+        finally:
+            original_close()
 
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
