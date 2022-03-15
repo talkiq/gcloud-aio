@@ -158,6 +158,9 @@ repos:
     -   <<: *poetry-check
         name: poetry-check-storage
         entry: bash -c 'cd storage && poetry check'
+    -   <<: *poetry-check
+        name: poetry-check-taskqueue
+        entry: bash -c 'cd taskqueue && poetry check'
     -   id: pytest-fixture-require-scope
         name: Require explicit scope for pytest fixtures
         description: 'Ensure we explicitly set pytest fixture scopes'

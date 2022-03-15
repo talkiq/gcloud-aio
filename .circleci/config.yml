@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   linter: talkiq/linter@1
   poetry: talkiq/poetry@2.4
-  tester: talkiq/tester@4
 
 jobs:
   # modifies poetry/run to support deprecated python versions. Changes from
@@ -67,37 +66,6 @@ jobs:
           command: poetry publish -r pypi -u $TWINE_USERNAME -p $TWINE_PASSWORD
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
-  nox:
-    docker:
-      - image: thekevjames/nox:2021.10.1
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /key.json
-    parameters:
-      folder:
-        type: string
-    steps:
-      - run: |
-          apt-get -qy update
-          apt-get -qy install libssl-dev
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-      - checkout
-      - run: nox -f <<parameters.folder>>/noxfile.py
-
-  nox-rest:
-    docker:
-      - image: thekevjames/nox:2021.10.1
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /key.json
-    parameters:
-      folder:
-        type: string
-    steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
-      - attach_workspace:
-          at: rest
-      - run: python3 -m pip install future==0.18.2
-      - run: nox -f rest/<<parameters.folder>>/noxfile.py
-
   docs:
     docker:
       - image: python:3.9.9
@@ -153,33 +121,6 @@ jobs:
           fingerprints:
             - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
       - run: gh-pages --message "[skip ci] updated docs" --dist docs/gcloud
-
-  pypi:
-    docker:
-      - image: python:3.9.9-slim
-    steps:
-      - run: pip install pyopenssl==19.0.0 twine==1.14.0
-      - checkout
-      - deploy:
-          name: upload to pypi
-          command: |
-            cd "${CIRCLE_TAG%-*}"
-            python setup.py sdist bdist_wheel
-            twine upload dist/*
-
-  pypi-rest:
-    docker:
-      - image: python:3.9.9-slim
-    steps:
-      - run: pip install future==0.18.2 pyopenssl==19.0.0 twine==1.14.0
-      - attach_workspace:
-          at: rest
-      - deploy:
-          name: upload to pypi
-          command: |
-            cd "rest/${CIRCLE_TAG%-*}"
-            python setup.py sdist bdist_wheel
-            twine upload dist/*
 
   github:
     docker:
@@ -237,13 +178,6 @@ workflows:
             tags:
               only: /.*/
 
-      - tester/pipcheck:
-          python_version: 3.9.0
-          matrix:
-            alias: pipcheck
-            parameters:
-              install_args: [taskqueue/]
-
       # build docs
       - docs:
           filters:
@@ -263,33 +197,13 @@ workflows:
             - docs
 
       # run tests
-      - nox:
-          name: test-<<matrix.folder>>
-          matrix:
-            alias: test
-            parameters:
-              folder: [taskqueue]
-          filters:
-            tags:
-              only: /.*/
-      - nox-rest:
-          name: test-rest-<<matrix.folder>>
-          matrix:
-            alias: test-rest
-            parameters:
-              folder: [taskqueue]
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
       - poetry/run:
           name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/unit
           matrix:
             alias: test-unit-aio
             parameters:
-              cwd: [auth, bigquery, datastore, kms, pubsub, storage]
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
               python_version: ['3.6', '3.7', '3.8', '3.9']
       - poetry/run:
           name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
@@ -300,7 +214,7 @@ workflows:
           matrix:
             alias: test-integration-aio
             parameters:
-              cwd: [auth, bigquery, datastore, pubsub, storage]
+              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
               python_version: ['3.9']
       - poetry-run-deprecated-pythons:
           name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
@@ -311,7 +225,7 @@ workflows:
           matrix:
             alias: test-unit-rest
             parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage]
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
               python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
           requires:
             - build-rest
@@ -326,7 +240,7 @@ workflows:
           matrix:
             alias: test-integration-rest
             parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage]
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
               python_version: ['2.7', '3.9']
           requires:
             - build-rest
@@ -340,9 +254,10 @@ workflows:
               only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
           requires:
             - linter/pre-commit
-            - pipcheck
-            - test
-            - test-rest
+            - test-unit-aio
+            - test-integration-aio
+            - test-unit-rest
+            - test-integration-rest
 
       - hold:
           type: approval
@@ -354,30 +269,12 @@ workflows:
           requires:
            - github
 
-      - pypi:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-          requires:
-            - hold
-      - pypi-rest:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-          requires:
-            - hold
       - poetry-publish-workspace:
           context: org-global
           name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
           matrix:
             parameters:
-              cwd: [auth, bigquery, datastore, kms, pubsub, storage]
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
               basedir: [/rest, /root/project]
           filters:
             branches:
