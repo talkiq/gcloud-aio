@@ -242,7 +242,7 @@ workflows:
           matrix:
             alias: pipcheck
             parameters:
-              install_args: [pubsub/, taskqueue/]
+              install_args: [taskqueue/]
 
       # build docs
       - docs:
@@ -268,7 +268,7 @@ workflows:
           matrix:
             alias: test
             parameters:
-              folder: [pubsub, taskqueue]
+              folder: [taskqueue]
           filters:
             tags:
               only: /.*/
@@ -277,7 +277,7 @@ workflows:
           matrix:
             alias: test-rest
             parameters:
-              folder: [pubsub, taskqueue]
+              folder: [taskqueue]
           filters:
             tags:
               only: /.*/
@@ -289,7 +289,7 @@ workflows:
           matrix:
             alias: test-unit-aio
             parameters:
-              cwd: [auth, bigquery, datastore, kms, storage]
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage]
               python_version: ['3.6', '3.7', '3.8', '3.9']
       - poetry/run:
           name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
@@ -300,7 +300,7 @@ workflows:
           matrix:
             alias: test-integration-aio
             parameters:
-              cwd: [auth, bigquery, datastore, storage]
+              cwd: [auth, bigquery, datastore, pubsub, storage]
               python_version: ['3.9']
       - poetry-run-deprecated-pythons:
           name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
@@ -311,7 +311,7 @@ workflows:
           matrix:
             alias: test-unit-rest
             parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/storage]
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage]
               python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
           requires:
             - build-rest
@@ -326,7 +326,7 @@ workflows:
           matrix:
             alias: test-integration-rest
             parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/storage]
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage]
               python_version: ['2.7', '3.9']
           requires:
             - build-rest
@@ -377,7 +377,7 @@ workflows:
           name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
           matrix:
             parameters:
-              cwd: [auth, bigquery, datastore, kms, storage]
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage]
               basedir: [/rest, /root/project]
           filters:
             branches:

@@ -153,6 +153,9 @@ repos:
         name: poetry-check-kms
         entry: bash -c 'cd kms && poetry check'
     -   <<: *poetry-check
+        name: poetry-check-pubsub
+        entry: bash -c 'cd pubsub && poetry check'
+    -   <<: *poetry-check
         name: poetry-check-storage
         entry: bash -c 'cd storage && poetry check'
     -   id: pytest-fixture-require-scope
