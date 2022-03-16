@@ -62,12 +62,6 @@ find . -type f -path '*aio*' \
 # Replace build metadata
 find . -type f \
     | xargs -L1 $SED -Ei 's/gcloud(.)aio/gcloud\1rest/g'
-find . -type f \
-    | grep "setup\.py$" \
-    | xargs -L1 $SED -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
-find . -type f \
-    | grep "setup\.py$" \
-    | xargs -L1 $SED -Ei "s/classifiers=\[/classifiers=\['Programming Language :: Python :: 2','Programming Language :: Python :: 2.7','Programming Language :: Python :: 3.4','Programming Language :: Python :: 3.5',/g"
 
 # Backport other things like type hints, exception handling, etc.
 find . -type f -path '*py' \
@@ -86,12 +80,6 @@ find . -type f -path '*py' \
 
 # Physically update files to remove incompatible syntax
 ## dependencies
-find . -type f -path '*requirements.txt' \
-    | xargs -L1 $SED -Ei 's/aiohttp/# aiohttp/g'
-find . -type f -path '*requirements.txt' \
-    | xargs -L1 $SED -Ei 's/aiofiles/# aiofiles/g'
-find . -type f -path '*requirements.txt' \
-    | xargs -L1 $SED -Ei 's/# requests/requests/g'
 find . -type f \
     | grep "pyproject\.toml$" \
     | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
@@ -141,15 +129,3 @@ find . -type f -path '*py' \
 ## aiohttp vs requests
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/content_type=None//g'
-
-# Update the nox files
-find . -type f -path '*noxfile.py' \
-    | xargs -L1 $SED -Ei "s/'aiohttp',//g"
-find . -type f -path '*noxfile.py' \
-    | xargs -L1 $SED -Ei "s/,\s*'pytest-asyncio'//g"
-## unit tests
-find . -type f -path '*noxfile.py' \
-    | xargs -L1 $SED -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
-## integration tests
-find . -type f -path '*noxfile.py' \
-    | xargs -L1 $SED -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
