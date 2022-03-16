@@ -4,6 +4,31 @@ orbs:
   linter: talkiq/linter@1
   poetry: talkiq/poetry@2.4
 
+commands:
+  store-rest:
+    description: >
+      Stores the files created by `bin/build-rest` for use in subsequent jobs.
+      Also uploads the artifacts to CircleCI for manual debugging.
+    steps:
+      - persist_to_workspace:
+          root: ./build
+          paths:
+          - ./*
+      - run:
+          name: build gcloud-rest tarballs
+          command: |
+            mkdir rest
+            tar cf rest/auth.tgz auth
+            tar cf rest/bigquery.tgz bigquery
+            tar cf rest/datastore.tgz datastore
+            tar cf rest/kms.tgz kms
+            tar cf rest/pubsub.tgz pubsub
+            tar cf rest/storage.tgz storage
+            tar cf rest/taskqueue.tgz taskqueue
+          working_directory: build
+      - store_artifacts:
+          path: ./build/rest/
+
 jobs:
   # modifies poetry/run to support deprecated python versions. Changes from
   # upstream:
@@ -145,38 +170,83 @@ jobs:
 workflows:
   run-jobs:
     jobs:
-      # build `-aio-*` -> `-rest-*`
+      # build gcloud-rest-*
       - poetry/run:
           name: build-rest
           cmd: ./bin/build-rest
           post-steps:
-            - persist_to_workspace:
-                root: ./build
-                paths:
-                - ./*
-            - run:
-                name: build gcloud-rest tarballs
-                command: |
-                  mkdir rest
-                  tar cf rest/auth.tgz auth
-                  tar cf rest/bigquery.tgz bigquery
-                  tar cf rest/datastore.tgz datastore
-                  tar cf rest/kms.tgz kms
-                  tar cf rest/pubsub.tgz pubsub
-                  tar cf rest/storage.tgz storage
-                  tar cf rest/taskqueue.tgz taskqueue
-                working_directory: build
-            - store_artifacts:
-                path: ./build/rest/
+            - store-rest
           filters:
             tags:
               only: /.*/
 
+      # run linters
       - linter/pre-commit:
           python_version: 3.8.6  # TODO: https://github.com/PyCQA/pylint/issues/3882
           filters:
             tags:
               only: /.*/
+
+      # run tests
+      - poetry/run:
+          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/unit
+          matrix:
+            alias: test-unit-aio
+            parameters:
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
+              python_version: ['3.6', '3.7', '3.8', '3.9']
+          filters:
+            tags:
+              only: /.*/
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/integration
+          pre-steps:
+            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
+            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-integration-aio
+            parameters:
+              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
+              python_version: ['3.9']
+          filters:
+            tags:
+              only: /.*/
+      - poetry-run-deprecated-pythons:
+          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/unit
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          matrix:
+            alias: test-unit-rest
+            parameters:
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
+              python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
+      - poetry-run-deprecated-pythons:
+          name: test-integration-<<matrix.cwd>>-<<matrix.python_version>>
+          cmd: pytest tests/integration
+          pre-steps:
+            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
+            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - attach_workspace:
+                at: /rest
+          matrix:
+            alias: test-integration-rest
+            parameters:
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
+              python_version: ['2.7', '3.9']
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
 
       # build docs
       - docs:
@@ -196,79 +266,29 @@ workflows:
           requires:
             - docs
 
-      # run tests
-      - poetry/run:
-          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/unit
-          matrix:
-            alias: test-unit-aio
-            parameters:
-              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              python_version: ['3.6', '3.7', '3.8', '3.9']
-      - poetry/run:
-          name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/integration
-          pre-steps:
-            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
-            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-          matrix:
-            alias: test-integration-aio
-            parameters:
-              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-              python_version: ['3.9']
-      - poetry-run-deprecated-pythons:
-          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/unit
-          pre-steps:
-            - attach_workspace:
-                at: /rest
-          matrix:
-            alias: test-unit-rest
-            parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
-          requires:
-            - build-rest
-      - poetry-run-deprecated-pythons:
-          name: test-integration-<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/integration
-          pre-steps:
-            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
-            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-            - attach_workspace:
-                at: /rest
-          matrix:
-            alias: test-integration-rest
-            parameters:
-              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.9']
-          requires:
-            - build-rest
-
+      # create github & pypi release
       - github:
           context: org-global
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              only: /[a-z]+-.*/
           requires:
             - linter/pre-commit
             - test-unit-aio
             - test-integration-aio
             - test-unit-rest
             - test-integration-rest
-
       - hold:
           type: approval
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              only: /[a-z]+-.*/
           requires:
            - github
-
       - poetry-publish-workspace:
           context: org-global
           name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
