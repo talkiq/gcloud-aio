@@ -30,14 +30,17 @@ commands:
           path: ./build/rest/
 
 jobs:
-  # modifies poetry/run to support deprecated python versions. Changes from
-  # upstream:
-  # * modify base image
-  # * install venv in base image
-  # * include `poetry env use`
-  # * pip install instead of poetry install
-  #   no idea why this fixed things, maybe a similar issue to
-  #   https://github.com/python-poetry/poetry/issues/3410 ?
+  # Since Poetry itself can only be installed in Python 3.7+ (but can target
+  # venvs in older Pythons), we need to modify the default `poetry/run` job to
+  # allow for target_python != runtime_python.
+  # The below modifies `poetry/run` as follows:
+  #
+  # * modify base image to one which has the full matrix of required versions
+  # * include `poetry env use` to set target_python != runtime_python
+  # * `pip install` instead of `poetry install` the current package
+  #
+  #   * I have no idea why this fixed things, maybe a similar issue to
+  #     https://github.com/python-poetry/poetry/issues/3410 ?
   poetry-run-deprecated-pythons:
     docker:
       - image: thekevjames/nox:2021.10.1
@@ -66,9 +69,9 @@ jobs:
           command: poetry run <<parameters.cmd>>
           working_directory: <<parameters.cwd>>
 
-  # inspired by poetry/publish, the addition of `basedir` is meant to support
+  # Inspired by poetry/publish, the addition of `basedir` is meant to support
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
-  # path which breaks the tag filter.
+  # path which breaks the tag filter).
   poetry-publish-workspace:
     docker:
       - image: python:3.9

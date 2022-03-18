@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     SED=gsed
 else
@@ -8,18 +11,12 @@ fi
 
 rm -rf ./build
 mkdir ./build
-for folder in auth bigquery datastore kms pubsub storage taskqueue; do
+for folder in ${PROJECTS}; do
     cp -r $folder ./build
 done
 pushd ./build >/dev/null
 trap "popd >/dev/null" EXIT
 
-
-# Remove caches and config directories
-find . -exec dirname {} \; \
-    | sort -u \
-    | grep -E '/\..*' \
-    | xargs -L1 rm -rf
 
 # Rename files and paths to `rest` and make strings py2 compatible
 find . -path '*aio*' -exec dirname {} \; \
@@ -94,7 +91,7 @@ find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^# requests/requests/g'
-for folder in auth bigquery datastore kms pubsub storage taskqueue; do
+for folder in ${PROJECTS}; do
     pushd $folder >/dev/null
 
     if diff ../../$folder/pyproject.rest.toml pyproject.toml; then
