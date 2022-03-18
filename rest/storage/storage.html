@@ -621,8 +621,13 @@ class Storage(object):
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=body, headers=headers, params=params,
-                            timeout=timeout)
+        if not BUILD_GCLOUD_REST:
+            # Wrap data in BytesIO to ensure aiohttp does not emit warning
+            # when payload size &gt; 1MB
+            body = io.BytesIO(body)  # type: ignore[assignment]
+
+        resp = s.post(url, data=body, headers=headers,
+                            params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -1301,8 +1306,13 @@ requests, not aiohttp).</p></div>
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=body, headers=headers, params=params,
-                            timeout=timeout)
+        if not BUILD_GCLOUD_REST:
+            # Wrap data in BytesIO to ensure aiohttp does not emit warning
+            # when payload size &gt; 1MB
+            body = io.BytesIO(body)  # type: ignore[assignment]
+
+        resp = s.post(url, data=body, headers=headers,
+                            params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
