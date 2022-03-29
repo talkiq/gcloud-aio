@@ -235,9 +235,9 @@ else:
                                 ) -> None:
         try:
             start = time.perf_counter()
-            metrics.CONSUME_LATENCY.labels(aspect='queueing').observe(
+            metrics.CONSUME_LATENCY.labels(phase='queueing').observe(
                 start - insertion_time)
-            with metrics.CONSUME_LATENCY.labels(aspect='runtime').time():
+            with metrics.CONSUME_LATENCY.labels(phase='runtime').time():
                 await callback(message)
                 await ack_queue.put(message.ack_id)
             metrics_client.histogram('pubsub.consumer.latency.runtime',
@@ -286,7 +286,7 @@ else:
                 recv_latency = time.time() - message.publish_time.timestamp()
                 metrics_client.histogram(
                     'pubsub.consumer.latency.receive', recv_latency)
-                metrics.CONSUME_LATENCY.labels(aspect='receive').observe(
+                metrics.CONSUME_LATENCY.labels(phase='receive').observe(
                     recv_latency)
 
                 task = asyncio.ensure_future(_execute_callback(

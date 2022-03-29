@@ -122,7 +122,7 @@ Prometheus to scrape app metrics:
 - ``subscriber_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
   'failed', 'failfast'}``) - [counter] a consume operation has completed with a
   given outcome
-- ``subscriber_consume_latency_seconds`` (labels: ``aspect = {'receive',
+- ``subscriber_consume_latency_seconds`` (labels: ``phase = {'receive',
   'queueing', 'runtime'}``) - [histogram] how many seconds taken to receive a
   message, while waiting for processing, or to complete the callback
 - ``subscriber_batch_status_total`` (labels: ``component = {'acker', 'nacker'},

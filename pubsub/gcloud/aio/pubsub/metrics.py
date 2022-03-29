@@ -19,7 +19,7 @@ else:
     CONSUME_LATENCY = prometheus_client.Histogram(
         'subscriber_consume_latency',
         'Histogram of PubSub message consume latencies',
-        ['aspect'],
+        ['phase'],
         namespace=_NAMESPACE,
         subsystem=_SUBSYSTEM,
         unit='seconds')
