@@ -19,9 +19,30 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Namespace <code>gcloud.rest</code></h1>
+<h1 class="title">Module <code>gcloud.rest</code></h1>
 </header>
 <section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter(&#34;ignore&#34;)
+    from future import standard_library
+standard_library.install_aliases()
+try:
+    import pkg_resources
+    pkg_resources.declare_namespace(__name__)
+except ImportError:
+    import pkgutil
+    __path__ = pkgutil.extend_path(
+        __path__, __name__)  # type: ignore[has-type]</code></pre>
+</details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
