@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">= 3.6, < 4.0"
-gcloud-aio-auth = ">= 3.1.0, < 4.0.0"
+gcloud-aio-auth = "4.0.0"
 
 [tool.poetry.dev-dependencies]
 aiohttp = ">= 3.3.0, < 4.0.0"

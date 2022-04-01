@@ -164,7 +164,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "gcloud-aio-auth"
-version = "3.8.0"
+version = "4.0.0"
 description = "Python Client for Google Cloud Auth"
 category = "main"
 optional = false
@@ -444,7 +444,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.6, < 4.0"
-content-hash = "cb448f5c3e26eb71b82197cef4eed05b246ecd15556300f6e0a0094571ce128e"
+content-hash = "81ff29c3fc62c96da04116477eb6b2762b74324926e755254a36b66942d929e8"
 
 [metadata.files]
 aiofiles = [
