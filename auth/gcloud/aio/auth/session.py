@@ -111,13 +111,20 @@ if not BUILD_GCLOUD_REST:
 
     class AioSession(BaseSession):
         _session: aiohttp.ClientSession
+        _timeout: Timeout
 
         @property
         def session(self) -> aiohttp.ClientSession:
             if not self._session:
                 connector = aiohttp.TCPConnector(ssl=self._ssl)
+
+                if isinstance(self._timeout, aiohttp.ClientTimeout):
+                    timeout = self._timeout
+                else:
+                    timeout = aiohttp.ClientTimeout(total=self._timeout)
+
                 self._session = aiohttp.ClientSession(connector=connector,
-                                                      timeout=self._timeout)
+                                                      timeout=timeout)
             return self._session
 
         async def post(self, url: str, headers: Dict[str, str],
