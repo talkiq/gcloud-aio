@@ -32,7 +32,7 @@ rsa = [
 
 [tool.poetry.dev-dependencies]
 gcloud-aio-auth = { path = "../auth" }
-pytest = ">= 4.0.0, < 8.0.0"
+pytest = "7.1.1"
 pytest-asyncio = ">= 0.16.0, < 0.19.0"
 pytest-mock = ">= 2.0.0, < 4.0.0"
 
