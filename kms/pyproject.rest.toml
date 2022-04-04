@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-kms"
-version = "3.3.1"
+version = "4.0.0"
 description = "Python Client for Google Cloud KMS"
 readme = "README.rst"
 
@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^2.7 || >= 3.4, < 4.0"
-gcloud-rest-auth = ">= 3.1.0, < 4.0.0"
+gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
 
 [tool.poetry.dev-dependencies]
 gcloud-rest-auth = { path = "../auth" }

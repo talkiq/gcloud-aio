@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-pubsub"
-version = "4.5.0"
+version = "5.0.0"
 description = "Python Client for Google Cloud Pub/Sub"
 readme = "README.rst"
 
@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">= 3.6, < 4.0"
-gcloud-aio-auth = ">= 3.3.0, < 4.0.0"
+gcloud-aio-auth = ">= 3.3.0, < 5.0.0"
 
 [tool.poetry.dev-dependencies]
 aiohttp = ">= 3.3.0, < 4.0.0"

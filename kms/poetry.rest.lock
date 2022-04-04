@@ -150,7 +150,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "gcloud-rest-auth"
-version = "3.8.0"
+version = "4.0.0"
 description = "Python Client for Google Cloud Auth"
 category = "main"
 optional = false
@@ -406,7 +406,7 @@ testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^2.7 || >= 3.4, < 4.0"
-content-hash = "616f1ba51b18eca8cdc8eaafd44c371f7402b7b7f7d5d377f1ee5a7f3661452e"
+content-hash = "4aaacfdc1b7f6ac35ddc03bb81850a6742f6b3b21fc6022efa8f42fb9ee680a2"
 
 [metadata.files]
 atomicwrites = [
