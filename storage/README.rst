@@ -153,6 +153,7 @@ Contributing
 Please see our `contributing guide`_.
 
 .. _#172: https://github.com/talkiq/gcloud-aio/issues/172
+.. _backoff: https://pypi.org/project/backoff/
 .. _chardet: https://pypi.org/project/chardet/
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
 .. _fsouza/fake-gcs-server: https://github.com/fsouza/fake-gcs-server
