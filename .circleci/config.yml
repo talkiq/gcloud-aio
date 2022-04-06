@@ -43,7 +43,7 @@ jobs:
   #     https://github.com/python-poetry/poetry/issues/3410 ?
   poetry-run-deprecated-pythons:
     docker:
-      - image: thekevjames/nox:2021.10.1
+      - image: thekevjames/nox:2022.1.7
     resource_class: small
     parameters:
       cmd:
