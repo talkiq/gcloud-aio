@@ -4,6 +4,7 @@ import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
+from gcloud.aio.datastore import GQLCursor
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import Operation
@@ -243,6 +244,41 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
+async def test_gql_query_pagination(
+        creds: str, kind: str, project: str) -> None:
+    async with Session() as s:
+        query_string = (f'SELECT __key__ FROM {kind}'
+                        'WHERE value = @value LIMIT @limit OFFSET @offset')
+        named_bindings = {'value': 42, 'limit': 2 ** 31 - 1, 'offset': 0}
+
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        before = await ds.runQuery(
+            GQLQuery(query_string, named_bindings=named_bindings), session=s)
+
+        insertion_count = 8
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [ds.make_mutation(Operation.INSERT,
+                                      Key(project, [PathElement(kind)]),
+                                      properties=named_bindings)
+                     ] * insertion_count
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        page_size = 5
+        named_bindings['limit'] = page_size
+        named_bindings['offset'] = GQLCursor(before.end_cursor)
+        first_page = await ds.runQuery(
+            GQLQuery(query_string, named_bindings=named_bindings), session=s)
+        assert (len(first_page.entity_results)) == page_size
+
+        named_bindings['offset'] = GQLCursor(first_page.end_cursor)
+        second_page = await ds.runQuery(
+            GQLQuery(query_string, named_bindings=named_bindings), session=s)
+        assert len(second_page.entity_results) == insertion_count - page_size
 
 
 @pytest.mark.asyncio

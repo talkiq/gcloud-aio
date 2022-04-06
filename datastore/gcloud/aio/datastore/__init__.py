@@ -23,6 +23,7 @@ from gcloud.aio.datastore.lat_lng import LatLng
 from gcloud.aio.datastore.mutation import MutationResult
 from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
+from gcloud.aio.datastore.query import GQLCursor
 from gcloud.aio.datastore.query import GQLQuery
 from gcloud.aio.datastore.query import Query
 from gcloud.aio.datastore.query import QueryResultBatch
@@ -31,8 +32,8 @@ from gcloud.aio.datastore.value import Value
 
 __all__ = ['__version__', 'CompositeFilter', 'CompositeFilterOperator',
            'Consistency', 'Datastore', 'DatastoreOperation', 'Direction',
-           'Entity', 'EntityResult', 'Filter', 'GQLQuery', 'Key', 'LatLng',
-           'Mode', 'MoreResultsType', 'MutationResult', 'Operation',
-           'PathElement', 'Projection', 'PropertyFilter',
+           'Entity', 'EntityResult', 'Filter', 'GQLCursor', 'GQLQuery',
+           'Key', 'LatLng', 'Mode', 'MoreResultsType', 'MutationResult',
+           'Operation', 'PathElement', 'Projection', 'PropertyFilter',
            'PropertyFilterOperator', 'PropertyOrder', 'Query',
            'QueryResultBatch', 'ResultType', 'SCOPES', 'Value']
