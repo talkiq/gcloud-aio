@@ -79,6 +79,22 @@ The first line is the most specific in this format, it should have the format
 - ``message`` is a concise description of the patch and brings the line to no
   more than 72 characters
 
+PR Tests
+~~~~~~~~
+
+Note that some integration tests require authentication with Google. Since we
+don't want to expose our private keys to the world, this means your PR tests
+might fail for that subset of test cases when you submit your changes.
+
+Long-term, we'd like to switch all such integration tests to using Google
+`emulators`_ and would appreciate any help in getting us closer to that goal!
+Note that unfortunately Google has not yet release emulators for all the
+features we have under test, so we'll not yet be able to entirely eliminate
+this problem.
+
+In the meantime, we are able to manually trigger integration tests for you on
+any specific commit. Please feel free to add a comment requesting we do so!
+
 Coding Conventions
 ------------------
 
@@ -102,6 +118,7 @@ If you are a maintainer looking to release a new version, see our
 .. _Pull Request: https://github.com/talkiq/gcloud-aio/pull/new/master
 .. _Release documentation: https://github.com/talkiq/gcloud-aio/blob/master/.github/RELEASE.rst
 .. _conventional changelog: https://github.com/conventional-changelog/conventional-changelog
+.. _emulators: https://cloud.google.com/sdk/gcloud/reference/emulators
 .. _poetry: https://python-poetry.org/
 .. _pre-commit: http://pre-commit.com/
 
