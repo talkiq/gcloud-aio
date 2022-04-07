@@ -60,6 +60,7 @@ from gcloud.rest.datastore.lat_lng import LatLng
 from gcloud.rest.datastore.mutation import MutationResult
 from gcloud.rest.datastore.projection import Projection
 from gcloud.rest.datastore.property_order import PropertyOrder
+from gcloud.rest.datastore.query import GQLCursor
 from gcloud.rest.datastore.query import GQLQuery
 from gcloud.rest.datastore.query import Query
 from gcloud.rest.datastore.query import QueryResultBatch
@@ -68,9 +69,9 @@ from gcloud.rest.datastore.value import Value
 
 __all__ = [&#39;__version__&#39;, &#39;CompositeFilter&#39;, &#39;CompositeFilterOperator&#39;,
            &#39;Consistency&#39;, &#39;Datastore&#39;, &#39;DatastoreOperation&#39;, &#39;Direction&#39;,
-           &#39;Entity&#39;, &#39;EntityResult&#39;, &#39;Filter&#39;, &#39;GQLQuery&#39;, &#39;Key&#39;, &#39;LatLng&#39;,
-           &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;MutationResult&#39;, &#39;Operation&#39;,
-           &#39;PathElement&#39;, &#39;Projection&#39;, &#39;PropertyFilter&#39;,
+           &#39;Entity&#39;, &#39;EntityResult&#39;, &#39;Filter&#39;, &#39;GQLCursor&#39;, &#39;GQLQuery&#39;,
+           &#39;Key&#39;, &#39;LatLng&#39;, &#39;Mode&#39;, &#39;MoreResultsType&#39;, &#39;MutationResult&#39;,
+           &#39;Operation&#39;, &#39;PathElement&#39;, &#39;Projection&#39;, &#39;PropertyFilter&#39;,
            &#39;PropertyFilterOperator&#39;, &#39;PropertyOrder&#39;, &#39;Query&#39;,
            &#39;QueryResultBatch&#39;, &#39;ResultType&#39;, &#39;SCOPES&#39;, &#39;Value&#39;]</code></pre>
 </details>
@@ -1570,6 +1571,25 @@ def from_repr(cls, data                )            :
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.rest.datastore.GQLCursor"><code class="flex name class">
+<span>class <span class="ident">GQLCursor</span></span>
+<span>(</span><span>value)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GQLCursor(object):
+
+    def __init__(self, value     ):
+        self.value = value
+
+    def __eq__(self, other     )        :
+        return isinstance(other, GQLCursor) and self.value == other.value</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.datastore.GQLQuery"><code class="flex name class">
 <span>class <span class="ident">GQLQuery</span></span>
 <span>(</span><span>query_string, allow_literals=True, named_bindings=None, positional_bindings=None)</span>
@@ -1605,23 +1625,36 @@ def from_repr(cls, data                )            :
     def from_repr(cls, data                )              :
         allow_literals = data[&#39;allowLiterals&#39;]
         query_string = data[&#39;queryString&#39;]
-        named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        named_bindings = {k: cls._param_from_repr(v)
                           for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
-        positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        positional_bindings = [cls._param_from_repr(v)
                                for v in data.get(&#39;positionalBindings&#39;, [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
                    positional_bindings=positional_bindings)
 
+    @classmethod
+    def _param_from_repr(cls, param_repr                )       :
+        if &#39;cursor&#39; in param_repr:
+            return GQLCursor(param_repr[&#39;cursor&#39;])
+
+        return cls.value_kind.from_repr(param_repr[&#39;value&#39;]).value
+
     def to_repr(self)                  :
         return {
             &#39;allowLiterals&#39;: self.allow_literals,
             &#39;queryString&#39;: self.query_string,
-            &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;namedBindings&#39;: {k: self._param_to_repr(v)
                               for k, v in self.named_bindings.items()},
-            &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;positionalBindings&#39;: [self._param_to_repr(v)
                                    for v in self.positional_bindings],
-        }</code></pre>
+        }
+
+    def _param_to_repr(self, param     )                  :
+        if isinstance(param, GQLCursor):
+            return {&#39;cursor&#39;: param.value}
+
+        return {&#39;value&#39;: self.value_kind(param).to_repr()}</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1649,9 +1682,9 @@ def from_repr(cls, data                )            :
 def from_repr(cls, data                )              :
     allow_literals = data[&#39;allowLiterals&#39;]
     query_string = data[&#39;queryString&#39;]
-    named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+    named_bindings = {k: cls._param_from_repr(v)
                       for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
-    positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+    positional_bindings = [cls._param_from_repr(v)
                            for v in data.get(&#39;positionalBindings&#39;, [])]
     return cls(query_string, allow_literals=allow_literals,
                named_bindings=named_bindings,
@@ -1674,9 +1707,9 @@ def from_repr(cls, data                )              :
     return {
         &#39;allowLiterals&#39;: self.allow_literals,
         &#39;queryString&#39;: self.query_string,
-        &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+        &#39;namedBindings&#39;: {k: self._param_to_repr(v)
                           for k, v in self.named_bindings.items()},
-        &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+        &#39;positionalBindings&#39;: [self._param_to_repr(v)
                                for v in self.positional_bindings],
     }</code></pre>
 </details>
@@ -3119,6 +3152,9 @@ def from_repr(cls, data                )           :
 <li><code><a title="gcloud.rest.datastore.Filter.from_repr" href="#gcloud.rest.datastore.Filter.from_repr">from_repr</a></code></li>
 <li><code><a title="gcloud.rest.datastore.Filter.to_repr" href="#gcloud.rest.datastore.Filter.to_repr">to_repr</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="gcloud.rest.datastore.GQLCursor" href="#gcloud.rest.datastore.GQLCursor">GQLCursor</a></code></h4>
 </li>
 <li>
 <h4><code><a title="gcloud.rest.datastore.GQLQuery" href="#gcloud.rest.datastore.GQLQuery">GQLQuery</a></code></h4>

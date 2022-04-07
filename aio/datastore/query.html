@@ -157,23 +157,45 @@ class GQLQuery(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;GQLQuery&#39;:
         allow_literals = data[&#39;allowLiterals&#39;]
         query_string = data[&#39;queryString&#39;]
-        named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        named_bindings = {k: cls._param_from_repr(v)
                           for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
-        positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        positional_bindings = [cls._param_from_repr(v)
                                for v in data.get(&#39;positionalBindings&#39;, [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
                    positional_bindings=positional_bindings)
 
+    @classmethod
+    def _param_from_repr(cls, param_repr: Dict[str, Any]) -&gt; Any:
+        if &#39;cursor&#39; in param_repr:
+            return GQLCursor(param_repr[&#39;cursor&#39;])
+
+        return cls.value_kind.from_repr(param_repr[&#39;value&#39;]).value
+
     def to_repr(self) -&gt; Dict[str, Any]:
         return {
             &#39;allowLiterals&#39;: self.allow_literals,
             &#39;queryString&#39;: self.query_string,
-            &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;namedBindings&#39;: {k: self._param_to_repr(v)
                               for k, v in self.named_bindings.items()},
-            &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;positionalBindings&#39;: [self._param_to_repr(v)
                                    for v in self.positional_bindings],
         }
+
+    def _param_to_repr(self, param: Any) -&gt; Dict[str, Any]:
+        if isinstance(param, GQLCursor):
+            return {&#39;cursor&#39;: param.value}
+
+        return {&#39;value&#39;: self.value_kind(param).to_repr()}
+
+
+class GQLCursor:
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def __eq__(self, other: Any) -&gt; bool:
+        return isinstance(other, GQLCursor) and self.value == other.value
 
 
 class QueryResultBatch:
@@ -323,6 +345,25 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;BaseQuery&#39;:
 </dd>
 </dl>
 </dd>
+<dt id="gcloud.aio.datastore.query.GQLCursor"><code class="flex name class">
+<span>class <span class="ident">GQLCursor</span></span>
+<span>(</span><span>value: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GQLCursor:
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def __eq__(self, other: Any) -&gt; bool:
+        return isinstance(other, GQLCursor) and self.value == other.value</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.datastore.query.GQLQuery"><code class="flex name class">
 <span>class <span class="ident">GQLQuery</span></span>
 <span>(</span><span>query_string: str, allow_literals: bool = True, named_bindings: Optional[Dict[str, Any]] = None, positional_bindings: Optional[List[Any]] = None)</span>
@@ -358,23 +399,36 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;BaseQuery&#39;:
     def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;GQLQuery&#39;:
         allow_literals = data[&#39;allowLiterals&#39;]
         query_string = data[&#39;queryString&#39;]
-        named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        named_bindings = {k: cls._param_from_repr(v)
                           for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
-        positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+        positional_bindings = [cls._param_from_repr(v)
                                for v in data.get(&#39;positionalBindings&#39;, [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
                    positional_bindings=positional_bindings)
 
+    @classmethod
+    def _param_from_repr(cls, param_repr: Dict[str, Any]) -&gt; Any:
+        if &#39;cursor&#39; in param_repr:
+            return GQLCursor(param_repr[&#39;cursor&#39;])
+
+        return cls.value_kind.from_repr(param_repr[&#39;value&#39;]).value
+
     def to_repr(self) -&gt; Dict[str, Any]:
         return {
             &#39;allowLiterals&#39;: self.allow_literals,
             &#39;queryString&#39;: self.query_string,
-            &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;namedBindings&#39;: {k: self._param_to_repr(v)
                               for k, v in self.named_bindings.items()},
-            &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+            &#39;positionalBindings&#39;: [self._param_to_repr(v)
                                    for v in self.positional_bindings],
-        }</code></pre>
+        }
+
+    def _param_to_repr(self, param: Any) -&gt; Dict[str, Any]:
+        if isinstance(param, GQLCursor):
+            return {&#39;cursor&#39;: param.value}
+
+        return {&#39;value&#39;: self.value_kind(param).to_repr()}</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -402,9 +456,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;BaseQuery&#39;:
 def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;GQLQuery&#39;:
     allow_literals = data[&#39;allowLiterals&#39;]
     query_string = data[&#39;queryString&#39;]
-    named_bindings = {k: cls.value_kind.from_repr(v[&#39;value&#39;].value)
+    named_bindings = {k: cls._param_from_repr(v)
                       for k, v in data.get(&#39;namedBindings&#39;, {}).items()}
-    positional_bindings = [cls.value_kind.from_repr(v[&#39;value&#39;].value)
+    positional_bindings = [cls._param_from_repr(v)
                            for v in data.get(&#39;positionalBindings&#39;, [])]
     return cls(query_string, allow_literals=allow_literals,
                named_bindings=named_bindings,
@@ -427,9 +481,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;GQLQuery&#39;:
     return {
         &#39;allowLiterals&#39;: self.allow_literals,
         &#39;queryString&#39;: self.query_string,
-        &#39;namedBindings&#39;: {k: {&#39;value&#39;: self.value_kind(v).to_repr()}
+        &#39;namedBindings&#39;: {k: self._param_to_repr(v)
                           for k, v in self.named_bindings.items()},
-        &#39;positionalBindings&#39;: [{&#39;value&#39;: self.value_kind(v).to_repr()}
+        &#39;positionalBindings&#39;: [self._param_to_repr(v)
                                for v in self.positional_bindings],
     }</code></pre>
 </details>
@@ -767,6 +821,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;QueryResultBatch&#39;:
 <li><code><a title="gcloud.aio.datastore.query.BaseQuery.to_repr" href="#gcloud.aio.datastore.query.BaseQuery.to_repr">to_repr</a></code></li>
 <li><code><a title="gcloud.aio.datastore.query.BaseQuery.value_kind" href="#gcloud.aio.datastore.query.BaseQuery.value_kind">value_kind</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="gcloud.aio.datastore.query.GQLCursor" href="#gcloud.aio.datastore.query.GQLCursor">GQLCursor</a></code></h4>
 </li>
 <li>
 <h4><code><a title="gcloud.aio.datastore.query.GQLQuery" href="#gcloud.aio.datastore.query.GQLQuery">GQLQuery</a></code></h4>
