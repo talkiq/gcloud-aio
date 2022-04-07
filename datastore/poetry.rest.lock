@@ -174,7 +174,7 @@ url = "../auth"
 
 [[package]]
 name = "gcloud-rest-storage"
-version = "7.0.0"
+version = "7.0.1"
 description = "Python Client for Google Cloud Storage"
 category = "dev"
 optional = false
