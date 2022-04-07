@@ -129,23 +129,45 @@ class GQLQuery(BaseQuery):
     def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
         allow_literals = data['allowLiterals']
         query_string = data['queryString']
-        named_bindings = {k: cls.value_kind.from_repr(v['value'].value)
+        named_bindings = {k: cls._param_from_repr(v)
                           for k, v in data.get('namedBindings', {}).items()}
-        positional_bindings = [cls.value_kind.from_repr(v['value'].value)
+        positional_bindings = [cls._param_from_repr(v)
                                for v in data.get('positionalBindings', [])]
         return cls(query_string, allow_literals=allow_literals,
                    named_bindings=named_bindings,
                    positional_bindings=positional_bindings)
 
+    @classmethod
+    def _param_from_repr(cls, param_repr: Dict[str, Any]) -> Any:
+        if 'cursor' in param_repr:
+            return GQLCursor(param_repr['cursor'])
+
+        return cls.value_kind.from_repr(param_repr['value']).value
+
     def to_repr(self) -> Dict[str, Any]:
         return {
             'allowLiterals': self.allow_literals,
             'queryString': self.query_string,
-            'namedBindings': {k: {'value': self.value_kind(v).to_repr()}
+            'namedBindings': {k: self._param_to_repr(v)
                               for k, v in self.named_bindings.items()},
-            'positionalBindings': [{'value': self.value_kind(v).to_repr()}
+            'positionalBindings': [self._param_to_repr(v)
                                    for v in self.positional_bindings],
         }
+
+    def _param_to_repr(self, param: Any) -> Dict[str, Any]:
+        if isinstance(param, GQLCursor):
+            return {'cursor': param.value}
+
+        return {'value': self.value_kind(param).to_repr()}
+
+
+class GQLCursor:
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, GQLCursor) and self.value == other.value
 
 
 class QueryResultBatch:
