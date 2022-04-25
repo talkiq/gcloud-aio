@@ -431,7 +431,7 @@ else:
             for task in done:
                 task.result()
             raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
-        except Exception as e:
+        except (asyncio.CancelledError, Exception) as e:
             log.info(&#39;Subscriber exited&#39;, exc_info=e)
             for task in producer_tasks:
                 task.cancel()
@@ -811,7 +811,7 @@ else:
         for task in done:
             task.result()
         raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
-    except Exception as e:
+    except (asyncio.CancelledError, Exception) as e:
         log.info(&#39;Subscriber exited&#39;, exc_info=e)
         for task in producer_tasks:
             task.cancel()
