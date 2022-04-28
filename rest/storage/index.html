@@ -1602,6 +1602,10 @@ recommended streaming implementations between requests and aiohttp.</p></div>
         self._response = response
         self._iter                            = None
 
+    @property
+    def content_length(self)       :
+        return int(self._response.headers.get(&#39;content-length&#39;, 0))
+
     def read(self, size      = -1)         :
         #chunk: bytes
         if BUILD_GCLOUD_REST:
@@ -1612,6 +1616,21 @@ recommended streaming implementations between requests and aiohttp.</p></div>
             chunk = self._response.content.read(size)
         return chunk</code></pre>
 </details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="gcloud.rest.storage.StreamResponse.content_length"><code class="name">var <span class="ident">content_length</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_length(self)       :
+    return int(self._response.headers.get(&#39;content-length&#39;, 0))</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="gcloud.rest.storage.StreamResponse.read"><code class="name flex">
@@ -1700,6 +1719,7 @@ recommended streaming implementations between requests and aiohttp.</p></div>
 <li>
 <h4><code><a title="gcloud.rest.storage.StreamResponse" href="#gcloud.rest.storage.StreamResponse">StreamResponse</a></code></h4>
 <ul class="">
+<li><code><a title="gcloud.rest.storage.StreamResponse.content_length" href="#gcloud.rest.storage.StreamResponse.content_length">content_length</a></code></li>
 <li><code><a title="gcloud.rest.storage.StreamResponse.read" href="#gcloud.rest.storage.StreamResponse.read">read</a></code></li>
 </ul>
 </li>
