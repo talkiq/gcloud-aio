@@ -16,16 +16,10 @@ from typing import Union
 from urllib.parse import urlencode
 
 import backoff
-import cryptography  # pylint: disable=unused-import
 import jwt
 
 from .build_constants import BUILD_GCLOUD_REST
 from .session import AioSession
-# N.B. the cryptography library is required when calling jwt.encrypt() with
-# algorithm='RS256'. It does not need to be imported here, but this allows us
-# to throw this error at load time rather than lazily during normal operations,
-# where plumbing this error through will require several changes to otherwise-
-# good error handling.
 
 # Handle differences in exceptions
 try:
@@ -192,10 +186,9 @@ class Token:
             'scope': self.scopes,
         }
 
-        # N.B. algorithm='RS256' requires an extra 240MB in dependencies...
         assertion = jwt.encode(assertion_payload,
                                self.service_data['private_key'],
-                               algorithm='RS256')
+                               algorithm='ES256')
         payload = urlencode({
             'assertion': assertion,
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
