@@ -96,7 +96,7 @@ jobs:
 
   docs:
     docker:
-      - image: python:3.9.13
+      - image: python:3.10.4
     steps:
       - run: pip install pdoc3
       - run:
