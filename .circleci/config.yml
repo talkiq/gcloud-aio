@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@2
-  poetry: talkiq/poetry@2.4
+  poetry: talkiq/poetry@3.0
 
 commands:
   store-rest:
