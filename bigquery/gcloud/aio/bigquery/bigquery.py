@@ -1,9 +1,10 @@
-import io
 import json
 import os
 from enum import Enum
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -15,7 +16,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 API_ROOT = 'https://www.googleapis.com/bigquery/v2'
@@ -52,13 +53,14 @@ class SchemaUpdateOption(Enum):
 class BigqueryBase:
     def __init__(self,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self._project = project
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def project(self) -> str:
         if self._project:
@@ -95,8 +97,9 @@ class BigqueryBase:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, params=None,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 

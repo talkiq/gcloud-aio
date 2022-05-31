@@ -15,8 +15,9 @@ if BUILD_GCLOUD_REST:
     from requests import HTTPError as ResponseError
     from requests import Session
 else:
-    from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import (  # type: ignore[assignment]
+        ClientResponseError as ResponseError)
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from .storage import Storage  # pylint: disable=cyclic-import

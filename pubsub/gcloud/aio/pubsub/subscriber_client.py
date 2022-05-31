@@ -18,7 +18,7 @@ from .subscriber_message import SubscriberMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = 'https://pubsub.googleapis.com'
 VERIFY_SSL = True
@@ -39,9 +39,9 @@ class SubscriberClient:
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
         self.session = AioSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file,
-                                    scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def _headers(self) -> Dict[str, str]:
         headers = {
@@ -61,8 +61,7 @@ class SubscriberClient:
                                   body: Optional[Dict[str, Any]] = None,
                                   *,
                                   session: Optional[Session] = None,
-                                  timeout: Optional[int] = 10
-                                  ) -> Dict[str, Any]:
+                                  timeout: int = 10) -> Dict[str, Any]:
         """
         Create subscription.
         """
@@ -73,17 +72,16 @@ class SubscriberClient:
         payload.update({'topic': topic})
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result: Dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
-    async def delete_subscription(self,
-                                  subscription: str,
-                                  *,
+    async def delete_subscription(self, subscription: str, *,
                                   session: Optional[Session] = None,
-                                  timeout: Optional[int] = 10
-                                  ) -> None:
+                                  timeout: int = 10) -> None:
         """
         Delete subscription.
         """
@@ -95,8 +93,7 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
     async def pull(self, subscription: str, max_messages: int,
                    *, session: Optional[Session] = None,
-                   timeout: Optional[int] = 30
-                   ) -> List[SubscriberMessage]:
+                   timeout: int = 30) -> List[SubscriberMessage]:
         """
         Pull messages from subscription
         """
@@ -107,18 +104,19 @@ class SubscriberClient:
         }
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=encoded, headers=headers,
-                            timeout=timeout)
-        resp = await resp.json()
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=encoded,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
+        data = await resp.json()
         return [
             SubscriberMessage.from_repr(m)
-            for m in resp.get('receivedMessages', [])
+            for m in data.get('receivedMessages', [])
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
     async def acknowledge(self, subscription: str, ack_ids: List[str],
                           *, session: Optional[Session] = None,
-                          timeout: Optional[int] = 10) -> None:
+                          timeout: int = 10) -> None:
         """
         Acknowledge messages by ackIds
         """
@@ -129,34 +127,35 @@ class SubscriberClient:
         }
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        await s.post(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        await s.post(url, data=encoded,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     async def modify_ack_deadline(self, subscription: str,
                                   ack_ids: List[str],
                                   ack_deadline_seconds: int,
                                   *, session: Optional[Session] = None,
-                                  timeout: Optional[int] = 10
-                                  ) -> None:
+                                  timeout: int = 10) -> None:
         """
         Modify messages' ack deadline.
         Set ack deadline to 0 to nack messages.
         """
         url = f'{API_ROOT}/v1/{subscription}:modifyAckDeadline'
         headers = await self._headers()
-        payload = {
+        data = json.dumps({
             'ackIds': ack_ids,
             'ackDeadlineSeconds': ack_deadline_seconds,
-        }
+        }).encode('utf-8')
         s = AioSession(session) if session else self.session
-        await s.post(url, data=json.dumps(payload).encode('utf-8'),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        await s.post(url, data=data,  # type: ignore[arg-type]
                      headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
     async def get_subscription(self, subscription: str,
                                *, session: Optional[Session] = None,
-                               timeout: Optional[int] = 10
-                               ) -> Dict[str, Any]:
+                               timeout: int = 10) -> Dict[str, Any]:
         """
         Get Subscription
         """
@@ -171,8 +170,7 @@ class SubscriberClient:
     async def list_subscriptions(self, project: str,
                                  query_params: Optional[Dict[str, str]] = None,
                                  *, session: Optional[Session] = None,
-                                 timeout: Optional[int] = 10
-                                 ) -> Dict[str, Any]:
+                                 timeout: int = 10) -> Dict[str, Any]:
         """
         List subscriptions
         """

@@ -1,6 +1,7 @@
-import io
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -14,13 +15,13 @@ from .bigquery import BigqueryBase
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Dataset(BigqueryBase):
     def __init__(self, dataset_name: Optional[str] = None,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.dataset_name = dataset_name

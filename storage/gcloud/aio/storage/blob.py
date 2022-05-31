@@ -22,7 +22,7 @@ from pyasn1_modules.rfc5208 import PrivateKeyInfo
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from .bucket import Bucket  # pylint: disable=cyclic-import

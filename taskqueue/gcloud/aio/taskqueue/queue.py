@@ -1,12 +1,13 @@
 """
 An asynchronous push queue for Google Appengine Task Queues
 """
-import io
 import json
 import logging
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -19,7 +20,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = 'https://cloudtasks.googleapis.com'
 LOCATION = 'us-central1'
@@ -36,7 +37,7 @@ log = logging.getLogger(__name__)
 
 class PushQueue:
     def __init__(self, project: str, taskqueue: str,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  location: str = LOCATION,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
@@ -44,8 +45,10 @@ class PushQueue:
         self.api_root = (f'{self.base_api_root}/projects/{project}/'
                          f'locations/{location}/queues/{taskqueue}')
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     async def headers(self) -> Dict[str, str]:
         if CLOUDTASKS_EMULATOR_HOST:
@@ -70,7 +73,9 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -106,7 +111,7 @@ class PushQueue:
                    page_token: str = '',
                    session: Optional[Session] = None) -> Any:
         url = f'{self.api_root}/tasks'
-        params = {
+        params: Dict[str, Union[int, str]] = {
             'responseView': 'FULL' if full else 'BASIC',
             'pageSize': page_size,
             'pageToken': page_token,
@@ -115,7 +120,9 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.get(url, headers=headers,
+                           params=params)  # type: ignore[arg-type]
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -130,7 +137,9 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return await resp.json()
 
     async def close(self) -> None:
