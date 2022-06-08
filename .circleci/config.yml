@@ -213,7 +213,7 @@ workflows:
 
       # run tests
       - poetry/run:
-          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
+          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.executor>>
           cmd: pytest tests/unit
           matrix:
             alias: test-unit-aio
@@ -224,7 +224,7 @@ workflows:
             tags:
               only: /.*/
       - poetry/run:
-          name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
+          name: test-integration-/aio/<<matrix.cwd>>
           cmd: pytest tests/integration
           executor: python-39
           pre-steps:
