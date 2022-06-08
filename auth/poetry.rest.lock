@@ -414,7 +414,7 @@ testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^2.7 || >= 3.4, < 4.0"
-content-hash = "763f49dcad05e85e0f3b9c61c2806a885e7003711df1865010bb1ed675a94a45"
+content-hash = "f59775c5c8a5fa923dcd1000bb957ea1d02472e8a9f8d4e4a44e5f7a08c0ff40"
 
 [metadata.files]
 atomicwrites = [
