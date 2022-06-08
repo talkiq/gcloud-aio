@@ -4,6 +4,27 @@ orbs:
   linter: talkiq/linter@2
   poetry: talkiq/poetry@3.0
 
+executors:
+  python-36:
+    docker:
+      - image: python:3.6.15
+    resource_class: small
+
+  python-37:
+    docker:
+      - image: python:3.7.13
+    resource_class: small
+
+  python-38:
+    docker:
+      - image: python:3.8.13
+    resource_class: small
+
+  python-39:
+    docker:
+      - image: python:3.9.13
+    resource_class: small
+
 commands:
   store-rest:
     description: >
@@ -198,13 +219,14 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              python_version: ['3.6', '3.7', '3.8', '3.9']
+              executor: [python-36, python-37, python-38, python-39]
           filters:
             tags:
               only: /.*/
       - poetry/run:
           name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/integration
+          executor: python-39
           pre-steps:
             - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
             - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
@@ -212,7 +234,6 @@ workflows:
             alias: test-integration-aio
             parameters:
               cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-              python_version: ['3.9']
           filters:
             tags:
               only: /.*/
