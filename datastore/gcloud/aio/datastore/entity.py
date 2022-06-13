@@ -2,6 +2,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
+from gcloud.aio.datastore import ResultType
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.value import Value
 
@@ -28,9 +29,13 @@ class Entity:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Entity':
+    def from_repr(cls,
+                  data: Dict[str, Any],
+                  entity_result_type: Optional[ResultType] = None
+                  ) -> 'Entity':
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
         # "for example, an entity in Value.entity_value may have no key"
+        del entity_result_type
         if 'key' in data:
             key: Optional[Key] = cls.key_kind.from_repr(data['key'])
         else:
@@ -66,10 +71,18 @@ class EntityResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'EntityResult':
-        return cls(cls.entity_kind.from_repr(data['entity']),
-                   data.get('version', ''),
-                   data.get('cursor', ''))
+    def from_repr(cls, data: Dict[str, Any],
+                  entity_result_type: Optional[ResultType] = None
+                  ) -> 'EntityResult':
+
+        return cls(
+            cls.entity_kind.from_repr(
+                data['entity'],
+                entity_result_type=entity_result_type
+            ),
+            data.get('version', ''),
+            data.get('cursor', '')
+        )
 
     def to_repr(self) -> Dict[str, Any]:
         data: Dict[str, Any] = {

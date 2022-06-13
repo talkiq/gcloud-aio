@@ -207,8 +207,13 @@ class QueryResultBatch:
     def from_repr(cls, data: Dict[str, Any]) -> 'QueryResultBatch':
         end_cursor = data['endCursor']
         entity_result_type = ResultType(data['entityResultType'])
-        entity_results = [cls.entity_result_kind.from_repr(er)
-                          for er in data.get('entityResults', [])]
+        entity_results = [
+            cls.entity_result_kind.from_repr(
+                er,
+                entity_result_type=entity_result_type
+            )
+            for er in data.get('entityResults', [])
+        ]
         more_results = MoreResultsType(data['moreResults'])
         skipped_cursor = data.get('skippedCursor', '')
         skipped_results = data.get('skippedResults', 0)
