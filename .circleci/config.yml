@@ -155,7 +155,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:18.3.0
+      - image: node:18.4.0
     steps:
       - checkout
       - attach_workspace:
