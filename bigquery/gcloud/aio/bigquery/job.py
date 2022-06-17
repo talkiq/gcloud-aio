@@ -103,7 +103,10 @@ class Job(BigqueryBase):
         project = await self.project()
         url = f'{API_ROOT}/projects/{project}/jobs'
 
-        return await self._post_json(url, job, session, timeout)
+        response = await self._post_json(url, job, session, timeout)
+        if response['jobReference'].get('jobId'):
+            self.job_id = response['jobReference']['jobId']
+        return response
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
