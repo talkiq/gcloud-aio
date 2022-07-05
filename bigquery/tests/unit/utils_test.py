@@ -2,8 +2,8 @@ import datetime
 
 import pytest
 from gcloud.aio.bigquery.utils import flatten
-from gcloud.aio.bigquery.utils import from_query_response
 from gcloud.aio.bigquery.utils import parse
+from gcloud.aio.bigquery.utils import query_response_to_dict
 
 
 @pytest.mark.parametrize('data,expected', [
@@ -71,7 +71,7 @@ def test_parse_nullable(kind):
     assert parse(field, None) is None
 
 
-def test_from_query_response():
+def test_query_response_to_dict():
     fields = [
         {'name': 'id', 'type': 'STRING', 'mode': 'NULLABLE'},
         {'name': 'unixtime', 'type': 'INTEGER', 'mode': 'NULLABLE'},
@@ -170,6 +170,6 @@ def test_from_query_response():
         'jobComplete': True,
         'cacheHit': True,
     }
-    parsed = from_query_response(resp)
+    parsed = query_response_to_dict(resp)
     print(parsed)
     assert parsed == expected

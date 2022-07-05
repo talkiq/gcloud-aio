@@ -102,7 +102,7 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
     return f(flatten(value))
 
 
-def from_query_response(response: Dict[str, Any]) -> List[Dict[str, Any]]:
+def query_response_to_dict(response: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Convert a query response to a dictionary.
 
