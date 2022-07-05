@@ -1,8 +1,12 @@
 import datetime
+import logging
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+
+
+log = logging.getLogger(__name__)
 
 
 def flatten(x: Any) -> Any:
@@ -20,13 +24,7 @@ def flatten(x: Any) -> Any:
         # TODO: what if a user has stored a dictionary in their table and that
         # dictionary is shaped the same way as Google's response format?
         if 'f' in x:
-            print(x)
-            nested = [flatten(y['v']) for y in x['f']]
-            if len(nested) == 1:
-                # Nested data is always in a list form, even if it's a single
-                # value that cannot be REPEATED. Why? Who knows.
-                return nested[0]
-            return nested
+            return [flatten(y['v']) for y in x['f']]
 
         if 'v' in x:
             return flatten(x['v'])
@@ -37,7 +35,7 @@ def flatten(x: Any) -> Any:
     return x
 
 
-def parse(field: Dict[str, str], value: Any) -> Any:
+def parse(field: Dict[str, Any], value: Any) -> Any:
     """
     Parse a given field back to a Python object.
 
@@ -49,20 +47,58 @@ def parse(field: Dict[str, str], value: Any) -> Any:
       accidentally convert them to the schema type.
     * REPEATED fields are nested a biot differently than expected, so we need
       to flatten *first*, then convert.
+
+    `Field = Dict[str, Union[str, 'Field']]`, but wow is that difficult to
+    represent in a backwards-enough compatible fashion.
     """
-    f: Callable[[Any], Any] = {  # type: ignore[assignment]
-        'BOOLEAN': lambda x: x == 'true',
-        'FLOAT': float,
-        'INTEGER': int,
-        'RECORD': list,
-        'STRING': str,
-        'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(float(x)),
-    }[field['type']]
+    try:
+        f: Callable[[Any], Any] = {  # type: ignore[assignment]
+            'BOOLEAN': lambda x: x == 'true',
+            'BYTES': bytes,
+            'FLOAT': float,
+            'INTEGER': int,
+            'NUMERIC': float,
+            'RECORD': dict,
+            'STRING': str,
+            'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(float(x)),
+        }[field['type']]
+    except KeyError:
+        # TODO: determine the proper methods for converting the following:
+        # BIGNUMERIC
+        # DATE
+        # DATETIME
+        # GEOGRAPHY
+        # TIME
+        log.error('Unsupported field type %s. Please open a bug report with '
+                  'the following data: %s, %s', field['type'], field['mode'],
+                  flatten(value))
+        raise
 
     if field['mode'] == 'NULLABLE' and value is None:
         return value
+
     if field['mode'] == 'REPEATED':
+        if field['type'] == 'RECORD':
+            # TODO: The [0] and all this special-casing is suspicious. Is there
+            # a case I'm missing with overly nested RECORDS, perhaps?
+            # I suspect this entire block can get reduced down to a single case
+            # and then inserted into the dict of Callables above.
+            if (len(field['fields']) == 1
+                    and field['fields'][0]['type'] == 'RECORD'):
+                return [{f['name']: parse(f, xs)
+                         for f in field['fields']}
+                        for xs in flatten(value)]
+
+            return [{f['name']: parse(f, x)
+                     for f, x in zip(field['fields'], xs)}
+                    for xs in flatten(value)]
+
         return [f(x) for x in flatten(value)]
+
+    if field['type'] == 'RECORD':
+        return {f['name']: parse(f, x)
+                for f, x in zip(field['fields'], flatten(value))}
+
     return f(flatten(value))
 
 

@@ -10,15 +10,13 @@ from gcloud.aio.bigquery.utils import parse
     ({'v': None}, None),
     ({'v': 'foo'}, 'foo'),
     ({'v': [{'v': 0}, {'v': 1}]}, [0, 1]),
-    ({'v': {'f': [{'v': 'foo'}]}}, 'foo'),
+    ({'v': {'f': [{'v': 'foo'}]}}, ['foo']),
     ({'v': {'f': [{'v': 'foo'}, {'v': 'bar'}]}}, ['foo', 'bar']),
     ({'v': {'f': [{'v': {'f': [{'v': 0}, {'v': 1}]}},
                   {'v': {'f': [{'v': 2}, {'v': 3}]}}]}}, [[0, 1], [2, 3]]),
 ])
 def test_flatten(data, expected):
-    assert flatten(data) == expected
-    # extra nesting should never change the results
-    assert flatten({'f': [data]}) == expected
+    assert flatten({'f': [data]}) == [expected]
 
 
 @pytest.mark.parametrize('field,value,expected', [
@@ -31,8 +29,13 @@ def test_flatten(data, expected):
     ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '0', 0),
     ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '1', 1),
 
-    ({'type': 'RECORD', 'mode': 'NULLABLE'}, [], []),
-    ({'type': 'RECORD', 'mode': 'NULLABLE'}, [1, 2], [1, 2]),
+    ({'type': 'RECORD', 'mode': 'NULLABLE', 'fields': [
+        {'type': 'INTEGER', 'mode': 'REQUIRED'},
+    ]}, [], {}),
+    ({'type': 'RECORD', 'mode': 'NULLABLE', 'fields': [
+        {'name': 'x', 'type': 'INTEGER', 'mode': 'REQUIRED'},
+        {'name': 'y', 'type': 'INTEGER', 'mode': 'REQUIRED'},
+    ]}, [1, 2], {'x': 1, 'y': 2}),
 
     ({'type': 'STRING', 'mode': 'NULLABLE'}, '', ''),
     ({'type': 'STRING', 'mode': 'NULLABLE'}, 'foo', 'foo'),
@@ -79,6 +82,9 @@ def test_from_query_response():
                  {'name': 'item', 'type': 'STRING', 'mode': 'NULLABLE'},
                  {'name': 'value', 'type': 'FLOAT', 'mode': 'NULLABLE'}]}]},
         {'name': 'repeated', 'type': 'STRING', 'mode': 'REPEATED'},
+        {'name': 'record', 'type': 'RECORD', 'mode': 'REQUIRED', 'fields': [
+            {'name': 'item', 'type': 'STRING', 'mode': 'NULLABLE'},
+            {'name': 'value', 'type': 'INTEGER', 'mode': 'NULLABLE'}]},
         {'name': 'PARTITIONTIME', 'type': 'TIMESTAMP', 'mode': 'NULLABLE'},
     ]
     rows = [
@@ -93,6 +99,7 @@ def test_from_query_response():
                    {'v': {'f': [{'v': {'f': [{'v': 'aardvarks'},
                                              {'v': '9000.1'}]}}]}}]},
             {'v': [{'v': 'foo'}, {'v': 'bar'}]},
+            {'v': {'f': [{'v': 'slothtoes'}, {'v': 3}]}},
             {'v': '1.6540416E9'}]},
         {'f': [
             {'v': 'ident2'},
@@ -100,7 +107,55 @@ def test_from_query_response():
             {'v': 'false'},
             {'v': []},
             {'v': [{'v': 'foo'}, {'v': 'bar'}]},
+            {'v': {'f': [{'v': 'slothtoes'}, {'v': 3}]}},
             {'v': '1.6540416E9'}]},
+    ]
+    expected = [
+        {
+            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 1, 0),
+            'id': 'ident1',
+            'isfakedata': True,
+            'nested': [
+                {
+                    'nestedagain': [
+                        {
+                            'item': 'apples',
+                            'value': 1.23,
+                        },
+                        {
+                            'item': 'oranges',
+                            'value': 2.34,
+                        },
+                    ],
+                },
+                {
+                    'nestedagain': [
+                        {
+                            'item': 'aardvarks',
+                            'value': 9000.1,
+                        },
+                    ],
+                }
+            ],
+            'record': {
+                'item': 'slothtoes',
+                'value': 3,
+            },
+            'repeated': ['foo', 'bar'],
+            'unixtime': 1654122422181,
+        },
+        {
+            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 1, 0),
+            'id': 'ident2',
+            'isfakedata': False,
+            'nested': [],
+            'record': {
+                'item': 'slothtoes',
+                'value': 3,
+            },
+            'repeated': ['foo', 'bar'],
+            'unixtime': 1654122422181,
+        },
     ]
 
     resp = {
@@ -115,4 +170,6 @@ def test_from_query_response():
         'jobComplete': True,
         'cacheHit': True,
     }
-    print(from_query_response(resp))
+    parsed = from_query_response(resp)
+    print(parsed)
+    assert parsed == expected
