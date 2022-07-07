@@ -51,8 +51,12 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
     `Field = Dict[str, Union[str, 'Field']]`, but wow is that difficult to
     represent in a backwards-enough compatible fashion.
     """
+    def from_timestamp(x: str) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(float(x),
+                                               tz=datetime.timezone.utc)
+
     try:
-        f: Callable[[Any], Any] = {  # type: ignore[assignment]
+        convert: Callable[[Any], Any] = {  # type: ignore[assignment]
             'BOOLEAN': lambda x: x == 'true',
             'BYTES': bytes,
             'FLOAT': float,
@@ -60,15 +64,15 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
             'NUMERIC': float,
             'RECORD': dict,
             'STRING': str,
-            'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(float(x)),
+            'TIMESTAMP': from_timestamp,
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
-        # BIGNUMERIC
-        # DATE
-        # DATETIME
-        # GEOGRAPHY
-        # TIME
+        # BIGNUMERIC -> int? careful on truncation
+        # DATE -> datetime?
+        # DATETIME -> datetime?
+        # GEOGRAPHY -> ??
+        # TIME -> datetime?
         log.error('Unsupported field type %s. Please open a bug report with '
                   'the following data: %s, %s', field['type'], field['mode'],
                   flatten(value))
@@ -93,13 +97,13 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
                      for f, x in zip(field['fields'], xs)}
                     for xs in flatten(value)]
 
-        return [f(x) for x in flatten(value)]
+        return [convert(x) for x in flatten(value)]
 
     if field['type'] == 'RECORD':
         return {f['name']: parse(f, x)
                 for f, x in zip(field['fields'], flatten(value))}
 
-    return f(flatten(value))
+    return convert(flatten(value))
 
 
 def query_response_to_dict(response: Dict[str, Any]) -> List[Dict[str, Any]]:
