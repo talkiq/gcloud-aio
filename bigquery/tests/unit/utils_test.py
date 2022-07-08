@@ -20,6 +20,9 @@ def test_flatten(data, expected):
 
 
 @pytest.mark.parametrize('field,value,expected', [
+    ({'type': 'BIGNUMERIC', 'mode': 'NULLABLE'}, '0.0', 0.0),
+    ({'type': 'BIGNUMERIC', 'mode': 'NULLABLE'}, '1.25', 1.25),
+
     ({'type': 'BOOLEAN', 'mode': 'NULLABLE'}, 'false', False),
     ({'type': 'BOOLEAN', 'mode': 'NULLABLE'}, 'true', True),
 
@@ -28,6 +31,9 @@ def test_flatten(data, expected):
 
     ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '0', 0),
     ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '1', 1),
+
+    ({'type': 'NUMERIC', 'mode': 'NULLABLE'}, '0.0', 0.0),
+    ({'type': 'NUMERIC', 'mode': 'NULLABLE'}, '1.25', 1.25),
 
     ({'type': 'RECORD', 'mode': 'NULLABLE', 'fields': [
         {'type': 'INTEGER', 'mode': 'REQUIRED'},

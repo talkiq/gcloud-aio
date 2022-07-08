@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import logging
 from typing import Any
 from typing import Callable
@@ -51,24 +52,23 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
     `Field = Dict[str, Union[str, 'Field']]`, but wow is that difficult to
     represent in a backwards-enough compatible fashion.
     """
-    def from_timestamp(x: str) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(float(x),
-                                               tz=datetime.timezone.utc)
-
     try:
         convert: Callable[[Any], Any] = {  # type: ignore[assignment]
+            'BIGNUMERIC': lambda x: decimal.Decimal(
+                x, decimal.Context(prec=77)),
             'BOOLEAN': lambda x: x == 'true',
             'BYTES': bytes,
             'FLOAT': float,
             'INTEGER': int,
-            'NUMERIC': float,
+            'NUMERIC': lambda x: decimal.Decimal(
+                x, decimal.Context(prec=38)),
             'RECORD': dict,
             'STRING': str,
-            'TIMESTAMP': from_timestamp,
+            'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(
+                float(x), tz=datetime.timezone.utc),
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
-        # BIGNUMERIC -> int? careful on truncation
         # DATE -> datetime?
         # DATETIME -> datetime?
         # GEOGRAPHY -> ??
