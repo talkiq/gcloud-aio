@@ -181,8 +181,26 @@ class SubscriberClient:
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=query_params,
                            timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
-        return result
+        first_page: Dict[str, Any] = await resp.json()
+        
+        all_results: Dict[str, Any] = {
+            'subscriptions': first_page['subscriptions']}
+        nextPageToken = first_page.get('nextPageToken', None)
+        next_query_params = {'pageToken': nextPageToken}
+        next_query_params.update(query_params)
+        while nextPageToken:
+            resp = await s.get(
+                url, 
+                headers=headers, 
+                params=next_query_params,
+                timeout=timeout
+            )
+            next_page: Dict[str, Any] = await resp.json()
+            all_results['subscriptions'] += next_page['subscriptions']
+            nextPageToken = next_page.get('nextPageToken', None)
+            next_query_params.update({'pageToken': nextPageToken})
+
+        return all_results
 
     async def close(self) -> None:
         await self.session.close()
