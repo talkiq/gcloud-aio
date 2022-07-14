@@ -36,10 +36,20 @@ from gcloud.aio.bigquery.bigquery import SourceFormat
 from gcloud.aio.bigquery.dataset import Dataset
 from gcloud.aio.bigquery.job import Job
 from gcloud.aio.bigquery.table import Table
+from gcloud.aio.bigquery.utils import query_response_to_dict
 
 
-__all__ = [&#39;__version__&#39;, &#39;Dataset&#39;, &#39;Disposition&#39;, &#39;Job&#39;, &#39;SCOPES&#39;,
-           &#39;SchemaUpdateOption&#39;, &#39;SourceFormat&#39;, &#39;Table&#39;]</code></pre>
+__all__ = [
+    &#39;__version__&#39;,
+    &#39;Dataset&#39;,
+    &#39;Disposition&#39;,
+    &#39;Job&#39;,
+    &#39;SCOPES&#39;,
+    &#39;SchemaUpdateOption&#39;,
+    &#39;SourceFormat&#39;,
+    &#39;Table&#39;,
+    &#39;query_response_to_dict&#39;,
+]</code></pre>
 </details>
 </section>
 <section>
@@ -61,11 +71,49 @@ __all__ = [&#39;__version__&#39;, &#39;Dataset&#39;, &#39;Disposition&#39;, &#39
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="gcloud.aio.bigquery.utils" href="utils.html">gcloud.aio.bigquery.utils</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="gcloud.aio.bigquery.query_response_to_dict"><code class="name flex">
+<span>def <span class="ident">query_response_to_dict</span></span>(<span>response: Dict[str, Any]) ‑> List[Dict[str, Any]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a query response to a dictionary.</p>
+<p>API responses for job queries are packed into a difficult-to-use format.
+This method deserializes a response into a List of rows, with each row
+being a dictionary of field names to the row's value.</p>
+<p>This method also handles converting the values according to the schema
+defined in the response (eg. into builtin python types).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def query_response_to_dict(response: Dict[str, Any]) -&gt; List[Dict[str, Any]]:
+    &#34;&#34;&#34;
+    Convert a query response to a dictionary.
+
+    API responses for job queries are packed into a difficult-to-use format.
+    This method deserializes a response into a List of rows, with each row
+    being a dictionary of field names to the row&#39;s value.
+
+    This method also handles converting the values according to the schema
+    defined in the response (eg. into builtin python types).
+    &#34;&#34;&#34;
+    fields = response[&#39;schema&#39;].get(&#39;fields&#39;, [])
+    rows = [x[&#39;f&#39;] for x in response.get(&#39;rows&#39;, [])]
+    return [{k[&#39;name&#39;]: parse(k, v) for k, v in zip(fields, row)}
+            for row in rows]</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -364,7 +412,10 @@ __all__ = [&#39;__version__&#39;, &#39;Dataset&#39;, &#39;Disposition&#39;, &#39
         project = await self.project()
         url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
-        return await self._post_json(url, job, session, timeout)
+        response = await self._post_json(url, job, session, timeout)
+        if response[&#39;jobReference&#39;].get(&#39;jobId&#39;):
+            self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+        return response
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -481,7 +532,10 @@ __all__ = [&#39;__version__&#39;, &#39;Dataset&#39;, &#39;Disposition&#39;, &#39
     project = await self.project()
     url = f&#39;{API_ROOT}/projects/{project}/jobs&#39;
 
-    return await self._post_json(url, job, session, timeout)</code></pre>
+    response = await self._post_json(url, job, session, timeout)
+    if response[&#39;jobReference&#39;].get(&#39;jobId&#39;):
+        self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+    return response</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Job.insert_via_query"><code class="name flex">
@@ -1202,6 +1256,12 @@ response JSON containing details on the failing rows.</p></div>
 <li><code><a title="gcloud.aio.bigquery.dataset" href="dataset.html">gcloud.aio.bigquery.dataset</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.job" href="job.html">gcloud.aio.bigquery.job</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.table" href="table.html">gcloud.aio.bigquery.table</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.utils" href="utils.html">gcloud.aio.bigquery.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="gcloud.aio.bigquery.query_response_to_dict" href="#gcloud.aio.bigquery.query_response_to_dict">query_response_to_dict</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

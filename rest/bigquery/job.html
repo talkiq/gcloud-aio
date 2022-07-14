@@ -141,7 +141,10 @@ class Job(BigqueryBase):
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-        return self._post_json(url, job, session, timeout)
+        response = self._post_json(url, job, session, timeout)
+        if response[&#39;jobReference&#39;].get(&#39;jobId&#39;):
+            self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+        return response
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -282,7 +285,10 @@ class Job(BigqueryBase):
         project = self.project()
         url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-        return self._post_json(url, job, session, timeout)
+        response = self._post_json(url, job, session, timeout)
+        if response[&#39;jobReference&#39;].get(&#39;jobId&#39;):
+            self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+        return response
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -399,7 +405,10 @@ class Job(BigqueryBase):
     project = self.project()
     url = &#39;{}/projects/{}/jobs&#39;.format((API_ROOT), (project))
 
-    return self._post_json(url, job, session, timeout)</code></pre>
+    response = self._post_json(url, job, session, timeout)
+    if response[&#39;jobReference&#39;].get(&#39;jobId&#39;):
+        self.job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;]
+    return response</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.job.Job.insert_via_query"><code class="name flex">
