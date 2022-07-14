@@ -5,9 +5,28 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import Optional
 
 
 log = logging.getLogger(__name__)
+
+
+try:
+    utc = datetime.timezone.utc
+except AttributeError:
+    # build our own UTC for Python 2
+    class UTC(datetime.tzinfo):
+        def utcoffset(self,
+                      _dt: Optional[datetime.datetime]) -> datetime.timedelta:
+            return datetime.timedelta(0)
+
+        def tzname(self, _dt: Optional[datetime.datetime]) -> str:
+            return 'UTC'
+
+        def dst(self, _dt: Optional[datetime.datetime]) -> datetime.timedelta:
+            return datetime.timedelta(0)
+
+    utc = UTC()  # type: ignore[assignment]
 
 
 def flatten(x: Any) -> Any:
@@ -65,7 +84,7 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
             'RECORD': dict,
             'STRING': str,
             'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(
-                float(x), tz=datetime.timezone.utc),
+                float(x), tz=utc),
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:

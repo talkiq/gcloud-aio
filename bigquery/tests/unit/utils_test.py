@@ -4,6 +4,7 @@ import pytest
 from gcloud.aio.bigquery.utils import flatten
 from gcloud.aio.bigquery.utils import parse
 from gcloud.aio.bigquery.utils import query_response_to_dict
+from gcloud.aio.bigquery.utils import utc
 
 
 @pytest.mark.parametrize('data,expected', [
@@ -47,10 +48,9 @@ def test_flatten(data, expected):
     ({'type': 'STRING', 'mode': 'NULLABLE'}, 'foo', 'foo'),
 
     ({'type': 'TIMESTAMP', 'mode': 'NULLABLE'}, '0.0',
-     datetime.datetime(1970, 1, 1, 0, tzinfo=datetime.timezone.utc)),
+     datetime.datetime(1970, 1, 1, 0, tzinfo=utc)),
     ({'type': 'TIMESTAMP', 'mode': 'NULLABLE'}, '1656511192.51',
-     datetime.datetime(2022, 6, 29, 13, 59, 52, 510000,
-                       tzinfo=datetime.timezone.utc)),
+     datetime.datetime(2022, 6, 29, 13, 59, 52, 510000, tzinfo=utc)),
 
     ({'type': 'STRING', 'mode': 'REQUIRED'}, '', ''),
     ({'type': 'STRING', 'mode': 'REQUIRED'}, 'foo', 'foo'),
@@ -119,8 +119,7 @@ def test_query_response_to_dict():
     ]
     expected = [
         {
-            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0,
-                                               tzinfo=datetime.timezone.utc),
+            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=utc),
             'id': 'ident1',
             'isfakedata': True,
             'nested': [
@@ -153,8 +152,7 @@ def test_query_response_to_dict():
             'unixtime': 1654122422181,
         },
         {
-            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0,
-                                               tzinfo=datetime.timezone.utc),
+            'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=utc),
             'id': 'ident2',
             'isfakedata': False,
             'nested': [],
