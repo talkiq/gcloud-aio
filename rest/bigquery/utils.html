@@ -43,9 +43,28 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import Optional
 
 
 log = logging.getLogger(__name__)
+
+
+try:
+    utc = datetime.timezone.utc
+except AttributeError:
+    # build our own UTC for Python 2
+    class UTC(datetime.tzinfo):
+        def utcoffset(self,
+                      _dt                             )                      :
+            return datetime.timedelta(0)
+
+        def tzname(self, _dt                             )       :
+            return &#39;UTC&#39;
+
+        def dst(self, _dt                             )                      :
+            return datetime.timedelta(0)
+
+    utc = UTC()  # type: ignore[assignment]
 
 
 def flatten(x     )       :
@@ -103,7 +122,7 @@ def parse(field                , value     )       :
             &#39;RECORD&#39;: dict,
             &#39;STRING&#39;: str,
             &#39;TIMESTAMP&#39;: lambda x: datetime.datetime.fromtimestamp(
-                float(x), tz=datetime.timezone.utc),
+                float(x), tz=utc),
         }[field[&#39;type&#39;]]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
@@ -257,7 +276,7 @@ represent in a backwards-enough compatible fashion.</p></div>
             &#39;RECORD&#39;: dict,
             &#39;STRING&#39;: str,
             &#39;TIMESTAMP&#39;: lambda x: datetime.datetime.fromtimestamp(
-                float(x), tz=datetime.timezone.utc),
+                float(x), tz=utc),
         }[field[&#39;type&#39;]]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
