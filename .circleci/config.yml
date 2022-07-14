@@ -94,9 +94,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    docker:
-      - image: python:3.9
-    resource_class: small
+    executor: python-39
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -116,8 +114,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    docker:
-      - image: python:3.10.5
+    executor: python-39
     steps:
       - run: pip install pdoc3
       - run:
