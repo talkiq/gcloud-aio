@@ -108,8 +108,8 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
             # and then inserted into the dict of Callables above.
             if (len(field['fields']) == 1
                     and field['fields'][0]['type'] == 'RECORD'):
-                return [{f['name']: parse(f, xs)
-                         for f in field['fields']}
+                return [{f['name']: parse(f, xs[idx])
+                         for idx, f in enumerate(field['fields'])}
                         for xs in flatten(value)]
 
             return [{f['name']: parse(f, x)
