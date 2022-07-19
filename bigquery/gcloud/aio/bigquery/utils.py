@@ -102,16 +102,6 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
 
     if field['mode'] == 'REPEATED':
         if field['type'] == 'RECORD':
-            # TODO: The [0] and all this special-casing is suspicious. Is there
-            # a case I'm missing with overly nested RECORDS, perhaps?
-            # I suspect this entire block can get reduced down to a single case
-            # and then inserted into the dict of Callables above.
-            if (len(field['fields']) == 1
-                    and field['fields'][0]['type'] == 'RECORD'):
-                return [{f['name']: parse(f, xs)
-                         for f in field['fields']}
-                        for xs in flatten(value)]
-
             return [{f['name']: parse(f, x)
                      for f, x in zip(field['fields'], xs)}
                     for xs in flatten(value)]
