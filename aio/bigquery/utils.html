@@ -130,16 +130,6 @@ def parse(field: Dict[str, Any], value: Any) -&gt; Any:
 
     if field[&#39;mode&#39;] == &#39;REPEATED&#39;:
         if field[&#39;type&#39;] == &#39;RECORD&#39;:
-            # TODO: The [0] and all this special-casing is suspicious. Is there
-            # a case I&#39;m missing with overly nested RECORDS, perhaps?
-            # I suspect this entire block can get reduced down to a single case
-            # and then inserted into the dict of Callables above.
-            if (len(field[&#39;fields&#39;]) == 1
-                    and field[&#39;fields&#39;][0][&#39;type&#39;] == &#39;RECORD&#39;):
-                return [{f[&#39;name&#39;]: parse(f, xs)
-                         for f in field[&#39;fields&#39;]}
-                        for xs in flatten(value)]
-
             return [{f[&#39;name&#39;]: parse(f, x)
                      for f, x in zip(field[&#39;fields&#39;], xs)}
                     for xs in flatten(value)]
@@ -284,16 +274,6 @@ represent in a backwards-enough compatible fashion.</p></div>
 
     if field[&#39;mode&#39;] == &#39;REPEATED&#39;:
         if field[&#39;type&#39;] == &#39;RECORD&#39;:
-            # TODO: The [0] and all this special-casing is suspicious. Is there
-            # a case I&#39;m missing with overly nested RECORDS, perhaps?
-            # I suspect this entire block can get reduced down to a single case
-            # and then inserted into the dict of Callables above.
-            if (len(field[&#39;fields&#39;]) == 1
-                    and field[&#39;fields&#39;][0][&#39;type&#39;] == &#39;RECORD&#39;):
-                return [{f[&#39;name&#39;]: parse(f, xs)
-                         for f in field[&#39;fields&#39;]}
-                        for xs in flatten(value)]
-
             return [{f[&#39;name&#39;]: parse(f, x)
                      for f, x in zip(field[&#39;fields&#39;], xs)}
                     for xs in flatten(value)]
