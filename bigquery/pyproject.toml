@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-bigquery"
-version = "6.1.1"
+version = "6.1.2"
 description = "Python Client for Google Cloud BigQuery"
 readme = "README.rst"
 
