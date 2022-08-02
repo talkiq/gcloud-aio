@@ -7,22 +7,22 @@ orbs:
 executors:
   python-36:
     docker:
-      - image: python:3.6.15
+      - image: python:3.10.6
     resource_class: small
 
   python-37:
     docker:
-      - image: python:3.7.13
+      - image: python:3.10.6
     resource_class: small
 
   python-38:
     docker:
-      - image: python:3.8.13
+      - image: python:3.10.6
     resource_class: small
 
   python-39:
     docker:
-      - image: python:3.9.13
+      - image: python:3.10.6
     resource_class: small
 
 commands:
