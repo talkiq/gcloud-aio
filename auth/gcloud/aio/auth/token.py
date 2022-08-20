@@ -177,19 +177,15 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if self.acquiring:
+        if self.acquiring and not self.acquiring.cancelled():
             await self.acquiring
             return
 
-        if not self.access_token:
-            self.acquiring = asyncio.ensure_future(self.acquire_access_token())
-            await self.acquiring
-            return
-
-        now = datetime.datetime.utcnow()
-        delta = (now - self.access_token_acquired_at).total_seconds()
-        if delta <= self.access_token_duration / 2:
-            return
+        if self.access_token:
+            now = datetime.datetime.utcnow()
+            delta = (now - self.access_token_acquired_at).total_seconds()
+            if delta <= self.access_token_duration / 2:
+                return
 
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
