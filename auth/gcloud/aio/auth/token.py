@@ -145,19 +145,15 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if self.acquiring:
+        if self.acquiring and not self.acquiring.cancelled():
             await self.acquiring
             return
 
-        if not self.access_token:
-            self.acquiring = asyncio.ensure_future(self.acquire_access_token())
-            await self.acquiring
-            return
-
-        now = datetime.datetime.utcnow()
-        delta = (now - self.access_token_acquired_at).total_seconds()
-        if delta <= self.access_token_duration / 2:
-            return
+        if self.access_token:
+            now = datetime.datetime.utcnow()
+            delta = (now - self.access_token_acquired_at).total_seconds()
+            if delta <= self.access_token_duration / 2:
+                return
 
         self.acquiring = asyncio.ensure_future(self.acquire_access_token())
         await self.acquiring
@@ -208,23 +204,21 @@ class Token:
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)
     async def acquire_access_token(self, timeout: int = 10) -> None:
-        try:
-            if self.token_type == Type.AUTHORIZED_USER:
-                resp = await self._refresh_authorized_user(timeout=timeout)
-            elif self.token_type == Type.GCE_METADATA:
-                resp = await self._refresh_gce_metadata(timeout=timeout)
-            elif self.token_type == Type.SERVICE_ACCOUNT:
-                resp = await self._refresh_service_account(timeout=timeout)
-            else:
-                raise Exception(f'unsupported token type {self.token_type}')
+        if self.token_type == Type.AUTHORIZED_USER:
+            resp = await self._refresh_authorized_user(timeout=timeout)
+        elif self.token_type == Type.GCE_METADATA:
+            resp = await self._refresh_gce_metadata(timeout=timeout)
+        elif self.token_type == Type.SERVICE_ACCOUNT:
+            resp = await self._refresh_service_account(timeout=timeout)
+        else:
+            raise Exception(f'unsupported token type {self.token_type}')
 
-            content = await resp.json()
+        content = await resp.json()
 
-            self.access_token = str(content['access_token'])
-            self.access_token_duration = int(content['expires_in'])
-            self.access_token_acquired_at = datetime.datetime.utcnow()
-        finally:
-            self.acquiring = None
+        self.access_token = str(content['access_token'])
+        self.access_token_duration = int(content['expires_in'])
+        self.access_token_acquired_at = datetime.datetime.utcnow()
+        self.acquiring = None
 
     async def close(self) -> None:
         await self.session.close()
