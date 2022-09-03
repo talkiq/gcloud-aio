@@ -47,8 +47,8 @@ MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
 if STORAGE_EMULATOR_HOST:
-    API_ROOT = f'https://{STORAGE_EMULATOR_HOST}/storage/v1/b'
-    API_ROOT_UPLOAD = f'https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
+    API_ROOT = f'http://{STORAGE_EMULATOR_HOST}/storage/v1/b'
+    API_ROOT_UPLOAD = f'http://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
     VERIFY_SSL = False
 
 log = logging.getLogger(__name__)
