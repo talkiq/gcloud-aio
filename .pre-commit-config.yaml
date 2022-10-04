@@ -37,7 +37,8 @@ repos:
         - git+https://github.com/bayesimpact/pylint_import_modules@016f79e4d2
         args:
         - --allowed-direct-imports="typing.*"
-        - --load-plugins=pylint_import_modules
+        - --load-plugins=pylint_import_modules,pylint.extensions.mccabe
+        - --max-complexity=10
         - --max-line-length=79
         - --max-args=10
         - --score=n
@@ -130,6 +131,8 @@ repos:
     rev: 3.9.2
     hooks:
     -   id: flake8
+        additional_dependencies:
+        - importlib-metadata<5
         args:
         - --ignore=E501,W503,F401,F811
 -   repo: local

@@ -76,6 +76,7 @@ class BaseSession:
         pass
 
 
+# pylint: disable=too-complex
 if not BUILD_GCLOUD_REST:
     import aiohttp
 
@@ -187,7 +188,7 @@ if not BUILD_GCLOUD_REST:
             if not self._shared_session and self._session:
                 await self._session.close()
 
-
+# pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
