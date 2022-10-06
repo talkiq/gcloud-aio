@@ -1,6 +1,7 @@
 # pylint: disable=redefined-outer-name
 from gcloud.aio.auth import BUILD_GCLOUD_REST
 
+# pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
     pass
 else:
