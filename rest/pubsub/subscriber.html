@@ -39,6 +39,7 @@ standard_library.install_aliases()
 from builtins import object
 from gcloud.rest.auth import BUILD_GCLOUD_REST
 
+# pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
     pass
 else:
