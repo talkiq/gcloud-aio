@@ -115,6 +115,10 @@ class StreamResponse:
         self._response = response
         self._iter: Optional[Iterator[bytes]] = None
 
+    @property
+    def content_length(self) -> int:
+        return int(self._response.headers.get('content-length', 0))
+
     async def read(self, size: int = -1) -> bytes:
         chunk: bytes
         if BUILD_GCLOUD_REST:

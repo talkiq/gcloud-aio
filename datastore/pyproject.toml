@@ -28,7 +28,7 @@ aiohttp = ">= 3.3.0, < 4.0.0"
 gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-storage = { path = "../storage" }
 pytest = ">= 4.0.0, < 8.0.0"
-pytest-asyncio = ">= 0.16.0, < 0.19.0"
+pytest-asyncio = ">= 0.16.0, < 0.19.1"
 pytest-mock = ">= 2.0.0, < 4.0.0"
 # TODO: this should be inherited from gcloud-aio-storage, but it seems to be
 # skipped for py2 rest testing:

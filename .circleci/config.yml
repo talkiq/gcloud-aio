@@ -1,8 +1,24 @@
 version: 2.1
 
 orbs:
-  linter: talkiq/linter@2
-  poetry: talkiq/poetry@2.4
+  linter: talkiq/linter@3
+  poetry: talkiq/poetry@4
+
+executors:
+  nox:
+    docker:
+      - image: thekevjames/nox:2022.8.7
+    resource_class: small
+
+  python-38:
+    docker:
+      - image: python:3.8.13
+    resource_class: small
+
+  python-39:
+    docker:
+      - image: python:3.9.13
+    resource_class: small
 
 commands:
   store-rest:
@@ -42,9 +58,7 @@ jobs:
   #   * I have no idea why this fixed things, maybe a similar issue to
   #     https://github.com/python-poetry/poetry/issues/3410 ?
   poetry-run-deprecated-pythons:
-    docker:
-      - image: thekevjames/nox:2022.1.7
-    resource_class: small
+    executor: nox
     parameters:
       cmd:
         type: string
@@ -55,15 +69,20 @@ jobs:
     steps:
       - run: apt-get update -qy
       - run: apt-get install -qy python3.8-venv
-      - poetry/install
+      - poetry/install:
+          # TODO: figure out a better way for managing older envs like py27...
+          # ...or hopefully we can drop support before this affects us... more
+          # than it already does...
+          version: 1.1.9
       - checkout
       - run:
           command: poetry env use <<parameters.python_version>>
           working_directory: <<parameters.cwd>>
       - run:
-          command: |
-            poetry install --no-root
-            poetry run pip install .
+          command: poetry install --no-root
+          working_directory: <<parameters.cwd>>
+      - run:
+          command: poetry run pip install .
           working_directory: <<parameters.cwd>>
       - run:
           command: poetry run <<parameters.cmd>>
@@ -73,9 +92,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    docker:
-      - image: python:3.9
-    resource_class: small
+    executor: python-39
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -95,8 +112,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    docker:
-      - image: python:3.9.12
+    executor: python-39
     steps:
       - run: pip install pdoc3
       - run:
@@ -134,7 +150,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:17.8.0
+      - image: node:18.9.0
     steps:
       - checkout
       - attach_workspace:
@@ -176,7 +192,8 @@ workflows:
       # build gcloud-rest-*
       - poetry/run:
           name: build-rest
-          cmd: ./bin/build-rest
+          commands:
+            - run: poetry run ./bin/build-rest
           post-steps:
             - store-rest
           filters:
@@ -185,13 +202,13 @@ workflows:
 
       # run linters
       - linter/pre-commit:
-          python_version: 3.8.6  # TODO: https://github.com/PyCQA/pylint/issues/3882
+          executor: python-38  # TODO: https://github.com/PyCQA/pylint/issues/3882
           filters:
             tags:
               only: /.*/
 
       # run tests
-      - poetry/run:
+      - poetry-run-deprecated-pythons:
           name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/unit
           matrix:
@@ -202,7 +219,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - poetry/run:
+      - poetry-run-deprecated-pythons:
           name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
           cmd: pytest tests/integration
           pre-steps:
