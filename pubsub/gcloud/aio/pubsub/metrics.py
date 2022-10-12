@@ -34,8 +34,15 @@ else:
 
     MESSAGES_PROCESSED = prometheus_client.Counter(
         'subscriber_messages_processed',
-        'Counter of successfully processed messages',
+        'Counter of successfully acked/nacked messages',
         ['component'],
+        namespace=_NAMESPACE,
+        subsystem=_SUBSYSTEM,
+        unit='total')
+
+    MESSAGES_RECEIVED = prometheus_client.Counter(
+        'subscriber_messages_received',
+        'Counter of messages pulled from subscription',
         namespace=_NAMESPACE,
         subsystem=_SUBSYSTEM,
         unit='total')

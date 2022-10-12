@@ -129,8 +129,10 @@ Prometheus to scrape app metrics:
   outcome = {'succeeded', 'failed'}``) - [counter] a batch has succeeded or
   failed to be acked or nacked
 - ``subscriber_messages_processed_total`` (labels: ``component = {'acker',
-  'nacker', 'producer'}``) - [counter] the number of messages that were acked,
-  nacked, or retrieved from pubsub
+  'nacker'}``) - [counter] the number of messages that were processed, either
+  by being acked or nacked
+- ``subscriber_messages_received_total`` - [counter] the number of messages
+  pulled from pubsub
 
 
 Metrics Agent (Deprecated)
