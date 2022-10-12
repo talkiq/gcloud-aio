@@ -3,8 +3,12 @@ Releasing New Versions
 
 CircleCI manages the entire release process for us. Here's what you need to do:
 
-Make sure the ``setup.py`` for the project you're releasing gets a version
-bump. `Semantic versioning`_ (``x.y.z``) is great.
+Use poetry to update to the correct `semantic version`_, eg. via:
+
+.. code-block:: console
+
+    cd <project>/
+    poetry version <major|minor|patch|prerelease>
 
 Commit those changes to master and make sure CI is successful. Once it is, you
 can create a release tag:
@@ -25,4 +29,4 @@ said project and version to PyPI. Note that this will release both
 ``gcloud-aio-foo`` and ``gcloud-rest-foo``.
 
 .. _GitHub release: https://github.com/talkiq/gcloud-aio/releases
-.. _Semantic versioning: http://semver.org/
+.. _semantic version: http://semver.org/

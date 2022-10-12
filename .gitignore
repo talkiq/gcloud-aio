@@ -3,10 +3,10 @@
 **/.nox/*
 **/.pytest_cache/*
 **/__pycache__/*
+**/build/*
 **/dist/*
 **/venv/*
 *.pyc
 */.coverage
-*/build/*
 .mypy_cache/*
 docs/*

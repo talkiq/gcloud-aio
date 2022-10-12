@@ -534,8 +534,13 @@ class Storage:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=body, headers=headers, params=params,
-                            timeout=timeout)
+        if not BUILD_GCLOUD_REST:
+            # Wrap data in BytesIO to ensure aiohttp does not emit warning
+            # when payload size > 1MB
+            body = io.BytesIO(body)  # type: ignore[assignment]
+
+        resp = await s.post(url, data=body, headers=headers,
+                            params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 

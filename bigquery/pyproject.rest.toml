@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "gcloud-rest-bigquery"
+version = "6.0.0"
+description = "Python Client for Google Cloud BigQuery"
+readme = "README.rst"
+
+repository = "https://github.com/talkiq/gcloud-aio"
+authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
+license = "MIT"
+
+packages = [
+    { include = "gcloud" },
+]
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Topic :: Internet',
+]
+
+[tool.poetry.dependencies]
+python = "^2.7 || >= 3.4, < 4.0"
+gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
+
+[tool.poetry.dev-dependencies]
+gcloud-rest-auth = { path = "../auth" }
+gcloud-rest-datastore = { path = "../datastore" }
+gcloud-rest-storage = { path = "../storage" }
+pytest = ">= 4.0.0, < 8.0.0"
+# pytest-asyncio = ">= 0.16.0, < 0.19.0"
+pytest-mock = ">= 2.0.0, < 4.0.0"
+# TODO: this should be inherited from gcloud-rest-storage, but it seems to be
+# skipped for py2 rest testing:
+# https://app.circleci.com/pipelines/github/talkiq/gcloud-rest/1769/workflows/5099f442-b4b2-48bc-bff2-77fb0cce993a/jobs/36773
+rsa = [
+    { version = ">= 3.1.4, < 4.4.0", python = "<3.0" },
+    { version = ">= 3.1.4, < 4.6.0", python = ">=3.0,<3.6" },
+    { version = ">= 3.1.4, < 5.0.0", python = ">=3.6" },
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

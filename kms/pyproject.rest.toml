@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "gcloud-rest-kms"
+version = "4.0.0"
+description = "Python Client for Google Cloud KMS"
+readme = "README.rst"
+
+repository = "https://github.com/talkiq/gcloud-aio"
+authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
+license = "MIT"
+
+packages = [
+    { include = "gcloud" },
+]
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Topic :: Internet',
+]
+
+[tool.poetry.dependencies]
+python = "^2.7 || >= 3.4, < 4.0"
+gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
+
+[tool.poetry.dev-dependencies]
+gcloud-rest-auth = { path = "../auth" }
+pytest = ">= 4.0.0, < 8.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

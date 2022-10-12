@@ -2,7 +2,7 @@
   "assignees": ["TheKevJames"],
   "extends": ["github>thekevjames/tools"],
   "packageRules": [{
-    "managers": ["pip_requirements"],
+    "managers": ["poetry"],
     "rangeStrategy": "widen"
   }]
 }
