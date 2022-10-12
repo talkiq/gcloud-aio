@@ -8,6 +8,15 @@ else:
     _NAMESPACE = 'gcloud_aio'
     _SUBSYSTEM = 'pubsub'
 
+    BATCH_SIZE = prometheus_client.Histogram(
+        'subscriber_batch',
+        'Histogram of number of messages pulled in a single batch',
+        namespace=_NAMESPACE,
+        subsystem=_SUBSYSTEM,
+        unit='size',
+        buckets=(0, 1, 5, 10, 25, 50, 100, 150, 250, 500, 1000, 1500, 2000,
+                 5000, float('inf')))
+
     CONSUME = prometheus_client.Counter(
         'subscriber_consume',
         'Counter of the outcomes of PubSub message consume attempts',

@@ -342,6 +342,7 @@ else:
                 metrics_client.histogram(
                     'pubsub.producer.batch', len(new_messages))
                 metrics.MESSAGES_RECEIVED.inc(len(new_messages))
+                metrics.BATCH_SIZE.observe(len(new_messages))
 
                 pulled_at = time.perf_counter()
                 while new_messages:

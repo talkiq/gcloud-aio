@@ -119,6 +119,8 @@ the subscriber records Prometheus metrics in the form
 ``gcloud_aio_pubsub_<metric>``, which will have no effect if you don't use
 Prometheus to scrape app metrics:
 
+- ``subscriber_batch_size`` - [histogram] how many messages were pulled from
+  the subscription in a single batch
 - ``subscriber_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
   'failed', 'failfast'}``) - [counter] a consume operation has completed with a
   given outcome
