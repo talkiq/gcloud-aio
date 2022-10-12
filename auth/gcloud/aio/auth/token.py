@@ -65,9 +65,13 @@ def get_service_data(
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     if not service:
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
-        sdkpath = (cloudsdk_config
-                   or os.path.join(os.path.expanduser('~'), '.config',
-                                   'gcloud'))
+        if cloudsdk_config is not None:
+            sdkpath = cloudsdk_config
+        elif os.name != 'nt':
+            sdkpath = os.path.join(os.path.expanduser('~'), '.config',
+                                   'gcloud')
+        else:
+            sdkpath = os.path.join(os.environ['APPDATA'], 'gcloud')
         service = os.path.join(sdkpath, 'application_default_credentials.json')
         set_explicitly = bool(cloudsdk_config)
     else:
