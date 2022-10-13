@@ -32,8 +32,8 @@ __version__ = get_distribution(&#39;gcloud-aio-pubsub&#39;).version
 from gcloud.aio.auth import BUILD_GCLOUD_REST
 from gcloud.aio.pubsub.publisher_client import PublisherClient
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
-from gcloud.aio.pubsub.utils import PubsubMessage
 from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
+from gcloud.aio.pubsub.utils import PubsubMessage
 
 __all__ = [&#39;__version__&#39;, &#39;PublisherClient&#39;, &#39;PubsubMessage&#39;,
            &#39;SubscriberClient&#39;, &#39;SubscriberMessage&#39;]
@@ -46,6 +46,10 @@ if not BUILD_GCLOUD_REST:
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="gcloud.aio.pubsub.metrics" href="metrics.html">gcloud.aio.pubsub.metrics</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="gcloud.aio.pubsub.metrics_agent" href="metrics_agent.html">gcloud.aio.pubsub.metrics_agent</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -105,6 +109,11 @@ if not BUILD_GCLOUD_REST:
     ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                           subscription,
                                           ack_deadline_cache_timeout)
+
+    if metrics_client is not None:
+        warnings.warn(&#39;Using MetricsAgent in subscribe() is deprecated. &#39;
+                      &#39;Refer to Prometheus metrics instead.&#39;,
+                      DeprecationWarning)
     metrics_client = metrics_client or MetricsAgent()
     acker_tasks = []
     consumer_tasks = []
@@ -1056,6 +1065,7 @@ def from_repr(received_message: Dict[str, Any]
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="gcloud.aio.pubsub.metrics" href="metrics.html">gcloud.aio.pubsub.metrics</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.metrics_agent" href="metrics_agent.html">gcloud.aio.pubsub.metrics_agent</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.publisher_client" href="publisher_client.html">gcloud.aio.pubsub.publisher_client</a></code></li>
 <li><code><a title="gcloud.aio.pubsub.subscriber" href="subscriber.html">gcloud.aio.pubsub.subscriber</a></code></li>
