@@ -12,12 +12,12 @@ executors:
 
   python-38:
     docker:
-      - image: python:3.8.13
+      - image: python:3.10.8
     resource_class: small
 
   python-39:
     docker:
-      - image: python:3.9.13
+      - image: python:3.10.8
     resource_class: small
 
 commands:
