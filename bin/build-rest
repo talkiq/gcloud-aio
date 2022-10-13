@@ -91,6 +91,8 @@ find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^# requests/requests/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^prometheus-client/# prometheus-client/g'
 for folder in ${PROJECTS}; do
     pushd $folder >/dev/null
 

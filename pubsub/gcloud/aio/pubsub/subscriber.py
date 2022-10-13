@@ -8,6 +8,7 @@ else:
     import asyncio
     import logging
     import time
+    import warnings
     from typing import Awaitable
     from typing import Callable
     from typing import List
@@ -16,6 +17,7 @@ else:
     from typing import TYPE_CHECKING
     from typing import TypeVar
 
+    from gcloud.aio.pubsub import metrics
     from gcloud.aio.pubsub.subscriber_client import SubscriberClient
     from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
     from gcloud.aio.pubsub.metrics_agent import MetricsAgent
@@ -126,6 +128,8 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+                metrics.BATCH_STATUS.labels(component='acker',
+                                            outcome='failed').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -134,10 +138,16 @@ else:
                 log.warning(
                     'Ack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.acker.batch.failed')
+                metrics.BATCH_STATUS.labels(component='acker',
+                                            outcome='failed').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
+            metrics.BATCH_STATUS.labels(component='acker',
+                                        outcome='succeeded').inc()
+            metrics.MESSAGES_PROCESSED.labels(component='acker').inc(
+                len(ack_ids))
 
             ack_ids = []
 
@@ -194,6 +204,8 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+                metrics.BATCH_STATUS.labels(
+                    component='nacker', outcome='failed').inc()
 
                 continue
             except asyncio.CancelledError:  # pylint: disable=try-except-raise
@@ -202,10 +214,16 @@ else:
                 log.warning(
                     'Nack request failed, better luck next batch', exc_info=e)
                 metrics_client.increment('pubsub.nacker.batch.failed')
+                metrics.BATCH_STATUS.labels(
+                    component='nacker', outcome='failed').inc()
 
                 continue
 
             metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
+            metrics.BATCH_STATUS.labels(component='nacker',
+                                        outcome='succeeded').inc()
+            metrics.MESSAGES_PROCESSED.labels(component='nacker').inc(
+                len(ack_ids))
 
             ack_ids = []
 
@@ -213,25 +231,33 @@ else:
                                 callback: ApplicationHandler,
                                 ack_queue: 'asyncio.Queue[str]',
                                 nack_queue: 'Optional[asyncio.Queue[str]]',
+                                insertion_time: float,
                                 metrics_client: MetricsAgent
                                 ) -> None:
         try:
             start = time.perf_counter()
-            await callback(message)
-            await ack_queue.put(message.ack_id)
-            metrics_client.increment('pubsub.consumer.succeeded')
+            metrics.CONSUME_LATENCY.labels(phase='queueing').observe(
+                start - insertion_time)
+            with metrics.CONSUME_LATENCY.labels(phase='runtime').time():
+                await callback(message)
+                await ack_queue.put(message.ack_id)
             metrics_client.histogram('pubsub.consumer.latency.runtime',
                                      time.perf_counter() - start)
+            metrics_client.increment('pubsub.consumer.succeeded')
+            metrics.CONSUME.labels(outcome='succeeded').inc()
+
         except asyncio.CancelledError:
             if nack_queue:
                 await nack_queue.put(message.ack_id)
             log.warning('Application callback was cancelled')
             metrics_client.increment('pubsub.consumer.cancelled')
+            metrics.CONSUME.labels(outcome='cancelled').inc()
         except Exception:
             if nack_queue:
                 await nack_queue.put(message.ack_id)
             log.exception('Application callback raised an exception')
             metrics_client.increment('pubsub.consumer.failed')
+            metrics.CONSUME.labels(outcome='failed').inc()
 
     async def consumer(  # pylint: disable=too-many-locals
             message_queue: MessageQueue,
@@ -251,21 +277,25 @@ else:
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) >= ack_deadline:
                     metrics_client.increment('pubsub.consumer.failfast')
+                    metrics.CONSUME.labels(outcome='failfast').inc()
                     message_queue.task_done()
                     semaphore.release()
                     return
 
+                # publish_time is in UTC Zulu
+                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+                recv_latency = time.time() - message.publish_time.timestamp()
                 metrics_client.histogram(
-                    'pubsub.consumer.latency.receive',
-                    # publish_time is in UTC Zulu
-                    # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-                    time.time() - message.publish_time.timestamp())
+                    'pubsub.consumer.latency.receive', recv_latency)
+                metrics.CONSUME_LATENCY.labels(phase='receive').observe(
+                    recv_latency)
 
                 task = asyncio.ensure_future(_execute_callback(
                     message,
                     callback,
                     ack_queue,
                     nack_queue,
+                    time.perf_counter(),
                     metrics_client,
                 ))
                 task.add_done_callback(lambda _f: semaphore.release())
@@ -311,6 +341,8 @@ else:
 
                 metrics_client.histogram(
                     'pubsub.producer.batch', len(new_messages))
+                metrics.MESSAGES_RECEIVED.inc(len(new_messages))
+                metrics.BATCH_SIZE.observe(len(new_messages))
 
                 pulled_at = time.perf_counter()
                 while new_messages:
@@ -356,6 +388,11 @@ else:
         ack_deadline_cache = AckDeadlineCache(subscriber_client,
                                               subscription,
                                               ack_deadline_cache_timeout)
+
+        if metrics_client is not None:
+            warnings.warn('Using MetricsAgent in subscribe() is deprecated. '
+                          'Refer to Prometheus metrics instead.',
+                          DeprecationWarning)
         metrics_client = metrics_client or MetricsAgent()
         acker_tasks = []
         consumer_tasks = []
