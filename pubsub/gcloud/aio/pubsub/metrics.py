@@ -22,8 +22,7 @@ else:
         'Counter of the outcomes of PubSub message consume attempts',
         ['outcome'],
         namespace=_NAMESPACE,
-        subsystem=_SUBSYSTEM,
-        unit='total')
+        subsystem=_SUBSYSTEM)
 
     CONSUME_LATENCY = prometheus_client.Histogram(
         'subscriber_consume_latency',
@@ -38,20 +37,17 @@ else:
         'Counter for success/failure to process PubSub message batches',
         ['component', 'outcome'],
         namespace=_NAMESPACE,
-        subsystem=_SUBSYSTEM,
-        unit='total')
+        subsystem=_SUBSYSTEM)
 
     MESSAGES_PROCESSED = prometheus_client.Counter(
         'subscriber_messages_processed',
         'Counter of successfully acked/nacked messages',
         ['component'],
         namespace=_NAMESPACE,
-        subsystem=_SUBSYSTEM,
-        unit='total')
+        subsystem=_SUBSYSTEM)
 
     MESSAGES_RECEIVED = prometheus_client.Counter(
         'subscriber_messages_received',
         'Counter of messages pulled from subscription',
         namespace=_NAMESPACE,
-        subsystem=_SUBSYSTEM,
-        unit='total')
+        subsystem=_SUBSYSTEM)

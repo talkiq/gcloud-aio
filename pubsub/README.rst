@@ -121,19 +121,19 @@ Prometheus to scrape app metrics:
 
 - ``subscriber_batch_size`` - [histogram] how many messages were pulled from
   the subscription in a single batch
-- ``subscriber_consume_total`` (labels: ``outcome = {'succeeded', 'cancelled',
+- ``subscriber_consume`` (labels: ``outcome = {'succeeded', 'cancelled',
   'failed', 'failfast'}``) - [counter] a consume operation has completed with a
   given outcome
 - ``subscriber_consume_latency_seconds`` (labels: ``phase = {'receive',
   'queueing', 'runtime'}``) - [histogram] how many seconds taken to receive a
   message, while waiting for processing, or to complete the callback
-- ``subscriber_batch_status_total`` (labels: ``component = {'acker', 'nacker'},
+- ``subscriber_batch_status`` (labels: ``component = {'acker', 'nacker'},
   outcome = {'succeeded', 'failed'}``) - [counter] a batch has succeeded or
   failed to be acked or nacked
-- ``subscriber_messages_processed_total`` (labels: ``component = {'acker',
+- ``subscriber_messages_processed`` (labels: ``component = {'acker',
   'nacker'}``) - [counter] the number of messages that were processed, either
   by being acked or nacked
-- ``subscriber_messages_received_total`` - [counter] the number of messages
+- ``subscriber_messages_received`` - [counter] the number of messages
   pulled from pubsub
 
 
