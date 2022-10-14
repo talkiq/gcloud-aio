@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-pubsub"
-version = "5.1.0"
+version = "5.1.1"
 description = "Python Client for Google Cloud Pub/Sub"
 readme = "README.rst"
 
