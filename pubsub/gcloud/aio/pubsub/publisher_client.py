@@ -132,10 +132,9 @@ class PublisherClient:
         headers['Content-Length'] = str(len(payload))
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
-        data: Dict[str, Any] = await resp.json()
-        return data
+        async with s.post(url, data=payload, headers=headers, timeout=timeout) as resp:
+            data: Dict[str, Any] = await resp.json()
+            return data
 
     async def close(self) -> None:
         await self.session.close()
