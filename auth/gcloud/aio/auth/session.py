@@ -132,10 +132,10 @@ if not BUILD_GCLOUD_REST:
                        data: Optional[str] = None, timeout: Timeout = 10,
                        params: Optional[Dict[str, str]] = None
                        ) -> aiohttp.ClientResponse:
-            resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout, params=params)
-            await _raise_for_status(resp)
-            return resp
+            async with self.session.post(url, data=data, headers=headers,
+                                           timeout=timeout, params=params) as resp:
+                await _raise_for_status(resp)
+                return resp
 
         async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
                       timeout: Timeout = 10,
@@ -145,44 +145,44 @@ if not BUILD_GCLOUD_REST:
                 log.warning('passed unused argument stream=%s to AioSession: '
                             'this argument is only used by SyncSession',
                             stream)
-            resp = await self.session.get(url, headers=headers,
-                                          timeout=timeout, params=params)
-            await _raise_for_status(resp)
-            return resp
+            async with self.session.get(url, headers=headers,
+                                          timeout=timeout, params=params) as resp:
+                await _raise_for_status(resp)
+                return resp
 
         async def patch(self, url: str, headers: Dict[str, str],
                         data: Optional[str] = None, timeout: Timeout = 10,
                         params: Optional[Dict[str, str]] = None
                         ) -> aiohttp.ClientResponse:
-            resp = await self.session.patch(url, data=data, headers=headers,
-                                            timeout=timeout, params=params)
-            await _raise_for_status(resp)
-            return resp
+            async with self.session.patch(url, data=data, headers=headers,
+                                            timeout=timeout, params=params) as resp:
+                await _raise_for_status(resp)
+                return resp
 
         async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
                       timeout: Timeout = 10) -> aiohttp.ClientResponse:
-            resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout)
-            await _raise_for_status(resp)
-            return resp
+            async with self.session.put(url, data=data, headers=headers,
+                                          timeout=timeout) as resp:
+                await _raise_for_status(resp)
+                return resp
 
         async def delete(self, url: str, headers: Dict[str, str],
                          params: Optional[Dict[str, str]] = None,
                          timeout: Timeout = 10
                          ) -> aiohttp.ClientResponse:
-            resp = await self.session.delete(url, headers=headers,
-                                             params=params, timeout=timeout)
-            await _raise_for_status(resp)
-            return resp
+            async with self.session.delete(url, headers=headers,
+                                             params=params, timeout=timeout) as resp:
+                await _raise_for_status(resp)
+                return resp
 
         async def request(self, method: str, url: str, headers: Dict[str, str],
                           auto_raise_for_status: bool = True, **kwargs: Any
                           ) -> aiohttp.ClientResponse:
-            resp = await self.session.request(method, url, headers=headers,
-                                              **kwargs)
-            if auto_raise_for_status:
-                await _raise_for_status(resp)
-            return resp
+            async with self.session.request(method, url, headers=headers,
+                                              **kwargs) as resp:
+                if auto_raise_for_status:
+                    await _raise_for_status(resp)
+                return resp
 
         async def close(self) -> None:
             if not self._shared_session and self._session:
