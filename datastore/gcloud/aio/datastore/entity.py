@@ -36,7 +36,7 @@ class Entity:
     def from_repr(cls, data: Dict[str, Any]) -> 'Entity':
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
         # "for example, an entity in Value.entity_value may have no key"
-        if 'key' in data:
+        if data.get('key'):
             key: Optional[Key] = cls.key_kind.from_repr(data['key'])
         else:
             key = None
