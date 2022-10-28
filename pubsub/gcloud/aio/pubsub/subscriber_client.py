@@ -32,15 +32,15 @@ def get_config() -> Dict[str, Any]:
     pubsub_emulator_host = os.environ.get('PUBSUB_EMULATOR_HOST')
     if pubsub_emulator_host:
         return {
-            "is_emulator": True,
-            "api_root": f'http://{pubsub_emulator_host}',
-            "verify_ssl": False
+            'is_emulator': True,
+            'api_root': f'http://{pubsub_emulator_host}',
+            'verify_ssl': False
         }
     else:
         return {
-            "is_emulator": False,
-            "api_root": API_ROOT,
-            "verify_ssl": VERIFY_SSL
+            'is_emulator': False,
+            'api_root': API_ROOT,
+            'verify_ssl': VERIFY_SSL
         }
 
 
@@ -50,7 +50,7 @@ class SubscriberClient:
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
         cfg = get_config()
-        self.session = AioSession(session, verify_ssl=cfg["verify_ssl"])
+        self.session = AioSession(session, verify_ssl=cfg['verify_ssl'])
         self.token = token or Token(service_file=service_file,
                                     scopes=SCOPES,
                                     session=self.session.session)
@@ -59,7 +59,7 @@ class SubscriberClient:
         headers = {
             'Content-Type': 'application/json'
         }
-        if get_config()["is_emulator"]:
+        if get_config()['is_emulator']:
             return headers
 
         token = await self.token.get()
