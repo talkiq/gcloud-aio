@@ -6,6 +6,8 @@ import enum
 import json
 import os
 import time
+from pathlib import Path
+from typing import cast
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -27,13 +29,6 @@ from .session import AioSession
 # where plumbing this error through will require several changes to otherwise-
 # good error handling.
 
-# Handle differences in exceptions
-try:
-    # TODO: Type[Exception] should work here, no?
-    CustomFileError: Any = FileNotFoundError
-except NameError:
-    CustomFileError = IOError
-
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -52,6 +47,7 @@ GCE_ENDPOINT_TOKEN = (f'{GCE_METADATA_BASE}/instance/service-accounts'
                       '/default/token?recursive=true')
 GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
+ServiceFile = Optional[Union[str, IO[AnyStr], Path]]
 
 
 class Type(enum.Enum):
@@ -60,40 +56,41 @@ class Type(enum.Enum):
     SERVICE_ACCOUNT = 'service_account'
 
 
-def get_service_data(
-        service: Optional[Union[str, IO[AnyStr]]]) -> Dict[str, Any]:
-    service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+def get_service_data(service: ServiceFile) -> Dict[str, str]:
+    # if a stream passed explicitly, read it
+    if hasattr(service, 'read'):
+        return json.loads(service.read())  # type: ignore
+    service = cast(Union[None, str, Path], service)
+
+    set_explicitly = True
     if not service:
-        cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
-        sdkpath = (cloudsdk_config
-                   or os.path.join(os.path.expanduser('~'), '.config',
-                                   'gcloud'))
-        service = os.path.join(sdkpath, 'application_default_credentials.json')
-        set_explicitly = bool(cloudsdk_config)
-    else:
-        set_explicitly = True
+        service = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    if not service:
+        service = os.environ.get('CLOUDSDK_CONFIG')
+        if not service:
+            service = Path.home() / '.config' / 'gcloud'
+            set_explicitly = False
+
+    service_path = Path(service)
+    if service_path.is_dir():
+        service_path = service_path / 'application_default_credentials.json'
+
+    # if not an existing file, try to read as a raw content
+    if isinstance(service, str) and not service_path.exists():
+        return json.loads(service)
 
     try:
-        try:
-            with open(service) as f:  # type: ignore[arg-type]
-                data: Dict[str, Any] = json.loads(f.read())
-                return data
-        except TypeError:
-            data = json.loads(service.read())  # type: ignore[union-attr]
-            return data
-    except CustomFileError:
-        if set_explicitly:
-            # only warn users if they have explicitly set the service_file path
-            raise
-
-        return {}
+        with service_path.open('r', encoding='utf8') as stream:
+            return json.load(stream)
     except Exception:  # pylint: disable=broad-except
+        if set_explicitly:
+            raise
         return {}
 
 
 class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+    def __init__(self, service_file: ServiceFile = None,
                  session: Optional[Session] = None,
                  scopes: Optional[List[str]] = None) -> None:
         self.service_data = get_service_data(service_file)
