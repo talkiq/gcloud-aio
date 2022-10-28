@@ -27,10 +27,21 @@ SCOPES = [
     'https://www.googleapis.com/auth/pubsub'
 ]
 
-PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
-if PUBSUB_EMULATOR_HOST:
-    API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}'
-    VERIFY_SSL = False
+
+def get_config() -> Dict[str, Any]:
+    pubsub_emulator_host = os.environ.get('PUBSUB_EMULATOR_HOST')
+    if pubsub_emulator_host:
+        return {
+            "is_emulator": True,
+            "api_root": f'http://{pubsub_emulator_host}',
+            "verify_ssl": False
+        }
+    else:
+        return {
+            "is_emulator": False,
+            "api_root": API_ROOT,
+            "verify_ssl": VERIFY_SSL
+        }
 
 
 class SubscriberClient:
@@ -38,7 +49,8 @@ class SubscriberClient:
                  service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
-        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
+        cfg = get_config()
+        self.session = AioSession(session, verify_ssl=cfg["verify_ssl"])
         self.token = token or Token(service_file=service_file,
                                     scopes=SCOPES,
                                     session=self.session.session)
@@ -47,7 +59,7 @@ class SubscriberClient:
         headers = {
             'Content-Type': 'application/json'
         }
-        if PUBSUB_EMULATOR_HOST:
+        if get_config()["is_emulator"]:
             return headers
 
         token = await self.token.get()
@@ -67,7 +79,7 @@ class SubscriberClient:
         Create subscription.
         """
         body = {} if not body else body
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{get_config()["api_root"]}/v1/{subscription}'
         headers = await self._headers()
         payload: Dict[str, Any] = deepcopy(body)
         payload.update({'topic': topic})
@@ -87,7 +99,7 @@ class SubscriberClient:
         """
         Delete subscription.
         """
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{get_config()["api_root"]}/v1/{subscription}'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         await s.delete(url, headers=headers, timeout=timeout)
@@ -100,7 +112,7 @@ class SubscriberClient:
         """
         Pull messages from subscription
         """
-        url = f'{API_ROOT}/v1/{subscription}:pull'
+        url = f'{get_config()["api_root"]}/v1/{subscription}:pull'
         headers = await self._headers()
         payload = {
             'maxMessages': max_messages,
@@ -122,7 +134,7 @@ class SubscriberClient:
         """
         Acknowledge messages by ackIds
         """
-        url = f'{API_ROOT}/v1/{subscription}:acknowledge'
+        url = f'{get_config()["api_root"]}/v1/{subscription}:acknowledge'
         headers = await self._headers()
         payload = {
             'ackIds': ack_ids,
@@ -142,7 +154,7 @@ class SubscriberClient:
         Modify messages' ack deadline.
         Set ack deadline to 0 to nack messages.
         """
-        url = f'{API_ROOT}/v1/{subscription}:modifyAckDeadline'
+        url = f'{get_config()["api_root"]}/v1/{subscription}:modifyAckDeadline'
         headers = await self._headers()
         payload = {
             'ackIds': ack_ids,
@@ -160,7 +172,7 @@ class SubscriberClient:
         """
         Get Subscription
         """
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{get_config()["api_root"]}/v1/{subscription}'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
@@ -176,7 +188,7 @@ class SubscriberClient:
         """
         List subscriptions
         """
-        url = f'{API_ROOT}/v1/{project}/subscriptions'
+        url = f'{get_config()["api_root"]}/v1/{project}/subscriptions'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
 
