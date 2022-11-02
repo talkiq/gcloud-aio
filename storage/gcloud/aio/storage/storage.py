@@ -45,17 +45,13 @@ SCOPES = [
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 
 STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
-if STORAGE_EMULATOR_HOST:
-    API_ROOT = f'https://{STORAGE_EMULATOR_HOST}/storage/v1/b'
-    API_ROOT_UPLOAD = f'https://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
-    VERIFY_SSL = False
 
 log = logging.getLogger(__name__)
 
 
 def choose_boundary() -> str:
     """Stolen from urllib3.filepost.choose_boundary() as of v1.26.2."""
-    boundary = binascii.hexlify(os.urandom(16))
+    boundary = binascii.hexlify(os.urandom(16))  # pylint: disable=c-extension-no-member
     if sys.version_info.major == 2:
         return boundary  # type: ignore[return-value]
     return boundary.decode('ascii')
@@ -134,7 +130,23 @@ class Storage:
     def __init__(self, *,
                  service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  token: Optional[Token] = None,
-                 session: Optional[Session] = None) -> None:
+                 session: Optional[Session] = None,
+                 storage_emulator_host: Optional[str] = os.environ.get(
+                     'STORAGE_EMULATOR_HOST')
+                 ) -> None:
+        # This ensures highest compatibility with earlier versions
+        self.storage_emulator_host = storage_emulator_host
+        if self.storage_emulator_host:
+            global STORAGE_EMULATOR_HOST, API_ROOT, API_ROOT_UPLOAD, VERIFY_SSL  # pylint: disable=global-statement
+            STORAGE_EMULATOR_HOST = self.storage_emulator_host
+            API_ROOT = f'https://{self.storage_emulator_host}/storage/v1/b'
+            API_ROOT_UPLOAD = (
+                f'https://{self.storage_emulator_host}/upload/storage/v1/b'
+            )
+            VERIFY_SSL = False
+        self.api_root = API_ROOT
+        self.api_root_upload = API_ROOT_UPLOAD
+        self.verify_ssl = VERIFY_SSL
         self.session = AioSession(session, verify_ssl=VERIFY_SSL)
         self.token = token or Token(service_file=service_file, scopes=SCOPES,
                                     session=self.session.session)
