@@ -29,7 +29,7 @@ To upload a file, you might do something like the following:
         client = Storage(session=session)
 
         async with aiofiles.open('/path/to/my/file', mode="r") as f:
-            contents = await f.read()
+            output = await f.read()
             status = await client.upload(
                 'my-bucket-name',
                 'path/to/gcs/folder',
