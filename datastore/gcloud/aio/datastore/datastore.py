@@ -62,7 +62,8 @@ class Datastore:
         self.session = AioSession(session)
 
         if IS_DEV:
-            self._project = os.environ.get('DATASTORE_PROJECT_ID', 'dev')
+            self._project = os.environ.get('DATASTORE_PROJECT_ID',
+                                           os.environ.get('GOOGLE_CLOUD_PROJECT', 'dev'))
             # Tokens are not needed when using dev emulator
             self.token = None
         else:
