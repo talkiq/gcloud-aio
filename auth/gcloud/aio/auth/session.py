@@ -118,7 +118,7 @@ if not BUILD_GCLOUD_REST:
         @property
         def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
-                connector = aiohttp.TCPConnector(ssl=self._ssl)
+                connector = aiohttp.TCPConnector(verify_ssl=self._ssl)
 
                 if isinstance(self._timeout, aiohttp.ClientTimeout):
                     timeout = self._timeout
