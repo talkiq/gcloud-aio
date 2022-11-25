@@ -1,7 +1,7 @@
 import pickle
 
-import gcloud.aio.auth.utils as utils  # pylint: disable=unused-import
 import pytest
+from gcloud.aio.auth import utils
 
 
 @pytest.mark.parametrize('str_or_bytes', ['Hello Test',

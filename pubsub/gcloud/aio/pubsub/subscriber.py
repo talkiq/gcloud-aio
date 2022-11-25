@@ -114,10 +114,9 @@ else:
                             await subscriber_client.acknowledge(
                                 subscription,
                                 ack_ids=[ack_id])
-                        except Exception as e:
-                            log.warning('Ack failed for ack_id=%s',
-                                        ack_id,
-                                        exc_info=e)
+                        except Exception as ex:
+                            log.warning('Ack failed for ack_id=%s', ack_id,
+                                        exc_info=ex)
                         finally:
                             ack_queue.task_done()
 
@@ -132,7 +131,7 @@ else:
                                             outcome='failed').inc()
 
                 continue
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+            except asyncio.CancelledError:
                 raise
             except Exception as e:
                 log.warning(
@@ -191,10 +190,9 @@ else:
                                 subscription,
                                 ack_ids=[ack_id],
                                 ack_deadline_seconds=0)
-                        except Exception as e:
-                            log.warning('Nack failed for ack_id=%s',
-                                        ack_id,
-                                        exc_info=e)
+                        except Exception as ex:
+                            log.warning('Nack failed for ack_id=%s', ack_id,
+                                        exc_info=ex)
                         finally:
                             nack_queue.task_done()
                     for ack_id in ack_ids:
@@ -208,7 +206,7 @@ else:
                     component='nacker', outcome='failed').inc()
 
                 continue
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+            except asyncio.CancelledError:
                 raise
             except Exception as e:
                 log.warning(

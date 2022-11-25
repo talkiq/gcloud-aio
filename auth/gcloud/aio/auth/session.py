@@ -33,7 +33,7 @@ class BaseSession:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self) -> Optional[Session]:
         return self._session
 

@@ -75,7 +75,8 @@ def get_service_data(
 
     try:
         try:
-            with open(service) as f:  # type: ignore[arg-type]
+            with open(service,  # type: ignore[arg-type]
+                      encoding='utf-8') as f:
                 data: Dict[str, Any] = json.loads(f.read())
                 return data
         except TypeError:

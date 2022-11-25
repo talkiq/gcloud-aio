@@ -1,4 +1,4 @@
-import gcloud.aio.bigquery as bigquery  # pylint: disable=unused-import
+from gcloud.aio import bigquery
 
 
 def test_make_insert_body():

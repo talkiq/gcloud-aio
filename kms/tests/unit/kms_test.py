@@ -1,4 +1,4 @@
-import gcloud.aio.kms.kms as kms  # pylint: disable=unused-import
+from gcloud.aio.kms import kms  # pylint: disable=unused-import
 
 
 def test_importable():

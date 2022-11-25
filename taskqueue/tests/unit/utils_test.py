@@ -1,4 +1,4 @@
-import gcloud.aio.taskqueue.utils as utils  # pylint: disable=unused-import
+from gcloud.aio.taskqueue import utils  # pylint: disable=unused-import
 
 
 def test_importable():

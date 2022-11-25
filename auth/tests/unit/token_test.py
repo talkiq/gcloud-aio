@@ -1,8 +1,8 @@
 import io
 import json
 
-import gcloud.aio.auth.token as token
 import pytest
+from gcloud.aio.auth import token
 
 
 @pytest.mark.asyncio

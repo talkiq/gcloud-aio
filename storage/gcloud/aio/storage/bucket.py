@@ -61,7 +61,7 @@ class Bucket:
             content = await self.storage.list_objects(self.name,
                                                       params=params,
                                                       session=session)
-            items.extend([x['name'] for x in content.get('items', list())])
+            items.extend([x['name'] for x in content.get('items', [])])
 
             params['pageToken'] = content.get('nextPageToken', '')
             if not params['pageToken']:
