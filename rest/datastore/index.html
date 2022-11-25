@@ -321,7 +321,8 @@ def from_repr(cls, data                )                     :
         self.session = SyncSession(session)
 
         if IS_DEV:
-            self._project = os.environ.get(&#39;DATASTORE_PROJECT_ID&#39;, &#39;dev&#39;)
+            self._project = os.environ.get(&#39;DATASTORE_PROJECT_ID&#39;,
+                                           os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;, &#39;dev&#39;))
             # Tokens are not needed when using dev emulator
             self.token = None
         else:
