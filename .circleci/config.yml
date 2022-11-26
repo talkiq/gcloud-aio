@@ -7,7 +7,7 @@ orbs:
 executors:
   nox:
     docker:
-      - image: thekevjames/nox:2022.8.7
+      - image: thekevjames/nox:2022.11.21
     resource_class: small
 
   python-38:
