@@ -73,7 +73,7 @@ if BUILD_GCLOUD_REST:
     from builtins import open as file_open
 else:
     from aiofiles import open as file_open  # type: ignore[no-redef]
-    from asyncio import sleep  # type: ignore[misc]
+    from asyncio import sleep  # type: ignore[assignment]
     from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
     from aiohttp import ClientSession as Session  # type: ignore[no-redef]
 

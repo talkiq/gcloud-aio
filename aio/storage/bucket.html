@@ -89,7 +89,7 @@ class Bucket:
             content = await self.storage.list_objects(self.name,
                                                       params=params,
                                                       session=session)
-            items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
+            items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, [])])
 
             params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;, &#39;&#39;)
             if not params[&#39;pageToken&#39;]:
@@ -163,7 +163,7 @@ class Bucket:
             content = await self.storage.list_objects(self.name,
                                                       params=params,
                                                       session=session)
-            items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
+            items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, [])])
 
             params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;, &#39;&#39;)
             if not params[&#39;pageToken&#39;]:
@@ -260,7 +260,7 @@ class Bucket:
         content = await self.storage.list_objects(self.name,
                                                   params=params,
                                                   session=session)
-        items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, list())])
+        items.extend([x[&#39;name&#39;] for x in content.get(&#39;items&#39;, [])])
 
         params[&#39;pageToken&#39;] = content.get(&#39;nextPageToken&#39;, &#39;&#39;)
         if not params[&#39;pageToken&#39;]:

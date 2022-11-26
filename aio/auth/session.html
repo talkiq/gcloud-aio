@@ -61,7 +61,7 @@ class BaseSession:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self) -&gt; Optional[Session]:
         return self._session
 
@@ -576,7 +576,7 @@ def session(self) -&gt; aiohttp.ClientSession:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self) -&gt; Optional[Session]:
         return self._session
 
@@ -631,7 +631,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@abstractproperty
+<pre><code class="python">@abstractproperty  # pylint: disable=deprecated-decorator
 def session(self) -&gt; Optional[Session]:
     return self._session</code></pre>
 </details>

@@ -142,10 +142,9 @@ else:
                             await subscriber_client.acknowledge(
                                 subscription,
                                 ack_ids=[ack_id])
-                        except Exception as e:
-                            log.warning(&#39;Ack failed for ack_id=%s&#39;,
-                                        ack_id,
-                                        exc_info=e)
+                        except Exception as ex:
+                            log.warning(&#39;Ack failed for ack_id=%s&#39;, ack_id,
+                                        exc_info=ex)
                         finally:
                             ack_queue.task_done()
 
@@ -160,7 +159,7 @@ else:
                                             outcome=&#39;failed&#39;).inc()
 
                 continue
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+            except asyncio.CancelledError:
                 raise
             except Exception as e:
                 log.warning(
@@ -219,10 +218,9 @@ else:
                                 subscription,
                                 ack_ids=[ack_id],
                                 ack_deadline_seconds=0)
-                        except Exception as e:
-                            log.warning(&#39;Nack failed for ack_id=%s&#39;,
-                                        ack_id,
-                                        exc_info=e)
+                        except Exception as ex:
+                            log.warning(&#39;Nack failed for ack_id=%s&#39;, ack_id,
+                                        exc_info=ex)
                         finally:
                             nack_queue.task_done()
                     for ack_id in ack_ids:
@@ -236,7 +234,7 @@ else:
                     component=&#39;nacker&#39;, outcome=&#39;failed&#39;).inc()
 
                 continue
-            except asyncio.CancelledError:  # pylint: disable=try-except-raise
+            except asyncio.CancelledError:
                 raise
             except Exception as e:
                 log.warning(
@@ -541,10 +539,9 @@ else:
                         await subscriber_client.acknowledge(
                             subscription,
                             ack_ids=[ack_id])
-                    except Exception as e:
-                        log.warning(&#39;Ack failed for ack_id=%s&#39;,
-                                    ack_id,
-                                    exc_info=e)
+                    except Exception as ex:
+                        log.warning(&#39;Ack failed for ack_id=%s&#39;, ack_id,
+                                    exc_info=ex)
                     finally:
                         ack_queue.task_done()
 
@@ -559,7 +556,7 @@ else:
                                         outcome=&#39;failed&#39;).inc()
 
             continue
-        except asyncio.CancelledError:  # pylint: disable=try-except-raise
+        except asyncio.CancelledError:
             raise
         except Exception as e:
             log.warning(
@@ -694,10 +691,9 @@ else:
                             subscription,
                             ack_ids=[ack_id],
                             ack_deadline_seconds=0)
-                    except Exception as e:
-                        log.warning(&#39;Nack failed for ack_id=%s&#39;,
-                                    ack_id,
-                                    exc_info=e)
+                    except Exception as ex:
+                        log.warning(&#39;Nack failed for ack_id=%s&#39;, ack_id,
+                                    exc_info=ex)
                     finally:
                         nack_queue.task_done()
                 for ack_id in ack_ids:
@@ -711,7 +707,7 @@ else:
                 component=&#39;nacker&#39;, outcome=&#39;failed&#39;).inc()
 
             continue
-        except asyncio.CancelledError:  # pylint: disable=try-except-raise
+        except asyncio.CancelledError:
             raise
         except Exception as e:
             log.warning(

@@ -71,7 +71,7 @@ class BaseSession(object):
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self)                     :
         return self._session
 
@@ -335,7 +335,7 @@ if BUILD_GCLOUD_REST:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self)                     :
         return self._session
 
@@ -390,7 +390,7 @@ if BUILD_GCLOUD_REST:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@abstractproperty
+<pre><code class="python">@abstractproperty  # pylint: disable=deprecated-decorator
 def session(self)                     :
     return self._session</code></pre>
 </details>
