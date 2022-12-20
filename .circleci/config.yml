@@ -84,7 +84,12 @@ jobs:
           command: poetry env use <<parameters.python_version>>
           working_directory: <<parameters.cwd>>
       - run:
-          command: poetry install --no-root
+          name: poetry install --no-root
+          command: |
+            # No idea why we need to re-lock here (even if we just locked!),
+            # but it's py2.7 so meh, who cares.
+            [ "v2.7" = "v<<parameters.python_version>>" ] && poetry lock
+            poetry install --no-root
           working_directory: <<parameters.cwd>>
       - run:
           command: poetry run pip install .
@@ -250,7 +255,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+              python_version: ['2.7', '3.6', '3.7', '3.8', '3.9']
           filters:
             tags:
               only: /.*/
