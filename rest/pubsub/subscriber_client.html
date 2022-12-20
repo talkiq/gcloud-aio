@@ -56,7 +56,7 @@ from .subscriber_message import SubscriberMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = &#39;https://pubsub.googleapis.com&#39;
 VERIFY_SSL = True
@@ -80,9 +80,9 @@ class SubscriberClient(object):
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file,
-                                    scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     def _headers(self)                  :
         headers = {
@@ -99,8 +99,7 @@ class SubscriberClient(object):
     def create_subscription(self,
                                   subscription     ,
                                   topic     ,
-                                  body                           = None, **_3to2kwargs
-                                  )                  :
+                                  body                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -115,14 +114,14 @@ class SubscriberClient(object):
         payload.update({&#39;topic&#39;: topic})
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
-    def delete_subscription(self,
-                                  subscription     , **_3to2kwargs
-                                  )        :
+    def delete_subscription(self, subscription     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -136,8 +135,7 @@ class SubscriberClient(object):
         s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
-    def pull(self, subscription     , max_messages     , **_3to2kwargs
-                   )                           :
+    def pull(self, subscription     , max_messages     , **_3to2kwargs)                           :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -152,12 +150,13 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=encoded, headers=headers,
-                            timeout=timeout)
-        resp = resp.json()
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=encoded,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
+        data = resp.json()
         return [
             SubscriberMessage.from_repr(m)
-            for m in resp.get(&#39;receivedMessages&#39;, [])
+            for m in data.get(&#39;receivedMessages&#39;, [])
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
@@ -176,13 +175,14 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        s.post(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=encoded,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     def modify_ack_deadline(self, subscription     ,
                                   ack_ids           ,
-                                  ack_deadline_seconds     , **_3to2kwargs
-                                  )        :
+                                  ack_deadline_seconds     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -193,17 +193,17 @@ class SubscriberClient(object):
         &#34;&#34;&#34;
         url = &#39;{}/v1/{}:modifyAckDeadline&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
-        payload = {
+        data = json.dumps({
             &#39;ackIds&#39;: ack_ids,
             &#39;ackDeadlineSeconds&#39;: ack_deadline_seconds,
-        }
+        }).encode(&#39;utf-8&#39;)
         s = SyncSession(session) if session else self.session
-        s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=data,  # type: ignore[arg-type]
                      headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
-    def get_subscription(self, subscription     , **_3to2kwargs
-                               )                  :
+    def get_subscription(self, subscription     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -220,8 +220,7 @@ class SubscriberClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
     def list_subscriptions(self, project     ,
-                                 query_params                           = None, **_3to2kwargs
-                                 )                  :
+                                 query_params                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -290,9 +289,9 @@ class SubscriberClient(object):
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file,
-                                    scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     def _headers(self)                  :
         headers = {
@@ -309,8 +308,7 @@ class SubscriberClient(object):
     def create_subscription(self,
                                   subscription     ,
                                   topic     ,
-                                  body                           = None, **_3to2kwargs
-                                  )                  :
+                                  body                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -325,14 +323,14 @@ class SubscriberClient(object):
         payload.update({&#39;topic&#39;: topic})
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
-    def delete_subscription(self,
-                                  subscription     , **_3to2kwargs
-                                  )        :
+    def delete_subscription(self, subscription     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -346,8 +344,7 @@ class SubscriberClient(object):
         s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
-    def pull(self, subscription     , max_messages     , **_3to2kwargs
-                   )                           :
+    def pull(self, subscription     , max_messages     , **_3to2kwargs)                           :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  30
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -362,12 +359,13 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=encoded, headers=headers,
-                            timeout=timeout)
-        resp = resp.json()
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=encoded,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
+        data = resp.json()
         return [
             SubscriberMessage.from_repr(m)
-            for m in resp.get(&#39;receivedMessages&#39;, [])
+            for m in data.get(&#39;receivedMessages&#39;, [])
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
@@ -386,13 +384,14 @@ class SubscriberClient(object):
         }
         encoded = json.dumps(payload).encode()
         s = SyncSession(session) if session else self.session
-        s.post(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=encoded,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     def modify_ack_deadline(self, subscription     ,
                                   ack_ids           ,
-                                  ack_deadline_seconds     , **_3to2kwargs
-                                  )        :
+                                  ack_deadline_seconds     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -403,17 +402,17 @@ class SubscriberClient(object):
         &#34;&#34;&#34;
         url = &#39;{}/v1/{}:modifyAckDeadline&#39;.format((API_ROOT), (subscription))
         headers = self._headers()
-        payload = {
+        data = json.dumps({
             &#39;ackIds&#39;: ack_ids,
             &#39;ackDeadlineSeconds&#39;: ack_deadline_seconds,
-        }
+        }).encode(&#39;utf-8&#39;)
         s = SyncSession(session) if session else self.session
-        s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=data,  # type: ignore[arg-type]
                      headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
-    def get_subscription(self, subscription     , **_3to2kwargs
-                               )                  :
+    def get_subscription(self, subscription     , **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -430,8 +429,7 @@ class SubscriberClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
     def list_subscriptions(self, project     ,
-                                 query_params                           = None, **_3to2kwargs
-                                 )                  :
+                                 query_params                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -497,7 +495,9 @@ class SubscriberClient(object):
     }
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    s.post(url, data=encoded, headers=headers, timeout=timeout)</code></pre>
+    # TODO: the type issue will be fixed in auth-4.0.2
+    s.post(url, data=encoded,  # type: ignore[arg-type]
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.pubsub.subscriber_client.SubscriberClient.close"><code class="name flex">
@@ -525,8 +525,7 @@ class SubscriberClient(object):
 <pre><code class="python">def create_subscription(self,
                               subscription     ,
                               topic     ,
-                              body                           = None, **_3to2kwargs
-                              )                  :
+                              body                           = None, **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -541,7 +540,9 @@ class SubscriberClient(object):
     payload.update({&#39;topic&#39;: topic})
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                       headers=headers, timeout=timeout)
     result                 = resp.json()
     return result</code></pre>
 </details>
@@ -555,9 +556,7 @@ class SubscriberClient(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete_subscription(self,
-                              subscription     , **_3to2kwargs
-                              )        :
+<pre><code class="python">def delete_subscription(self, subscription     , **_3to2kwargs)        :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -580,8 +579,7 @@ class SubscriberClient(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_subscription(self, subscription     , **_3to2kwargs
-                           )                  :
+<pre><code class="python">def get_subscription(self, subscription     , **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -607,8 +605,7 @@ class SubscriberClient(object):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def list_subscriptions(self, project     ,
-                             query_params                           = None, **_3to2kwargs
-                             )                  :
+                             query_params                           = None, **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -651,8 +648,7 @@ class SubscriberClient(object):
 </summary>
 <pre><code class="python">def modify_ack_deadline(self, subscription     ,
                               ack_ids           ,
-                              ack_deadline_seconds     , **_3to2kwargs
-                              )        :
+                              ack_deadline_seconds     , **_3to2kwargs)        :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -663,12 +659,13 @@ class SubscriberClient(object):
     &#34;&#34;&#34;
     url = &#39;{}/v1/{}:modifyAckDeadline&#39;.format((API_ROOT), (subscription))
     headers = self._headers()
-    payload = {
+    data = json.dumps({
         &#39;ackIds&#39;: ack_ids,
         &#39;ackDeadlineSeconds&#39;: ack_deadline_seconds,
-    }
+    }).encode(&#39;utf-8&#39;)
     s = SyncSession(session) if session else self.session
-    s.post(url, data=json.dumps(payload).encode(&#39;utf-8&#39;),
+    # TODO: the type issue will be fixed in auth-4.0.2
+    s.post(url, data=data,  # type: ignore[arg-type]
                  headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
@@ -681,8 +678,7 @@ class SubscriberClient(object):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pull(self, subscription     , max_messages     , **_3to2kwargs
-               )                           :
+<pre><code class="python">def pull(self, subscription     , max_messages     , **_3to2kwargs)                           :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  30
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -697,12 +693,13 @@ class SubscriberClient(object):
     }
     encoded = json.dumps(payload).encode()
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=encoded, headers=headers,
-                        timeout=timeout)
-    resp = resp.json()
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=encoded,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
+    data = resp.json()
     return [
         SubscriberMessage.from_repr(m)
-        for m in resp.get(&#39;receivedMessages&#39;, [])
+        for m in data.get(&#39;receivedMessages&#39;, [])
     ]</code></pre>
 </details>
 </dd>

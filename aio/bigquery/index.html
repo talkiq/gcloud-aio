@@ -120,7 +120,7 @@ defined in the response (eg. into builtin python types).</p></div>
 <dl>
 <dt id="gcloud.aio.bigquery.Dataset"><code class="flex name class">
 <span>class <span class="ident">Dataset</span></span>
-<span>(</span><span>dataset_name: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>dataset_name: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -131,7 +131,7 @@ defined in the response (eg. into builtin python types).</p></div>
 <pre><code class="python">class Dataset(BigqueryBase):
     def __init__(self, dataset_name: Optional[str] = None,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.dataset_name = dataset_name
@@ -319,7 +319,7 @@ defined in the response (eg. into builtin python types).</p></div>
 </dd>
 <dt id="gcloud.aio.bigquery.Job"><code class="flex name class">
 <span>class <span class="ident">Job</span></span>
-<span>(</span><span>job_id: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>job_id: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -330,7 +330,7 @@ defined in the response (eg. into builtin python types).</p></div>
 <pre><code class="python">class Job(BigqueryBase):
     def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.job_id = job_id
@@ -695,7 +695,7 @@ within a specified timeout.</p></div>
 </dd>
 <dt id="gcloud.aio.bigquery.Table"><code class="flex name class">
 <span>class <span class="ident">Table</span></span>
-<span>(</span><span>dataset_name: str, table_name: str, project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>dataset_name: str, table_name: str, project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -706,7 +706,7 @@ within a specified timeout.</p></div>
 <pre><code class="python">class Table(BigqueryBase):
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.dataset_name = dataset_name
@@ -844,8 +844,9 @@ within a specified timeout.</p></div>
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -935,7 +936,8 @@ within a specified timeout.</p></div>
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -958,7 +960,8 @@ within a specified timeout.</p></div>
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -977,8 +980,8 @@ within a specified timeout.</p></div>
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1139,7 +1142,8 @@ response JSON containing details on the failing rows.</p></div>
         destination_dataset, destination_table)
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert_via_load"><code class="name flex">
@@ -1170,7 +1174,8 @@ response JSON containing details on the failing rows.</p></div>
     )
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.insert_via_query"><code class="name flex">
@@ -1197,8 +1202,8 @@ response JSON containing details on the failing rows.</p></div>
                                  use_query_cache, dry_run)
     response = await self._post_json(url, body, session, timeout)
     job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-    return Job(job_id, self._project,
-               session=self.session.session, token=self.token)</code></pre>
+    return Job(job_id, self._project, token=self.token,
+               session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.Table.patch"><code class="name flex">
@@ -1228,8 +1233,9 @@ response JSON containing details on the failing rows.</p></div>
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.patch(url, data=table_data, headers=headers,
-                         timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                         headers=headers, timeout=timeout)
     data: Dict[str, Any] = await resp.json()
     return data</code></pre>
 </details>

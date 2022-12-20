@@ -30,11 +30,12 @@
 <pre><code class="python">&#34;&#34;&#34;
 An asynchronous client for Google Cloud KMS
 &#34;&#34;&#34;
-import io
 import json
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -46,7 +47,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 API_ROOT = &#39;https://cloudkms.googleapis.com/v1&#39;
@@ -62,7 +63,7 @@ if KMS_EMULATOR_HOST:
 
 class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  location: str = LOCATION, session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.api_root = (f&#39;{API_ROOT}/projects/{keyproject}/&#39;
@@ -70,8 +71,10 @@ class KMS:
                          f&#39;cryptoKeys/{keyname}&#39;)
 
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     async def headers(self) -&gt; Dict[str, str]:
         if KMS_EMULATOR_HOST:
@@ -92,7 +95,9 @@ class KMS:
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         plaintext: str = (await resp.json())[&#39;plaintext&#39;]
         return plaintext
@@ -106,7 +111,9 @@ class KMS:
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
@@ -132,7 +139,7 @@ class KMS:
 <dl>
 <dt id="gcloud.aio.kms.kms.KMS"><code class="flex name class">
 <span>class <span class="ident">KMS</span></span>
-<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, location: str = 'global', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, location: str = 'global', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -142,7 +149,7 @@ class KMS:
 </summary>
 <pre><code class="python">class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  location: str = LOCATION, session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.api_root = (f&#39;{API_ROOT}/projects/{keyproject}/&#39;
@@ -150,8 +157,10 @@ class KMS:
                          f&#39;cryptoKeys/{keyname}&#39;)
 
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     async def headers(self) -&gt; Dict[str, str]:
         if KMS_EMULATOR_HOST:
@@ -172,7 +181,9 @@ class KMS:
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         plaintext: str = (await resp.json())[&#39;plaintext&#39;]
         return plaintext
@@ -186,7 +197,9 @@ class KMS:
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
@@ -232,7 +245,9 @@ class KMS:
     }).encode(&#39;utf-8&#39;)
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=await self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=await self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     plaintext: str = (await resp.json())[&#39;plaintext&#39;]
     return plaintext</code></pre>
@@ -255,7 +270,9 @@ class KMS:
     }).encode(&#39;utf-8&#39;)
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=await self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=await self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
     return ciphertext</code></pre>

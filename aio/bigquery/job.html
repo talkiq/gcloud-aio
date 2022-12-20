@@ -26,9 +26,10 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import io
-from typing import Any
+<pre><code class="python">from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -43,13 +44,13 @@ from .bigquery import Disposition
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Job(BigqueryBase):
     def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.job_id = job_id
@@ -182,7 +183,7 @@ class Job(BigqueryBase):
 <dl>
 <dt id="gcloud.aio.bigquery.job.Job"><code class="flex name class">
 <span>class <span class="ident">Job</span></span>
-<span>(</span><span>job_id: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>job_id: Optional[str] = None, project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -193,7 +194,7 @@ class Job(BigqueryBase):
 <pre><code class="python">class Job(BigqueryBase):
     def __init__(self, job_id: Optional[str] = None,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.job_id = job_id

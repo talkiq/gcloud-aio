@@ -108,7 +108,7 @@ Base64 are respectively replaced by - and _</p></div>
 <dl>
 <dt id="gcloud.aio.taskqueue.PushQueue"><code class="flex name class">
 <span>class <span class="ident">PushQueue</span></span>
-<span>(</span><span>project: str, taskqueue: str, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, location: str = 'us-central1', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>project: str, taskqueue: str, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, location: str = 'us-central1', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -118,7 +118,7 @@ Base64 are respectively replaced by - and _</p></div>
 </summary>
 <pre><code class="python">class PushQueue:
     def __init__(self, project: str, taskqueue: str,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  location: str = LOCATION,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
@@ -126,8 +126,10 @@ Base64 are respectively replaced by - and _</p></div>
         self.api_root = (f&#39;{self.base_api_root}/projects/{project}/&#39;
                          f&#39;locations/{location}/queues/{taskqueue}&#39;)
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     async def headers(self) -&gt; Dict[str, str]:
         if CLOUDTASKS_EMULATOR_HOST:
@@ -152,7 +154,9 @@ Base64 are respectively replaced by - and _</p></div>
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -188,7 +192,7 @@ Base64 are respectively replaced by - and _</p></div>
                    page_token: str = &#39;&#39;,
                    session: Optional[Session] = None) -&gt; Any:
         url = f&#39;{self.api_root}/tasks&#39;
-        params = {
+        params: Dict[str, Union[int, str]] = {
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
             &#39;pageSize&#39;: page_size,
             &#39;pageToken&#39;: page_token,
@@ -197,7 +201,9 @@ Base64 are respectively replaced by - and _</p></div>
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.get(url, headers=headers,
+                           params=params)  # type: ignore[arg-type]
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -212,7 +218,9 @@ Base64 are respectively replaced by - and _</p></div>
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return await resp.json()
 
     async def close(self) -&gt; None:
@@ -260,7 +268,9 @@ async def create(self, task: Dict[str, Any],
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=headers, data=payload)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=headers,
+                        data=payload)  # type: ignore[arg-type]
     return await resp.json()</code></pre>
 </details>
 </dd>
@@ -343,7 +353,7 @@ async def list(self, full: bool = False, page_size: int = 1000,
                page_token: str = &#39;&#39;,
                session: Optional[Session] = None) -&gt; Any:
     url = f&#39;{self.api_root}/tasks&#39;
-    params = {
+    params: Dict[str, Union[int, str]] = {
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
         &#39;pageSize&#39;: page_size,
         &#39;pageToken&#39;: page_token,
@@ -352,7 +362,9 @@ async def list(self, full: bool = False, page_size: int = 1000,
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.get(url, headers=headers, params=params)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.get(url, headers=headers,
+                       params=params)  # type: ignore[arg-type]
     return await resp.json()</code></pre>
 </details>
 </dd>
@@ -376,7 +388,9 @@ async def run(self, tname: str, full: bool = False,
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=headers, data=payload)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=headers,
+                        data=payload)  # type: ignore[arg-type]
     return await resp.json()</code></pre>
 </details>
 </dd>

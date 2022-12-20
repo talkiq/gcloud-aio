@@ -36,9 +36,10 @@ with warnings.catch_warnings():
     warnings.simplefilter(&#34;ignore&#34;)
     from future import standard_library
 standard_library.install_aliases()
-import io
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -52,13 +53,13 @@ from .bigquery import BigqueryBase
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Dataset(BigqueryBase):
     def __init__(self, dataset_name                = None,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name
@@ -138,7 +139,7 @@ class Dataset(BigqueryBase):
 <pre><code class="python">class Dataset(BigqueryBase):
     def __init__(self, dataset_name                = None,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name

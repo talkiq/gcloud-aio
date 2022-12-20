@@ -286,7 +286,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
 </dd>
 <dt id="gcloud.aio.datastore.Datastore"><code class="flex name class">
 <span>class <span class="ident">Datastore</span></span>
-<span>(</span><span>project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, namespace: str = '', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, namespace: str = '', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -305,7 +305,7 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
     _project: Optional[str]
 
     def __init__(self, project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  namespace: str = &#39;&#39;, session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.namespace = namespace
@@ -319,9 +319,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
             self.token = None
         else:
             self._project = project
-            self.token = token or Token(service_file=service_file,
-                                        session=self.session.session,
-                                        scopes=SCOPES)
+            self.token = token or Token(
+                service_file=service_file, scopes=SCOPES,
+                session=self.session.session)  # type: ignore[arg-type]
 
     async def project(self) -&gt; str:
         if self._project:
@@ -402,8 +402,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -447,8 +448,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
 
         return {
@@ -483,8 +485,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
@@ -531,8 +534,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
 
         data: Dict[str, List[Any]] = await resp.json()
 
@@ -564,7 +568,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        await s.post(url, data=payload,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(self, transaction: str,
@@ -584,7 +590,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        await s.post(url, data=payload,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(self, query: BaseQuery,
@@ -615,8 +623,9 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;CompositeFilter&#39;:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
 
         data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -745,8 +754,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data = await resp.json()
 
     return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
@@ -820,8 +830,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data: Dict[str, Any] = await resp.json()
 
     return {
@@ -879,8 +890,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data: Dict[str, Any] = await resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
@@ -979,8 +991,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
 
     data: Dict[str, List[Any]] = await resp.json()
 
@@ -1062,7 +1075,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    await s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    # TODO: the type issue will be fixed in auth-4.0.2
+    await s.post(url, data=payload,  # type: ignore[arg-type]
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.rollback"><code class="name flex">
@@ -1091,7 +1106,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    await s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    # TODO: the type issue will be fixed in auth-4.0.2
+    await s.post(url, data=payload,  # type: ignore[arg-type]
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.datastore.Datastore.runQuery"><code class="name flex">
@@ -1131,8 +1148,9 @@ def make_mutation(
     })
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
 
     data: Dict[str, Any] = await resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
@@ -2884,9 +2902,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;QueryResultBatch&#39;:
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                f&#39;{data.keys()} does not contain a supported value type &#39;
+                f&#39;(any of: {supported})&#39;)
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -2919,8 +2936,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;QueryResultBatch&#39;:
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
-                &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                f&#39;{kind} is not a supported value type (any of: &#39;
+                f&#39;{supported_types})&#39;)
 
     @classmethod
     def _get_supported_types(cls) -&gt; Dict[Any, TypeName]:
@@ -2977,9 +2994,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Value&#39;:
     else:
         supported = [name.value for name in supported_types.values()]
         raise NotImplementedError(
-            &#39;{vals} does not contain a supported value type&#39;
-            &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                            supported=supported))
+            f&#39;{data.keys()} does not contain a supported value type &#39;
+            f&#39;(any of: {supported})&#39;)
 
     # Google may not populate that field. This can happen with both
     # indexed and non-indexed fields.

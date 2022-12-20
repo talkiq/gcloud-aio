@@ -26,13 +26,14 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import io
-import json
+<pre><code class="python">import json
 import uuid
 import warnings
 from typing import Any
+from typing import AnyStr
 from typing import Callable
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -52,13 +53,13 @@ from .job import Job
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Table(BigqueryBase):
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.dataset_name = dataset_name
@@ -196,8 +197,9 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -287,7 +289,8 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -310,7 +313,8 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -329,8 +333,8 @@ class Table(BigqueryBase):
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </section>
 <section>
@@ -344,7 +348,7 @@ class Table(BigqueryBase):
 <dl>
 <dt id="gcloud.aio.bigquery.table.Table"><code class="flex name class">
 <span>class <span class="ident">Table</span></span>
-<span>(</span><span>dataset_name: str, table_name: str, project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>dataset_name: str, table_name: str, project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -355,7 +359,7 @@ class Table(BigqueryBase):
 <pre><code class="python">class Table(BigqueryBase):
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.dataset_name = dataset_name
@@ -493,8 +497,9 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -584,7 +589,8 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -607,7 +613,8 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -626,8 +633,8 @@ class Table(BigqueryBase):
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -788,7 +795,8 @@ response JSON containing details on the failing rows.</p></div>
         destination_dataset, destination_table)
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.insert_via_load"><code class="name flex">
@@ -819,7 +827,8 @@ response JSON containing details on the failing rows.</p></div>
     )
     response = await self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.insert_via_query"><code class="name flex">
@@ -846,8 +855,8 @@ response JSON containing details on the failing rows.</p></div>
                                  use_query_cache, dry_run)
     response = await self._post_json(url, body, session, timeout)
     job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-    return Job(job_id, self._project,
-               session=self.session.session, token=self.token)</code></pre>
+    return Job(job_id, self._project, token=self.token,
+               session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
 <dt id="gcloud.aio.bigquery.table.Table.patch"><code class="name flex">
@@ -877,8 +886,9 @@ response JSON containing details on the failing rows.</p></div>
     headers = await self.headers()
 
     s = AioSession(session) if session else self.session
-    resp = await s.patch(url, data=table_data, headers=headers,
-                         timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                         headers=headers, timeout=timeout)
     data: Dict[str, Any] = await resp.json()
     return data</code></pre>
 </details>

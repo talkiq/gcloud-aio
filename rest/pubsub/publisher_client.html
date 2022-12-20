@@ -37,12 +37,13 @@ with warnings.catch_warnings():
     from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-import io
 import json
 import logging
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -56,7 +57,7 @@ from gcloud.rest.pubsub.utils import PubsubMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 API_ROOT = &#39;https://pubsub.googleapis.com/v1&#39;
@@ -83,8 +84,9 @@ class PublisherClient(object):
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     @staticmethod
     def project_path(project     )       :
@@ -114,8 +116,7 @@ class PublisherClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
     def list_topics(self, project     ,
-                          query_params                           = None, **_3to2kwargs
-                          )                  :
+                          query_params                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -133,8 +134,7 @@ class PublisherClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
     def create_topic(self, topic     ,
-                           body                           = None, **_3to2kwargs
-                           )                  :
+                           body                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -146,13 +146,14 @@ class PublisherClient(object):
         headers = self._headers()
         encoded = json.dumps(body or {}).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
-    def delete_topic(self, topic     , **_3to2kwargs
-                           )        :
+    def delete_topic(self, topic     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -181,8 +182,9 @@ class PublisherClient(object):
         headers[&#39;Content-Length&#39;] = str(len(payload))
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -224,8 +226,9 @@ class PublisherClient(object):
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     @staticmethod
     def project_path(project     )       :
@@ -255,8 +258,7 @@ class PublisherClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
     def list_topics(self, project     ,
-                          query_params                           = None, **_3to2kwargs
-                          )                  :
+                          query_params                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -274,8 +276,7 @@ class PublisherClient(object):
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
     def create_topic(self, topic     ,
-                           body                           = None, **_3to2kwargs
-                           )                  :
+                           body                           = None, **_3to2kwargs)                  :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -287,13 +288,14 @@ class PublisherClient(object):
         headers = self._headers()
         encoded = json.dumps(body or {}).encode()
         s = SyncSession(session) if session else self.session
-        resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result                 = resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
-    def delete_topic(self, topic     , **_3to2kwargs
-                           )        :
+    def delete_topic(self, topic     , **_3to2kwargs)        :
         if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
         else: timeout =  10
         if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -322,8 +324,9 @@ class PublisherClient(object):
         headers[&#39;Content-Length&#39;] = str(len(payload))
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -406,8 +409,7 @@ def topic_path(cls, project     , topic     )       :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def create_topic(self, topic     ,
-                       body                           = None, **_3to2kwargs
-                       )                  :
+                       body                           = None, **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -419,7 +421,9 @@ def topic_path(cls, project     , topic     )       :
     headers = self._headers()
     encoded = json.dumps(body or {}).encode()
     s = SyncSession(session) if session else self.session
-    resp = s.put(url, data=encoded, headers=headers, timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.put(url, data=encoded,  # type: ignore[arg-type]
+                       headers=headers, timeout=timeout)
     result                 = resp.json()
     return result</code></pre>
 </details>
@@ -433,8 +437,7 @@ def topic_path(cls, project     , topic     )       :
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete_topic(self, topic     , **_3to2kwargs
-                       )        :
+<pre><code class="python">def delete_topic(self, topic     , **_3to2kwargs)        :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -458,8 +461,7 @@ def topic_path(cls, project     , topic     )       :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def list_topics(self, project     ,
-                      query_params                           = None, **_3to2kwargs
-                      )                  :
+                      query_params                           = None, **_3to2kwargs)                  :
     if &#39;timeout&#39; in _3to2kwargs: timeout = _3to2kwargs[&#39;timeout&#39;]; del _3to2kwargs[&#39;timeout&#39;]
     else: timeout =  10
     if &#39;session&#39; in _3to2kwargs: session = _3to2kwargs[&#39;session&#39;]; del _3to2kwargs[&#39;session&#39;]
@@ -500,8 +502,9 @@ def topic_path(cls, project     , topic     )       :
     headers[&#39;Content-Length&#39;] = str(len(payload))
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data                 = resp.json()
     return data</code></pre>
 </details>

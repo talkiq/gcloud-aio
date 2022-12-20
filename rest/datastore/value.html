@@ -78,9 +78,8 @@ class Value(object):  # pylint:disable=useless-object-inheritance
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                &#39;{} does not contain a supported value type &#39;
+                &#39;(any of: {})&#39;.format((data.keys()), (supported)))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -114,7 +113,7 @@ class Value(object):  # pylint:disable=useless-object-inheritance
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
                 &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                &#39;{})&#39;.format((kind), (supported_types)))
 
     @classmethod
     def _get_supported_types(cls)                       :
@@ -191,9 +190,8 @@ class Value(object):  # pylint:disable=useless-object-inheritance
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                &#39;{} does not contain a supported value type &#39;
+                &#39;(any of: {})&#39;.format((data.keys()), (supported)))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -227,7 +225,7 @@ class Value(object):  # pylint:disable=useless-object-inheritance
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
                 &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                &#39;{})&#39;.format((kind), (supported_types)))
 
     @classmethod
     def _get_supported_types(cls)                       :
@@ -284,9 +282,8 @@ def from_repr(cls, data                )           :
     else:
         supported = [name.value for name in supported_types.values()]
         raise NotImplementedError(
-            &#39;{vals} does not contain a supported value type&#39;
-            &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                            supported=supported))
+            &#39;{} does not contain a supported value type &#39;
+            &#39;(any of: {})&#39;.format((data.keys()), (supported)))
 
     # Google may not populate that field. This can happen with both
     # indexed and non-indexed fields.

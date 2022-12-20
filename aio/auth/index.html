@@ -142,11 +142,11 @@ standard Base64 are respectively replaced by - and _.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AioSession(BaseSession):
-    _session: aiohttp.ClientSession
-    _timeout: Timeout
+    _session: aiohttp.ClientSession  # type: ignore[assignment]
+    _timeout: Timeout  # type: ignore[assignment]
 
     @property
-    def session(self) -&gt; aiohttp.ClientSession:
+    def session(self) -&gt; aiohttp.ClientSession:  # type: ignore[override]
         if not self._session:
             connector = aiohttp.TCPConnector(ssl=self._ssl)
 
@@ -159,18 +159,21 @@ standard Base64 are respectively replaced by - and _.</p>
                                                   timeout=timeout)
         return self._session
 
-    async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str] = None, timeout: Timeout = 10,
-                   params: Optional[Dict[str, str]] = None
+    async def post(self, url: str,  # type: ignore[override]
+                   headers: Dict[str, str],
+                   data: Optional[Union[bytes, str]] = None,
+                   timeout: Timeout = 10,
+                   params: Optional[Dict[str, Union[int, str]]] = None
                    ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.post(url, data=data, headers=headers,
                                        timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
-    async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+    async def get(self, url: str,  # type: ignore[override]
+                  headers: Optional[Dict[str, str]] = None,
                   timeout: Timeout = 10,
-                  params: Optional[Dict[str, str]] = None,
+                  params: Optional[Dict[str, Union[int, str]]] = None,
                   stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
         if stream is not None:
             log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
@@ -181,34 +184,37 @@ standard Base64 are respectively replaced by - and _.</p>
         await _raise_for_status(resp)
         return resp
 
-    async def patch(self, url: str, headers: Dict[str, str],
-                    data: Optional[str] = None, timeout: Timeout = 10,
-                    params: Optional[Dict[str, str]] = None
+    async def patch(self, url: str,  # type: ignore[override]
+                    headers: Dict[str, str], data: Optional[str] = None,
+                    timeout: Timeout = 10,
+                    params: Optional[Dict[str, Union[int, str]]] = None
                     ) -&gt; aiohttp.ClientResponse:
         resp = await self.session.patch(url, data=data, headers=headers,
                                         timeout=timeout, params=params)
         await _raise_for_status(resp)
         return resp
 
-    async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
+    async def put(self, url: str,  # type: ignore[override]
+                  headers: Dict[str, str], data: IO[Any],
                   timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
         resp = await self.session.put(url, data=data, headers=headers,
                                       timeout=timeout)
         await _raise_for_status(resp)
         return resp
 
-    async def delete(self, url: str, headers: Dict[str, str],
-                     params: Optional[Dict[str, str]] = None,
-                     timeout: Timeout = 10
-                     ) -&gt; aiohttp.ClientResponse:
+    async def delete(self, url: str,  # type: ignore[override]
+                     headers: Dict[str, str],
+                     params: Optional[Dict[str, Union[int, str]]] = None,
+                     timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
         resp = await self.session.delete(url, headers=headers,
                                          params=params, timeout=timeout)
         await _raise_for_status(resp)
         return resp
 
-    async def request(self, method: str, url: str, headers: Dict[str, str],
-                      auto_raise_for_status: bool = True, **kwargs: Any
-                      ) -&gt; aiohttp.ClientResponse:
+    async def request(self, method: str,  # type: ignore[override]
+                      url: str, headers: Dict[str, str],
+                      auto_raise_for_status: bool = True,
+                      **kwargs: Any) -&gt; aiohttp.ClientResponse:
         resp = await self.session.request(method, url, headers=headers,
                                           **kwargs)
         if auto_raise_for_status:
@@ -233,7 +239,7 @@ standard Base64 are respectively replaced by - and _.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def session(self) -&gt; aiohttp.ClientSession:
+def session(self) -&gt; aiohttp.ClientSession:  # type: ignore[override]
     if not self._session:
         connector = aiohttp.TCPConnector(ssl=self._ssl)
 
@@ -265,7 +271,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.delete"><code class="name flex">
-<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Optional[Dict[str, str]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">delete</span></span>(<span>self, url: str, headers: Dict[str, str], params: Optional[Dict[str, Union[int, str]]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -273,10 +279,10 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def delete(self, url: str, headers: Dict[str, str],
-                 params: Optional[Dict[str, str]] = None,
-                 timeout: Timeout = 10
-                 ) -&gt; aiohttp.ClientResponse:
+<pre><code class="python">async def delete(self, url: str,  # type: ignore[override]
+                 headers: Dict[str, str],
+                 params: Optional[Dict[str, Union[int, str]]] = None,
+                 timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
     resp = await self.session.delete(url, headers=headers,
                                      params=params, timeout=timeout)
     await _raise_for_status(resp)
@@ -284,7 +290,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.get"><code class="name flex">
-<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">get</span></span>(<span>self, url: str, headers: Optional[Dict[str, str]] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, Union[int, str]]] = None, stream: Optional[bool] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -292,9 +298,10 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
+<pre><code class="python">async def get(self, url: str,  # type: ignore[override]
+              headers: Optional[Dict[str, str]] = None,
               timeout: Timeout = 10,
-              params: Optional[Dict[str, str]] = None,
+              params: Optional[Dict[str, Union[int, str]]] = None,
               stream: Optional[bool] = None) -&gt; aiohttp.ClientResponse:
     if stream is not None:
         log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
@@ -307,7 +314,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.patch"><code class="name flex">
-<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">patch</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, Union[int, str]]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -315,9 +322,10 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def patch(self, url: str, headers: Dict[str, str],
-                data: Optional[str] = None, timeout: Timeout = 10,
-                params: Optional[Dict[str, str]] = None
+<pre><code class="python">async def patch(self, url: str,  # type: ignore[override]
+                headers: Dict[str, str], data: Optional[str] = None,
+                timeout: Timeout = 10,
+                params: Optional[Dict[str, Union[int, str]]] = None
                 ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.patch(url, data=data, headers=headers,
                                     timeout=timeout, params=params)
@@ -326,7 +334,7 @@ def session(self) -&gt; aiohttp.ClientSession:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.AioSession.post"><code class="name flex">
-<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Optional[str] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, str]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
+<span>async def <span class="ident">post</span></span>(<span>self, url: str, headers: Dict[str, str], data: Union[bytes, str, ForwardRef(None)] = None, timeout: Union[aiohttp.client.ClientTimeout, float] = 10, params: Optional[Dict[str, Union[int, str]]] = None) ‑> aiohttp.client_reqrep.ClientResponse</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -334,9 +342,11 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def post(self, url: str, headers: Dict[str, str],
-               data: Optional[str] = None, timeout: Timeout = 10,
-               params: Optional[Dict[str, str]] = None
+<pre><code class="python">async def post(self, url: str,  # type: ignore[override]
+               headers: Dict[str, str],
+               data: Optional[Union[bytes, str]] = None,
+               timeout: Timeout = 10,
+               params: Optional[Dict[str, Union[int, str]]] = None
                ) -&gt; aiohttp.ClientResponse:
     resp = await self.session.post(url, data=data, headers=headers,
                                    timeout=timeout, params=params)
@@ -353,7 +363,8 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
+<pre><code class="python">async def put(self, url: str,  # type: ignore[override]
+              headers: Dict[str, str], data: IO[Any],
               timeout: Timeout = 10) -&gt; aiohttp.ClientResponse:
     resp = await self.session.put(url, data=data, headers=headers,
                                   timeout=timeout)
@@ -370,9 +381,10 @@ def session(self) -&gt; aiohttp.ClientSession:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">async def request(self, method: str, url: str, headers: Dict[str, str],
-                  auto_raise_for_status: bool = True, **kwargs: Any
-                  ) -&gt; aiohttp.ClientResponse:
+<pre><code class="python">async def request(self, method: str,  # type: ignore[override]
+                  url: str, headers: Dict[str, str],
+                  auto_raise_for_status: bool = True,
+                  **kwargs: Any) -&gt; aiohttp.ClientResponse:
     resp = await self.session.request(method, url, headers=headers,
                                       **kwargs)
     if auto_raise_for_status:
@@ -397,9 +409,9 @@ def session(self) -&gt; aiohttp.ClientSession:
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -623,7 +635,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.IamClient.sign_blob"><code class="name flex">
-<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, ForwardRef(None)], service_account_email: Optional[str] = None, delegates: Optional[List[str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
+<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[bytes, str, ForwardRef(None)], service_account_email: Optional[str] = None, delegates: Optional[List[str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -702,7 +714,7 @@ def service_account_email(self) -&gt; Optional[str]:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future[Any]] = None  # pylint: disable=unsubscriptable-object,line-too-long
+        self.acquiring: Optional[&#39;asyncio.Future[Any]&#39;] = None
 
     async def get_project(self) -&gt; Optional[str]:
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -755,16 +767,14 @@ def service_account_email(self) -&gt; Optional[str]:
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        data: Response = await self.session.post(url=self.token_uri,
-                                                 data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
-        return data
+        resp: Response = await self.session.post(  # type: ignore[assignment]
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
+        return resp
 
     async def _refresh_gce_metadata(self, timeout: int) -&gt; Response:
-        resp: Response = await self.session.get(url=self.token_uri,
-                                                headers=GCE_METADATA_HEADERS,
-                                                timeout=timeout)
+        resp: Response = await self.session.get(  # type: ignore[assignment]
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
         return resp
 
     async def _refresh_service_account(self, timeout: int) -&gt; Response:
@@ -786,9 +796,9 @@ def service_account_email(self) -&gt; Optional[str]:
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        resp: Response = await self.session.post(self.token_uri, data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
+        resp: Response = await self.session.post(  # type: ignore[assignment]
+            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)

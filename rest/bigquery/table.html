@@ -36,12 +36,13 @@ with warnings.catch_warnings():
     warnings.simplefilter(&#34;ignore&#34;)
     from future import standard_library
 standard_library.install_aliases()
-import io
 import json
 import uuid
 from typing import Any
+from typing import AnyStr
 from typing import Callable
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -61,13 +62,13 @@ from .job import Job
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Table(BigqueryBase):
     def __init__(self, dataset_name     , table_name     ,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name
@@ -207,8 +208,9 @@ class Table(BigqueryBase):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -299,7 +301,8 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -322,7 +325,8 @@ class Table(BigqueryBase):
         )
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -341,8 +345,8 @@ class Table(BigqueryBase):
                                      use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </section>
 <section>
@@ -367,7 +371,7 @@ class Table(BigqueryBase):
 <pre><code class="python">class Table(BigqueryBase):
     def __init__(self, dataset_name     , table_name     ,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name
@@ -507,8 +511,9 @@ class Table(BigqueryBase):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -599,7 +604,8 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -622,7 +628,8 @@ class Table(BigqueryBase):
         )
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -641,8 +648,8 @@ class Table(BigqueryBase):
                                      use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -797,7 +804,8 @@ class Table(BigqueryBase):
         destination_dataset, destination_table)
     response = self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.table.Table.insert_via_load"><code class="name flex">
@@ -828,7 +836,8 @@ class Table(BigqueryBase):
     )
     response = self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.table.Table.insert_via_query"><code class="name flex">
@@ -855,8 +864,8 @@ class Table(BigqueryBase):
                                  use_query_cache, dry_run)
     response = self._post_json(url, body, session, timeout)
     job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-    return Job(job_id, self._project,
-               session=self.session.session, token=self.token)</code></pre>
+    return Job(job_id, self._project, token=self.token,
+               session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.table.Table.patch"><code class="name flex">
@@ -886,8 +895,9 @@ class Table(BigqueryBase):
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.patch(url, data=table_data, headers=headers,
-                         timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.patch(url, data=table_data,  # type: ignore[arg-type]
+                         headers=headers, timeout=timeout)
     data                 = resp.json()
     return data</code></pre>
 </details>

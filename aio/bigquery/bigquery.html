@@ -26,12 +26,13 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import io
-import json
+<pre><code class="python">import json
 import os
 from enum import Enum
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -43,7 +44,7 @@ from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 API_ROOT = &#39;https://www.googleapis.com/bigquery/v2&#39;
@@ -80,13 +81,14 @@ class SchemaUpdateOption(Enum):
 class BigqueryBase:
     def __init__(self,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self._project = project
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def project(self) -&gt; str:
         if self._project:
@@ -123,8 +125,9 @@ class BigqueryBase:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, params=None,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -161,7 +164,7 @@ class BigqueryBase:
 <dl>
 <dt id="gcloud.aio.bigquery.bigquery.BigqueryBase"><code class="flex name class">
 <span>class <span class="ident">BigqueryBase</span></span>
-<span>(</span><span>project: Optional[str] = None, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>project: Optional[str] = None, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -172,13 +175,14 @@ class BigqueryBase:
 <pre><code class="python">class BigqueryBase:
     def __init__(self,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self._project = project
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def project(self) -&gt; str:
         if self._project:
@@ -215,8 +219,9 @@ class BigqueryBase:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers, params=None,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 

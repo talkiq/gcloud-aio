@@ -115,7 +115,7 @@ Base64 are respectively replaced by - and _</p></div>
 <dl>
 <dt id="gcloud.aio.kms.KMS"><code class="flex name class">
 <span>class <span class="ident">KMS</span></span>
-<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, io.IOBase, ForwardRef(None)] = None, location: str = 'global', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
+<span>(</span><span>keyproject: str, keyring: str, keyname: str, service_file: Union[str, IO[~AnyStr], ForwardRef(None)] = None, location: str = 'global', session: Optional[aiohttp.client.ClientSession] = None, token: Optional[<a title="gcloud.aio.auth.token.Token" href="../auth/token.html#gcloud.aio.auth.token.Token">Token</a>] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -125,7 +125,7 @@ Base64 are respectively replaced by - and _</p></div>
 </summary>
 <pre><code class="python">class KMS:
     def __init__(self, keyproject: str, keyring: str, keyname: str,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  location: str = LOCATION, session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.api_root = (f&#39;{API_ROOT}/projects/{keyproject}/&#39;
@@ -133,8 +133,10 @@ Base64 are respectively replaced by - and _</p></div>
                          f&#39;cryptoKeys/{keyname}&#39;)
 
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     async def headers(self) -&gt; Dict[str, str]:
         if KMS_EMULATOR_HOST:
@@ -155,7 +157,9 @@ Base64 are respectively replaced by - and _</p></div>
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         plaintext: str = (await resp.json())[&#39;plaintext&#39;]
         return plaintext
@@ -169,7 +173,9 @@ Base64 are respectively replaced by - and _</p></div>
         }).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=await self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, headers=await self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
         return ciphertext
@@ -215,7 +221,9 @@ Base64 are respectively replaced by - and _</p></div>
     }).encode(&#39;utf-8&#39;)
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=await self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=await self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     plaintext: str = (await resp.json())[&#39;plaintext&#39;]
     return plaintext</code></pre>
@@ -238,7 +246,9 @@ Base64 are respectively replaced by - and _</p></div>
     }).encode(&#39;utf-8&#39;)
 
     s = AioSession(session) if session else self.session
-    resp = await s.post(url, headers=await self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.post(url, headers=await self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     ciphertext: str = (await resp.json())[&#39;ciphertext&#39;]
     return ciphertext</code></pre>

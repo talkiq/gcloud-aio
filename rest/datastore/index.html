@@ -314,7 +314,7 @@ def from_repr(cls, data                )                     :
     #_project: Optional[str]
 
     def __init__(self, project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  namespace      = &#39;&#39;, session                    = None,
                  token                  = None)        :
         self.namespace = namespace
@@ -328,9 +328,9 @@ def from_repr(cls, data                )                     :
             self.token = None
         else:
             self._project = project
-            self.token = token or Token(service_file=service_file,
-                                        session=self.session.session,
-                                        scopes=SCOPES)
+            self.token = token or Token(
+                service_file=service_file, scopes=SCOPES,
+                session=self.session.session)  # type: ignore[arg-type]
 
     def project(self)       :
         if self._project:
@@ -411,8 +411,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data = resp.json()
 
         return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]
@@ -456,8 +457,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data                 = resp.json()
 
         return {
@@ -492,8 +494,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data                 = resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
@@ -540,8 +543,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
 
         data                       = resp.json()
 
@@ -573,7 +577,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        s.post(url, data=payload, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=payload,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     def rollback(self, transaction     ,
@@ -593,7 +599,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        s.post(url, data=payload, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        s.post(url, data=payload,  # type: ignore[arg-type]
+                     headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     def runQuery(self, query           ,
@@ -624,8 +632,9 @@ def from_repr(cls, data                )                     :
         })
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
 
         data                 = resp.json()
         return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])
@@ -754,8 +763,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data = resp.json()
 
     return [self.key_kind.from_repr(k) for k in data[&#39;keys&#39;]]</code></pre>
@@ -829,8 +839,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data                 = resp.json()
 
     return {
@@ -888,8 +899,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
     data                 = resp.json()
 
     return self.datastore_operation_kind.from_repr(data)</code></pre>
@@ -988,8 +1000,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
 
     data                       = resp.json()
 
@@ -1071,7 +1084,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    # TODO: the type issue will be fixed in auth-4.0.2
+    s.post(url, data=payload,  # type: ignore[arg-type]
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.datastore.Datastore.rollback"><code class="name flex">
@@ -1100,7 +1115,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    s.post(url, data=payload, headers=headers, timeout=timeout)</code></pre>
+    # TODO: the type issue will be fixed in auth-4.0.2
+    s.post(url, data=payload,  # type: ignore[arg-type]
+                 headers=headers, timeout=timeout)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.datastore.Datastore.runQuery"><code class="name flex">
@@ -1140,8 +1157,9 @@ def make_mutation(
     })
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, data=payload, headers=headers,
-                        timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, data=payload,  # type: ignore[arg-type]
+                        headers=headers, timeout=timeout)
 
     data                 = resp.json()
     return self.query_result_batch_kind.from_repr(data[&#39;batch&#39;])</code></pre>
@@ -2896,9 +2914,8 @@ def from_repr(cls, data                )                      :
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                &#39;{} does not contain a supported value type &#39;
+                &#39;(any of: {})&#39;.format((data.keys()), (supported)))
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -2932,7 +2949,7 @@ def from_repr(cls, data                )                      :
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
                 &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                &#39;{})&#39;.format((kind), (supported_types)))
 
     @classmethod
     def _get_supported_types(cls)                       :
@@ -2989,9 +3006,8 @@ def from_repr(cls, data                )           :
     else:
         supported = [name.value for name in supported_types.values()]
         raise NotImplementedError(
-            &#39;{vals} does not contain a supported value type&#39;
-            &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                            supported=supported))
+            &#39;{} does not contain a supported value type &#39;
+            &#39;(any of: {})&#39;.format((data.keys()), (supported)))
 
     # Google may not populate that field. This can happen with both
     # indexed and non-indexed fields.

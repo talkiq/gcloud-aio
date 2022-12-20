@@ -54,8 +54,8 @@ if BUILD_GCLOUD_REST:
     from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientResponse as Response  # type: ignore[assignment]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 log = logging.getLogger(__name__)
@@ -77,20 +77,20 @@ class BaseSession(object):
 
     @abstractmethod
     def post(self, url     , headers                ,
-                   data               , timeout       ,
-                   params                          )            :
+                   data                             , timeout       ,
+                   params                                      )            :
         pass
 
     @abstractmethod
     def get(self, url     , headers                          ,
-                  timeout       , params                          ,
+                  timeout       , params                                      ,
                   stream      )            :
         pass
 
     @abstractmethod
     def patch(self, url     , headers                ,
                     data               , timeout       ,
-                    params                          )            :
+                    params                                      )            :
         pass
 
     @abstractmethod
@@ -100,7 +100,8 @@ class BaseSession(object):
 
     @abstractmethod
     def delete(self, url     , headers                ,
-                     params                , timeout       )            :
+                     params                                      ,
+                     timeout       )            :
         pass
 
     @abstractmethod
@@ -149,11 +150,11 @@ if not BUILD_GCLOUD_REST:
                                               headers=resp.headers)
 
     class AioSession(BaseSession):
-        #_session: aiohttp.ClientSession
-        #_timeout: Timeout
+        #_session: aiohttp.ClientSession  # type: ignore[assignment]
+        #_timeout: Timeout  # type: ignore[assignment]
 
         @property
-        def session(self)                         :
+        def session(self)                         :  # type: ignore[override]
             if not self._session:
                 connector = aiohttp.TCPConnector(ssl=self._ssl)
 
@@ -166,18 +167,21 @@ if not BUILD_GCLOUD_REST:
                                                       timeout=timeout)
             return self._session
 
-        def post(self, url     , headers                ,
-                       data                = None, timeout          = 10,
-                       params                           = None
+        def post(self, url     ,  # type: ignore[override]
+                       headers                ,
+                       data                              = None,
+                       timeout          = 10,
+                       params                                       = None
                        )                          :
             resp = self.session.post(url, data=data, headers=headers,
                                            timeout=timeout, params=params)
             _raise_for_status(resp)
             return resp
 
-        def get(self, url     , headers                           = None,
+        def get(self, url     ,  # type: ignore[override]
+                      headers                           = None,
                       timeout          = 10,
-                      params                           = None,
+                      params                                       = None,
                       stream                 = None)                          :
             if stream is not None:
                 log.warning(&#39;passed unused argument stream=%s to AioSession: &#39;
@@ -188,34 +192,37 @@ if not BUILD_GCLOUD_REST:
             _raise_for_status(resp)
             return resp
 
-        def patch(self, url     , headers                ,
-                        data                = None, timeout          = 10,
-                        params                           = None
+        def patch(self, url     ,  # type: ignore[override]
+                        headers                , data                = None,
+                        timeout          = 10,
+                        params                                       = None
                         )                          :
             resp = self.session.patch(url, data=data, headers=headers,
                                             timeout=timeout, params=params)
             _raise_for_status(resp)
             return resp
 
-        def put(self, url     , headers                , data         ,
+        def put(self, url     ,  # type: ignore[override]
+                      headers                , data         ,
                       timeout          = 10)                          :
             resp = self.session.put(url, data=data, headers=headers,
                                           timeout=timeout)
             _raise_for_status(resp)
             return resp
 
-        def delete(self, url     , headers                ,
-                         params                           = None,
-                         timeout          = 10
-                         )                          :
+        def delete(self, url     ,  # type: ignore[override]
+                         headers                ,
+                         params                                       = None,
+                         timeout          = 10)                          :
             resp = self.session.delete(url, headers=headers,
                                              params=params, timeout=timeout)
             _raise_for_status(resp)
             return resp
 
-        def request(self, method     , url     , headers                ,
-                          auto_raise_for_status       = True, **kwargs     
-                          )                          :
+        def request(self, method     ,  # type: ignore[override]
+                          url     , headers                ,
+                          auto_raise_for_status       = True,
+                          **kwargs     )                          :
             resp = self.session.request(method, url, headers=headers,
                                               **kwargs)
             if auto_raise_for_status:
@@ -246,8 +253,10 @@ if BUILD_GCLOUD_REST:
         # symbol ensures we match the base class&#39;s definition for static
         # analysis.
         def post(self, url     , headers                ,
-                       data                = None, timeout        = 10,
-                       params                           = None)            :
+                       data                              = None,
+                       timeout        = 10,
+                       params                                       = None
+                       )            :
             with self.google_api_lock:
                 resp = self.session.post(url, data=data, headers=headers,
                                          timeout=timeout, params=params)
@@ -256,7 +265,7 @@ if BUILD_GCLOUD_REST:
 
         def get(self, url     , headers                           = None,
                       timeout        = 10,
-                      params                           = None,
+                      params                                       = None,
                       stream       = False)            :
             with self.google_api_lock:
                 resp = self.session.get(url, headers=headers, timeout=timeout,
@@ -266,7 +275,8 @@ if BUILD_GCLOUD_REST:
 
         def patch(self, url     , headers                ,
                         data                = None, timeout        = 10,
-                        params                           = None)            :
+                        params                                       = None
+                        )            :
             with self.google_api_lock:
                 resp = self.session.patch(url, data=data, headers=headers,
                                           timeout=timeout, params=params)
@@ -282,9 +292,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         def delete(self, url     , headers                ,
-                         params                           = None,
-                         timeout        = 10
-                         )            :
+                         params                                       = None,
+                         timeout        = 10)            :
             with self.google_api_lock:
                 resp = self.session.delete(url, params=params, headers=headers,
                                            timeout=timeout)
@@ -341,20 +350,20 @@ if BUILD_GCLOUD_REST:
 
     @abstractmethod
     def post(self, url     , headers                ,
-                   data               , timeout       ,
-                   params                          )            :
+                   data                             , timeout       ,
+                   params                                      )            :
         pass
 
     @abstractmethod
     def get(self, url     , headers                          ,
-                  timeout       , params                          ,
+                  timeout       , params                                      ,
                   stream      )            :
         pass
 
     @abstractmethod
     def patch(self, url     , headers                ,
                     data               , timeout       ,
-                    params                          )            :
+                    params                                      )            :
         pass
 
     @abstractmethod
@@ -364,7 +373,8 @@ if BUILD_GCLOUD_REST:
 
     @abstractmethod
     def delete(self, url     , headers                ,
-                     params                , timeout       )            :
+                     params                                      ,
+                     timeout       )            :
         pass
 
     @abstractmethod
@@ -423,7 +433,8 @@ def close(self)        :
 </summary>
 <pre><code class="python">@abstractmethod
 def delete(self, url     , headers                ,
-                 params                , timeout       )            :
+                 params                                      ,
+                 timeout       )            :
     pass</code></pre>
 </details>
 </dd>
@@ -438,7 +449,7 @@ def delete(self, url     , headers                ,
 </summary>
 <pre><code class="python">@abstractmethod
 def get(self, url     , headers                          ,
-              timeout       , params                          ,
+              timeout       , params                                      ,
               stream      )            :
     pass</code></pre>
 </details>
@@ -455,7 +466,7 @@ def get(self, url     , headers                          ,
 <pre><code class="python">@abstractmethod
 def patch(self, url     , headers                ,
                 data               , timeout       ,
-                params                          )            :
+                params                                      )            :
     pass</code></pre>
 </details>
 </dd>
@@ -470,8 +481,8 @@ def patch(self, url     , headers                ,
 </summary>
 <pre><code class="python">@abstractmethod
 def post(self, url     , headers                ,
-               data               , timeout       ,
-               params                          )            :
+               data                             , timeout       ,
+               params                                      )            :
     pass</code></pre>
 </details>
 </dd>
@@ -536,8 +547,10 @@ def request(self, method     , url     , headers                ,
     # symbol ensures we match the base class&#39;s definition for static
     # analysis.
     def post(self, url     , headers                ,
-                   data                = None, timeout        = 10,
-                   params                           = None)            :
+                   data                              = None,
+                   timeout        = 10,
+                   params                                       = None
+                   )            :
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
                                      timeout=timeout, params=params)
@@ -546,7 +559,7 @@ def request(self, method     , url     , headers                ,
 
     def get(self, url     , headers                           = None,
                   timeout        = 10,
-                  params                           = None,
+                  params                                       = None,
                   stream       = False)            :
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
@@ -556,7 +569,8 @@ def request(self, method     , url     , headers                ,
 
     def patch(self, url     , headers                ,
                     data                = None, timeout        = 10,
-                    params                           = None)            :
+                    params                                       = None
+                    )            :
         with self.google_api_lock:
             resp = self.session.patch(url, data=data, headers=headers,
                                       timeout=timeout, params=params)
@@ -572,9 +586,8 @@ def request(self, method     , url     , headers                ,
         return resp
 
     def delete(self, url     , headers                ,
-                     params                           = None,
-                     timeout        = 10
-                     )            :
+                     params                                       = None,
+                     timeout        = 10)            :
         with self.google_api_lock:
             resp = self.session.delete(url, params=params, headers=headers,
                                        timeout=timeout)
@@ -655,9 +668,8 @@ def session(self)           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, url     , headers                ,
-                 params                           = None,
-                 timeout        = 10
-                 )            :
+                 params                                       = None,
+                 timeout        = 10)            :
     with self.google_api_lock:
         resp = self.session.delete(url, params=params, headers=headers,
                                    timeout=timeout)
@@ -676,7 +688,7 @@ def session(self)           :
 </summary>
 <pre><code class="python">def get(self, url     , headers                           = None,
               timeout        = 10,
-              params                           = None,
+              params                                       = None,
               stream       = False)            :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
@@ -696,7 +708,8 @@ def session(self)           :
 </summary>
 <pre><code class="python">def patch(self, url     , headers                ,
                 data                = None, timeout        = 10,
-                params                           = None)            :
+                params                                       = None
+                )            :
     with self.google_api_lock:
         resp = self.session.patch(url, data=data, headers=headers,
                                   timeout=timeout, params=params)
@@ -714,8 +727,10 @@ def session(self)           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def post(self, url     , headers                ,
-               data                = None, timeout        = 10,
-               params                           = None)            :
+               data                              = None,
+               timeout        = 10,
+               params                                       = None
+               )            :
     with self.google_api_lock:
         resp = self.session.post(url, data=data, headers=headers,
                                  timeout=timeout, params=params)

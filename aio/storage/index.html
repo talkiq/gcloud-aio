@@ -552,8 +552,9 @@ with the link.</p>
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -&gt; None:
         self.session = AioSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def _headers(self) -&gt; Dict[str, str]:
         if STORAGE_EMULATOR_HOST:
@@ -873,7 +874,7 @@ with the link.</p>
         try:
             data: bytes = await response.read()
         except (AttributeError, TypeError):
-            data = response.content
+            data = response.content  # type: ignore[assignment]
 
         return data
 
@@ -911,8 +912,9 @@ with the link.</p>
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=stream, headers=headers, params=params,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=stream,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
@@ -959,8 +961,9 @@ with the link.</p>
             # when payload size &gt; 1MB
             body = io.BytesIO(body)  # type: ignore[assignment]
 
-        resp = await s.post(url, data=body, headers=headers,
-                            params=params, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=body,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
@@ -1043,9 +1046,11 @@ with the link.</p>
         headers = headers or {}
         headers.update(await self._headers())
         headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+        body = json.dumps(metadata).encode(&#39;utf-8&#39;)
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=body,  # type: ignore[arg-type]
                              headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -1413,9 +1418,11 @@ the response data (TTFB). Defaults to 10.</dd>
     headers = headers or {}
     headers.update(await self._headers())
     headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+    body = json.dumps(metadata).encode(&#39;utf-8&#39;)
 
     s = AioSession(session) if session else self.session
-    resp = await s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = await s.patch(url, data=body,  # type: ignore[arg-type]
                          headers=headers, params=params, timeout=timeout)
     data: Dict[str, Any] = await resp.json(content_type=None)
     return data</code></pre>
@@ -1519,6 +1526,7 @@ recommended streaming implementations between requests and aiohttp.</p></div>
     &#34;&#34;&#34;This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     &#34;&#34;&#34;
+
     def __init__(self, response: Any) -&gt; None:
         self._response = response
         self._iter: Optional[Iterator[bytes]] = None

@@ -78,9 +78,8 @@ class Value:  # pylint:disable=useless-object-inheritance
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                f&#39;{data.keys()} does not contain a supported value type &#39;
+                f&#39;(any of: {supported})&#39;)
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -113,8 +112,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
-                &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                f&#39;{kind} is not a supported value type (any of: &#39;
+                f&#39;{supported_types})&#39;)
 
     @classmethod
     def _get_supported_types(cls) -&gt; Dict[Any, TypeName]:
@@ -191,9 +190,8 @@ class Value:  # pylint:disable=useless-object-inheritance
         else:
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
-                &#39;{vals} does not contain a supported value type&#39;
-                &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                                supported=supported))
+                f&#39;{data.keys()} does not contain a supported value type &#39;
+                f&#39;(any of: {supported})&#39;)
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -226,8 +224,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             return supported_types[kind]
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
-                &#39;{} is not a supported value type (any of: &#39;
-                &#39;{})&#39;.format(kind, supported_types))
+                f&#39;{kind} is not a supported value type (any of: &#39;
+                f&#39;{supported_types})&#39;)
 
     @classmethod
     def _get_supported_types(cls) -&gt; Dict[Any, TypeName]:
@@ -284,9 +282,8 @@ def from_repr(cls, data: Dict[str, Any]) -&gt; &#39;Value&#39;:
     else:
         supported = [name.value for name in supported_types.values()]
         raise NotImplementedError(
-            &#39;{vals} does not contain a supported value type&#39;
-            &#39; (any of: {supported})&#39;.format(vals=data.keys(),
-                                            supported=supported))
+            f&#39;{data.keys()} does not contain a supported value type &#39;
+            f&#39;(any of: {supported})&#39;)
 
     # Google may not populate that field. This can happen with both
     # indexed and non-indexed fields.

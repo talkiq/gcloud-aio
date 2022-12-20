@@ -45,7 +45,7 @@ from .utils import encode
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT_IAM = &#39;https://iam.googleapis.com/v1&#39;
 API_ROOT_IAM_CREDENTIALS = &#39;https://iamcredentials.googleapis.com/v1&#39;
@@ -57,9 +57,9 @@ class IamClient:
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -193,9 +193,9 @@ class IamClient:
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -&gt; None:
         self.session = AioSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -419,7 +419,7 @@ def service_account_email(self) -&gt; Optional[str]:
 </details>
 </dd>
 <dt id="gcloud.aio.auth.iam.IamClient.sign_blob"><code class="name flex">
-<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[str, bytes, ForwardRef(None)], service_account_email: Optional[str] = None, delegates: Optional[List[str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
+<span>async def <span class="ident">sign_blob</span></span>(<span>self, payload: Union[bytes, str, ForwardRef(None)], service_account_email: Optional[str] = None, delegates: Optional[List[str]] = None, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 10) ‑> Dict[str, str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>

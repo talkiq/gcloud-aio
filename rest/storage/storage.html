@@ -74,8 +74,9 @@ if BUILD_GCLOUD_REST:
 else:
     from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[assignment]
-    from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import (  # type: ignore[assignment]
+        ClientResponseError as ResponseError)
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = &#39;https://www.googleapis.com/storage/v1/b&#39;
 API_ROOT_UPLOAD = &#39;https://www.googleapis.com/upload/storage/v1/b&#39;
@@ -153,6 +154,7 @@ class StreamResponse(object):
     &#34;&#34;&#34;This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     &#34;&#34;&#34;
+
     def __init__(self, response     )        :
         self._response = response
         self._iter                            = None
@@ -181,8 +183,9 @@ class Storage(object):
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     def _headers(self)                  :
         if STORAGE_EMULATOR_HOST:
@@ -537,7 +540,7 @@ class Storage(object):
         try:
             data        = response.read()
         except (AttributeError, TypeError):
-            data = response.content
+            data = response.content  # type: ignore[assignment]
 
         return data
 
@@ -581,8 +584,9 @@ class Storage(object):
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=stream, headers=headers, params=params,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=stream,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -631,8 +635,9 @@ class Storage(object):
             # when payload size &gt; 1MB
             body = io.BytesIO(body)  # type: ignore[assignment]
 
-        resp = s.post(url, data=body, headers=headers,
-                            params=params, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=body,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -729,9 +734,11 @@ class Storage(object):
         headers = headers or {}
         headers.update(self._headers())
         headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+        body = json.dumps(metadata).encode(&#39;utf-8&#39;)
 
         s = SyncSession(session) if session else self.session
-        resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.patch(url, data=body,  # type: ignore[arg-type]
                              headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
@@ -866,8 +873,9 @@ requests, not aiohttp).</p></div>
         if &#39;service_file&#39; in _3to2kwargs: service_file = _3to2kwargs[&#39;service_file&#39;]; del _3to2kwargs[&#39;service_file&#39;]
         else: service_file =  None
         self.session = SyncSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     def _headers(self)                  :
         if STORAGE_EMULATOR_HOST:
@@ -1222,7 +1230,7 @@ requests, not aiohttp).</p></div>
         try:
             data        = response.read()
         except (AttributeError, TypeError):
-            data = response.content
+            data = response.content  # type: ignore[assignment]
 
         return data
 
@@ -1266,8 +1274,9 @@ requests, not aiohttp).</p></div>
         params[&#39;uploadType&#39;] = &#39;media&#39;
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, data=stream, headers=headers, params=params,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=stream,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -1316,8 +1325,9 @@ requests, not aiohttp).</p></div>
             # when payload size &gt; 1MB
             body = io.BytesIO(body)  # type: ignore[assignment]
 
-        resp = s.post(url, data=body, headers=headers,
-                            params=params, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, data=body,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -1414,9 +1424,11 @@ requests, not aiohttp).</p></div>
         headers = headers or {}
         headers.update(self._headers())
         headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+        body = json.dumps(metadata).encode(&#39;utf-8&#39;)
 
         s = SyncSession(session) if session else self.session
-        resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.patch(url, data=body,  # type: ignore[arg-type]
                              headers=headers, params=params, timeout=timeout)
         data                 = resp.json()
         return data
@@ -1787,9 +1799,11 @@ requests, not aiohttp).</p></div>
     headers = headers or {}
     headers.update(self._headers())
     headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+    body = json.dumps(metadata).encode(&#39;utf-8&#39;)
 
     s = SyncSession(session) if session else self.session
-    resp = s.patch(url, data=json.dumps(metadata).encode(&#39;utf-8&#39;),
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.patch(url, data=body,  # type: ignore[arg-type]
                          headers=headers, params=params, timeout=timeout)
     data                 = resp.json()
     return data</code></pre>
@@ -1900,6 +1914,7 @@ recommended streaming implementations between requests and aiohttp.</p></div>
     &#34;&#34;&#34;This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     &#34;&#34;&#34;
+
     def __init__(self, response     )        :
         self._response = response
         self._iter                            = None

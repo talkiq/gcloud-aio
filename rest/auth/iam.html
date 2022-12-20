@@ -56,7 +56,7 @@ from .utils import encode
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT_IAM = &#39;https://iam.googleapis.com/v1&#39;
 API_ROOT_IAM_CREDENTIALS = &#39;https://iamcredentials.googleapis.com/v1&#39;
@@ -68,9 +68,9 @@ class IamClient(object):
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -204,9 +204,9 @@ class IamClient(object):
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:

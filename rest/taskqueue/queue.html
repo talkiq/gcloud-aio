@@ -40,12 +40,13 @@ with warnings.catch_warnings():
     from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-import io
 import json
 import logging
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import Optional
 from typing import Union
 
@@ -58,7 +59,7 @@ from gcloud.rest.auth import Token  # pylint: disable=no-name-in-module
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = &#39;https://cloudtasks.googleapis.com&#39;
 LOCATION = &#39;us-central1&#39;
@@ -75,7 +76,7 @@ log = logging.getLogger(__name__)
 
 class PushQueue(object):
     def __init__(self, project     , taskqueue     ,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  location      = LOCATION,
                  session                    = None,
                  token                  = None)        :
@@ -83,8 +84,10 @@ class PushQueue(object):
         self.api_root = (&#39;{}/projects/{}/&#39;
                          &#39;locations/{}/queues/{}&#39;.format((self.base_api_root), (project), (location), (taskqueue)))
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     def headers(self)                  :
         if CLOUDTASKS_EMULATOR_HOST:
@@ -109,7 +112,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -145,7 +150,7 @@ class PushQueue(object):
                    page_token      = &#39;&#39;,
                    session                    = None)       :
         url = &#39;{}/tasks&#39;.format((self.api_root))
-        params = {
+        params                             = {
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
             &#39;pageSize&#39;: page_size,
             &#39;pageToken&#39;: page_token,
@@ -154,7 +159,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers, params=params)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.get(url, headers=headers,
+                           params=params)  # type: ignore[arg-type]
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -169,7 +176,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return resp.json()
 
     def close(self)        :
@@ -203,7 +212,7 @@ class PushQueue(object):
 </summary>
 <pre><code class="python">class PushQueue(object):
     def __init__(self, project     , taskqueue     ,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  location      = LOCATION,
                  session                    = None,
                  token                  = None)        :
@@ -211,8 +220,10 @@ class PushQueue(object):
         self.api_root = (&#39;{}/projects/{}/&#39;
                          &#39;locations/{}/queues/{}&#39;.format((self.base_api_root), (project), (location), (taskqueue)))
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     def headers(self)                  :
         if CLOUDTASKS_EMULATOR_HOST:
@@ -237,7 +248,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -273,7 +286,7 @@ class PushQueue(object):
                    page_token      = &#39;&#39;,
                    session                    = None)       :
         url = &#39;{}/tasks&#39;.format((self.api_root))
-        params = {
+        params                             = {
             &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
             &#39;pageSize&#39;: page_size,
             &#39;pageToken&#39;: page_token,
@@ -282,7 +295,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.get(url, headers=headers, params=params)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.get(url, headers=headers,
+                           params=params)  # type: ignore[arg-type]
         return resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -297,7 +312,9 @@ class PushQueue(object):
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=headers, data=payload)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=headers,
+                            data=payload)  # type: ignore[arg-type]
         return resp.json()
 
     def close(self)        :
@@ -345,7 +362,9 @@ def create(self, task                ,
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, headers=headers, data=payload)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, headers=headers,
+                        data=payload)  # type: ignore[arg-type]
     return resp.json()</code></pre>
 </details>
 </dd>
@@ -428,7 +447,7 @@ def list(self, full       = False, page_size      = 1000,
                page_token      = &#39;&#39;,
                session                    = None)       :
     url = &#39;{}/tasks&#39;.format((self.api_root))
-    params = {
+    params                             = {
         &#39;responseView&#39;: &#39;FULL&#39; if full else &#39;BASIC&#39;,
         &#39;pageSize&#39;: page_size,
         &#39;pageToken&#39;: page_token,
@@ -437,7 +456,9 @@ def list(self, full       = False, page_size      = 1000,
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.get(url, headers=headers, params=params)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.get(url, headers=headers,
+                       params=params)  # type: ignore[arg-type]
     return resp.json()</code></pre>
 </details>
 </dd>
@@ -461,7 +482,9 @@ def run(self, tname     , full       = False,
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, headers=headers, data=payload)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, headers=headers,
+                        data=payload)  # type: ignore[arg-type]
     return resp.json()</code></pre>
 </details>
 </dd>

@@ -155,9 +155,9 @@ standard Base64 are respectively replaced by - and _.</p>
                  session                    = None,
                  token                  = None)        :
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file,
-                                    session=self.session.session,
-                                    scopes=SCOPES)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
         if self.token.token_type not in {Type.GCE_METADATA,
                                          Type.SERVICE_ACCOUNT}:
@@ -452,8 +452,10 @@ def service_account_email(self)                 :
     # symbol ensures we match the base class&#39;s definition for static
     # analysis.
     def post(self, url     , headers                ,
-                   data                = None, timeout        = 10,
-                   params                           = None)            :
+                   data                              = None,
+                   timeout        = 10,
+                   params                                       = None
+                   )            :
         with self.google_api_lock:
             resp = self.session.post(url, data=data, headers=headers,
                                      timeout=timeout, params=params)
@@ -462,7 +464,7 @@ def service_account_email(self)                 :
 
     def get(self, url     , headers                           = None,
                   timeout        = 10,
-                  params                           = None,
+                  params                                       = None,
                   stream       = False)            :
         with self.google_api_lock:
             resp = self.session.get(url, headers=headers, timeout=timeout,
@@ -472,7 +474,8 @@ def service_account_email(self)                 :
 
     def patch(self, url     , headers                ,
                     data                = None, timeout        = 10,
-                    params                           = None)            :
+                    params                                       = None
+                    )            :
         with self.google_api_lock:
             resp = self.session.patch(url, data=data, headers=headers,
                                       timeout=timeout, params=params)
@@ -488,9 +491,8 @@ def service_account_email(self)                 :
         return resp
 
     def delete(self, url     , headers                ,
-                     params                           = None,
-                     timeout        = 10
-                     )            :
+                     params                                       = None,
+                     timeout        = 10)            :
         with self.google_api_lock:
             resp = self.session.delete(url, params=params, headers=headers,
                                        timeout=timeout)
@@ -571,9 +573,8 @@ def session(self)           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self, url     , headers                ,
-                 params                           = None,
-                 timeout        = 10
-                 )            :
+                 params                                       = None,
+                 timeout        = 10)            :
     with self.google_api_lock:
         resp = self.session.delete(url, params=params, headers=headers,
                                    timeout=timeout)
@@ -592,7 +593,7 @@ def session(self)           :
 </summary>
 <pre><code class="python">def get(self, url     , headers                           = None,
               timeout        = 10,
-              params                           = None,
+              params                                       = None,
               stream       = False)            :
     with self.google_api_lock:
         resp = self.session.get(url, headers=headers, timeout=timeout,
@@ -612,7 +613,8 @@ def session(self)           :
 </summary>
 <pre><code class="python">def patch(self, url     , headers                ,
                 data                = None, timeout        = 10,
-                params                           = None)            :
+                params                                       = None
+                )            :
     with self.google_api_lock:
         resp = self.session.patch(url, data=data, headers=headers,
                                   timeout=timeout, params=params)
@@ -630,8 +632,10 @@ def session(self)           :
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def post(self, url     , headers                ,
-               data                = None, timeout        = 10,
-               params                           = None)            :
+               data                              = None,
+               timeout        = 10,
+               params                                       = None
+               )            :
     with self.google_api_lock:
         resp = self.session.post(url, data=data, headers=headers,
                                  timeout=timeout, params=params)
@@ -715,7 +719,7 @@ def session(self)           :
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                                = None  # pylint: disable=unsubscriptable-object,line-too-long
+        self.acquiring                                  = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -768,16 +772,14 @@ def session(self)           :
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        data           = self.session.post(url=self.token_uri,
-                                                 data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
-        return data
+        resp           = self.session.post(  # type: ignore[assignment]
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
+        return resp
 
     def _refresh_gce_metadata(self, timeout     )            :
-        resp           = self.session.get(url=self.token_uri,
-                                                headers=GCE_METADATA_HEADERS,
-                                                timeout=timeout)
+        resp           = self.session.get(  # type: ignore[assignment]
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
         return resp
 
     def _refresh_service_account(self, timeout     )            :
@@ -799,9 +801,9 @@ def session(self)           :
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        resp           = self.session.post(self.token_uri, data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
+        resp           = self.session.post(  # type: ignore[assignment]
+            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)

@@ -140,7 +140,7 @@ defined in the response (eg. into builtin python types).</p></div>
 <pre><code class="python">class Dataset(BigqueryBase):
     def __init__(self, dataset_name                = None,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name
@@ -339,7 +339,7 @@ defined in the response (eg. into builtin python types).</p></div>
 <pre><code class="python">class Job(BigqueryBase):
     def __init__(self, job_id                = None,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.job_id = job_id
@@ -715,7 +715,7 @@ within a specified timeout.</p></div>
 <pre><code class="python">class Table(BigqueryBase):
     def __init__(self, dataset_name     , table_name     ,
                  project                = None,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  session                    = None,
                  token                  = None)        :
         self.dataset_name = dataset_name
@@ -855,8 +855,9 @@ within a specified timeout.</p></div>
         headers = self.headers()
 
         s = SyncSession(session) if session else self.session
-        resp = s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data                 = resp.json()
         return data
 
@@ -947,7 +948,8 @@ within a specified timeout.</p></div>
             destination_dataset, destination_table)
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -970,7 +972,8 @@ within a specified timeout.</p></div>
         )
         response = self._post_json(url, body, session, timeout)
         return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -989,8 +992,8 @@ within a specified timeout.</p></div>
                                      use_query_cache, dry_run)
         response = self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)</code></pre>
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1145,7 +1148,8 @@ within a specified timeout.</p></div>
         destination_dataset, destination_table)
     response = self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.insert_via_load"><code class="name flex">
@@ -1176,7 +1180,8 @@ within a specified timeout.</p></div>
     )
     response = self._post_json(url, body, session, timeout)
     return Job(response[&#39;jobReference&#39;][&#39;jobId&#39;], self._project,
-               session=self.session.session, token=self.token)</code></pre>
+               session=self.session.session,  # type: ignore[arg-type]
+               token=self.token)</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.insert_via_query"><code class="name flex">
@@ -1203,8 +1208,8 @@ within a specified timeout.</p></div>
                                  use_query_cache, dry_run)
     response = self._post_json(url, body, session, timeout)
     job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
-    return Job(job_id, self._project,
-               session=self.session.session, token=self.token)</code></pre>
+    return Job(job_id, self._project, token=self.token,
+               session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
 <dt id="gcloud.rest.bigquery.Table.patch"><code class="name flex">
@@ -1234,8 +1239,9 @@ within a specified timeout.</p></div>
     headers = self.headers()
 
     s = SyncSession(session) if session else self.session
-    resp = s.patch(url, data=table_data, headers=headers,
-                         timeout=timeout)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.patch(url, data=table_data,  # type: ignore[arg-type]
+                         headers=headers, timeout=timeout)
     data                 = resp.json()
     return data</code></pre>
 </details>

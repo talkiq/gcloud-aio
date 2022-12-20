@@ -134,7 +134,7 @@ Base64 are respectively replaced by - and _</p></div>
 </summary>
 <pre><code class="python">class KMS(object):
     def __init__(self, keyproject     , keyring     , keyname     ,
-                 service_file                                  = None,
+                 service_file                                   = None,
                  location      = LOCATION, session                    = None,
                  token                  = None)        :
         self.api_root = (&#39;{}/projects/{}/&#39;
@@ -142,8 +142,10 @@ Base64 are respectively replaced by - and _</p></div>
                          &#39;cryptoKeys/{}&#39;.format((API_ROOT), (keyproject), (location), (keyring), (keyname)))
 
         self.session = SyncSession(session)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file,
+            session=self.session.session,  # type: ignore[arg-type]
+            scopes=SCOPES)
 
     def headers(self)                  :
         if KMS_EMULATOR_HOST:
@@ -164,7 +166,9 @@ Base64 are respectively replaced by - and _</p></div>
         }).encode(&#39;utf-8&#39;)
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         plaintext      = (resp.json())[&#39;plaintext&#39;]
         return plaintext
@@ -178,7 +182,9 @@ Base64 are respectively replaced by - and _</p></div>
         }).encode(&#39;utf-8&#39;)
 
         s = SyncSession(session) if session else self.session
-        resp = s.post(url, headers=self.headers(), data=body)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = s.post(url, headers=self.headers(),
+                            data=body)  # type: ignore[arg-type]
 
         ciphertext      = (resp.json())[&#39;ciphertext&#39;]
         return ciphertext
@@ -224,7 +230,9 @@ Base64 are respectively replaced by - and _</p></div>
     }).encode(&#39;utf-8&#39;)
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, headers=self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, headers=self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     plaintext      = (resp.json())[&#39;plaintext&#39;]
     return plaintext</code></pre>
@@ -247,7 +255,9 @@ Base64 are respectively replaced by - and _</p></div>
     }).encode(&#39;utf-8&#39;)
 
     s = SyncSession(session) if session else self.session
-    resp = s.post(url, headers=self.headers(), data=body)
+    # TODO: the type issue will be fixed in auth-4.0.2
+    resp = s.post(url, headers=self.headers(),
+                        data=body)  # type: ignore[arg-type]
 
     ciphertext      = (resp.json())[&#39;ciphertext&#39;]
     return ciphertext</code></pre>

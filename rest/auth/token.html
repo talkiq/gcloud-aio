@@ -82,8 +82,8 @@ if BUILD_GCLOUD_REST:
     from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientResponse as Response  # type: ignore[assignment]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
     import asyncio
 
 
@@ -160,7 +160,7 @@ class Token(object):
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                                = None  # pylint: disable=unsubscriptable-object,line-too-long
+        self.acquiring                                  = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -213,16 +213,14 @@ class Token(object):
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        data           = self.session.post(url=self.token_uri,
-                                                 data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
-        return data
+        resp           = self.session.post(  # type: ignore[assignment]
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
+        return resp
 
     def _refresh_gce_metadata(self, timeout     )            :
-        resp           = self.session.get(url=self.token_uri,
-                                                headers=GCE_METADATA_HEADERS,
-                                                timeout=timeout)
+        resp           = self.session.get(  # type: ignore[assignment]
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
         return resp
 
     def _refresh_service_account(self, timeout     )            :
@@ -244,9 +242,9 @@ class Token(object):
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        resp           = self.session.post(self.token_uri, data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
+        resp           = self.session.post(  # type: ignore[assignment]
+            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)
@@ -366,7 +364,7 @@ class Token(object):
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring                                = None  # pylint: disable=unsubscriptable-object,line-too-long
+        self.acquiring                                  = None
 
     def get_project(self)                 :
         project = (os.environ.get(&#39;GOOGLE_CLOUD_PROJECT&#39;)
@@ -419,16 +417,14 @@ class Token(object):
             &#39;refresh_token&#39;: self.service_data[&#39;refresh_token&#39;],
         })
 
-        data           = self.session.post(url=self.token_uri,
-                                                 data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
-        return data
+        resp           = self.session.post(  # type: ignore[assignment]
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
+        return resp
 
     def _refresh_gce_metadata(self, timeout     )            :
-        resp           = self.session.get(url=self.token_uri,
-                                                headers=GCE_METADATA_HEADERS,
-                                                timeout=timeout)
+        resp           = self.session.get(  # type: ignore[assignment]
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
         return resp
 
     def _refresh_service_account(self, timeout     )            :
@@ -450,9 +446,9 @@ class Token(object):
             &#39;grant_type&#39;: &#39;urn:ietf:params:oauth:grant-type:jwt-bearer&#39;,
         })
 
-        resp           = self.session.post(self.token_uri, data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
+        resp           = self.session.post(  # type: ignore[assignment]
+            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)
