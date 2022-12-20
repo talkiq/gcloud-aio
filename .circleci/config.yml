@@ -15,14 +15,9 @@ executors:
       - image: python:3.7.16
     resource_class: small
 
-  python-38:
+  python-311:
     docker:
-      - image: python:3.8.13
-    resource_class: small
-
-  python-39:
-    docker:
-      - image: python:3.9.16
+      - image: python:3.11.1
     resource_class: small
 
 commands:
@@ -102,7 +97,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    executor: python-39
+    executor: python-311
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -122,7 +117,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    executor: python-39
+    executor: python-311
     steps:
       - run: pip install pdoc3
       - run:
@@ -227,7 +222,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              python_version: ['3.7', '3.8', '3.9']
+              python_version: ['3.7', '3.8', '3.9', '3.10', '3.11']
           filters:
             tags:
               only: /.*/
@@ -241,7 +236,7 @@ workflows:
             alias: test-integration-aio
             parameters:
               cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-              python_version: ['3.9']
+              python_version: ['3.11']
           filters:
             tags:
               only: /.*/
@@ -255,7 +250,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.7', '3.8', '3.9']
+              python_version: ['2.7', '3.7', '3.8', '3.9', '3.10', '3.11']
           filters:
             tags:
               only: /.*/
@@ -273,7 +268,7 @@ workflows:
             alias: test-integration-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.9']
+              python_version: ['2.7', '3.11']
           filters:
             tags:
               only: /.*/
