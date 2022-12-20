@@ -26,21 +26,7 @@ for file in $(find . -type f -path '*aio*'); do
     mv $file ${file//aio/rest}
 done
 
-# For some files with conflicts due to unicode encoding in py2, do not use
-# the automated string conversion tools
 for file in $(find . -type f -path '*py' \
-              | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" \
-              | sort -u); do
-    new_file=${file//aio/rest}
-    temp_file="${new_file}.bkp"
-    cp $file $temp_file
-    strip-hints $temp_file > "${temp_file}.tmp"
-    mv "${temp_file}.tmp" $new_file
-    rm $temp_file
-    echo "Skipped formatting ${new_file}"
-done
-for file in $(find . -type f -path '*py' \
-              | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" \
               | sort -u); do
     new_file=${file//aio/rest}
     temp_file="${new_file}.bkp"

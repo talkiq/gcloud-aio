@@ -82,9 +82,10 @@ class Value:  # pylint:disable=useless-object-inheritance
 
         try:
             return supported_types[kind]
-        except KeyError as e:
-            raise NotImplementedError(f'{kind} is not a supported value type '
-                                      f'(any of: {supported_types})') from e
+        except KeyError:
+            raise NotImplementedError(  # pylint: disable=raise-missing-from
+                f'{kind} is not a supported value type (any of: '
+                f'{supported_types})')
 
     @classmethod
     def _get_supported_types(cls) -> Dict[Any, TypeName]:
