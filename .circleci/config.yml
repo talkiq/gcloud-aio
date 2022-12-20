@@ -250,7 +250,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+              python_version: ['2.7', '3.6', '3.7', '3.8', '3.9']
           filters:
             tags:
               only: /.*/

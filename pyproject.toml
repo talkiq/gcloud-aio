@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "gcloud-rest"
 version = "0.0.0"
-description = "Meta package for building gcloud-rest    "
+description = "Meta package for building gcloud-rest"
 
 authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
 

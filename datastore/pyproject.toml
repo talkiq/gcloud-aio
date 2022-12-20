@@ -35,7 +35,6 @@ pytest-mock = ">= 2.0.0, < 4.0.0"
 # https://app.circleci.com/pipelines/github/talkiq/gcloud-aio/1769/workflows/5099f442-b4b2-48bc-bff2-77fb0cce993a/jobs/36773
 rsa = [
     { version = ">= 3.1.4, < 4.4.0", python = "<3.0" },
-    { version = ">= 3.1.4, < 4.6.0", python = ">=3.0,<3.6" },
     { version = ">= 3.1.4, < 5.0.0", python = ">=3.6" },
 ]
 
