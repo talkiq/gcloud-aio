@@ -22,7 +22,7 @@ executors:
 
   python-39:
     docker:
-      - image: python:3.9.13
+      - image: python:3.9.16
     resource_class: small
 
 commands:
