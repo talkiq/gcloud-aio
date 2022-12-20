@@ -84,7 +84,12 @@ jobs:
           command: poetry env use <<parameters.python_version>>
           working_directory: <<parameters.cwd>>
       - run:
-          command: poetry install --no-root
+          name: poetry install --no-root
+          command: |
+            # No idea why we need to re-lock here (even if we just locked!),
+            # but it's py2.7 so meh, who cares.
+            [ "v2.7" = "v<<parameters.python_version>>" ] && poetry lock
+            poetry install --no-root
           working_directory: <<parameters.cwd>>
       - run:
           command: poetry run pip install .
