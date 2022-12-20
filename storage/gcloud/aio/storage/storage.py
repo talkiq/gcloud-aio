@@ -32,8 +32,9 @@ if BUILD_GCLOUD_REST:
 else:
     from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[assignment]
-    from aiohttp import ClientResponseError as ResponseError  # type: ignore[no-redef]  # pylint: disable=line-too-long
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import (  # type: ignore[assignment]
+        ClientResponseError as ResponseError)
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 API_ROOT = 'https://www.googleapis.com/storage/v1/b'
 API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
@@ -111,6 +112,7 @@ class StreamResponse:
     """This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     """
+
     def __init__(self, response: Any) -> None:
         self._response = response
         self._iter: Optional[Iterator[bytes]] = None
@@ -136,8 +138,9 @@ class Storage:
                  token: Optional[Token] = None,
                  session: Optional[Session] = None) -> None:
         self.session = AioSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     async def _headers(self) -> Dict[str, str]:
         if STORAGE_EMULATOR_HOST:
@@ -457,7 +460,7 @@ class Storage:
         try:
             data: bytes = await response.read()
         except (AttributeError, TypeError):
-            data = response.content
+            data = response.content  # type: ignore[assignment]
 
         return data
 
@@ -495,8 +498,9 @@ class Storage:
         params['uploadType'] = 'media'
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=stream, headers=headers, params=params,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=stream,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
@@ -543,8 +547,9 @@ class Storage:
             # when payload size > 1MB
             body = io.BytesIO(body)  # type: ignore[assignment]
 
-        resp = await s.post(url, data=body, headers=headers,
-                            params=params, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=body,  # type: ignore[arg-type]
+                            headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
@@ -627,9 +632,11 @@ class Storage:
         headers = headers or {}
         headers.update(await self._headers())
         headers['Content-Type'] = 'application/json'
+        body = json.dumps(metadata).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=json.dumps(metadata).encode('utf-8'),
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=body,  # type: ignore[arg-type]
                              headers=headers, params=params, timeout=timeout)
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
