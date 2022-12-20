@@ -6,7 +6,7 @@ description = "Meta package for building gcloud-rest"
 authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
 
 [tool.poetry.dependencies]
-python = ">= 3.6, < 4.0"
+python = ">= 3.7, < 4.0"
 
 [tool.poetry.dev-dependencies]
 future = "0.18.2"
