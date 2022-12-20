@@ -307,3 +307,16 @@ class Table(BigqueryBase):
         job_id = response['jobReference']['jobId'] if not dry_run else None
         return Job(job_id, self._project, token=self.token,
                    session=self.session.session)  # type: ignore[arg-type]
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
+    async def list_tabledata(
+            self, session: Optional[Session] = None, timeout: int = 60,
+            params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """List the content of a table in rows."""
+        project = await self.project()
+        url = (
+            f'{API_ROOT}/projects/{project}/datasets/'
+            f'{self.dataset_name}/tables/{self.table_name}/data'
+        )
+
+        return await self._get_url(url, session, timeout, params)
