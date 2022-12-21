@@ -26,21 +26,7 @@ for file in $(find . -type f -path '*aio*'); do
     mv $file ${file//aio/rest}
 done
 
-# For some files with conflicts due to unicode encoding in py2, do not use
-# the automated string conversion tools
 for file in $(find . -type f -path '*py' \
-              | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" \
-              | sort -u); do
-    new_file=${file//aio/rest}
-    temp_file="${new_file}.bkp"
-    cp $file $temp_file
-    strip-hints $temp_file > "${temp_file}.tmp"
-    mv "${temp_file}.tmp" $new_file
-    rm $temp_file
-    echo "Skipped formatting ${new_file}"
-done
-for file in $(find . -type f -path '*py' \
-              | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" \
               | sort -u); do
     new_file=${file//aio/rest}
     temp_file="${new_file}.bkp"
@@ -82,7 +68,7 @@ find . -type f \
     | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
 find . -type f \
     | grep "pyproject\.toml$" \
-    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.4, < 4.0"/g'
+    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.6, < 4.0"/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiohttp/# aiohttp/g'
 find . -type f -path '*pyproject.toml' \
@@ -101,7 +87,7 @@ for folder in ${PROJECTS}; do
     else
         echo "$folder/pyproject.toml changed, rebuilding rest lockfile..."
         cp pyproject.toml ../../$folder/pyproject.rest.toml
-        poetry lock
+        poetry12 lock
         cp poetry.lock ../../$folder/poetry.rest.lock
     fi
 

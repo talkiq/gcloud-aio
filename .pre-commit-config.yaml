@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.8
+    python: python3.7
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -36,7 +36,7 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v2.15.6
+    rev: v2.15.9
     hooks:
     -   id: pylint
         additional_dependencies:
@@ -49,6 +49,7 @@ repos:
         - --max-args=10
         - --score=n
         - -d broad-except
+        - -d deprecated-decorator
         - -d duplicate-code
         - -d fixme
         - -d import-error
@@ -87,46 +88,57 @@ repos:
         # Note that some libraries keep their type hints in packages named
         # `types-$lib` or `$lib-stubs`.
         additional_dependencies:
+        - aiohttp
         - types-cryptography
         - types-jwt
         - types-pkg_resources
         - types-requests
         args:
-        - --ignore-missing-imports  # TODO: remove me
-        - --follow-imports=silent  # TODO: remove me
         - --show-error-codes
         - --strict
         - --strict-equality
         - --warn-unreachable
         files: auth/
-        exclude: tests/.*
+        exclude: tests/
     -   <<: *mypy
         name: mypy-bigquery
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: bigquery/
     -   <<: *mypy
         name: mypy-datastore
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: datastore/
     -   <<: *mypy
         name: mypy-kms
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: kms/
     -   <<: *mypy
         name: mypy-pubsub
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
+        - prometheus-client
         - types-pkg_resources
         - types-requests
         files: pubsub/
     -   <<: *mypy
         name: mypy-storage
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
+        - rsa
         - types-aiofiles
         - types-pkg_resources
         - types-requests
@@ -134,6 +146,8 @@ repos:
     -   <<: *mypy
         name: mypy-taskqueue
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: taskqueue/
@@ -141,6 +155,10 @@ repos:
     rev: v1.4.0
     hooks:
     -   id: yesqa
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.1
+    hooks:
+    -   id: autopep8
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:
@@ -152,7 +170,7 @@ repos:
         - flake8-comprehensions==3.10.1
         - importlib-metadata<5  # TODO: nuke once we upgrade past py3.7
         args:
-        - --ignore=E501,W503,F401,F811
+        - --ignore=A003,E501,W503,F401,F811
 -   repo: local
     hooks:
     -   &poetry-check

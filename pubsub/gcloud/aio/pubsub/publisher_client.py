@@ -1,9 +1,10 @@
-import io
 import json
 import logging
 import os
 from typing import Any
+from typing import AnyStr
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -17,7 +18,7 @@ from gcloud.aio.pubsub.utils import PubsubMessage
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 API_ROOT = 'https://pubsub.googleapis.com/v1'
@@ -36,12 +37,14 @@ log = logging.getLogger(__name__)
 
 
 class PublisherClient:
-    def __init__(self, *, service_file: Optional[Union[str, io.IOBase]] = None,
+    def __init__(self, *,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.session = AioSession(session, verify_ssl=VERIFY_SSL)
-        self.token = token or Token(service_file=service_file, scopes=SCOPES,
-                                    session=self.session.session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
     @staticmethod
     def project_path(project: str) -> str:
@@ -71,10 +74,9 @@ class PublisherClient:
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
     async def list_topics(self, project: str,
-                          query_params: Optional[Dict[str, str]] = None,
-                          *, session: Optional[Session] = None,
-                          timeout: Optional[int] = 10
-                          ) -> Dict[str, Any]:
+                          query_params: Optional[Dict[str, str]] = None, *,
+                          session: Optional[Session] = None,
+                          timeout: int = 10) -> Dict[str, Any]:
         """
         List topics
         """
@@ -88,10 +90,9 @@ class PublisherClient:
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
     async def create_topic(self, topic: str,
-                           body: Optional[Dict[str, Any]] = None,
-                           *, session: Optional[Session] = None,
-                           timeout: Optional[int] = 10
-                           ) -> Dict[str, Any]:
+                           body: Optional[Dict[str, Any]] = None, *,
+                           session: Optional[Session] = None,
+                           timeout: int = 10) -> Dict[str, Any]:
         """
         Create topic.
         """
@@ -99,15 +100,16 @@ class PublisherClient:
         headers = await self._headers()
         encoded = json.dumps(body or {}).encode()
         s = AioSession(session) if session else self.session
-        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.put(url, data=encoded,  # type: ignore[arg-type]
+                           headers=headers, timeout=timeout)
         result: Dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
-    async def delete_topic(self, topic: str,
-                           *, session: Optional[Session] = None,
-                           timeout: Optional[int] = 10
-                           ) -> None:
+    async def delete_topic(self, topic: str, *,
+                           session: Optional[Session] = None,
+                           timeout: int = 10) -> None:
         """
         Delete topic.
         """
@@ -132,8 +134,9 @@ class PublisherClient:
         headers['Content-Length'] = str(len(payload))
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
+                            headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 

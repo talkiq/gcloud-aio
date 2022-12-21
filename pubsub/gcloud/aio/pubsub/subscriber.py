@@ -105,9 +105,8 @@ else:
                     ack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
-                    log.error(
-                        'Ack error is unrecoverable, '
-                        'one or more messages may be dropped', exc_info=e)
+                    log.exception('Ack error is unrecoverable, one or more '
+                                  'messages may be dropped')
 
                     async def maybe_ack(ack_id: str) -> None:
                         try:
@@ -180,9 +179,8 @@ else:
                     nack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
-                    log.error(
-                        'Nack error is unrecoverable, '
-                        'one or more messages may be dropped', exc_info=e)
+                    log.exception('Nack error is unrecoverable, one or more '
+                                  'messages may be dropped')
 
                     async def maybe_nack(ack_id: str) -> None:
                         try:
@@ -195,6 +193,7 @@ else:
                                         exc_info=ex)
                         finally:
                             nack_queue.task_done()
+
                     for ack_id in ack_ids:
                         asyncio.ensure_future(maybe_nack(ack_id))
                     ack_ids = []

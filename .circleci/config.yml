@@ -10,6 +10,11 @@ executors:
       - image: thekevjames/nox:2022.11.21
     resource_class: small
 
+  python-37:
+    docker:
+      - image: python:3.7.16
+    resource_class: small
+
   python-38:
     docker:
       - image: python:3.8.13
@@ -17,7 +22,7 @@ executors:
 
   python-39:
     docker:
-      - image: python:3.9.13
+      - image: python:3.9.16
     resource_class: small
 
 commands:
@@ -79,7 +84,12 @@ jobs:
           command: poetry env use <<parameters.python_version>>
           working_directory: <<parameters.cwd>>
       - run:
-          command: poetry install --no-root
+          name: poetry install --no-root
+          command: |
+            # No idea why we need to re-lock here (even if we just locked!),
+            # but it's py2.7 so meh, who cares.
+            [ "v2.7" = "v<<parameters.python_version>>" ] && poetry lock
+            poetry install --no-root
           working_directory: <<parameters.cwd>>
       - run:
           command: poetry run pip install .
@@ -150,7 +160,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:18.11.0
+      - image: node:18.12.1
     steps:
       - checkout
       - attach_workspace:
@@ -202,7 +212,9 @@ workflows:
 
       # run linters
       - linter/pre-commit:
-          executor: python-38  # TODO: https://github.com/PyCQA/pylint/issues/3882
+          # N.B. keep this pinned to the oldest 3.x to make sure we maintain
+          # support. Note that 3.6.x is not supported by `pre-commit` anymore.
+          executor: python-37
           filters:
             tags:
               only: /.*/
@@ -243,7 +255,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+              python_version: ['2.7', '3.6', '3.7', '3.8', '3.9']
           filters:
             tags:
               only: /.*/

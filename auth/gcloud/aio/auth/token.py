@@ -40,8 +40,8 @@ if BUILD_GCLOUD_REST:
     from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientResponse as Response  # type: ignore[assignment]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
     import asyncio
 
 
@@ -118,7 +118,7 @@ class Token:
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
 
-        self.acquiring: Optional[asyncio.Future[Any]] = None  # pylint: disable=unsubscriptable-object,line-too-long
+        self.acquiring: Optional['asyncio.Future[Any]'] = None
 
     async def get_project(self) -> Optional[str]:
         project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -171,16 +171,14 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         })
 
-        data: Response = await self.session.post(url=self.token_uri,
-                                                 data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
-        return data
+        resp: Response = await self.session.post(  # type: ignore[assignment]
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
+        return resp
 
     async def _refresh_gce_metadata(self, timeout: int) -> Response:
-        resp: Response = await self.session.get(url=self.token_uri,
-                                                headers=GCE_METADATA_HEADERS,
-                                                timeout=timeout)
+        resp: Response = await self.session.get(  # type: ignore[assignment]
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
         return resp
 
     async def _refresh_service_account(self, timeout: int) -> Response:
@@ -202,9 +200,9 @@ class Token:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
 
-        resp: Response = await self.session.post(self.token_uri, data=payload,
-                                                 headers=REFRESH_HEADERS,
-                                                 timeout=timeout)
+        resp: Response = await self.session.post(  # type: ignore[assignment]
+            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout)
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)

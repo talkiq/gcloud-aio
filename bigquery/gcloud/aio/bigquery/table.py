@@ -1,10 +1,11 @@
-import io
 import json
 import uuid
 import warnings
 from typing import Any
+from typing import AnyStr
 from typing import Callable
 from typing import Dict
+from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
@@ -24,13 +25,13 @@ from .job import Job
 if BUILD_GCLOUD_REST:
     from requests import Session
 else:
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 class Table(BigqueryBase):
     def __init__(self, dataset_name: str, table_name: str,
                  project: Optional[str] = None,
-                 service_file: Optional[Union[str, io.IOBase]] = None,
+                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
                  session: Optional[Session] = None,
                  token: Optional[Token] = None) -> None:
         self.dataset_name = dataset_name
@@ -168,8 +169,9 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.patch(url, data=table_data, headers=headers,
-                             timeout=timeout)
+        # TODO: the type issue will be fixed in auth-4.0.2
+        resp = await s.patch(url, data=table_data,  # type: ignore[arg-type]
+                             headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -259,7 +261,8 @@ class Table(BigqueryBase):
             destination_dataset, destination_table)
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -282,7 +285,8 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         return Job(response['jobReference']['jobId'], self._project,
-                   session=self.session.session, token=self.token)
+                   session=self.session.session,  # type: ignore[arg-type]
+                   token=self.token)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -301,8 +305,8 @@ class Table(BigqueryBase):
                                      use_query_cache, dry_run)
         response = await self._post_json(url, body, session, timeout)
         job_id = response['jobReference']['jobId'] if not dry_run else None
-        return Job(job_id, self._project,
-                   session=self.session.session, token=self.token)
+        return Job(job_id, self._project, token=self.token,
+                   session=self.session.session)  # type: ignore[arg-type]
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
     async def list_tabledata(
