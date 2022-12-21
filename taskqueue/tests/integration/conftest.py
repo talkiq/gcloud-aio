@@ -46,14 +46,7 @@ async def session() -> str:
 
 
 @pytest.fixture(scope='function')
-async def push_queue_context(project, creds, push_queue_name,
-                             push_queue_location, session):
-    # main purpose is to be do proper teardown of tasks created by tests
-    tq = PushQueue(project, push_queue_name, service_file=creds,
-                   location=push_queue_location, session=session)
-    context = {'queue': tq, 'tasks_to_cleanup': []}
-    yield context
-
-    # try deleting the task created by tests
-    for task in context['tasks_to_cleanup']:
-        await tq.delete(task['name'])
+async def push_queue(project, creds, push_queue_name, push_queue_location,
+                     session):
+    return PushQueue(project, push_queue_name, service_file=creds,
+                     location=push_queue_location, session=session)

@@ -6,9 +6,7 @@ from future.utils import text_to_native_str
 
 
 @pytest.mark.asyncio
-async def test_task_lifecycle_in_push_queue(push_queue_context):
-    tq = push_queue_context['queue']
-
+async def test_task_lifecycle_in_push_queue(push_queue):
     # Set to run in the future, giving us enough time to test all
     # functionalities before the task gets dispatched automatically.
     schedule_time = datetime.utcnow() + timedelta(days=1)
@@ -24,28 +22,21 @@ async def test_task_lifecycle_in_push_queue(push_queue_context):
     }
 
     # CREATE
-    created = await tq.create(task)
+    created = await push_queue.create(task)
     assert created
 
-    # Add created task (and the queue to delete it from) to the tasks list
-    # so the teardown will clean it up regardless of what happens.
-    push_queue_context['tasks_to_cleanup'].append(created)
+    try:
+        # GET
+        assert created == await push_queue.get(created['name'], full=True)
 
-    # GET
-    assert created == await tq.get(created['name'], full=True)
+        # LIST
+        listed = await push_queue.list(full=True)
+        assert listed.get('tasks')
+        assert created in listed['tasks']
 
-    # LIST
-    listed = await tq.list(full=True)
-    assert listed.get('tasks')
-    assert created in listed['tasks']
-
-    # RUN
-    run = await tq.run(created['name'], full=True)
-    assert all(item in run.items() for item in created.items())
-
-    # DELETE
-    assert not await tq.delete(created['name'])
-
-    # Created task has been deleted successfully, so remove it from the list to
-    # avoid unnecessary delete attempt in teardown.
-    push_queue_context['tasks_to_cleanup'].remove(created)
+        # RUN
+        run = await push_queue.run(created['name'], full=True)
+        assert all(item in run.items() for item in created.items())
+    finally:
+        # DELETE
+        assert not await push_queue.delete(created['name'])

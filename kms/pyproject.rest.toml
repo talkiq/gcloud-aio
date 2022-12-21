@@ -27,6 +27,9 @@ gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
 gcloud-rest-auth = { path = "../auth" }
 pytest = ">= 4.0.0, < 8.0.0"
 
+[tool.pytest.ini_options]
+addopts = "-Werror"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
