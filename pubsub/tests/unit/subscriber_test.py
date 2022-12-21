@@ -665,7 +665,7 @@ else:
             await asyncio.sleep(0)
             mock(*args, **kwargs)
             raise aiohttp.client_exceptions.ClientResponseError(
-                None, None, status=400)
+                MagicMock(), None, status=400)
         subscriber_client.acknowledge = f
 
         queue = asyncio.Queue()
@@ -690,12 +690,11 @@ else:
                 call('fake_subscription', ack_ids=['ack_id_2']),
             ]
         )
-        assert ('gcloud.aio.pubsub.subscriber',
-                logging.WARNING,
-                'Ack failed for ack_id=ack_id_1') in caplog.record_tuples
-        assert ('gcloud.aio.pubsub.subscriber',
-                logging.WARNING,
-                'Ack failed for ack_id=ack_id_2') in caplog.record_tuples
+        ack_fails = sum(1 for (logger, level, message) in caplog.record_tuples
+                        if logger == 'gcloud.aio.pubsub.subscriber'
+                        and level == logging.WARNING
+                        and message == 'ack failed')
+        assert ack_fails == 2
 
     # ========
     # nacker
@@ -816,7 +815,7 @@ else:
             await asyncio.sleep(0)
             mock(*args, **kwargs)
             raise aiohttp.client_exceptions.ClientResponseError(
-                None, None, status=400)
+                MagicMock(), None, status=400)
         subscriber_client.modify_ack_deadline = f
 
         queue = asyncio.Queue()
@@ -844,12 +843,11 @@ else:
                      ack_ids=['ack_id_2'], ack_deadline_seconds=0),
             ]
         )
-        assert ('gcloud.aio.pubsub.subscriber',
-                logging.WARNING,
-                'Nack failed for ack_id=ack_id_1') in caplog.record_tuples
-        assert ('gcloud.aio.pubsub.subscriber',
-                logging.WARNING,
-                'Nack failed for ack_id=ack_id_2') in caplog.record_tuples
+        nack_fails = sum(1 for (logger, level, message) in caplog.record_tuples
+                         if logger == 'gcloud.aio.pubsub.subscriber'
+                         and level == logging.WARNING
+                         and message == 'nack failed')
+        assert nack_fails == 2
 
     # =========
     # subscribe
