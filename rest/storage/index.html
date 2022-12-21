@@ -1622,7 +1622,15 @@ recommended streaming implementations between requests and aiohttp.</p></div>
             chunk = next(self._iter, b&#39;&#39;)
         else:
             chunk = self._response.content.read(size)
-        return chunk</code></pre>
+        return chunk
+
+    def __enter__(self)       :
+        # strictly speaking, since this method can&#39;t be called via gcloud-rest,
+        # we know the return type is aiohttp.ClientResponse
+        return self._response.__enter__()
+
+    def __exit__(self, *exc_info     )        :
+        self._response.__exit__(*exc_info)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>

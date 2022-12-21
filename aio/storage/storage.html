@@ -159,6 +159,14 @@ class StreamResponse:
             chunk = await self._response.content.read(size)
         return chunk
 
+    async def __aenter__(self) -&gt; Any:
+        # strictly speaking, since this method can&#39;t be called via gcloud-rest,
+        # we know the return type is aiohttp.ClientResponse
+        return await self._response.__aenter__()
+
+    async def __aexit__(self, *exc_info: Any) -&gt; None:
+        await self._response.__aexit__(*exc_info)
+
 
 class Storage:
     def __init__(self, *,
@@ -1783,7 +1791,15 @@ recommended streaming implementations between requests and aiohttp.</p></div>
             chunk = next(self._iter, b&#39;&#39;)
         else:
             chunk = await self._response.content.read(size)
-        return chunk</code></pre>
+        return chunk
+
+    async def __aenter__(self) -&gt; Any:
+        # strictly speaking, since this method can&#39;t be called via gcloud-rest,
+        # we know the return type is aiohttp.ClientResponse
+        return await self._response.__aenter__()
+
+    async def __aexit__(self, *exc_info: Any) -&gt; None:
+        await self._response.__aexit__(*exc_info)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
