@@ -993,7 +993,20 @@ within a specified timeout.</p></div>
         response = self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
         return Job(job_id, self._project, token=self.token,
-                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
+                   session=self.session.session)  # type: ignore[arg-type]
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
+    def list_tabledata(
+            self, session                    = None, timeout      = 60,
+            params                           = None)                  :
+        &#34;&#34;&#34;List the content of a table in rows.&#34;&#34;&#34;
+        project = self.project()
+        url = (
+            &#39;{}/projects/{}/datasets/&#39;
+            &#39;{}/tables/{}/data&#39;.format((API_ROOT), (project), (self.dataset_name), (self.table_name))
+        )
+
+        return self._get_url(url, session, timeout, params)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1212,6 +1225,28 @@ within a specified timeout.</p></div>
                session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
+<dt id="gcloud.rest.bigquery.Table.list_tabledata"><code class="name flex">
+<span>def <span class="ident">list_tabledata</span></span>(<span>self, session=None, timeout=60, params=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List the content of a table in rows.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_tabledata(
+        self, session                    = None, timeout      = 60,
+        params                           = None)                  :
+    &#34;&#34;&#34;List the content of a table in rows.&#34;&#34;&#34;
+    project = self.project()
+    url = (
+        &#39;{}/projects/{}/datasets/&#39;
+        &#39;{}/tables/{}/data&#39;.format((API_ROOT), (project), (self.dataset_name), (self.table_name))
+    )
+
+    return self._get_url(url, session, timeout, params)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.rest.bigquery.Table.patch"><code class="name flex">
 <span>def <span class="ident">patch</span></span>(<span>self, table, session=None, timeout=60)</span>
 </code></dt>
@@ -1335,6 +1370,7 @@ within a specified timeout.</p></div>
 <li><code><a title="gcloud.rest.bigquery.Table.insert_via_copy" href="#gcloud.rest.bigquery.Table.insert_via_copy">insert_via_copy</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Table.insert_via_load" href="#gcloud.rest.bigquery.Table.insert_via_load">insert_via_load</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Table.insert_via_query" href="#gcloud.rest.bigquery.Table.insert_via_query">insert_via_query</a></code></li>
+<li><code><a title="gcloud.rest.bigquery.Table.list_tabledata" href="#gcloud.rest.bigquery.Table.list_tabledata">list_tabledata</a></code></li>
 <li><code><a title="gcloud.rest.bigquery.Table.patch" href="#gcloud.rest.bigquery.Table.patch">patch</a></code></li>
 </ul>
 </li>

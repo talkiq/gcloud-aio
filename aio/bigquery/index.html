@@ -981,7 +981,20 @@ within a specified timeout.</p></div>
         response = await self._post_json(url, body, session, timeout)
         job_id = response[&#39;jobReference&#39;][&#39;jobId&#39;] if not dry_run else None
         return Job(job_id, self._project, token=self.token,
-                   session=self.session.session)  # type: ignore[arg-type]</code></pre>
+                   session=self.session.session)  # type: ignore[arg-type]
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
+    async def list_tabledata(
+            self, session: Optional[Session] = None, timeout: int = 60,
+            params: Optional[Dict[str, Any]] = None) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;List the content of a table in rows.&#34;&#34;&#34;
+        project = await self.project()
+        url = (
+            f&#39;{API_ROOT}/projects/{project}/datasets/&#39;
+            f&#39;{self.dataset_name}/tables/{self.table_name}/data&#39;
+        )
+
+        return await self._get_url(url, session, timeout, params)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1206,6 +1219,28 @@ response JSON containing details on the failing rows.</p></div>
                session=self.session.session)  # type: ignore[arg-type]</code></pre>
 </details>
 </dd>
+<dt id="gcloud.aio.bigquery.Table.list_tabledata"><code class="name flex">
+<span>async def <span class="ident">list_tabledata</span></span>(<span>self, session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60, params: Optional[Dict[str, Any]] = None) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List the content of a table in rows.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def list_tabledata(
+        self, session: Optional[Session] = None, timeout: int = 60,
+        params: Optional[Dict[str, Any]] = None) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;List the content of a table in rows.&#34;&#34;&#34;
+    project = await self.project()
+    url = (
+        f&#39;{API_ROOT}/projects/{project}/datasets/&#39;
+        f&#39;{self.dataset_name}/tables/{self.table_name}/data&#39;
+    )
+
+    return await self._get_url(url, session, timeout, params)</code></pre>
+</details>
+</dd>
 <dt id="gcloud.aio.bigquery.Table.patch"><code class="name flex">
 <span>async def <span class="ident">patch</span></span>(<span>self, table: Dict[str, Any], session: Optional[aiohttp.client.ClientSession] = None, timeout: int = 60) ‑> Dict[str, Any]</span>
 </code></dt>
@@ -1329,6 +1364,7 @@ response JSON containing details on the failing rows.</p></div>
 <li><code><a title="gcloud.aio.bigquery.Table.insert_via_copy" href="#gcloud.aio.bigquery.Table.insert_via_copy">insert_via_copy</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Table.insert_via_load" href="#gcloud.aio.bigquery.Table.insert_via_load">insert_via_load</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Table.insert_via_query" href="#gcloud.aio.bigquery.Table.insert_via_query">insert_via_query</a></code></li>
+<li><code><a title="gcloud.aio.bigquery.Table.list_tabledata" href="#gcloud.aio.bigquery.Table.list_tabledata">list_tabledata</a></code></li>
 <li><code><a title="gcloud.aio.bigquery.Table.patch" href="#gcloud.aio.bigquery.Table.patch">patch</a></code></li>
 </ul>
 </li>
