@@ -213,7 +213,7 @@ workflows:
       # run linters
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
-          # support. Note that 3.6.x is not supported by `pre-commit` anymore.
+          # support.
           executor: python-37
           filters:
             tags:
@@ -227,7 +227,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              python_version: ['3.6', '3.7', '3.8', '3.9']
+              python_version: ['3.7', '3.8', '3.9']
           filters:
             tags:
               only: /.*/
@@ -255,7 +255,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.6', '3.7', '3.8', '3.9']
+              python_version: ['2.7', '3.7', '3.8', '3.9']
           filters:
             tags:
               only: /.*/

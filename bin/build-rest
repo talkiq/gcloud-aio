@@ -68,7 +68,7 @@ find . -type f \
     | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
 find . -type f \
     | grep "pyproject\.toml$" \
-    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.6, < 4.0"/g'
+    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.7, < 4.0"/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiohttp/# aiohttp/g'
 find . -type f -path '*pyproject.toml' \
@@ -87,7 +87,7 @@ for folder in ${PROJECTS}; do
     else
         echo "$folder/pyproject.toml changed, rebuilding rest lockfile..."
         cp pyproject.toml ../../$folder/pyproject.rest.toml
-        poetry12 lock
+        poetry lock
         cp poetry.lock ../../$folder/poetry.rest.lock
     fi
 
