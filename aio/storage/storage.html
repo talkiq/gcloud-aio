@@ -291,8 +291,8 @@ class Storage:
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -&gt; None:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode=&#39;wb+&#39;,
+                filename,
+                mode=&#39;wb+&#39;,
         ) as file_object:
             await file_object.write(
                 await self.download(bucket, object_name, **kwargs)
@@ -406,8 +406,8 @@ class Storage:
                                    filename: str,
                                    **kwargs: Any) -&gt; Dict[str, Any]:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode=&#39;rb&#39;,
+                filename,
+                mode=&#39;rb&#39;,
         ) as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents,
@@ -640,17 +640,26 @@ class Storage:
                          timeout: int = 30) -&gt; Dict[str, Any]:
         s = AioSession(session) if session else self.session
 
-        for tries in range(retries):
-            try:
-                resp = await s.put(session_uri, headers=headers,
-                                   data=stream, timeout=timeout)
-            except ResponseError:
-                headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
-                await sleep(2. ** tries)  # type: ignore[func-returns-value]
+        original_close = stream.close
+        original_position = stream.tell()
+        # Prevent the stream being closed if put operation fails
+        stream.close = lambda: None  # type: ignore[assignment]
+        try:
+            for tries in range(retries):
+                try:
+                    resp = await s.put(session_uri, headers=headers,
+                                       data=stream, timeout=timeout)
+                except ResponseError:
+                    headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
+                    stream.seek(original_position)
 
-                continue
-
-            break
+                    await sleep(  # type: ignore[func-returns-value]
+                        2. ** tries
+                    )
+                else:
+                    break
+        finally:
+            original_close()
 
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -917,8 +926,8 @@ requests, not aiohttp).</p></div>
     async def download_to_filename(self, bucket: str, object_name: str,
                                    filename: str, **kwargs: Any) -&gt; None:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode=&#39;wb+&#39;,
+                filename,
+                mode=&#39;wb+&#39;,
         ) as file_object:
             await file_object.write(
                 await self.download(bucket, object_name, **kwargs)
@@ -1032,8 +1041,8 @@ requests, not aiohttp).</p></div>
                                    filename: str,
                                    **kwargs: Any) -&gt; Dict[str, Any]:
         async with file_open(  # type: ignore[attr-defined]
-            filename,
-            mode=&#39;rb&#39;,
+                filename,
+                mode=&#39;rb&#39;,
         ) as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents,
@@ -1266,17 +1275,26 @@ requests, not aiohttp).</p></div>
                          timeout: int = 30) -&gt; Dict[str, Any]:
         s = AioSession(session) if session else self.session
 
-        for tries in range(retries):
-            try:
-                resp = await s.put(session_uri, headers=headers,
-                                   data=stream, timeout=timeout)
-            except ResponseError:
-                headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
-                await sleep(2. ** tries)  # type: ignore[func-returns-value]
+        original_close = stream.close
+        original_position = stream.tell()
+        # Prevent the stream being closed if put operation fails
+        stream.close = lambda: None  # type: ignore[assignment]
+        try:
+            for tries in range(retries):
+                try:
+                    resp = await s.put(session_uri, headers=headers,
+                                       data=stream, timeout=timeout)
+                except ResponseError:
+                    headers.update({&#39;Content-Range&#39;: &#39;*/*&#39;})
+                    stream.seek(original_position)
 
-                continue
-
-            break
+                    await sleep(  # type: ignore[func-returns-value]
+                        2. ** tries
+                    )
+                else:
+                    break
+        finally:
+            original_close()
 
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -1572,8 +1590,8 @@ the response data (TTFB). Defaults to 10.</dd>
 <pre><code class="python">async def download_to_filename(self, bucket: str, object_name: str,
                                filename: str, **kwargs: Any) -&gt; None:
     async with file_open(  # type: ignore[attr-defined]
-        filename,
-        mode=&#39;wb+&#39;,
+            filename,
+            mode=&#39;wb+&#39;,
     ) as file_object:
         await file_object.write(
             await self.download(bucket, object_name, **kwargs)
@@ -1749,8 +1767,8 @@ the response data (TTFB). Defaults to 10.</dd>
                                filename: str,
                                **kwargs: Any) -&gt; Dict[str, Any]:
     async with file_open(  # type: ignore[attr-defined]
-        filename,
-        mode=&#39;rb&#39;,
+            filename,
+            mode=&#39;rb&#39;,
     ) as file_object:
         contents = await file_object.read()
         return await self.upload(bucket, object_name, contents,
