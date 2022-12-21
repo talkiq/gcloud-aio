@@ -17,7 +17,7 @@ executors:
 
   python-38:
     docker:
-      - image: python:3.8.13
+      - image: python:3.8.16
     resource_class: small
 
   python-39:
