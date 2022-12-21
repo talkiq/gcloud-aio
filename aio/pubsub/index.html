@@ -161,9 +161,9 @@ if not BUILD_GCLOUD_REST:
                                      return_when=asyncio.FIRST_COMPLETED)
         for task in done:
             task.result()
-        raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
+        raise Exception(&#39;a subscriber worker shut down unexpectedly&#39;)
     except (asyncio.CancelledError, Exception) as e:
-        log.info(&#39;Subscriber exited&#39;, exc_info=e)
+        log.warning(&#39;subscriber exited&#39;, exc_info=e)
         for task in producer_tasks:
             task.cancel()
         await asyncio.wait(producer_tasks,
@@ -177,7 +177,8 @@ if not BUILD_GCLOUD_REST:
         for task in acker_tasks:
             task.cancel()
         await asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
-    raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
+
+    raise asyncio.CancelledError(&#39;subscriber shut down&#39;)</code></pre>
 </details>
 </dd>
 </dl>

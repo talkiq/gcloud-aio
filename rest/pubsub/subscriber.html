@@ -67,6 +67,7 @@ else:
                                            float]]
     else:
         MessageQueue = asyncio.Queue
+
     ApplicationHandler = Callable[[SubscriberMessage], Awaitable[None]]
     T = TypeVar(&#39;T&#39;)
 
@@ -90,8 +91,8 @@ else:
                     self.subscription)
                 self.ack_deadline = float(sub[&#39;ackDeadlineSeconds&#39;])
             except Exception as e:
-                log.warning(
-                    &#39;Failed to refresh ackDeadlineSeconds value&#39;, exc_info=e)
+                log.warning(&#39;failed to refresh ackDeadlineSeconds value&#39;,
+                            exc_info=e)
             self.last_refresh = time.perf_counter()
 
         def cache_outdated(self)        :
@@ -129,9 +130,8 @@ else:
             # acknowledge endpoint limit is 524288 bytes
             # which is ~2744 ack_ids
             if len(ack_ids) &gt; 2500:
-                log.error(
-                    &#39;acker is falling behind, dropping %d unacked messages&#39;,
-                    len(ack_ids) - 2500)
+                log.error(&#39;acker is falling behind, dropping unacked messages&#39;,
+                          extra={&#39;count&#39;: len(ack_ids) - 2500})
                 ack_ids = ack_ids[-2500:]
                 for _ in range(len(ack_ids) - 2500):
                     ack_queue.task_done()
@@ -143,8 +143,8 @@ else:
                     ack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
-                    log.exception(&#39;Ack error is unrecoverable, one or more &#39;
-                                  &#39;messages may be dropped&#39;)
+                    log.exception(&#39;unrecoverable ack error, one or more &#39;
+                                  &#39;messages may be dropped: %s&#39;, e)
 
                     def maybe_ack(ack_id     )        :
                         try:
@@ -152,7 +152,7 @@ else:
                                 subscription,
                                 ack_ids=[ack_id])
                         except Exception as ex:
-                            log.warning(&#39;Ack failed for ack_id=%s&#39;, ack_id,
+                            log.warning(&#39;ack failed&#39;, extra={&#39;ack_id&#39;: ack_id},
                                         exc_info=ex)
                         finally:
                             ack_queue.task_done()
@@ -161,8 +161,8 @@ else:
                         (maybe_ack(ack_id))
                     ack_ids = []
 
-                log.warning(
-                    &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+                log.warning(&#39;ack request failed, better luck next batch&#39;,
+                            exc_info=e)
                 metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
                 metrics.BATCH_STATUS.labels(component=&#39;acker&#39;,
                                             outcome=&#39;failed&#39;).inc()
@@ -171,8 +171,8 @@ else:
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                log.warning(
-                    &#39;Ack request failed, better luck next batch&#39;, exc_info=e)
+                log.warning(&#39;ack request failed, better luck next batch&#39;,
+                            exc_info=e)
                 metrics_client.increment(&#39;pubsub.acker.batch.failed&#39;)
                 metrics.BATCH_STATUS.labels(component=&#39;acker&#39;,
                                             outcome=&#39;failed&#39;).inc()
@@ -202,9 +202,8 @@ else:
             # modifyAckDeadline endpoint limit is 524288 bytes
             # which is ~2744 ack_ids
             if len(ack_ids) &gt; 2500:
-                log.error(
-                    &#39;nacker is falling behind, dropping %d unacked messages&#39;,
-                    len(ack_ids) - 2500)
+                log.error(&#39;nacker is falling behind, dropping unacked &#39;
+                          &#39;messages&#39;, extra={&#39;count&#39;: len(ack_ids) - 2500})
                 ack_ids = ack_ids[-2500:]
                 for _ in range(len(ack_ids) - 2500):
                     nack_queue.task_done()
@@ -217,8 +216,8 @@ else:
                     nack_queue.task_done()
             except aiohttp.client_exceptions.ClientResponseError as e:
                 if e.status == 400:
-                    log.exception(&#39;Nack error is unrecoverable, one or more &#39;
-                                  &#39;messages may be dropped&#39;)
+                    log.exception(&#39;unrecoverable nack error, one or more &#39;
+                                  &#39;messages may be dropped: %s&#39;, e)
 
                     def maybe_nack(ack_id     )        :
                         try:
@@ -227,8 +226,8 @@ else:
                                 ack_ids=[ack_id],
                                 ack_deadline_seconds=0)
                         except Exception as ex:
-                            log.warning(&#39;Nack failed for ack_id=%s&#39;, ack_id,
-                                        exc_info=ex)
+                            log.warning(&#39;nack failed&#39;,
+                                        extra={&#39;ack_id&#39;: ack_id}, exc_info=ex)
                         finally:
                             nack_queue.task_done()
 
@@ -236,8 +235,8 @@ else:
                         (maybe_nack(ack_id))
                     ack_ids = []
 
-                log.warning(
-                    &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
+                log.warning(&#39;nack request failed, better luck next batch&#39;,
+                            exc_info=e)
                 metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
                 metrics.BATCH_STATUS.labels(
                     component=&#39;nacker&#39;, outcome=&#39;failed&#39;).inc()
@@ -246,8 +245,8 @@ else:
             except asyncio.CancelledError:
                 raise
             except Exception as e:
-                log.warning(
-                    &#39;Nack request failed, better luck next batch&#39;, exc_info=e)
+                log.warning(&#39;nack request failed, better luck next batch&#39;,
+                            exc_info=e)
                 metrics_client.increment(&#39;pubsub.nacker.batch.failed&#39;)
                 metrics.BATCH_STATUS.labels(
                     component=&#39;nacker&#39;, outcome=&#39;failed&#39;).inc()
@@ -284,13 +283,13 @@ else:
         except asyncio.CancelledError:
             if nack_queue:
                 nack_queue.put(message.ack_id)
-            log.warning(&#39;Application callback was cancelled&#39;)
+            log.warning(&#39;application callback was cancelled&#39;)
             metrics_client.increment(&#39;pubsub.consumer.cancelled&#39;)
             metrics.CONSUME.labels(outcome=&#39;cancelled&#39;).inc()
-        except Exception:
+        except Exception as e:
             if nack_queue:
                 nack_queue.put(message.ack_id)
-            log.exception(&#39;Application callback raised an exception&#39;)
+            log.exception(&#39;application callback raised an exception: %s&#39;, e)
             metrics_client.increment(&#39;pubsub.consumer.failed&#39;)
             metrics.CONSUME.labels(outcome=&#39;failed&#39;).inc()
 
@@ -340,14 +339,14 @@ else:
                 message, pulled_at = message_queue.get()
                 asyncio.shield(_consume_one(message, pulled_at))
         except asyncio.CancelledError:
-            log.info(&#39;Consumer worker cancelled. Gracefully terminating...&#39;)
+            log.info(&#39;consumer worker cancelled, gracefully terminating...&#39;)
             for _ in range(max_tasks):
                 semaphore.acquire()
 
             ack_queue.join()
             if nack_queue:
                 nack_queue.join()
-            log.info(&#39;Consumer terminated gracefully.&#39;)
+            log.info(&#39;consumer terminated gracefully&#39;)
             raise
 
     def producer(
@@ -386,7 +385,7 @@ else:
 
                 message_queue.join()
         except asyncio.CancelledError:
-            log.info(&#39;Producer worker cancelled. Gracefully terminating...&#39;)
+            log.info(&#39;producer worker cancelled, gracefully terminating...&#39;)
 
             if not pull_task.done():
                 # Leaving the connection hanging can result in redelivered
@@ -401,7 +400,7 @@ else:
                 message_queue.put((m, pulled_at))
 
             message_queue.join()
-            log.info(&#39;Producer terminated gracefully.&#39;)
+            log.info(&#39;producer terminated gracefully&#39;)
             raise
 
     def subscribe(subscription     ,  # pylint: disable=too-many-locals
@@ -482,9 +481,9 @@ else:
                                          return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 task.result()
-            raise Exception(&#39;A subscriber worker shut down unexpectedly!&#39;)
+            raise Exception(&#39;a subscriber worker shut down unexpectedly&#39;)
         except (asyncio.CancelledError, Exception) as e:
-            log.info(&#39;Subscriber exited&#39;, exc_info=e)
+            log.warning(&#39;subscriber exited&#39;, exc_info=e)
             for task in producer_tasks:
                 task.cancel()
             asyncio.wait(producer_tasks,
@@ -498,7 +497,8 @@ else:
             for task in acker_tasks:
                 task.cancel()
             asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
-        raise asyncio.CancelledError(&#39;Subscriber shut down&#39;)</code></pre>
+
+        raise asyncio.CancelledError(&#39;subscriber shut down&#39;)</code></pre>
 </details>
 </section>
 <section>
