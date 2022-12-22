@@ -26,6 +26,11 @@
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
 
+        <h2>Contents</h2>
+        <ul>
+  <li><a href="#token-management">Token Management</a></li>
+</ul>
+
 
         <h2>Submodules</h2>
         <ul>
@@ -52,7 +57,25 @@
                     <h1 class="modulename">
 <a href="./../gcloud.html">gcloud</a><wbr>.rest    </h1>
 
-                        <div class="docstring"><p></p>
+                        <div class="docstring"><h2 id="token-management">Token Management</h2>
+
+<p>By default, you should not need to care about managing a <code><a href="rest/auth.html#Token">gcloud.rest.auth.Token</a></code> instance. When you initialize a given client library, it will handle creating a token with the correct scopes.</p>
+
+<p>However, in some cases you may find it valuable to share a token across multiple libraries (eg. to include the HTTP calls in a single session or to reduce how many individual refreshes need to happen). In that case, you can pass it in as follows.</p>
+
+<p>Note that if you are using a service account file, setting explicit scopes is mandatory! As such, you'll need to make sure your token has the correct scopes for all the libraries you plan to use it with.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">scopes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/cloudkms&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://www.googleapis.com/auth/datastore&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">with</span> <span class="n"><a href="rest/auth.html#Token">gcloud.rest.auth.Token</a></span><span class="p">(</span><span class="n">scopes</span><span class="o">=</span><span class="n">scopes</span><span class="p">)</span> <span class="k">as</span> <span class="n">token</span><span class="p">:</span>
+    <span class="n">datastore</span> <span class="o">=</span> <span class="n"><a href="rest/datastore.html#Datastore">gcloud.rest.datastore.Datastore</a></span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+    <span class="n">kms</span> <span class="o">=</span> <span class="n"><a href="rest/kms.html#KMS">gcloud.rest.kms.KMS</a></span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+</code></pre>
+</div>
 </div>
 
                         <input id="mod-rest-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -60,7 +83,7 @@
                         <label class="view-source-button" for="mod-rest-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: ../../../docs/rest.md</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: ../../../../docs/rest.md</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
