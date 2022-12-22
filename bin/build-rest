@@ -45,6 +45,8 @@ find . -type f -path '*aio*' \
 # Replace build metadata
 find . -type f \
     | xargs -L1 $SED -Ei 's/gcloud(.)aio/gcloud\1rest/g'
+find . -type f \
+    | xargs -L1 $SED -Ei 's/aio.md/rest.md/g'
 
 # Backport other things like type hints, exception handling, etc.
 find . -type f -path '*py' \

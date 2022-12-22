@@ -113,16 +113,16 @@ Releases
 --------
 
 If you are a maintainer looking to release a new version, see our
-`Release documentation`_.
-
-.. _Pull Request: https://github.com/talkiq/gcloud-aio/pull/new/master
-.. _Release documentation: https://github.com/talkiq/gcloud-aio/blob/master/.github/RELEASE.rst
-.. _conventional changelog: https://github.com/conventional-changelog/conventional-changelog
-.. _emulators: https://cloud.google.com/sdk/gcloud/reference/emulators
-.. _poetry: https://python-poetry.org/
-.. _pre-commit: http://pre-commit.com/
+`release documentation`_.
 
 Thanks for your contribution!
 
 With love,
 Vi Engineering
+
+.. _Pull Request: https://github.com/talkiq/gcloud-aio/pull/new/master
+.. _conventional changelog: https://github.com/conventional-changelog/conventional-changelog
+.. _emulators: https://cloud.google.com/sdk/gcloud/reference/emulators
+.. _poetry: https://python-poetry.org/
+.. _pre-commit: http://pre-commit.com/
+.. _release documentation: https://github.com/talkiq/gcloud-aio/blob/master/.github/RELEASE.rst

@@ -10,7 +10,7 @@ It additionally implements a ``Token`` class, which is used for authorizing
 against Google Cloud. The other ``gcloud-aio-*`` package components accept a
 ``Token`` instance as an argument; you can define a single token for all of
 these components or define one for each. Each component corresponds to a given
-Google Cloud service and each service requires "`scopes`_".
+Google Cloud service and each service requires various "`scopes`_".
 
 |pypi| |pythons-aio| |pythons-rest|
 
@@ -24,34 +24,7 @@ Installation
 Usage
 -----
 
-.. code-block:: python
-
-    from gcloud.aio.auth import IamClient
-
-    client = IamClient()
-    pubkeys = await client.list_public_keys()
-
-
-    from gcloud.rest.auth import Token
-
-    token = Token()
-    print(token.get())
-
-Additionally, the ``Token`` constructor accepts the following optional
-arguments:
-
-* ``service_file``: path to a `service account`_, authorized user file, or any
-  other application credentials. Alternatively, you can pass a file-like
-  object, like an ``io.StringIO`` instance, in case your credentials are not
-  stored in a file but in memory. If omitted, will attempt to find one on your
-  path or fallback to generating a token from GCE metadata.
-* ``session``: an ``aiohttp.ClientSession`` instance to be used for all
-  requests. If omitted, a default session will be created. If you use the
-  default session, you may be interested in using ``Token()`` as a context
-  manager (``async with Token(..) as token:``) or explicitly calling the
-  ``Token.close()`` method to ensure the session is cleaned up appropriately.
-* ``scopes``: an optional list of GCP `scopes`_ for which to generate our
-  token. Only valid (and required!) for `service account`_ authentication.
+See `our docs`_.
 
 CLI
 ~~~
@@ -85,9 +58,8 @@ Contributing
 Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+.. _our docs: https://talkiq.github.io/gcloud-aio
 .. _scopes: https://developers.google.com/identity/protocols/googlescopes
-.. _service account: https://console.cloud.google.com/iam-admin/serviceaccounts
-.. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/auth/tests/integration/smoke_test.py
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-auth.svg?style=flat-square
     :alt: Latest PyPI Version (gcloud-aio-auth)

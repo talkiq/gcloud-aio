@@ -15,35 +15,7 @@ Installation
 Usage
 -----
 
-We're still working on more complete documentation, but roughly you can do:
-
-.. code-block:: python
-
-    from gcloud.aio.kms import KMS
-    from gcloud.aio.kms import decode
-    from gcloud.aio.kms import encode
-
-    kms = KMS('my-kms-project', 'my-keyring', 'my-key-name')
-
-    # encrypt
-    plaintext = b'the-best-animal-is-the-aardvark'
-    ciphertext = await kms.encrypt(encode(plaintext))
-
-    # decrypt
-    assert decode(await kms.decrypt(ciphertext)) == plaintext
-
-    # close the HTTP session
-    # Note that other options include:
-    # * providing your own session: ``KMS(.., session=session)``
-    # * using a context manager: ``async with KMS(..) as kms:``
-    await kms.close()
-
-Emulators
-~~~~~~~~~
-
-For testing purposes, you may want to use ``gcloud-aio-kms`` along with a
-local emulator. Setting the ``$KMS_EMULATOR_HOST`` environment variable
-to the address of your emulator should be enough to do the trick.
+See `our docs`_.
 
 Contributing
 ------------
@@ -51,6 +23,7 @@ Contributing
 Please see our `contributing guide`_.
 
 .. _contributing guide: https://github.com/talkiq/gcloud-aio/blob/master/.github/CONTRIBUTING.rst
+.. _our docs: https://talkiq.github.io/gcloud-aio
 
 .. |pypi| image:: https://img.shields.io/pypi/v/gcloud-aio-kms.svg?style=flat-square
     :alt: Latest PyPI Version (gcloud-aio-kms)

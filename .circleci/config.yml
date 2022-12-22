@@ -124,11 +124,7 @@ jobs:
   docs:
     executor: python-39
     steps:
-      - run: pip install pdoc3
-      - run:
-          name: patch pdoc
-          command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.9/site-packages/pdoc/__init__.py
+      - run: pip install pdoc
       - checkout
       - attach_workspace:
           at: rest
@@ -153,9 +149,9 @@ jobs:
             pip install ./pubsub
             pip install ./storage
             pip install ./taskqueue
-      - run: pdoc --html -o ./docs gcloud
+      - run: pdoc -o ./builtdocs gcloud
       - persist_to_workspace:
-          root: docs
+          root: builtdocs
           paths: gcloud
 
   pages:
@@ -164,7 +160,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: docs
+          at: builtdocs
       - run: npm install -g --silent gh-pages@2.0.1
       - run:
           name: configure git creds
@@ -174,7 +170,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      - run: gh-pages --message "[skip ci] updated docs" --dist docs/gcloud
+      - run: gh-pages --message "[skip ci] updated docs" --dist builtdocs/gcloud
 
   github:
     docker:
