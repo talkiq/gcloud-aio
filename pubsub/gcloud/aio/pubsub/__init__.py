@@ -91,6 +91,23 @@ Here's a few hints:
   retried immediately.
 - `nack_window`: Same as `ack_window` but for nack requests.
 
+Note that this method was built under the assumption that it is the main thread
+of your application. It may work just fine otherwise, but be aware that the
+usecase of running it in a background thread has not been extensively tested.
+
+As it is generally assumed to run in the foreground, it relies on task
+cancellation to shut itself down (ie. caused by process termination). To cancel
+it from a thread, you can send an `asyncio.CancelledError` event via
+`Task.cancel()`:
+
+```python
+subscribe_task = asyncio.create_task(gcloud.aio.pubsub.subscribe(...))
+
+# snip
+
+subscribe_task.cancel()
+```
+
 ### Prometheus Metrics
 
 If you like pull-based metrics like Prometheus you will be pleased to know that
@@ -215,7 +232,7 @@ https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pu
 from pkg_resources import get_distribution
 __version__ = get_distribution('gcloud-aio-pubsub').version
 
-from gcloud.aio.auth import BUILD_GCLOUD_REST
+from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.pubsub.publisher_client import PublisherClient
 from gcloud.aio.pubsub.subscriber_client import SubscriberClient
 from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
