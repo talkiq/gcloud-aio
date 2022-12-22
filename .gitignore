@@ -9,4 +9,3 @@
 *.pyc
 */.coverage
 .mypy_cache/*
-builtdocs/*

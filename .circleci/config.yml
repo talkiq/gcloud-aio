@@ -131,28 +131,30 @@ jobs:
       - run:
           name: install all sub-projects (aio)
           command: |
-            pip install ./auth
-            pip install ./bigquery
-            pip install ./datastore
-            pip install ./kms
-            pip install ./pubsub
-            pip install ./storage
-            pip install ./taskqueue
+            pip install -e ./auth
+            pip install -e ./bigquery
+            pip install -e ./datastore
+            pip install -e ./kms
+            pip install -e ./pubsub
+            pip install -e ./storage
+            pip install -e ./taskqueue
       - run:
           name: install all sub-projects (rest)
           command: |
             cd rest/
-            pip install ./auth
-            pip install ./bigquery
-            pip install ./datastore
-            pip install ./kms
-            pip install ./pubsub
-            pip install ./storage
-            pip install ./taskqueue
-      - run: pdoc -o ./builtdocs gcloud
+            pip install -e ./auth
+            pip install -e ./bigquery
+            pip install -e ./datastore
+            pip install -e ./kms
+            pip install -e ./pubsub
+            pip install -e ./storage
+            pip install -e ./taskqueue
+      - run: mkdir -p ./build
+      - run: pdoc -o ./build/docs gcloud
       - persist_to_workspace:
-          root: builtdocs
-          paths: gcloud
+          root: ./build
+          paths:
+          - ./docs
 
   pages:
     docker:
@@ -160,7 +162,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: builtdocs
+          at: build
       - run: npm install -g --silent gh-pages@2.0.1
       - run:
           name: configure git creds
@@ -170,7 +172,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      - run: gh-pages --message "[skip ci] updated docs" --dist builtdocs/gcloud
+      - run: gh-pages --message "[skip ci] updated docs" --dist build/docs
 
   github:
     docker:
