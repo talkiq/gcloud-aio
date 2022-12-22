@@ -2,7 +2,7 @@ These docs cover two projects: `gcloud-aio-*` and `gcloud-rest-*`. Both of them 
 
 For supported clients, see the modules in the sidebar.
 
-# Installation
+## Installation
 
 ```console
 $ pip install --upgrade gcloud-{aio,rest}-{client_name}

@@ -7,6 +7,7 @@ from typing import Dict
 from typing import IO
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
@@ -30,19 +31,24 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
-try:
-    API_ROOT = f'http://{os.environ["DATASTORE_EMULATOR_HOST"]}/v1'
-    IS_DEV = True
-except KeyError:
-    API_ROOT = 'https://datastore.googleapis.com/v1'
-    IS_DEV = False
-
+# TODO: is cloud-platform needed?
 SCOPES = [
     'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/datastore',
 ]
 
 log = logging.getLogger(__name__)
+
+
+def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+    if api_root:
+        return True, api_root
+
+    host = os.environ.get('DATASTORE_EMULATOR_HOST')
+    if host:
+        return True, f'http://{host}/v1'
+
+    return False, 'https://datastore.googleapis.com/v1'
 
 
 class Datastore:
@@ -54,32 +60,31 @@ class Datastore:
     value_kind = Value
 
     _project: Optional[str]
+    _api_root: str
+    _api_is_dev: bool
 
-    def __init__(self, project: Optional[str] = None,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 namespace: str = '', session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+            self, project: Optional[str] = None,
+            service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            namespace: str = '', session: Optional[Session] = None,
+            token: Optional[Token] = None, api_root: Optional[str] = None,
+    ) -> None:
+        self._api_is_dev, self._api_root = init_api_root(api_root)
         self.namespace = namespace
         self.session = AioSession(session)
+        self.token = token or Token(
+            service_file=service_file, scopes=SCOPES,
+            session=self.session.session)  # type: ignore[arg-type]
 
-        if IS_DEV:
+        self._project = project
+        if self._api_is_dev and not project:
             self._project = (os.environ.get('DATASTORE_PROJECT_ID')
                              or os.environ.get('GOOGLE_CLOUD_PROJECT')
                              or 'dev')
-            # Tokens are not needed when using dev emulator
-            self.token = None
-        else:
-            self._project = project
-            self.token = token or Token(
-                service_file=service_file, scopes=SCOPES,
-                session=self.session.session)  # type: ignore[arg-type]
 
     async def project(self) -> str:
         if self._project:
             return self._project
-
-        if IS_DEV or self.token is None:
-            raise Exception('project can not be determined in dev mode')
 
         self._project = await self.token.get_project()
         if self._project:
@@ -107,7 +112,7 @@ class Datastore:
         return data
 
     async def headers(self) -> Dict[str, str]:
-        if IS_DEV or self.token is None:
+        if self._api_is_dev:
             return {}
 
         token = await self.token.get()
@@ -140,7 +145,7 @@ class Datastore:
                           session: Optional[Session] = None,
                           timeout: int = 10) -> List[Key]:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:allocateIds'
+        url = f'{self._api_root}/projects/{project}:allocateIds'
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -165,7 +170,7 @@ class Datastore:
     async def beginTransaction(self, session: Optional[Session] = None,
                                timeout: int = 10) -> str:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:beginTransaction'
+        url = f'{self._api_root}/projects/{project}:beginTransaction'
         headers = await self.headers()
         headers.update({
             'Content-Length': '0',
@@ -186,7 +191,7 @@ class Datastore:
                      session: Optional[Session] = None,
                      timeout: int = 10) -> Dict[str, Any]:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:commit'
+        url = f'{self._api_root}/projects/{project}:commit'
 
         body = self._make_commit_body(mutations, transaction=transaction,
                                       mode=mode)
@@ -218,7 +223,7 @@ class Datastore:
                      session: Optional[Session] = None,
                      timeout: int = 10) -> DatastoreOperation:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:export'
+        url = f'{self._api_root}/projects/{project}:export'
 
         payload = json.dumps({
             'entityFilter': {
@@ -247,7 +252,7 @@ class Datastore:
     async def get_datastore_operation(self, name: str,
                                       session: Optional[Session] = None,
                                       timeout: int = 10) -> DatastoreOperation:
-        url = f'{API_ROOT}/{name}'
+        url = f'{self._api_root}/{name}'
 
         headers = await self.headers()
         headers.update({
@@ -267,7 +272,7 @@ class Datastore:
             session: Optional[Session] = None, timeout: int = 10
     ) -> Dict[str, List[Union[EntityResult, Key]]]:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:lookup'
+        url = f'{self._api_root}/projects/{project}:lookup'
 
         if transaction:
             options = {'transaction': transaction}
@@ -305,7 +310,7 @@ class Datastore:
                          session: Optional[Session] = None,
                          timeout: int = 10) -> None:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:reserveIds'
+        url = f'{self._api_root}/projects/{project}:reserveIds'
 
         payload = json.dumps({
             'databaseId': database_id,
@@ -328,7 +333,7 @@ class Datastore:
                        session: Optional[Session] = None,
                        timeout: int = 10) -> None:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:rollback'
+        url = f'{self._api_root}/projects/{project}:rollback'
 
         payload = json.dumps({
             'transaction': transaction,
@@ -352,7 +357,7 @@ class Datastore:
                        session: Optional[Session] = None,
                        timeout: int = 10) -> QueryResultBatch:
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}:runQuery'
+        url = f'{self._api_root}/projects/{project}:runQuery'
 
         if transaction:
             options = {'transaction': transaction}

@@ -8,7 +8,6 @@ from typing import Union
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
-from .bigquery import API_ROOT
 from .bigquery import BigqueryBase
 
 # Selectively load libraries based on the package
@@ -19,14 +18,16 @@ else:
 
 
 class Dataset(BigqueryBase):
-    def __init__(self, dataset_name: Optional[str] = None,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+            self, dataset_name: Optional[str] = None,
+            project: Optional[str] = None,
+            service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            session: Optional[Session] = None, token: Optional[Token] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
         self.dataset_name = dataset_name
         super().__init__(project=project, service_file=service_file,
-                         session=session, token=token)
+                         session=session, token=token, api_root=api_root)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/list
     async def list_tables(
@@ -39,7 +40,7 @@ class Dataset(BigqueryBase):
             raise ValueError('could not determine dataset,'
                              ' please set it manually')
 
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables')
         return await self._get_url(url, session, timeout, params=params)
 
@@ -51,7 +52,7 @@ class Dataset(BigqueryBase):
         """List datasets in current project."""
         project = await self.project()
 
-        url = (f'{API_ROOT}/projects/{project}/datasets')
+        url = f'{self._api_root}/projects/{project}/datasets'
         return await self._get_url(url, session, timeout, params=params)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/get
@@ -64,7 +65,7 @@ class Dataset(BigqueryBase):
             raise ValueError('could not determine dataset,'
                              ' please set it manually')
 
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}')
         return await self._get_url(url, session, timeout, params=params)
 
@@ -75,5 +76,5 @@ class Dataset(BigqueryBase):
         """Create datasets in current project."""
         project = await self.project()
 
-        url = (f'{API_ROOT}/projects/{project}/datasets')
+        url = f'{self._api_root}/projects/{project}/datasets'
         return await self._post_json(url, dataset, session, timeout)

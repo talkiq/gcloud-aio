@@ -7,11 +7,12 @@ from typing import Dict
 from typing import IO
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
-from gcloud.aio.auth import AioSession
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
-from gcloud.aio.auth import Token
+from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
 from .subscriber_message import SubscriberMessage
 
@@ -20,25 +21,34 @@ if BUILD_GCLOUD_REST:
 else:
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
-API_ROOT = 'https://pubsub.googleapis.com'
-VERIFY_SSL = True
-
 SCOPES = [
     'https://www.googleapis.com/auth/pubsub'
 ]
 
-PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
-if PUBSUB_EMULATOR_HOST:
-    API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}'
-    VERIFY_SSL = False
+
+def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+    if api_root:
+        return True, api_root
+
+    host = os.environ.get('PUBSUB_EMULATOR_HOST')
+    if host:
+        return True, f'http://{host}/v1'
+
+    return False, 'https://pubsub.googleapis.com/v1'
 
 
 class SubscriberClient:
-    def __init__(self, *,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 token: Optional[Token] = None,
-                 session: Optional[Session] = None) -> None:
-        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
+    _api_root: str
+    _api_is_dev: bool
+
+    def __init__(
+            self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            token: Optional[Token] = None, session: Optional[Session] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
+        self._api_is_dev, self._api_root = init_api_root(api_root)
+
+        self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
             session=self.session.session)  # type: ignore[arg-type]
@@ -47,7 +57,7 @@ class SubscriberClient:
         headers = {
             'Content-Type': 'application/json'
         }
-        if PUBSUB_EMULATOR_HOST:
+        if self._api_is_dev:
             return headers
 
         token = await self.token.get()
@@ -66,7 +76,7 @@ class SubscriberClient:
         Create subscription.
         """
         body = {} if not body else body
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
         payload: Dict[str, Any] = deepcopy(body)
         payload.update({'topic': topic})
@@ -85,7 +95,7 @@ class SubscriberClient:
         """
         Delete subscription.
         """
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         await s.delete(url, headers=headers, timeout=timeout)
@@ -97,7 +107,7 @@ class SubscriberClient:
         """
         Pull messages from subscription
         """
-        url = f'{API_ROOT}/v1/{subscription}:pull'
+        url = f'{self._api_root}/{subscription}:pull'
         headers = await self._headers()
         payload = {
             'maxMessages': max_messages,
@@ -120,7 +130,7 @@ class SubscriberClient:
         """
         Acknowledge messages by ackIds
         """
-        url = f'{API_ROOT}/v1/{subscription}:acknowledge'
+        url = f'{self._api_root}/{subscription}:acknowledge'
         headers = await self._headers()
         payload = {
             'ackIds': ack_ids,
@@ -141,7 +151,7 @@ class SubscriberClient:
         Modify messages' ack deadline.
         Set ack deadline to 0 to nack messages.
         """
-        url = f'{API_ROOT}/v1/{subscription}:modifyAckDeadline'
+        url = f'{self._api_root}/{subscription}:modifyAckDeadline'
         headers = await self._headers()
         data = json.dumps({
             'ackIds': ack_ids,
@@ -159,7 +169,7 @@ class SubscriberClient:
         """
         Get Subscription
         """
-        url = f'{API_ROOT}/v1/{subscription}'
+        url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
@@ -174,7 +184,7 @@ class SubscriberClient:
         """
         List subscriptions
         """
-        url = f'{API_ROOT}/v1/{project}/subscriptions'
+        url = f'{self._api_root}/{project}/subscriptions'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
 

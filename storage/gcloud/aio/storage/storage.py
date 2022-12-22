@@ -36,22 +36,23 @@ else:
         ClientResponseError as ResponseError)
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
-API_ROOT = 'https://www.googleapis.com/storage/v1/b'
-API_ROOT_UPLOAD = 'https://www.googleapis.com/upload/storage/v1/b'
-VERIFY_SSL = True
+MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 SCOPES = [
     'https://www.googleapis.com/auth/devstorage.read_write',
 ]
 
-MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
-
-STORAGE_EMULATOR_HOST = os.environ.get('STORAGE_EMULATOR_HOST')
-if STORAGE_EMULATOR_HOST:
-    API_ROOT = f'http://{STORAGE_EMULATOR_HOST}/storage/v1/b'
-    API_ROOT_UPLOAD = f'http://{STORAGE_EMULATOR_HOST}/upload/storage/v1/b'
-    VERIFY_SSL = False
-
 log = logging.getLogger(__name__)
+
+
+def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+    if api_root:
+        return True, api_root
+
+    host = os.environ.get('STORAGE_EMULATOR_HOST')
+    if host:
+        return True, f'http://{host}'
+
+    return False, 'https://www.googleapis.com'
 
 
 def choose_boundary() -> str:
@@ -141,17 +142,27 @@ class StreamResponse:
 
 
 class Storage:
-    def __init__(self, *,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 token: Optional[Token] = None,
-                 session: Optional[Session] = None) -> None:
-        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
+    _api_root: str
+    _api_is_dev: bool
+    _api_root_read: str
+    _api_root_write: str
+
+    def __init__(
+            self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            token: Optional[Token] = None, session: Optional[Session] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
+        self._api_is_dev, self._api_root = init_api_root(api_root)
+        self._api_root_read = f'{self._api_root}/storage/v1/b'
+        self._api_root_write = f'{self._api_root}/upload/storage/v1/b'
+
+        self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
             session=self.session.session)  # type: ignore[arg-type]
 
     async def _headers(self) -> Dict[str, str]:
-        if STORAGE_EMULATOR_HOST:
+        if self._api_is_dev:
             return {}
 
         token = await self.token.get()
@@ -190,8 +201,9 @@ class Storage:
         if not new_name:
             new_name = object_name
 
-        url = (f"{API_ROOT}/{bucket}/o/{quote(object_name, safe='')}/rewriteTo"
-               f"/b/{destination_bucket}/o/{quote(new_name, safe='')}")
+        url = (f'{self._api_root_read}/{bucket}/o/'
+               f'{quote(object_name, safe="")}/rewriteTo/b/'
+               f'{destination_bucket}/o/{quote(new_name, safe="")}')
 
         # We may optionally supply metadata* to apply to the rewritten
         # object, which explains why `rewriteTo` is a POST endpoint; when no
@@ -237,7 +249,7 @@ class Storage:
                      session: Optional[Session] = None) -> str:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
-        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
         headers.update(await self._headers())
 
@@ -312,7 +324,7 @@ class Storage:
                            headers: Optional[Dict[str, Any]] = None,
                            session: Optional[Session] = None,
                            timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
-        url = f'{API_ROOT}/{bucket}/o'
+        url = f'{self._api_root_read}/{bucket}/o'
         headers = headers or {}
         headers.update(await self._headers())
 
@@ -332,7 +344,7 @@ class Storage:
                      session: Optional[Session] = None,
                      force_resumable_upload: Optional[bool] = None,
                      timeout: int = 30) -> Dict[str, Any]:
-        url = f'{API_ROOT_UPLOAD}/{bucket}/o'
+        url = f'{self._api_root_write}/{bucket}/o'
 
         stream = self._preprocess_data(file_data)
 
@@ -454,7 +466,7 @@ class Storage:
                         session: Optional[Session] = None) -> bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
-        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
         headers.update(await self._headers())
 
@@ -480,7 +492,7 @@ class Storage:
                                ) -> StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
-        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
         headers = headers or {}
         headers.update(await self._headers())
 
@@ -644,7 +656,7 @@ class Storage:
             timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         encoded_object_name = quote(object_name, safe='')
-        url = f'{API_ROOT}/{bucket}/o/{encoded_object_name}'
+        url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
         params = params or {}
         headers = headers or {}
         headers.update(await self._headers())
@@ -664,7 +676,7 @@ class Storage:
                                   session: Optional[Session] = None,
                                   timeout: int = DEFAULT_TIMEOUT
                                   ) -> Dict[str, Any]:
-        url = f'{API_ROOT}/{bucket}'
+        url = f'{self._api_root_read}/{bucket}'
         headers = headers or {}
         headers.update(await self._headers())
 

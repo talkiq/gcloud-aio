@@ -7,6 +7,7 @@ from typing import Dict
 from typing import IO
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
@@ -21,27 +22,37 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
-API_ROOT = 'https://pubsub.googleapis.com/v1'
-VERIFY_SSL = True
 SCOPES = [
     'https://www.googleapis.com/auth/pubsub',
 ]
 
-
-PUBSUB_EMULATOR_HOST = os.environ.get('PUBSUB_EMULATOR_HOST')
-if PUBSUB_EMULATOR_HOST:
-    API_ROOT = f'http://{PUBSUB_EMULATOR_HOST}/v1'
-    VERIFY_SSL = False
-
 log = logging.getLogger(__name__)
 
 
+def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+    if api_root:
+        return True, api_root
+
+    host = os.environ.get('PUBSUB_EMULATOR_HOST')
+    if host:
+        return True, f'http://{host}/v1'
+
+    return False, 'https://pubsub.googleapis.com/v1'
+
+
 class PublisherClient:
-    def __init__(self, *,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
-        self.session = AioSession(session, verify_ssl=VERIFY_SSL)
+    _api_root: str
+    _api_is_dev: bool
+
+    # TODO: add project override
+    def __init__(
+            self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            session: Optional[Session] = None, token: Optional[Token] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
+        self._api_is_dev, self._api_root = init_api_root(api_root)
+
+        self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
             session=self.session.session)  # type: ignore[arg-type]
@@ -62,7 +73,7 @@ class PublisherClient:
         headers = {
             'Content-Type': 'application/json'
         }
-        if PUBSUB_EMULATOR_HOST:
+        if self._api_is_dev:
             return headers
 
         token = await self.token.get()
@@ -80,7 +91,7 @@ class PublisherClient:
         """
         List topics
         """
-        url = f'{API_ROOT}/{project}/topics'
+        url = f'{self._api_root}/{project}/topics'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, params=query_params,
@@ -96,7 +107,7 @@ class PublisherClient:
         """
         Create topic.
         """
-        url = f'{API_ROOT}/{topic}'
+        url = f'{self._api_root}/{topic}'
         headers = await self._headers()
         encoded = json.dumps(body or {}).encode()
         s = AioSession(session) if session else self.session
@@ -113,7 +124,7 @@ class PublisherClient:
         """
         Delete topic.
         """
-        url = f'{API_ROOT}/{topic}'
+        url = f'{self._api_root}/{topic}'
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         await s.delete(url, headers=headers, timeout=timeout)
@@ -125,7 +136,7 @@ class PublisherClient:
         if not messages:
             return {}
 
-        url = f'{API_ROOT}/{topic}:publish'
+        url = f'{self._api_root}/{topic}:publish'
 
         body = {'messages': [m.to_repr() for m in messages]}
         payload = json.dumps(body).encode('utf-8')
