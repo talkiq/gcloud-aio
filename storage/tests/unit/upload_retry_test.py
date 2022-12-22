@@ -57,48 +57,28 @@ class FakeHttpServerHandler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture(scope='function')
-def fake_server(monkeypatch):
+def fake_server():
     server = StoppableHTTPServer(('localhost', 0), FakeHttpServerHandler)
     server_url = 'http://{}:{}/'.format(*server.server_address)
 
-    monkeypatch.setenv('STORAGE_EMULATOR_HOST', str(server_url))
-
-    monkeypatch.setattr(
-        aio_storage,
-        'STORAGE_EMULATOR_HOST',
-        str(server_url))
-    monkeypatch.setattr(
-        aio_storage,
-        'API_ROOT',
-        f'{aio_storage.STORAGE_EMULATOR_HOST}storage/v1/b')
-    monkeypatch.setattr(
-        aio_storage,
-        'API_ROOT_UPLOAD',
-        f'{aio_storage.STORAGE_EMULATOR_HOST}upload/storage/v1/b')
-
     thread = threading.Thread(target=server.run)
     thread.start()
-    yield
+    yield server_url
     server.shutdown()
     thread.join()
 
 
 @pytest.mark.asyncio
-@pytest.mark.usefixtures('fake_server')
-async def test_upload_retry():
+async def test_upload_retry(fake_server):  # pylint: disable=redefined-outer-name
     data_stream = io.BytesIO(b'test data')
     bucket_name = 'bucket'
     object_name = 'object'
 
     async with Session() as session:
-        storage = aio_storage.Storage(session=session)
+        storage = aio_storage.Storage(session=session, api_root=fake_server)
 
         response = await storage.upload(
-            bucket_name,
-            object_name,
-            content_type='text/plain',
-            file_data=data_stream,
-            force_resumable_upload=True
-        )
+            bucket_name, object_name, content_type='text/plain',
+            file_data=data_stream, force_resumable_upload=True)
 
     assert response.get('data') == 'test data'

@@ -14,7 +14,6 @@ from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
-from .bigquery import API_ROOT
 from .bigquery import BigqueryBase
 from .bigquery import Disposition
 from .bigquery import SchemaUpdateOption
@@ -29,15 +28,17 @@ else:
 
 
 class Table(BigqueryBase):
-    def __init__(self, dataset_name: str, table_name: str,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+            self, dataset_name: str, table_name: str,
+            project: Optional[str] = None,
+            service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            session: Optional[Session] = None, token: Optional[Token] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
         super().__init__(project=project, service_file=service_file,
-                         session=session, token=token)
+                         session=session, token=token, api_root=api_root)
 
     @staticmethod
     def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
@@ -139,7 +140,7 @@ class Table(BigqueryBase):
                      timeout: int = 60) -> Dict[str, Any]:
         """Create the table specified by tableId from the dataset."""
         project = await self.project()
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables')
 
         table['tableReference'] = {
@@ -156,7 +157,7 @@ class Table(BigqueryBase):
                     timeout: int = 60) -> Dict[str, Any]:
         """Patch an existing table specified by tableId from the dataset."""
         project = await self.project()
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables/{self.table_name}')
 
         table['tableReference'] = {
@@ -181,7 +182,7 @@ class Table(BigqueryBase):
                      timeout: int = 60) -> Dict[str, Any]:
         """Deletes the table specified by tableId from the dataset."""
         project = await self.project()
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables/{self.table_name}')
 
         headers = await self.headers()
@@ -208,7 +209,7 @@ class Table(BigqueryBase):
             timeout: int = 60) -> Dict[str, Any]:
         """Gets the specified table resource by table ID."""
         project = await self.project()
-        url = (f'{API_ROOT}/projects/{project}/datasets/'
+        url = (f'{self._api_root}/projects/{project}/datasets/'
                f'{self.dataset_name}/tables/{self.table_name}')
 
         return await self._get_url(url, session, timeout)
@@ -237,8 +238,8 @@ class Table(BigqueryBase):
             return {}
 
         project = await self.project()
-        url = (f'{API_ROOT}/projects/{project}/datasets/{self.dataset_name}/'
-               f'tables/{self.table_name}/insertAll')
+        url = (f'{self._api_root}/projects/{project}/datasets/'
+               f'{self.dataset_name}/tables/{self.table_name}/insertAll')
 
         body = self._make_insert_body(
             rows, skip_invalid=skip_invalid, ignore_unknown=ignore_unknown,
@@ -254,7 +255,7 @@ class Table(BigqueryBase):
             timeout: int = 60) -> Job:
         """Copy BQ table to another table in BQ"""
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
+        url = f'{self._api_root}/projects/{project}/jobs'
 
         body = self._make_copy_body(
             project, destination_project,
@@ -277,7 +278,7 @@ class Table(BigqueryBase):
     ) -> Job:
         """Loads entities from storage to BigQuery."""
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
+        url = f'{self._api_root}/projects/{project}/jobs'
 
         body = self._make_load_body(
             source_uris, project, autodetect, source_format, write_disposition,
@@ -299,7 +300,7 @@ class Table(BigqueryBase):
         warnings.warn('using Table#insert_via_query is deprecated.'
                       'use Job#insert_via_query instead', DeprecationWarning)
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
+        url = f'{self._api_root}/projects/{project}/jobs'
 
         body = self._make_query_body(query, project, write_disposition,
                                      use_query_cache, dry_run)
@@ -314,9 +315,7 @@ class Table(BigqueryBase):
             params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """List the content of a table in rows."""
         project = await self.project()
-        url = (
-            f'{API_ROOT}/projects/{project}/datasets/'
-            f'{self.dataset_name}/tables/{self.table_name}/data'
-        )
+        url = (f'{self._api_root}/projects/{project}/datasets/'
+               f'{self.dataset_name}/tables/{self.table_name}/data')
 
         return await self._get_url(url, session, timeout, params)

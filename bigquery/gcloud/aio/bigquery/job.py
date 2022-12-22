@@ -8,7 +8,6 @@ from typing import Union
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 
-from .bigquery import API_ROOT
 from .bigquery import BigqueryBase
 from .bigquery import Disposition
 
@@ -20,14 +19,15 @@ else:
 
 
 class Job(BigqueryBase):
-    def __init__(self, job_id: Optional[str] = None,
-                 project: Optional[str] = None,
-                 service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 session: Optional[Session] = None,
-                 token: Optional[Token] = None) -> None:
+    def __init__(
+            self, job_id: Optional[str] = None, project: Optional[str] = None,
+            service_file: Optional[Union[str, IO[AnyStr]]] = None,
+            session: Optional[Session] = None, token: Optional[Token] = None,
+            api_root: Optional[str] = None,
+    ) -> None:
         self.job_id = job_id
         super().__init__(project=project, service_file=service_file,
-                         session=session, token=token)
+                         session=session, token=token, api_root=api_root)
 
     @staticmethod
     def _make_query_body(
@@ -59,7 +59,7 @@ class Job(BigqueryBase):
         """Get the specified job resource by job ID."""
 
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs/{self.job_id}'
+        url = f'{self._api_root}/projects/{project}/jobs/{self.job_id}'
 
         return await self._get_url(url, session, timeout)
 
@@ -71,7 +71,7 @@ class Job(BigqueryBase):
         """Get the specified jobQueryResults by job ID."""
 
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}'
+        url = f'{self._api_root}/projects/{project}/queries/{self.job_id}'
 
         return await self._get_url(url, session, timeout, params=params)
 
@@ -81,7 +81,8 @@ class Job(BigqueryBase):
         """Cancel the specified job by job ID."""
 
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/queries/{self.job_id}/cancel'
+        url = (f'{self._api_root}/projects/{project}/queries/{self.job_id}'
+               '/cancel')
 
         return await self._post_json(url, {}, session, timeout)
 
@@ -92,7 +93,7 @@ class Job(BigqueryBase):
         """Runs a query synchronously and returns query results if completes
         within a specified timeout."""
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/queries'
+        url = f'{self._api_root}/projects/{project}/queries'
 
         return await self._post_json(url, query_request, session, timeout)
 
@@ -102,7 +103,7 @@ class Job(BigqueryBase):
                      timeout: int = 60) -> Dict[str, Any]:
         """Insert a new asynchronous job."""
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
+        url = f'{self._api_root}/projects/{project}/jobs'
 
         response = await self._post_json(url, job, session, timeout)
         if response['jobReference'].get('jobId'):
@@ -119,7 +120,7 @@ class Job(BigqueryBase):
             destination_table: Optional[Any] = None) -> Dict[str, Any]:
         """Create table as a result of the query"""
         project = await self.project()
-        url = f'{API_ROOT}/projects/{project}/jobs'
+        url = f'{self._api_root}/projects/{project}/jobs'
 
         body = self._make_query_body(query=query,
                                      write_disposition=write_disposition,
