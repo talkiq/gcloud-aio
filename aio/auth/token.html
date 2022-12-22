@@ -94,9 +94,13 @@ def get_service_data(
     service = service or os.environ.get(&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;)
     if not service:
         cloudsdk_config = os.environ.get(&#39;CLOUDSDK_CONFIG&#39;)
-        sdkpath = (cloudsdk_config
-                   or os.path.join(os.path.expanduser(&#39;~&#39;), &#39;.config&#39;,
-                                   &#39;gcloud&#39;))
+        if cloudsdk_config is not None:
+            sdkpath = cloudsdk_config
+        elif os.name != &#39;nt&#39;:
+            sdkpath = os.path.join(os.path.expanduser(&#39;~&#39;), &#39;.config&#39;,
+                                   &#39;gcloud&#39;)
+        else:
+            sdkpath = os.path.join(os.environ[&#39;APPDATA&#39;], &#39;gcloud&#39;)
         service = os.path.join(sdkpath, &#39;application_default_credentials.json&#39;)
         set_explicitly = bool(cloudsdk_config)
     else:
@@ -283,9 +287,13 @@ class Token:
     service = service or os.environ.get(&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;)
     if not service:
         cloudsdk_config = os.environ.get(&#39;CLOUDSDK_CONFIG&#39;)
-        sdkpath = (cloudsdk_config
-                   or os.path.join(os.path.expanduser(&#39;~&#39;), &#39;.config&#39;,
-                                   &#39;gcloud&#39;))
+        if cloudsdk_config is not None:
+            sdkpath = cloudsdk_config
+        elif os.name != &#39;nt&#39;:
+            sdkpath = os.path.join(os.path.expanduser(&#39;~&#39;), &#39;.config&#39;,
+                                   &#39;gcloud&#39;)
+        else:
+            sdkpath = os.path.join(os.environ[&#39;APPDATA&#39;], &#39;gcloud&#39;)
         service = os.path.join(sdkpath, &#39;application_default_credentials.json&#39;)
         set_explicitly = bool(cloudsdk_config)
     else:
