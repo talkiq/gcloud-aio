@@ -28,6 +28,7 @@
 
         <h2>Contents</h2>
         <ul>
+  <li><a href="#emulator-usage">Emulator Usage</a></li>
   <li><a href="#session-management">Session Management</a></li>
   <li><a href="#token-management">Token Management</a></li>
   <li><a href="#compatibility">Compatibility</a></li>
@@ -59,7 +60,35 @@
                     <h1 class="modulename">
 <a href="./../gcloud.html">gcloud</a><wbr>.aio    </h1>
 
-                        <div class="docstring"><h2 id="session-management">Session Management</h2>
+                        <div class="docstring"><h2 id="emulator-usage">Emulator Usage</h2>
+
+<p>All of our API clients are integrated to make use of the official Google emulators, where those exist. As a general rule, this means you can set the <code>$FOO_EMULATOR_HOST</code> environment variable (where <code>$FOO</code> is the service being emulated, such as <code>PUBSUB_EMULATOR_HOST</code>) and your <code><a href="../gcloud.html">gcloud</a></code> client will point to the emulator rather than the live APIs.</p>
+
+<p>Alternatively, you can provide the <code>api_root</code> option to any relevant constructor to have full control over the API being used. Note that while the environment variable expects just the hostname (to support the standard Google emulator usecase), if you assign this value manually via the contructor arg you must include the entire path.</p>
+
+<p>If you override the API value (either by constructor option or environment variable), tls verification and other such security measures will be disabled as needed. This feature is not intended for production use!</p>
+
+<p>Note also that this library only supports a single version of the Google APIs at a given time (generally the most recent version). If the API you point to does not conform to the correct version of the spec, we make no promises as to what might happen.</p>
+
+<p>For example:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n"><a href="aio/datastore.html#Datastore">gcloud.aio.datastore.Datastore</a></span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">_api_root</span> <span class="o">==</span> <span class="s1">&#39;https://datastore.googleapis.com/v1&#39;</span>
+
+<span class="c1"># generally set via `gcloud emulators datastore env-init`</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATASTORE_EMULATOR_HOST&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;127.0.0.1:8432&#39;</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n"><a href="aio/datastore.html#Datastore">gcloud.aio.datastore.Datastore</a></span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">_api_root</span> <span class="o">==</span> <span class="s1">&#39;http://127.0.0.1:8432/v1&#39;</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n"><a href="aio/datastore.html#Datastore">gcloud.aio.datastore.Datastore</a></span><span class="p">(</span><span class="n">api_root</span><span class="o">=</span><span class="s1">&#39;http://example.com/datastoreapi&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">_api_root</span> <span class="o">==</span> <span class="s1">&#39;http://example.com/datastoreapi&#39;</span>
+</code></pre>
+</div>
+
+<p>Note that, in any case, these values will be loaded at the time the class instance is constructed.</p>
+
+<h2 id="session-management">Session Management</h2>
 
 <p>Since we use <code>aiohttp</code> under the hood, ensuring we properly close our <code>ClientSession</code> upon shutdown is important to avoid "unclosed connection" errors.</p>
 
