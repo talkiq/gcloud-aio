@@ -62,8 +62,22 @@ class Type(enum.Enum):
 
 def get_service_data(
         service: Optional[Union[str, IO[AnyStr]]]) -> Dict[str, Any]:
+    """
+    Get the service data dictionary for the current auth method.
+
+    This method is meant to match the official ``google.auth.default()``
+    method (or rather, the subset relevant to our use-case). Things such as the
+    precedence order of various approaches MUST be maintained. It was last
+    updated to match the following commit:
+
+    https://github.com/googleapis/google-auth-library-python/blob/6c1297c4d69ba40a8b9392775c17411253fcd73b/google/auth/_default.py#L504
+    """
+    # pylint: disable=too-complex
+    # _get_explicit_environ_credentials()
     service = service or os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+
     if not service:
+        # _get_gcloud_sdk_credentials()
         cloudsdk_config = os.environ.get('CLOUDSDK_CONFIG')
         if cloudsdk_config is not None:
             sdkpath = cloudsdk_config
@@ -71,13 +85,23 @@ def get_service_data(
             sdkpath = os.path.join(os.path.expanduser('~'), '.config',
                                    'gcloud')
         else:
-            sdkpath = os.path.join(os.environ['APPDATA'], 'gcloud')
+            try:
+                sdkpath = os.path.join(os.environ['APPDATA'], 'gcloud')
+            except KeyError:
+                sdkpath = os.path.join(os.environ.get('SystemDrive', 'C:'),
+                                       '\\', 'gcloud')
+
         service = os.path.join(sdkpath, 'application_default_credentials.json')
         set_explicitly = bool(cloudsdk_config)
     else:
         set_explicitly = True
 
+    # skip _get_gae_credentials(): this lib does not support GAEv1, and GAEv2
+    # will fallback to the next step anyway.
+
     try:
+        # also support passing IO objects directly rather than strictly paths
+        # on disk
         try:
             with open(service,  # type: ignore[arg-type]
                       encoding='utf-8') as f:
@@ -88,9 +112,12 @@ def get_service_data(
             return data
     except CustomFileError:
         if set_explicitly:
-            # only warn users if they have explicitly set the service_file path
+            # only warn users if they have explicitly set the service_file
+            # path, otherwise this is an expected code flow
             raise
 
+        # _get_gce_credentials(): when we return {} here, the Token class falls
+        # back to using the metadata service
         return {}
     except Exception:  # pylint: disable=broad-except
         return {}
