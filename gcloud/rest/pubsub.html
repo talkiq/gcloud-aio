@@ -248,6 +248,24 @@ retried immediately.</li>
 <li><code>nack_window</code>: Same as <code>ack_window</code> but for nack requests.</li>
 </ul>
 
+<p>Note that this method was built under the assumption that it is the main thread
+of your application. It may work just fine otherwise, but be aware that the
+usecase of running it in a background thread has not been extensively tested.</p>
+
+<p>As it is generally assumed to run in the foreground, it relies on task
+cancellation to shut itself down (ie. caused by process termination). To cancel
+it from a thread, you can send an <code>asyncio.CancelledError</code> event via
+<code>Task.cancel()</code>:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">subscribe_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">gcloud</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">pubsub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+
+<span class="c1"># snip</span>
+
+<span class="n">subscribe_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+</code></pre>
+</div>
+
 <h3 id="prometheus-metrics">Prometheus Metrics</h3>
 
 <p>If you like pull-based metrics like Prometheus you will be pleased to know that
@@ -468,156 +486,173 @@ you may find it useful to configure something like:</p>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a><span class="sd">  retried immediately.</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="sd">- `nack_window`: Same as `ack_window` but for nack requests.</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">### Prometheus Metrics</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">If you like pull-based metrics like Prometheus you will be pleased to know that</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">the subscriber records Prometheus metrics in the form</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">`gcloud_rest_pubsub_&lt;metric&gt;`, which will have no effect if you don&#39;t use</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">Prometheus to scrape app metrics:</span>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">- `subscriber_batch_size` - [histogram] how many messages were pulled from the</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">  subscription in a single batch</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">- `subscriber_consume` (labels: `outcome = {&#39;succeeded&#39;, &#39;cancelled&#39;, &#39;failed&#39;,</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">  &#39;failfast&#39;}`) - [counter] a consume operation has completed with a given</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">  outcome</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">- `subscriber_consume_latency_seconds` (labels: `phase = {&#39;receive&#39;,</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">  &#39;queueing&#39;, &#39;runtime&#39;}`) - [histogram] how many seconds taken to receive a</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">  message, while waiting for processing, or to complete the callback</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">- `subscriber_batch_status` (labels: `component = {&#39;acker&#39;, &#39;nacker&#39;}, outcome</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">  = {&#39;succeeded&#39;, &#39;failed&#39;}`) - [counter] a batch has succeeded or failed to be</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">  acked or nacked</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">- `subscriber_messages_processed` (labels: `component = {&#39;acker&#39;, &#39;nacker&#39;}`) -</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">  [counter] the number of messages that were processed, either by being acked</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">  or nacked</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">- `subscriber_messages_received` - [counter] the number of messages pulled from</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">  pubsub</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">Note that this method was built under the assumption that it is the main thread</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">of your application. It may work just fine otherwise, but be aware that the</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">usecase of running it in a background thread has not been extensively tested.</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">As it is generally assumed to run in the foreground, it relies on task</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">cancellation to shut itself down (ie. caused by process termination). To cancel</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">it from a thread, you can send an `asyncio.CancelledError` event via</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">`Task.cancel()`:</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">```python</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">subscribe_task = asyncio.create_task(gcloud.rest.pubsub.subscribe(...))</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd"># snip</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">subscribe_task.cancel()</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="sd">```</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a><span class="sd">### Prometheus Metrics</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">If you like pull-based metrics like Prometheus you will be pleased to know that</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">the subscriber records Prometheus metrics in the form</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">`gcloud_rest_pubsub_&lt;metric&gt;`, which will have no effect if you don&#39;t use</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">Prometheus to scrape app metrics:</span>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">### Metrics Agent (Deprecated)</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">`subscribe` has also an optional `metrics_client` argument which will be</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">removed in a future release. You can provide any metrics agent that implements</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">the same interface as `MetricsAgent` (Datadog client will do ;) ) and get the</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">following metrics:</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">- `pubsub.producer.batch` - [histogram] actual size of a batch retrieved from</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">  pubsub.</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">- `pubsub.consumer.failfast` - [increment] a message was dropped due to its</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">  lease being expired.</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">- `pubsub.consumer.latency.receive` - [histogram] how many seconds it took for</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">  a message to reach handler after it was published.</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">- `pubsub.consumer.succeeded` - [increment] `handler` call was successfull.</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">- `pubsub.consumer.failed` - [increment] `handler` call raised an exception.</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">- `pubsub.consumer.latency.runtime` - [histogram] `handler` execution time in</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">  seconds.</span>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">- `pubsub.acker.batch.failed` - [increment] ack request failed.</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">- `pubsub.acker.batch` - [histogram] actual number of messages that was acked</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">  in a single request.</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">## Publisher</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">The `PublisherClient` is a dead-simple alternative to the official Google Cloud</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">Pub/Sub publisher client. The main design goal was to eliminate all the</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">additional gRPC overhead implemented by the upstream client.</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">If migrating between this library and the official one, the main difference is</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">this: the `gcloud-{aio,rest}-pubsub` publisher&#39;s `.publish()` method</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">*immediately* publishes the messages you&#39;ve provided, rather than maintaining</span>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">our own publishing queue, implementing batching and flow control, etc. If</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="sd">you&#39;re looking for a full-featured publishing library with all the bells and</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">whistles built in, you may be interested in the upstream provider. If you&#39;re</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">looking to manage your own batching / timeouts / retry / threads / etc, this</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">library should be a bit easier to work with.</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">```python</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">from gcloud.rest.pubsub import PubsubMessage</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">from gcloud.rest.pubsub import PublisherClient</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">- `subscriber_batch_size` - [histogram] how many messages were pulled from the</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">  subscription in a single batch</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">- `subscriber_consume` (labels: `outcome = {&#39;succeeded&#39;, &#39;cancelled&#39;, &#39;failed&#39;,</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">  &#39;failfast&#39;}`) - [counter] a consume operation has completed with a given</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">  outcome</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">- `subscriber_consume_latency_seconds` (labels: `phase = {&#39;receive&#39;,</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">  &#39;queueing&#39;, &#39;runtime&#39;}`) - [histogram] how many seconds taken to receive a</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">  message, while waiting for processing, or to complete the callback</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">- `subscriber_batch_status` (labels: `component = {&#39;acker&#39;, &#39;nacker&#39;}, outcome</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">  = {&#39;succeeded&#39;, &#39;failed&#39;}`) - [counter] a batch has succeeded or failed to be</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">  acked or nacked</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">- `subscriber_messages_processed` (labels: `component = {&#39;acker&#39;, &#39;nacker&#39;}`) -</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">  [counter] the number of messages that were processed, either by being acked</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">  or nacked</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="sd">- `subscriber_messages_received` - [counter] the number of messages pulled from</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="sd">  pubsub</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">### Metrics Agent (Deprecated)</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">`subscribe` has also an optional `metrics_client` argument which will be</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">removed in a future release. You can provide any metrics agent that implements</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">the same interface as `MetricsAgent` (Datadog client will do ;) ) and get the</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">following metrics:</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">- `pubsub.producer.batch` - [histogram] actual size of a batch retrieved from</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">  pubsub.</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">- `pubsub.consumer.failfast` - [increment] a message was dropped due to its</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">  lease being expired.</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">- `pubsub.consumer.latency.receive` - [histogram] how many seconds it took for</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="sd">  a message to reach handler after it was published.</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a><span class="sd">- `pubsub.consumer.succeeded` - [increment] `handler` call was successfull.</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="sd">- `pubsub.consumer.failed` - [increment] `handler` call raised an exception.</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">- `pubsub.consumer.latency.runtime` - [histogram] `handler` execution time in</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">  seconds.</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">- `pubsub.acker.batch.failed` - [increment] ack request failed.</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a><span class="sd">- `pubsub.acker.batch` - [histogram] actual number of messages that was acked</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">  in a single request.</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">## Publisher</span>
 </span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">with aiohttp.ClientSession() as session:</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">    client = PublisherClient(session=session)</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">    topic = client.topic_path(&#39;my-gcp-project&#39;, &#39;my-topic-name&#39;)</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">    messages = [</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">        PubsubMessage(b&#39;payload&#39;, attribute=&#39;value&#39;),</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        PubsubMessage(b&#39;other payload&#39;, other_attribute=&#39;whatever&#39;,</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">                      more_attributes=&#39;something else&#39;),</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="sd">    ]</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">    response = client.publish(topic, messages)</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">    # response == {&#39;messageIds&#39;: [&#39;1&#39;, &#39;2&#39;]}</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a><span class="sd">```</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a><span class="sd">## Emulators</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">For testing purposes, you may want to use `gcloud-rest-pubsub` along with a</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">local Pubsub emulator. Setting the `$PUBSUB_EMULATOR_HOST` environment variable</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="sd">to the local address of your emulator should be enough to do the trick.</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">The `PublisherClient` is a dead-simple alternative to the official Google Cloud</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">Pub/Sub publisher client. The main design goal was to eliminate all the</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">additional gRPC overhead implemented by the upstream client.</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a><span class="sd">If migrating between this library and the official one, the main difference is</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">this: the `gcloud-{aio,rest}-pubsub` publisher&#39;s `.publish()` method</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">*immediately* publishes the messages you&#39;ve provided, rather than maintaining</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">our own publishing queue, implementing batching and flow control, etc. If</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">you&#39;re looking for a full-featured publishing library with all the bells and</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="sd">whistles built in, you may be interested in the upstream provider. If you&#39;re</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">looking to manage your own batching / timeouts / retry / threads / etc, this</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">library should be a bit easier to work with.</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="sd">```python</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a><span class="sd">from gcloud.rest.pubsub import PubsubMessage</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="sd">from gcloud.rest.pubsub import PublisherClient</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">with aiohttp.ClientSession() as session:</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="sd">    client = PublisherClient(session=session)</span>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">For example, using the official Google Pubsub emulator:</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">    topic = client.topic_path(&#39;my-gcp-project&#39;, &#39;my-topic-name&#39;)</span>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">```shell</span>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">gcloud beta emulators pubsub start --host-port=0.0.0.0:8681</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">export PUBSUB_EMULATOR_HOST=&#39;0.0.0.0:8681&#39;</span>
-</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">```</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>
-</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">Any `gcloud-rest-pubsub` Publisher requests made with that environment variable</span>
-</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">set will query the emulator instead of the official GCS APIs.</span>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">For easier ergonomics, you may be interested in</span>
-</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">[thekevjames/gcloud-pubsub-emulator][emulator-docker].</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">    messages = [</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        PubsubMessage(b&#39;payload&#39;, attribute=&#39;value&#39;),</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">        PubsubMessage(b&#39;other payload&#39;, other_attribute=&#39;whatever&#39;,</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">                      more_attributes=&#39;something else&#39;),</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">    ]</span>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">    response = client.publish(topic, messages)</span>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="sd">    # response == {&#39;messageIds&#39;: [&#39;1&#39;, &#39;2&#39;]}</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="sd">```</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">## Emulators</span>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">## Customization</span>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a>
-</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">This library mostly tries to stay agnostic of potential use-cases; as such, we</span>
-</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">do not implement any sort of retrying or other policies under the assumption</span>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">that we wouldn&#39;t get things right for every user&#39;s situation.</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">For testing purposes, you may want to use `gcloud-rest-pubsub` along with a</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">local Pubsub emulator. Setting the `$PUBSUB_EMULATOR_HOST` environment variable</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">to the local address of your emulator should be enough to do the trick.</span>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">For example, using the official Google Pubsub emulator:</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>
-</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">As such, we recommend configuring your own policies on an as-needed basis. The</span>
-</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">[backoff][backoff] library can make this quite straightforward! For example,</span>
-</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">you may find it useful to configure something like:</span>
-</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a>
-</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a><span class="sd">```python</span>
-</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="sd">class SubscriberClientWithBackoff(SubscriberClient):</span>
-</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">    @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,</span>
-</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a><span class="sd">                          max_tries=5, jitter=backoff.full_jitter)</span>
-</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">    def pull(self, *args: Any, **kwargs: Any):</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">        return super().pull(*args, **kwargs)</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a><span class="sd">```</span>
-</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>
-</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="sd">[backoff]: https://pypi.org/project/backoff/</span>
-</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="sd">[emulator-docker]:</span>
-</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="sd">https://github.com/TheKevJames/tools/tree/master/docker-gcloud-pubsub-emulator</span>
-</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">[endpoint]:</span>
-</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body</span>
-</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
-</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="kn">import</span> <span class="nn">warnings</span>
-</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>    <span class="kn">from</span> <span class="nn">future</span> <span class="kn">import</span> <span class="n">standard_library</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="n">standard_library</span><span class="o">.</span><span class="n">install_aliases</span><span class="p">()</span>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">get_distribution</span>
-</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="s1">&#39;gcloud-rest-pubsub&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
-</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a>
-</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.auth</span> <span class="kn">import</span> <span class="n">BUILD_GCLOUD_REST</span>
-</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.publisher_client</span> <span class="kn">import</span> <span class="n">PublisherClient</span>
-</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber_client</span> <span class="kn">import</span> <span class="n">SubscriberClient</span>
-</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber_message</span> <span class="kn">import</span> <span class="n">SubscriberMessage</span>
-</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.utils</span> <span class="kn">import</span> <span class="n">PubsubMessage</span>
-</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>
-</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a>    <span class="s1">&#39;PublisherClient&#39;</span><span class="p">,</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="s1">&#39;PubsubMessage&#39;</span><span class="p">,</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>    <span class="s1">&#39;SubscriberClient&#39;</span><span class="p">,</span>
-</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="s1">&#39;SubscriberMessage&#39;</span><span class="p">,</span>
-</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="s1">&#39;__version__&#39;</span><span class="p">,</span>
-</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="p">]</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a>
-</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="k">if</span> <span class="ow">not</span> <span class="n">BUILD_GCLOUD_REST</span><span class="p">:</span>
-</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a>    <span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber</span> <span class="kn">import</span> <span class="n">subscribe</span>
-</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>    <span class="n">__all__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;subscribe&#39;</span><span class="p">)</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">```shell</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">gcloud beta emulators pubsub start --host-port=0.0.0.0:8681</span>
+</span><span id="L-199"><a href="#L-199"><span class="linenos">199</span></a><span class="sd">export PUBSUB_EMULATOR_HOST=&#39;0.0.0.0:8681&#39;</span>
+</span><span id="L-200"><a href="#L-200"><span class="linenos">200</span></a><span class="sd">```</span>
+</span><span id="L-201"><a href="#L-201"><span class="linenos">201</span></a>
+</span><span id="L-202"><a href="#L-202"><span class="linenos">202</span></a><span class="sd">Any `gcloud-rest-pubsub` Publisher requests made with that environment variable</span>
+</span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a><span class="sd">set will query the emulator instead of the official GCS APIs.</span>
+</span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>
+</span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a><span class="sd">For easier ergonomics, you may be interested in</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a><span class="sd">[thekevjames/gcloud-pubsub-emulator][emulator-docker].</span>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>
+</span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a><span class="sd">## Customization</span>
+</span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a>
+</span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a><span class="sd">This library mostly tries to stay agnostic of potential use-cases; as such, we</span>
+</span><span id="L-211"><a href="#L-211"><span class="linenos">211</span></a><span class="sd">do not implement any sort of retrying or other policies under the assumption</span>
+</span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a><span class="sd">that we wouldn&#39;t get things right for every user&#39;s situation.</span>
+</span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a>
+</span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">As such, we recommend configuring your own policies on an as-needed basis. The</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">[backoff][backoff] library can make this quite straightforward! For example,</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">you may find it useful to configure something like:</span>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a>
+</span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">```python</span>
+</span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a><span class="sd">class SubscriberClientWithBackoff(SubscriberClient):</span>
+</span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">    @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,</span>
+</span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a><span class="sd">                          max_tries=5, jitter=backoff.full_jitter)</span>
+</span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a><span class="sd">    def pull(self, *args: Any, **kwargs: Any):</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a><span class="sd">        return super().pull(*args, **kwargs)</span>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a><span class="sd">```</span>
+</span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>
+</span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="sd">[backoff]: https://pypi.org/project/backoff/</span>
+</span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a><span class="sd">[emulator-docker]:</span>
+</span><span id="L-228"><a href="#L-228"><span class="linenos">228</span></a><span class="sd">https://github.com/TheKevJames/tools/tree/master/docker-gcloud-pubsub-emulator</span>
+</span><span id="L-229"><a href="#L-229"><span class="linenos">229</span></a><span class="sd">[endpoint]:</span>
+</span><span id="L-230"><a href="#L-230"><span class="linenos">230</span></a><span class="sd">https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body</span>
+</span><span id="L-231"><a href="#L-231"><span class="linenos">231</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+</span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+</span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="kn">import</span> <span class="nn">warnings</span>
+</span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+</span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a>    <span class="kn">from</span> <span class="nn">future</span> <span class="kn">import</span> <span class="n">standard_library</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="n">standard_library</span><span class="o">.</span><span class="n">install_aliases</span><span class="p">()</span>
+</span><span id="L-241"><a href="#L-241"><span class="linenos">241</span></a><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">get_distribution</span>
+</span><span id="L-242"><a href="#L-242"><span class="linenos">242</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="n">get_distribution</span><span class="p">(</span><span class="s1">&#39;gcloud-rest-pubsub&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">version</span>
+</span><span id="L-243"><a href="#L-243"><span class="linenos">243</span></a>
+</span><span id="L-244"><a href="#L-244"><span class="linenos">244</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.auth</span> <span class="kn">import</span> <span class="n">BUILD_GCLOUD_REST</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
+</span><span id="L-245"><a href="#L-245"><span class="linenos">245</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.publisher_client</span> <span class="kn">import</span> <span class="n">PublisherClient</span>
+</span><span id="L-246"><a href="#L-246"><span class="linenos">246</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber_client</span> <span class="kn">import</span> <span class="n">SubscriberClient</span>
+</span><span id="L-247"><a href="#L-247"><span class="linenos">247</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber_message</span> <span class="kn">import</span> <span class="n">SubscriberMessage</span>
+</span><span id="L-248"><a href="#L-248"><span class="linenos">248</span></a><span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.utils</span> <span class="kn">import</span> <span class="n">PubsubMessage</span>
+</span><span id="L-249"><a href="#L-249"><span class="linenos">249</span></a>
+</span><span id="L-250"><a href="#L-250"><span class="linenos">250</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-251"><a href="#L-251"><span class="linenos">251</span></a>    <span class="s1">&#39;PublisherClient&#39;</span><span class="p">,</span>
+</span><span id="L-252"><a href="#L-252"><span class="linenos">252</span></a>    <span class="s1">&#39;PubsubMessage&#39;</span><span class="p">,</span>
+</span><span id="L-253"><a href="#L-253"><span class="linenos">253</span></a>    <span class="s1">&#39;SubscriberClient&#39;</span><span class="p">,</span>
+</span><span id="L-254"><a href="#L-254"><span class="linenos">254</span></a>    <span class="s1">&#39;SubscriberMessage&#39;</span><span class="p">,</span>
+</span><span id="L-255"><a href="#L-255"><span class="linenos">255</span></a>    <span class="s1">&#39;__version__&#39;</span><span class="p">,</span>
+</span><span id="L-256"><a href="#L-256"><span class="linenos">256</span></a><span class="p">]</span>
+</span><span id="L-257"><a href="#L-257"><span class="linenos">257</span></a>
+</span><span id="L-258"><a href="#L-258"><span class="linenos">258</span></a><span class="k">if</span> <span class="ow">not</span> <span class="n">BUILD_GCLOUD_REST</span><span class="p">:</span>
+</span><span id="L-259"><a href="#L-259"><span class="linenos">259</span></a>    <span class="kn">from</span> <span class="nn">gcloud.rest.pubsub.subscriber</span> <span class="kn">import</span> <span class="n">subscribe</span>
+</span><span id="L-260"><a href="#L-260"><span class="linenos">260</span></a>    <span class="n">__all__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;subscribe&#39;</span><span class="p">)</span>
 </span></pre></div>
 
 
