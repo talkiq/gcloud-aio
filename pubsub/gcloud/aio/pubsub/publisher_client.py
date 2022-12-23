@@ -98,8 +98,7 @@ class PublisherClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers,
-            params=query_params,  # type: ignore[arg-type]
+            url, headers=headers, params=query_params,
             timeout=timeout,
         )
         result: Dict[str, Any] = await resp.json()
@@ -119,11 +118,7 @@ class PublisherClient:
         headers = await self._headers()
         encoded = json.dumps(body or {}).encode()
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.put(
-            url, data=encoded,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
         result: Dict[str, Any] = await resp.json()
         return result
 

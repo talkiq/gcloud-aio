@@ -186,10 +186,9 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.patch(
-            url, data=table_data,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=table_data, headers=headers,
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json()
         return data

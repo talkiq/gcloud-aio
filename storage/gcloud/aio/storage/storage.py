@@ -243,8 +243,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(
-            url, headers=headers, params=params,  # type: ignore[arg-type]
-            timeout=timeout, data=metadata_,
+            url, headers=headers, params=params, timeout=timeout,
+            data=metadata_,
         )
 
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -252,8 +252,7 @@ class Storage:
         while not data.get('done') and data.get('rewriteToken'):
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(
-                url, headers=headers,
-                params=params,  # type: ignore[arg-type]
+                url, headers=headers, params=params,
                 timeout=timeout,
             )
             data = await resp.json(content_type=None)
@@ -275,8 +274,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(
-            url, headers=headers,
-            params=params or {},  # type: ignore[arg-type]
+            url, headers=headers, params=params or {},
             timeout=timeout,
         )
 
@@ -367,8 +365,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers,
-            params=params or {},  # type: ignore[arg-type]
+            url, headers=headers, params=params or {},
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -527,8 +524,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         response = await s.get(
-            url, headers=headers,
-            params=params or {},  # type: ignore[arg-type]
+            url, headers=headers, params=params or {},
             timeout=timeout,
         )
 
@@ -562,15 +558,13 @@ class Storage:
             # pylint: disable=unexpected-keyword-arg
             return StreamResponse(
                 s.get(
-                    url, headers=headers,
-                    params=params or {},  # type: ignore[arg-type]
+                    url, headers=headers, params=params or {},
                     timeout=timeout, stream=True,
                 ),
             )
         return StreamResponse(
             await s.get(
-                url, headers=headers,
-                params=params or {},  # type: ignore[arg-type]
+                url, headers=headers, params=params or {},
                 timeout=timeout,
             ),
         )
@@ -587,10 +581,8 @@ class Storage:
         params['uploadType'] = 'media'
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=stream,  # type: ignore[arg-type]
-            headers=headers, params=params,  # type: ignore[arg-type]
+            url, data=stream, headers=headers, params=params,
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -645,8 +637,7 @@ class Storage:
             body = io.BytesIO(body)  # type: ignore[assignment]
 
         resp = await s.post(
-            url, data=body, headers=headers,
-            params=params,  # type: ignore[arg-type]
+            url, data=body, headers=headers, params=params,
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -704,8 +695,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(
-            url, headers=post_headers,
-            params=params,  # type: ignore[arg-type]
+            url, headers=post_headers, params=params,
             data=metadata_, timeout=timeout,
         )
         session_uri: str = resp.headers['Location']
@@ -762,10 +752,8 @@ class Storage:
         body = json.dumps(metadata).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.patch(
-            url, data=body,  # type: ignore[arg-type]
-            headers=headers, params=params,  # type: ignore[arg-type]
+            url, data=body, headers=headers, params=params,
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -784,8 +772,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers,
-            params=params or {},  # type: ignore[arg-type]
+            url, headers=headers, params=params or {},
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)

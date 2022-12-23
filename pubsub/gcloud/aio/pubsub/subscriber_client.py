@@ -85,11 +85,7 @@ class SubscriberClient:
         payload.update({'topic': topic})
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.put(
-            url, data=encoded,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
         result: Dict[str, Any] = await resp.json()
         return result
 
@@ -207,9 +203,7 @@ class SubscriberClient:
         next_query_params = query_params if query_params else {}
         while True:
             resp = await s.get(
-                url,
-                headers=headers,
-                params=next_query_params,  # type: ignore[arg-type]
+                url, headers=headers, params=next_query_params,
                 timeout=timeout,
             )
             page: Dict[str, Any] = await resp.json()

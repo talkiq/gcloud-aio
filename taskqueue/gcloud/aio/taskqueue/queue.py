@@ -120,11 +120,7 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.1.1
-        resp = await s.get(
-            url, headers=headers,
-            params=params,  # type: ignore[arg-type]
-        )
+        resp = await s.get(url, headers=headers, params=params)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
