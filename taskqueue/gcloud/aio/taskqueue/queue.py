@@ -89,11 +89,7 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(
-            url, headers=headers,
-            data=payload,  # type: ignore[arg-type]
-        )
+        resp = await s.post(url, headers=headers, data=payload)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -124,7 +120,11 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params)
+        # TODO: the type issue will be fixed in auth-4.1.1
+        resp = await s.get(
+            url, headers=headers,
+            params=params,  # type: ignore[arg-type]
+        )
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
@@ -144,11 +144,7 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.get(
-            url, headers=headers,
-            params=params,  # type: ignore[arg-type]
-        )
+        resp = await s.get(url, headers=headers, params=params)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -165,11 +161,7 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(
-            url, headers=headers,
-            data=payload,  # type: ignore[arg-type]
-        )
+        resp = await s.post(url, headers=headers, data=payload)
         return await resp.json()
 
     async def close(self) -> None:

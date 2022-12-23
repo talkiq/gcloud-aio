@@ -168,10 +168,9 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
         data = await resp.json()
 
@@ -222,10 +221,9 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json()
 
@@ -265,10 +263,9 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json()
 
@@ -318,10 +315,9 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
 
         data: Dict[str, List[Any]] = await resp.json()
@@ -362,11 +358,7 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(
@@ -388,11 +380,7 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
@@ -425,10 +413,9 @@ class Datastore:
         })
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
 
         data: Dict[str, Any] = await resp.json()

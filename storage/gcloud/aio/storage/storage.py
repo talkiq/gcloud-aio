@@ -243,7 +243,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(
-            url, headers=headers, params=params,
+            url, headers=headers, params=params,  # type: ignore[arg-type]
             timeout=timeout, data=metadata_,
         )
 
@@ -252,7 +252,8 @@ class Storage:
         while not data.get('done') and data.get('rewriteToken'):
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(
-                url, headers=headers, params=params,
+                url, headers=headers,
+                params=params,  # type: ignore[arg-type]
                 timeout=timeout,
             )
             data = await resp.json(content_type=None)
@@ -274,7 +275,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(
-            url, headers=headers, params=params or {},
+            url, headers=headers,
+            params=params or {},  # type: ignore[arg-type]
             timeout=timeout,
         )
 
@@ -365,7 +367,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers, params=params or {},
+            url, headers=headers,
+            params=params or {},  # type: ignore[arg-type]
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
@@ -524,7 +527,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         response = await s.get(
-            url, headers=headers, params=params or {},
+            url, headers=headers,
+            params=params or {},  # type: ignore[arg-type]
             timeout=timeout,
         )
 
@@ -559,14 +563,14 @@ class Storage:
             return StreamResponse(
                 s.get(
                     url, headers=headers,
-                    params=params or {},
+                    params=params or {},  # type: ignore[arg-type]
                     timeout=timeout, stream=True,
                 ),
             )
         return StreamResponse(
             await s.get(
                 url, headers=headers,
-                params=params or {},
+                params=params or {},  # type: ignore[arg-type]
                 timeout=timeout,
             ),
         )
@@ -586,7 +590,8 @@ class Storage:
         # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
             url, data=stream,  # type: ignore[arg-type]
-            headers=headers, params=params, timeout=timeout,
+            headers=headers, params=params,  # type: ignore[arg-type]
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -639,10 +644,10 @@ class Storage:
             # when payload size > 1MB
             body = io.BytesIO(body)  # type: ignore[assignment]
 
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=body,  # type: ignore[arg-type]
-            headers=headers, params=params, timeout=timeout,
+            url, data=body, headers=headers,
+            params=params,  # type: ignore[arg-type]
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -699,7 +704,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(
-            url, headers=post_headers, params=params,
+            url, headers=post_headers,
+            params=params,  # type: ignore[arg-type]
             data=metadata_, timeout=timeout,
         )
         session_uri: str = resp.headers['Location']
@@ -759,7 +765,8 @@ class Storage:
         # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.patch(
             url, data=body,  # type: ignore[arg-type]
-            headers=headers, params=params, timeout=timeout,
+            headers=headers, params=params,  # type: ignore[arg-type]
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
@@ -777,7 +784,8 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers, params=params or {},
+            url, headers=headers,
+            params=params or {},  # type: ignore[arg-type]
             timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)

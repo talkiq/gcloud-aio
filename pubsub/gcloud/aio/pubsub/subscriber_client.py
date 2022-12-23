@@ -123,9 +123,8 @@ class SubscriberClient:
         }
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=encoded,  # type: ignore[arg-type]
+            url, data=encoded,
             headers=headers, timeout=timeout,
         )
         data = await resp.json()
@@ -150,11 +149,7 @@ class SubscriberClient:
         }
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(
-            url, data=encoded,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        await s.post(url, data=encoded, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     async def modify_ack_deadline(
@@ -175,11 +170,7 @@ class SubscriberClient:
             'ackDeadlineSeconds': ack_deadline_seconds,
         }).encode('utf-8')
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(
-            url, data=data,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
-        )
+        await s.post(url, data=data, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
     async def get_subscription(
@@ -218,7 +209,7 @@ class SubscriberClient:
             resp = await s.get(
                 url,
                 headers=headers,
-                params=next_query_params,
+                params=next_query_params,  # type: ignore[arg-type]
                 timeout=timeout,
             )
             page: Dict[str, Any] = await resp.json()

@@ -98,7 +98,8 @@ class PublisherClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(
-            url, headers=headers, params=query_params,
+            url, headers=headers,
+            params=query_params,  # type: ignore[arg-type]
             timeout=timeout,
         )
         result: Dict[str, Any] = await resp.json()
@@ -158,10 +159,9 @@ class PublisherClient:
         headers['Content-Length'] = str(len(payload))
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
         resp = await s.post(
-            url, data=payload,  # type: ignore[arg-type]
-            headers=headers, timeout=timeout,
+            url, data=payload, headers=headers,
+            timeout=timeout,
         )
         data: Dict[str, Any] = await resp.json()
         return data

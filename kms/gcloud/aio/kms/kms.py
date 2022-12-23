@@ -82,11 +82,7 @@ class KMS:
         }).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(
-            url, headers=await self.headers(),
-            data=body,  # type: ignore[arg-type]
-        )
+        resp = await s.post(url, headers=await self.headers(), data=body)
 
         plaintext: str = (await resp.json())['plaintext']
         return plaintext
@@ -102,11 +98,7 @@ class KMS:
         }).encode('utf-8')
 
         s = AioSession(session) if session else self.session
-        # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(
-            url, headers=await self.headers(),
-            data=body,  # type: ignore[arg-type]
-        )
+        resp = await s.post(url, headers=await self.headers(), data=body)
 
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext
