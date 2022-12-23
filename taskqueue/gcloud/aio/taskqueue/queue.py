@@ -55,12 +55,14 @@ class PushQueue:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self._api_root_queue = (
             f'{self._api_root}/projects/{project}/locations/{location}/'
-            f'queues/{taskqueue}')
+            f'queues/{taskqueue}'
+        )
 
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
-            session=self.session.session)  # type: ignore[arg-type]
+            session=self.session.session,  # type: ignore[arg-type]
+        )
 
     async def headers(self) -> Dict[str, str]:
         if self._api_is_dev:
@@ -74,8 +76,10 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def create(self, task: Dict[str, Any],
-                     session: Optional[Session] = None) -> Any:
+    async def create(
+        self, task: Dict[str, Any],
+        session: Optional[Session] = None,
+    ) -> Any:
         url = f'{self._api_root_queue}/tasks'
         payload = json.dumps({
             'task': task,
@@ -86,14 +90,18 @@ class PushQueue:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, headers=headers,
-                            data=payload)  # type: ignore[arg-type]
+        resp = await s.post(
+            url, headers=headers,
+            data=payload,  # type: ignore[arg-type]
+        )
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def delete(self, tname: str,
-                     session: Optional[Session] = None) -> Any:
+    async def delete(
+        self, tname: str,
+        session: Optional[Session] = None,
+    ) -> Any:
         url = f'{self._api_root}/{tname}'
 
         headers = await self.headers()
@@ -104,8 +112,10 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def get(self, tname: str, full: bool = False,
-                  session: Optional[Session] = None) -> Any:
+    async def get(
+        self, tname: str, full: bool = False,
+        session: Optional[Session] = None,
+    ) -> Any:
         url = f'{self._api_root}/{tname}'
         params = {
             'responseView': 'FULL' if full else 'BASIC',
@@ -119,9 +129,11 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def list(self, full: bool = False, page_size: int = 1000,
-                   page_token: str = '',
-                   session: Optional[Session] = None) -> Any:
+    async def list(
+        self, full: bool = False, page_size: int = 1000,
+        page_token: str = '',
+        session: Optional[Session] = None,
+    ) -> Any:
         url = f'{self._api_root_queue}/tasks'
         params: Dict[str, Union[int, str]] = {
             'responseView': 'FULL' if full else 'BASIC',
@@ -133,14 +145,18 @@ class PushQueue:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.get(url, headers=headers,
-                           params=params)  # type: ignore[arg-type]
+        resp = await s.get(
+            url, headers=headers,
+            params=params,  # type: ignore[arg-type]
+        )
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def run(self, tname: str, full: bool = False,
-                  session: Optional[Session] = None) -> Any:
+    async def run(
+        self, tname: str, full: bool = False,
+        session: Optional[Session] = None,
+    ) -> Any:
         url = f'{self._api_root}/{tname}:run'
         payload = json.dumps({
             'responseView': 'FULL' if full else 'BASIC',
@@ -150,8 +166,10 @@ class PushQueue:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, headers=headers,
-                            data=payload)  # type: ignore[arg-type]
+        resp = await s.post(
+            url, headers=headers,
+            data=payload,  # type: ignore[arg-type]
+        )
         return await resp.json()
 
     async def close(self) -> None:

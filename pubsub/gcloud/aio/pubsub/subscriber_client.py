@@ -22,7 +22,7 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 SCOPES = [
-    'https://www.googleapis.com/auth/pubsub'
+    'https://www.googleapis.com/auth/pubsub',
 ]
 
 
@@ -51,11 +51,12 @@ class SubscriberClient:
         self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
-            session=self.session.session)  # type: ignore[arg-type]
+            session=self.session.session,  # type: ignore[arg-type]
+        )
 
     async def _headers(self) -> Dict[str, str]:
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
         if self._api_is_dev:
             return headers
@@ -65,13 +66,15 @@ class SubscriberClient:
         return headers
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
-    async def create_subscription(self,
-                                  subscription: str,
-                                  topic: str,
-                                  body: Optional[Dict[str, Any]] = None,
-                                  *,
-                                  session: Optional[Session] = None,
-                                  timeout: int = 10) -> Dict[str, Any]:
+    async def create_subscription(
+        self,
+        subscription: str,
+        topic: str,
+        body: Optional[Dict[str, Any]] = None,
+        *,
+        session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> Dict[str, Any]:
         """
         Create subscription.
         """
@@ -83,15 +86,19 @@ class SubscriberClient:
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.put(url, data=encoded,  # type: ignore[arg-type]
-                           headers=headers, timeout=timeout)
+        resp = await s.put(
+            url, data=encoded,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         result: Dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
-    async def delete_subscription(self, subscription: str, *,
-                                  session: Optional[Session] = None,
-                                  timeout: int = 10) -> None:
+    async def delete_subscription(
+        self, subscription: str, *,
+        session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> None:
         """
         Delete subscription.
         """
@@ -101,9 +108,11 @@ class SubscriberClient:
         await s.delete(url, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
-    async def pull(self, subscription: str, max_messages: int,
-                   *, session: Optional[Session] = None,
-                   timeout: int = 30) -> List[SubscriberMessage]:
+    async def pull(
+        self, subscription: str, max_messages: int,
+        *, session: Optional[Session] = None,
+        timeout: int = 30
+    ) -> List[SubscriberMessage]:
         """
         Pull messages from subscription
         """
@@ -115,8 +124,10 @@ class SubscriberClient:
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=encoded,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=encoded,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         data = await resp.json()
         return [
             SubscriberMessage.from_repr(m)
@@ -124,9 +135,11 @@ class SubscriberClient:
         ]
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
-    async def acknowledge(self, subscription: str, ack_ids: List[str],
-                          *, session: Optional[Session] = None,
-                          timeout: int = 10) -> None:
+    async def acknowledge(
+        self, subscription: str, ack_ids: List[str],
+        *, session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> None:
         """
         Acknowledge messages by ackIds
         """
@@ -138,15 +151,19 @@ class SubscriberClient:
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(url, data=encoded,  # type: ignore[arg-type]
-                     headers=headers, timeout=timeout)
+        await s.post(
+            url, data=encoded,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
-    async def modify_ack_deadline(self, subscription: str,
-                                  ack_ids: List[str],
-                                  ack_deadline_seconds: int,
-                                  *, session: Optional[Session] = None,
-                                  timeout: int = 10) -> None:
+    async def modify_ack_deadline(
+        self, subscription: str,
+        ack_ids: List[str],
+        ack_deadline_seconds: int,
+        *, session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> None:
         """
         Modify messages' ack deadline.
         Set ack deadline to 0 to nack messages.
@@ -159,13 +176,17 @@ class SubscriberClient:
         }).encode('utf-8')
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(url, data=data,  # type: ignore[arg-type]
-                     headers=headers, timeout=timeout)
+        await s.post(
+            url, data=data,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
-    async def get_subscription(self, subscription: str,
-                               *, session: Optional[Session] = None,
-                               timeout: int = 10) -> Dict[str, Any]:
+    async def get_subscription(
+        self, subscription: str,
+        *, session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> Dict[str, Any]:
         """
         Get Subscription
         """
@@ -177,10 +198,12 @@ class SubscriberClient:
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
-    async def list_subscriptions(self, project: str,
-                                 query_params: Optional[Dict[str, str]] = None,
-                                 *, session: Optional[Session] = None,
-                                 timeout: int = 10) -> Dict[str, Any]:
+    async def list_subscriptions(
+        self, project: str,
+        query_params: Optional[Dict[str, str]] = None,
+        *, session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> Dict[str, Any]:
         """
         List subscriptions
         """
@@ -196,7 +219,7 @@ class SubscriberClient:
                 url,
                 headers=headers,
                 params=next_query_params,
-                timeout=timeout
+                timeout=timeout,
             )
             page: Dict[str, Any] = await resp.json()
             all_results['subscriptions'] += page['subscriptions']

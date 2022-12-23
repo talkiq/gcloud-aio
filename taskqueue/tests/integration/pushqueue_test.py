@@ -18,7 +18,7 @@ async def test_task_lifecycle_in_push_queue(push_queue):
             # something that we know won't work,
             # so that 'run' task operation doesn't end up deleting the task.
             'relativeUri': '/some/test/uri',
-        }
+        },
     }
 
     # CREATE

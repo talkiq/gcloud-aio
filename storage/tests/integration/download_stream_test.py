@@ -23,12 +23,16 @@ RANDOM_STRING = ''.join(rand_str_list)
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('uploaded_data,expected_data', [
-    (io.BytesIO(RANDOM_BINARY), RANDOM_BINARY),
-    (io.StringIO(RANDOM_STRING), RANDOM_STRING.encode('utf-8')),
-])
-async def test_download_stream(bucket_name, creds, uploaded_data,
-                               expected_data):
+@pytest.mark.parametrize(
+    'uploaded_data,expected_data', [
+        (io.BytesIO(RANDOM_BINARY), RANDOM_BINARY),
+        (io.StringIO(RANDOM_STRING), RANDOM_STRING.encode('utf-8')),
+    ],
+)
+async def test_download_stream(
+    bucket_name, creds, uploaded_data,
+    expected_data,
+):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}'
 
     async with Session() as session:
@@ -37,7 +41,8 @@ async def test_download_stream(bucket_name, creds, uploaded_data,
 
         with io.BytesIO(b'') as downloaded_data:
             download_stream = await storage.download_stream(
-                bucket_name, res['name'])
+                bucket_name, res['name'],
+            )
             while True:
                 chunk = await download_stream.read(4096)
                 if not chunk:

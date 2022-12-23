@@ -79,6 +79,7 @@ async def test_upload_retry(fake_server):  # pylint: disable=redefined-outer-nam
 
         response = await storage.upload(
             bucket_name, object_name, content_type='text/plain',
-            file_data=data_stream, force_resumable_upload=True)
+            file_data=data_stream, force_resumable_upload=True,
+        )
 
     assert response.get('data') == 'test data'

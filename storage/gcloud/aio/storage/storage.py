@@ -33,7 +33,8 @@ else:
     from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[assignment]
     from aiohttp import (  # type: ignore[assignment]
-        ClientResponseError as ResponseError)
+        ClientResponseError as ResponseError,
+    )
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
@@ -63,8 +64,10 @@ def choose_boundary() -> str:
     return boundary.decode('ascii')
 
 
-def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
-                              boundary: str) -> Tuple[bytes, str]:
+def encode_multipart_formdata(
+    fields: List[Tuple[Dict[str, str], bytes]],
+    boundary: str,
+) -> Tuple[bytes, str]:
     """
     Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
 
@@ -79,8 +82,10 @@ def encode_multipart_formdata(fields: List[Tuple[Dict[str, str], bytes]],
         # The below is from RequestFields.render_headers()
         # Since we only use Content-Type, we could simplify the below to a
         # single line... but probably best to be safe for future modifications.
-        for field in ['Content-Disposition', 'Content-Type',
-                      'Content-Location']:
+        for field in [
+            'Content-Disposition', 'Content-Type',
+            'Content-Location',
+        ]:
             value = headers.pop(field, None)
             if value:
                 body.append(f'{field}: {value}\r\n'.encode('utf-8'))
@@ -159,7 +164,8 @@ class Storage:
         self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
-            session=self.session.session)  # type: ignore[arg-type]
+            session=self.session.session,  # type: ignore[arg-type]
+        )
 
     async def _headers(self) -> Dict[str, str]:
         if self._api_is_dev:
@@ -174,13 +180,15 @@ class Storage:
         return Bucket(self, bucket_name)
 
     # pylint: disable=too-many-locals
-    async def copy(self, bucket: str, object_name: str,
-                   destination_bucket: str, *, new_name: Optional[str] = None,
-                   metadata: Optional[Dict[str, Any]] = None,
-                   params: Optional[Dict[str, str]] = None,
-                   headers: Optional[Dict[str, str]] = None,
-                   timeout: int = DEFAULT_TIMEOUT,
-                   session: Optional[Session] = None) -> Dict[str, Any]:
+    async def copy(
+        self, bucket: str, object_name: str,
+        destination_bucket: str, *, new_name: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> Dict[str, Any]:
 
         """
         When files are too large, multiple calls to `rewriteTo` are made. We
@@ -201,21 +209,26 @@ class Storage:
         if not new_name:
             new_name = object_name
 
-        url = (f'{self._api_root_read}/{bucket}/o/'
-               f'{quote(object_name, safe="")}/rewriteTo/b/'
-               f'{destination_bucket}/o/{quote(new_name, safe="")}')
+        url = (
+            f'{self._api_root_read}/{bucket}/o/'
+            f'{quote(object_name, safe="")}/rewriteTo/b/'
+            f'{destination_bucket}/o/{quote(new_name, safe="")}'
+        )
 
         # We may optionally supply metadata* to apply to the rewritten
         # object, which explains why `rewriteTo` is a POST endpoint; when no
         # metadata is given, we have to send an empty body.
         # * https://cloud.google.com/storage/docs/json_api/v1/objects#resource
         metadict = (metadata or {}).copy()
-        metadict = {self._format_metadata_key(k): v
-                    for k, v in metadict.items()}
+        metadict = {
+            self._format_metadata_key(k): v
+            for k, v in metadict.items()
+        }
         if 'metadata' in metadict:
             metadict['metadata'] = {
                 str(k): str(v) if v is not None else None
-                for k, v in metadict['metadata'].items()}
+                for k, v in metadict['metadata'].items()
+            }
 
         metadata_ = json.dumps(metadict)
 
@@ -229,24 +242,30 @@ class Storage:
         params = params or {}
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, params=params,
-                            timeout=timeout, data=metadata_)
+        resp = await s.post(
+            url, headers=headers, params=params,
+            timeout=timeout, data=metadata_,
+        )
 
         data: Dict[str, Any] = await resp.json(content_type=None)
 
         while not data.get('done') and data.get('rewriteToken'):
             params['rewriteToken'] = data['rewriteToken']
-            resp = await s.post(url, headers=headers, params=params,
-                                timeout=timeout)
+            resp = await s.post(
+                url, headers=headers, params=params,
+                timeout=timeout,
+            )
             data = await resp.json(content_type=None)
 
         return data
 
-    async def delete(self, bucket: str, object_name: str, *,
-                     timeout: int = DEFAULT_TIMEOUT,
-                     params: Optional[Dict[str, str]] = None,
-                     headers: Optional[Dict[str, str]] = None,
-                     session: Optional[Session] = None) -> str:
+    async def delete(
+        self, bucket: str, object_name: str, *,
+        timeout: int = DEFAULT_TIMEOUT,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        session: Optional[Session] = None
+    ) -> str:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
@@ -254,8 +273,10 @@ class Storage:
         headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers, params=params or {},
-                              timeout=timeout)
+        resp = await s.delete(
+            url, headers=headers, params=params or {},
+            timeout=timeout,
+        )
 
         try:
             data: str = await resp.text()
@@ -264,39 +285,49 @@ class Storage:
 
         return data
 
-    async def download(self, bucket: str, object_name: str, *,
-                       headers: Optional[Dict[str, Any]] = None,
-                       timeout: int = DEFAULT_TIMEOUT,
-                       session: Optional[Session] = None) -> bytes:
-        return await self._download(bucket, object_name, headers=headers,
-                                    timeout=timeout, params={'alt': 'media'},
-                                    session=session)
+    async def download(
+        self, bucket: str, object_name: str, *,
+        headers: Optional[Dict[str, Any]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> bytes:
+        return await self._download(
+            bucket, object_name, headers=headers,
+            timeout=timeout, params={'alt': 'media'},
+            session=session,
+        )
 
-    async def download_to_filename(self, bucket: str, object_name: str,
-                                   filename: str, **kwargs: Any) -> None:
+    async def download_to_filename(
+        self, bucket: str, object_name: str,
+        filename: str, **kwargs: Any
+    ) -> None:
         async with file_open(  # type: ignore[attr-defined]
                 filename,
                 mode='wb+',
         ) as file_object:
             await file_object.write(
-                await self.download(bucket, object_name, **kwargs)
+                await self.download(bucket, object_name, **kwargs),
             )
 
-    async def download_metadata(self, bucket: str, object_name: str, *,
-                                headers: Optional[Dict[str, Any]] = None,
-                                session: Optional[Session] = None,
-                                timeout: int = DEFAULT_TIMEOUT
-                                ) -> Dict[str, Any]:
-        data = await self._download(bucket, object_name, headers=headers,
-                                    timeout=timeout, session=session)
+    async def download_metadata(
+        self, bucket: str, object_name: str, *,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT
+    ) -> Dict[str, Any]:
+        data = await self._download(
+            bucket, object_name, headers=headers,
+            timeout=timeout, session=session,
+        )
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
 
-    async def download_stream(self, bucket: str, object_name: str, *,
-                              headers: Optional[Dict[str, Any]] = None,
-                              timeout: int = DEFAULT_TIMEOUT,
-                              session: Optional[Session] = None
-                              ) -> StreamResponse:
+    async def download_stream(
+        self, bucket: str, object_name: str, *,
+        headers: Optional[Dict[str, Any]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> StreamResponse:
         """Download a GCS object in a buffered stream.
 
         Args:
@@ -314,36 +345,44 @@ class Storage:
             StreamResponse: A object encapsulating the stream, similar to
             io.BufferedIOBase, but it only supports the read() function.
         """
-        return await self._download_stream(bucket, object_name,
-                                           headers=headers, timeout=timeout,
-                                           params={'alt': 'media'},
-                                           session=session)
+        return await self._download_stream(
+            bucket, object_name,
+            headers=headers, timeout=timeout,
+            params={'alt': 'media'},
+            session=session,
+        )
 
-    async def list_objects(self, bucket: str, *,
-                           params: Optional[Dict[str, str]] = None,
-                           headers: Optional[Dict[str, Any]] = None,
-                           session: Optional[Session] = None,
-                           timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+    async def list_objects(
+        self, bucket: str, *,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT
+    ) -> Dict[str, Any]:
         url = f'{self._api_root_read}/{bucket}/o'
         headers = headers or {}
         headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params or {},
-                           timeout=timeout)
+        resp = await s.get(
+            url, headers=headers, params=params or {},
+            timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
     # https://cloud.google.com/storage/docs/json_api/v1/how-tos/upload
     # pylint: disable=too-many-locals
-    async def upload(self, bucket: str, object_name: str, file_data: Any,
-                     *, content_type: Optional[str] = None,
-                     parameters: Optional[Dict[str, str]] = None,
-                     headers: Optional[Dict[str, str]] = None,
-                     metadata: Optional[Dict[str, Any]] = None,
-                     session: Optional[Session] = None,
-                     force_resumable_upload: Optional[bool] = None,
-                     timeout: int = 30) -> Dict[str, Any]:
+    async def upload(
+        self, bucket: str, object_name: str, file_data: Any,
+        *, content_type: Optional[str] = None,
+        parameters: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        force_resumable_upload: Optional[bool] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
         url = f'{self._api_root_write}/{bucket}/o'
 
         stream = self._preprocess_data(file_data)
@@ -367,35 +406,44 @@ class Storage:
             'Content-Type': content_type or '',
         })
 
-        upload_type = self._decide_upload_type(force_resumable_upload,
-                                               content_length)
+        upload_type = self._decide_upload_type(
+            force_resumable_upload,
+            content_length,
+        )
         log.debug('using %r gcloud storage upload method', upload_type)
 
         if upload_type == UploadType.RESUMABLE:
             return await self._upload_resumable(
                 url, object_name, stream, parameters, headers,
-                metadata=metadata, session=session, timeout=timeout)
+                metadata=metadata, session=session, timeout=timeout,
+            )
         if upload_type == UploadType.SIMPLE:
             if metadata:
                 return await self._upload_multipart(
                     url, object_name, stream, parameters, headers, metadata,
-                    session=session, timeout=timeout)
+                    session=session, timeout=timeout,
+                )
             return await self._upload_simple(
                 url, object_name, stream, parameters, headers, session=session,
-                timeout=timeout)
+                timeout=timeout,
+            )
 
         raise TypeError(f'upload type {upload_type} not supported')
 
-    async def upload_from_filename(self, bucket: str, object_name: str,
-                                   filename: str,
-                                   **kwargs: Any) -> Dict[str, Any]:
+    async def upload_from_filename(
+        self, bucket: str, object_name: str,
+        filename: str,
+        **kwargs: Any
+    ) -> Dict[str, Any]:
         async with file_open(  # type: ignore[attr-defined]
                 filename,
                 mode='rb',
         ) as file_object:
             contents = await file_object.read()
-            return await self.upload(bucket, object_name, contents,
-                                     **kwargs)
+            return await self.upload(
+                bucket, object_name, contents,
+                **kwargs
+            )
 
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
@@ -420,8 +468,10 @@ class Storage:
         raise TypeError(f'unsupported upload type: "{type(data)}"')
 
     @staticmethod
-    def _decide_upload_type(force_resumable_upload: Optional[bool],
-                            content_length: int) -> UploadType:
+    def _decide_upload_type(
+        force_resumable_upload: Optional[bool],
+        content_length: int,
+    ) -> UploadType:
         # force resumable
         if force_resumable_upload is True:
             return UploadType.RESUMABLE
@@ -459,11 +509,13 @@ class Storage:
         parts = [parts[0].lower()] + [p.capitalize() for p in parts[1:]]
         return ''.join(parts)
 
-    async def _download(self, bucket: str, object_name: str, *,
-                        params: Optional[Dict[str, str]] = None,
-                        headers: Optional[Dict[str, str]] = None,
-                        timeout: int = DEFAULT_TIMEOUT,
-                        session: Optional[Session] = None) -> bytes:
+    async def _download(
+        self, bucket: str, object_name: str, *,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
@@ -471,8 +523,10 @@ class Storage:
         headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
-        response = await s.get(url, headers=headers, params=params or {},
-                               timeout=timeout)
+        response = await s.get(
+            url, headers=headers, params=params or {},
+            timeout=timeout,
+        )
 
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
         # string was uploaded. To avoid potential weirdness, always return a
@@ -484,12 +538,13 @@ class Storage:
 
         return data
 
-    async def _download_stream(self, bucket: str, object_name: str, *,
-                               params: Optional[Dict[str, str]] = None,
-                               headers: Optional[Dict[str, str]] = None,
-                               timeout: int = DEFAULT_TIMEOUT,
-                               session: Optional[Session] = None
-                               ) -> StreamResponse:
+    async def _download_stream(
+        self, bucket: str, object_name: str, *,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
         url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
@@ -501,45 +556,62 @@ class Storage:
         if BUILD_GCLOUD_REST:
             # stream argument is only expected by requests.Session.
             # pylint: disable=unexpected-keyword-arg
-            return StreamResponse(s.get(url, headers=headers,
-                                        params=params or {},
-                                        timeout=timeout, stream=True))
-        return StreamResponse(await s.get(url, headers=headers,
-                                          params=params or {},
-                                          timeout=timeout))
+            return StreamResponse(
+                s.get(
+                    url, headers=headers,
+                    params=params or {},
+                    timeout=timeout, stream=True,
+                ),
+            )
+        return StreamResponse(
+            await s.get(
+                url, headers=headers,
+                params=params or {},
+                timeout=timeout,
+            ),
+        )
 
-    async def _upload_simple(self, url: str, object_name: str,
-                             stream: IO[AnyStr], params: Dict[str, str],
-                             headers: Dict[str, str], *,
-                             session: Optional[Session] = None,
-                             timeout: int = 30) -> Dict[str, Any]:
+    async def _upload_simple(
+        self, url: str, object_name: str,
+        stream: IO[AnyStr], params: Dict[str, str],
+        headers: Dict[str, str], *,
+        session: Optional[Session] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params['name'] = object_name
         params['uploadType'] = 'media'
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=stream,  # type: ignore[arg-type]
-                            headers=headers, params=params, timeout=timeout)
+        resp = await s.post(
+            url, data=stream,  # type: ignore[arg-type]
+            headers=headers, params=params, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    async def _upload_multipart(self, url: str, object_name: str,
-                                stream: IO[AnyStr], params: Dict[str, str],
-                                headers: Dict[str, str],
-                                metadata: Dict[str, Any], *,
-                                session: Optional[Session] = None,
-                                timeout: int = 30) -> Dict[str, Any]:
+    async def _upload_multipart(
+        self, url: str, object_name: str,
+        stream: IO[AnyStr], params: Dict[str, str],
+        headers: Dict[str, str],
+        metadata: Dict[str, Any], *,
+        session: Optional[Session] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
         params['uploadType'] = 'multipart'
 
         metadata_headers = {'Content-Type': 'application/json; charset=UTF-8'}
-        metadata = {self._format_metadata_key(k): v
-                    for k, v in metadata.items()}
+        metadata = {
+            self._format_metadata_key(k): v
+            for k, v in metadata.items()
+        }
         if 'metadata' in metadata:
             metadata['metadata'] = {
                 str(k): str(v) if v is not None else None
-                for k, v in metadata['metadata'].items()}
+                for k, v in metadata['metadata'].items()
+            }
 
         metadata['name'] = object_name
 
@@ -558,7 +630,7 @@ class Storage:
         headers.update({
             'Content-Type': content_type,
             'Content-Length': str(len(body)),
-            'Accept': 'application/json'
+            'Accept': 'application/json',
         })
 
         s = AioSession(session) if session else self.session
@@ -568,38 +640,51 @@ class Storage:
             body = io.BytesIO(body)  # type: ignore[assignment]
 
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=body,  # type: ignore[arg-type]
-                            headers=headers, params=params, timeout=timeout)
+        resp = await s.post(
+            url, data=body,  # type: ignore[arg-type]
+            headers=headers, params=params, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    async def _upload_resumable(self, url: str, object_name: str,
-                                stream: IO[AnyStr], params: Dict[str, str],
-                                headers: Dict[str, str], *,
-                                metadata: Optional[Dict[str, Any]] = None,
-                                session: Optional[Session] = None,
-                                timeout: int = 30) -> Dict[str, Any]:
+    async def _upload_resumable(
+        self, url: str, object_name: str,
+        stream: IO[AnyStr], params: Dict[str, str],
+        headers: Dict[str, str], *,
+        metadata: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
-        session_uri = await self._initiate_upload(url, object_name, params,
-                                                  headers, metadata=metadata,
-                                                  session=session)
-        return await self._do_upload(session_uri, stream, headers=headers,
-                                     session=session, timeout=timeout)
+        session_uri = await self._initiate_upload(
+            url, object_name, params,
+            headers, metadata=metadata,
+            session=session,
+        )
+        return await self._do_upload(
+            session_uri, stream, headers=headers,
+            session=session, timeout=timeout,
+        )
 
-    async def _initiate_upload(self, url: str, object_name: str,
-                               params: Dict[str, str], headers: Dict[str, str],
-                               *, metadata: Optional[Dict[str, Any]] = None,
-                               timeout: int = DEFAULT_TIMEOUT,
-                               session: Optional[Session] = None) -> str:
+    async def _initiate_upload(
+        self, url: str, object_name: str,
+        params: Dict[str, str], headers: Dict[str, str],
+        *, metadata: Optional[Dict[str, Any]] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+        session: Optional[Session] = None
+    ) -> str:
         params['uploadType'] = 'resumable'
 
         metadict = (metadata or {}).copy()
-        metadict = {self._format_metadata_key(k): v
-                    for k, v in metadict.items()}
+        metadict = {
+            self._format_metadata_key(k): v
+            for k, v in metadict.items()
+        }
         if 'metadata' in metadict:
             metadict['metadata'] = {
                 str(k): str(v) if v is not None else None
-                for k, v in metadict['metadata'].items()}
+                for k, v in metadict['metadata'].items()
+            }
 
         metadict.update({'name': object_name})
         metadata_ = json.dumps(metadict)
@@ -609,19 +694,23 @@ class Storage:
             'Content-Length': str(len(metadata_)),
             'Content-Type': 'application/json; charset=UTF-8',
             'X-Upload-Content-Type': headers['Content-Type'],
-            'X-Upload-Content-Length': headers['Content-Length']
+            'X-Upload-Content-Length': headers['Content-Length'],
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=post_headers, params=params,
-                            data=metadata_, timeout=timeout)
+        resp = await s.post(
+            url, headers=post_headers, params=params,
+            data=metadata_, timeout=timeout,
+        )
         session_uri: str = resp.headers['Location']
         return session_uri
 
-    async def _do_upload(self, session_uri: str, stream: IO[AnyStr],
-                         headers: Dict[str, str], *, retries: int = 5,
-                         session: Optional[Session] = None,
-                         timeout: int = 30) -> Dict[str, Any]:
+    async def _do_upload(
+        self, session_uri: str, stream: IO[AnyStr],
+        headers: Dict[str, str], *, retries: int = 5,
+        session: Optional[Session] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
         s = AioSession(session) if session else self.session
 
         original_close = stream.close
@@ -631,14 +720,16 @@ class Storage:
         try:
             for tries in range(retries):
                 try:
-                    resp = await s.put(session_uri, headers=headers,
-                                       data=stream, timeout=timeout)
+                    resp = await s.put(
+                        session_uri, headers=headers,
+                        data=stream, timeout=timeout,
+                    )
                 except ResponseError:
                     headers.update({'Content-Range': '*/*'})
                     stream.seek(original_position)
 
                     await sleep(  # type: ignore[func-returns-value]
-                        2. ** tries
+                        2. ** tries,
                     )
                 else:
                     break
@@ -653,7 +744,8 @@ class Storage:
             *, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None,
-            timeout: int = DEFAULT_TIMEOUT) -> Dict[str, Any]:
+            timeout: int = DEFAULT_TIMEOUT
+    ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         encoded_object_name = quote(object_name, safe='')
         url = f'{self._api_root_read}/{bucket}/o/{encoded_object_name}'
@@ -665,24 +757,29 @@ class Storage:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.patch(url, data=body,  # type: ignore[arg-type]
-                             headers=headers, params=params, timeout=timeout)
+        resp = await s.patch(
+            url, data=body,  # type: ignore[arg-type]
+            headers=headers, params=params, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 
-    async def get_bucket_metadata(self, bucket: str, *,
-                                  params: Optional[Dict[str, str]] = None,
-                                  headers: Optional[Dict[str, str]] = None,
-                                  session: Optional[Session] = None,
-                                  timeout: int = DEFAULT_TIMEOUT
-                                  ) -> Dict[str, Any]:
+    async def get_bucket_metadata(
+        self, bucket: str, *,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT
+    ) -> Dict[str, Any]:
         url = f'{self._api_root_read}/{bucket}'
         headers = headers or {}
         headers.update(await self._headers())
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params or {},
-                           timeout=timeout)
+        resp = await s.get(
+            url, headers=headers, params=params or {},
+            timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
 

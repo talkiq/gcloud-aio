@@ -74,13 +74,16 @@ class Datastore:
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
-            session=self.session.session)  # type: ignore[arg-type]
+            session=self.session.session,  # type: ignore[arg-type]
+        )
 
         self._project = project
         if self._api_is_dev and not project:
-            self._project = (os.environ.get('DATASTORE_PROJECT_ID')
-                             or os.environ.get('GOOGLE_CLOUD_PROJECT')
-                             or 'dev')
+            self._project = (
+                os.environ.get('DATASTORE_PROJECT_ID')
+                or os.environ.get('GOOGLE_CLOUD_PROJECT')
+                or 'dev'
+            )
 
     async def project(self) -> str:
         if self._project:
@@ -93,15 +96,19 @@ class Datastore:
         raise Exception('could not determine project, please set it manually')
 
     @staticmethod
-    def _make_commit_body(mutations: List[Dict[str, Any]],
-                          transaction: Optional[str] = None,
-                          mode: Mode = Mode.TRANSACTIONAL) -> Dict[str, Any]:
+    def _make_commit_body(
+        mutations: List[Dict[str, Any]],
+        transaction: Optional[str] = None,
+        mode: Mode = Mode.TRANSACTIONAL,
+    ) -> Dict[str, Any]:
         if not mutations:
             raise Exception('at least one mutation record is required')
 
         if transaction is None and mode != Mode.NON_TRANSACTIONAL:
-            raise Exception('a transaction ID must be provided when mode is '
-                            'transactional')
+            raise Exception(
+                'a transaction ID must be provided when mode is '
+                'transactional',
+            )
 
         data = {
             'mode': mode.value,
@@ -124,7 +131,8 @@ class Datastore:
     @classmethod
     def make_mutation(
             cls, operation: Operation, key: Key,
-            properties: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            properties: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -137,13 +145,15 @@ class Datastore:
             operation.value: {
                 'key': key.to_repr(),
                 'properties': mutation_properties,
-            }
+            },
         }
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
-    async def allocateIds(self, keys: List[Key],
-                          session: Optional[Session] = None,
-                          timeout: int = 10) -> List[Key]:
+    async def allocateIds(
+        self, keys: List[Key],
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> List[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
 
@@ -159,16 +169,20 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         data = await resp.json()
 
         return [self.key_kind.from_repr(k) for k in data['keys']]
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
-    async def beginTransaction(self, session: Optional[Session] = None,
-                               timeout: int = 10) -> str:
+    async def beginTransaction(
+        self, session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
         headers = await self.headers()
@@ -185,16 +199,20 @@ class Datastore:
         return transaction
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
-    async def commit(self, mutations: List[Dict[str, Any]],
-                     transaction: Optional[str] = None,
-                     mode: Mode = Mode.TRANSACTIONAL,
-                     session: Optional[Session] = None,
-                     timeout: int = 10) -> Dict[str, Any]:
+    async def commit(
+        self, mutations: List[Dict[str, Any]],
+        transaction: Optional[str] = None,
+        mode: Mode = Mode.TRANSACTIONAL,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> Dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
 
-        body = self._make_commit_body(mutations, transaction=transaction,
-                                      mode=mode)
+        body = self._make_commit_body(
+            mutations, transaction=transaction,
+            mode=mode,
+        )
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -205,23 +223,29 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json()
 
         return {
-            'mutationResults': [self.mutation_result_kind.from_repr(r)
-                                for r in data.get('mutationResults', [])],
+            'mutationResults': [
+                self.mutation_result_kind.from_repr(r)
+                for r in data.get('mutationResults', [])
+            ],
             'indexUpdates': data.get('indexUpdates', 0),
         }
 
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
-    async def export(self, output_bucket_prefix: str,
-                     kinds: Optional[List[str]] = None,
-                     namespaces: Optional[List[str]] = None,
-                     labels: Optional[Dict[str, str]] = None,
-                     session: Optional[Session] = None,
-                     timeout: int = 10) -> DatastoreOperation:
+    async def export(
+        self, output_bucket_prefix: str,
+        kinds: Optional[List[str]] = None,
+        namespaces: Optional[List[str]] = None,
+        labels: Optional[Dict[str, str]] = None,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
 
@@ -242,16 +266,20 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
-    async def get_datastore_operation(self, name: str,
-                                      session: Optional[Session] = None,
-                                      timeout: int = 10) -> DatastoreOperation:
+    async def get_datastore_operation(
+        self, name: str,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> DatastoreOperation:
         url = f'{self._api_root}/{name}'
 
         headers = await self.headers()
@@ -269,7 +297,7 @@ class Datastore:
     async def lookup(
             self, keys: List[Key], transaction: Optional[str] = None,
             consistency: Consistency = Consistency.STRONG,
-            session: Optional[Session] = None, timeout: int = 10
+            session: Optional[Session] = None, timeout: int = 10,
     ) -> Dict[str, List[Union[EntityResult, Key]]]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
@@ -291,24 +319,34 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
         data: Dict[str, List[Any]] = await resp.json()
 
         return {
-            'found': [self.entity_result_kind.from_repr(e)
-                      for e in data.get('found', [])],
-            'missing': [self.entity_result_kind.from_repr(e)
-                        for e in data.get('missing', [])],
-            'deferred': [self.key_kind.from_repr(k)
-                         for k in data.get('deferred', [])],
+            'found': [
+                self.entity_result_kind.from_repr(e)
+                for e in data.get('found', [])
+            ],
+            'missing': [
+                self.entity_result_kind.from_repr(e)
+                for e in data.get('missing', [])
+            ],
+            'deferred': [
+                self.key_kind.from_repr(k)
+                for k in data.get('deferred', [])
+            ],
         }
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
-    async def reserveIds(self, keys: List[Key], database_id: str = '',
-                         session: Optional[Session] = None,
-                         timeout: int = 10) -> None:
+    async def reserveIds(
+        self, keys: List[Key], database_id: str = '',
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
 
@@ -325,13 +363,17 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(url, data=payload,  # type: ignore[arg-type]
-                     headers=headers, timeout=timeout)
+        await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
-    async def rollback(self, transaction: str,
-                       session: Optional[Session] = None,
-                       timeout: int = 10) -> None:
+    async def rollback(
+        self, transaction: str,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
 
@@ -347,15 +389,19 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        await s.post(url, data=payload,  # type: ignore[arg-type]
-                     headers=headers, timeout=timeout)
+        await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    async def runQuery(self, query: BaseQuery,
-                       transaction: Optional[str] = None,
-                       consistency: Consistency = Consistency.EVENTUAL,
-                       session: Optional[Session] = None,
-                       timeout: int = 10) -> QueryResultBatch:
+    async def runQuery(
+        self, query: BaseQuery,
+        transaction: Optional[str] = None,
+        consistency: Consistency = Consistency.EVENTUAL,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> QueryResultBatch:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
@@ -380,39 +426,59 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
 
         data: Dict[str, Any] = await resp.json()
         return self.query_result_batch_kind.from_repr(data['batch'])
 
-    async def delete(self, key: Key,
-                     session: Optional[Session] = None) -> Dict[str, Any]:
+    async def delete(
+        self, key: Key,
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
         return await self.operate(Operation.DELETE, key, session=session)
 
-    async def insert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> Dict[str, Any]:
-        return await self.operate(Operation.INSERT, key, properties,
-                                  session=session)
+    async def insert(
+        self, key: Key, properties: Dict[str, Any],
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
+        return await self.operate(
+            Operation.INSERT, key, properties,
+            session=session,
+        )
 
-    async def update(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> Dict[str, Any]:
-        return await self.operate(Operation.UPDATE, key, properties,
-                                  session=session)
+    async def update(
+        self, key: Key, properties: Dict[str, Any],
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
+        return await self.operate(
+            Operation.UPDATE, key, properties,
+            session=session,
+        )
 
-    async def upsert(self, key: Key, properties: Dict[str, Any],
-                     session: Optional[Session] = None) -> Dict[str, Any]:
-        return await self.operate(Operation.UPSERT, key, properties,
-                                  session=session)
+    async def upsert(
+        self, key: Key, properties: Dict[str, Any],
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
+        return await self.operate(
+            Operation.UPSERT, key, properties,
+            session=session,
+        )
 
     # TODO: accept Entity rather than key/properties?
-    async def operate(self, operation: Operation, key: Key,
-                      properties: Optional[Dict[str, Any]] = None,
-                      session: Optional[Session] = None) -> Dict[str, Any]:
+    async def operate(
+        self, operation: Operation, key: Key,
+        properties: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
-        return await self.commit([mutation], transaction=transaction,
-                                 session=session)
+        return await self.commit(
+            [mutation], transaction=transaction,
+            session=session,
+        )
 
     async def close(self) -> None:
         await self.session.close()

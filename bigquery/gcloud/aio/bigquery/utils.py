@@ -16,8 +16,10 @@ try:
 except AttributeError:
     # build our own UTC for Python 2
     class UTC(datetime.tzinfo):
-        def utcoffset(self,
-                      _dt: Optional[datetime.datetime]) -> datetime.timedelta:
+        def utcoffset(
+            self,
+            _dt: Optional[datetime.datetime],
+        ) -> datetime.timedelta:
             return datetime.timedelta(0)
 
         def tzname(self, _dt: Optional[datetime.datetime]) -> str:
@@ -74,17 +76,20 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
     try:
         convert: Callable[[Any], Any] = {  # type: ignore[assignment]
             'BIGNUMERIC': lambda x: decimal.Decimal(
-                x, decimal.Context(prec=77)),
+                x, decimal.Context(prec=77),
+            ),
             'BOOLEAN': lambda x: x == 'true',
             'BYTES': bytes,
             'FLOAT': float,
             'INTEGER': int,
             'NUMERIC': lambda x: decimal.Decimal(
-                x, decimal.Context(prec=38)),
+                x, decimal.Context(prec=38),
+            ),
             'RECORD': dict,
             'STRING': str,
             'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(
-                float(x), tz=utc),
+                float(x), tz=utc,
+            ),
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
@@ -92,9 +97,11 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
         # DATETIME -> datetime?
         # GEOGRAPHY -> ??
         # TIME -> datetime?
-        log.error('Unsupported field type %s. Please open a bug report with '
-                  'the following data: %s, %s', field['type'], field['mode'],
-                  flatten(value))
+        log.error(
+            'Unsupported field type %s. Please open a bug report with '
+            'the following data: %s, %s', field['type'], field['mode'],
+            flatten(value),
+        )
         raise
 
     if field['mode'] == 'NULLABLE' and value is None:
@@ -102,15 +109,19 @@ def parse(field: Dict[str, Any], value: Any) -> Any:
 
     if field['mode'] == 'REPEATED':
         if field['type'] == 'RECORD':
-            return [{f['name']: parse(f, x)
-                     for f, x in zip(field['fields'], xs)}
-                    for xs in flatten(value)]
+            return [{
+                f['name']: parse(f, x)
+                for f, x in zip(field['fields'], xs)
+            }
+                for xs in flatten(value)]
 
         return [convert(x) for x in flatten(value)]
 
     if field['type'] == 'RECORD':
-        return {f['name']: parse(f, x)
-                for f, x in zip(field['fields'], flatten(value))}
+        return {
+            f['name']: parse(f, x)
+            for f, x in zip(field['fields'], flatten(value))
+        }
 
     return convert(flatten(value))
 
@@ -128,5 +139,7 @@ def query_response_to_dict(response: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     fields = response['schema'].get('fields', [])
     rows = [x['f'] for x in response.get('rows', [])]
-    return [{k['name']: parse(k, v) for k, v in zip(fields, row)}
-            for row in rows]
+    return [
+        {k['name']: parse(k, v) for k, v in zip(fields, row)}
+        for row in rows
+    ]

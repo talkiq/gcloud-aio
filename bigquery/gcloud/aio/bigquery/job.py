@@ -26,8 +26,10 @@ class Job(BigqueryBase):
             api_root: Optional[str] = None,
     ) -> None:
         self.job_id = job_id
-        super().__init__(project=project, service_file=service_file,
-                         session=session, token=token, api_root=api_root)
+        super().__init__(
+            project=project, service_file=service_file,
+            session=session, token=token, api_root=api_root,
+        )
 
     @staticmethod
     def _make_query_body(
@@ -35,7 +37,8 @@ class Job(BigqueryBase):
             write_disposition: Disposition,
             use_query_cache: bool,
             dry_run: bool, use_legacy_sql: bool,
-            destination_table: Optional[Any]) -> Dict[str, Any]:
+            destination_table: Optional[Any],
+    ) -> Dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -54,8 +57,10 @@ class Job(BigqueryBase):
         }
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
-    async def get_job(self, session: Optional[Session] = None,
-                      timeout: int = 60) -> Dict[str, Any]:
+    async def get_job(
+        self, session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
         """Get the specified job resource by job ID."""
 
         project = await self.project()
@@ -64,10 +69,11 @@ class Job(BigqueryBase):
         return await self._get_url(url, session, timeout)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
-    async def get_query_results(self, session: Optional[Session] = None,
-                                timeout: int = 60,
-                                params: Optional[Dict[str, Any]] = None,
-                                ) -> Dict[str, Any]:
+    async def get_query_results(
+        self, session: Optional[Session] = None,
+        timeout: int = 60,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Get the specified jobQueryResults by job ID."""
 
         project = await self.project()
@@ -76,20 +82,26 @@ class Job(BigqueryBase):
         return await self._get_url(url, session, timeout, params=params)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
-    async def cancel(self, session: Optional[Session] = None,
-                     timeout: int = 60) -> Dict[str, Any]:
+    async def cancel(
+        self, session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
         """Cancel the specified job by job ID."""
 
         project = await self.project()
-        url = (f'{self._api_root}/projects/{project}/queries/{self.job_id}'
-               '/cancel')
+        url = (
+            f'{self._api_root}/projects/{project}/queries/{self.job_id}'
+            '/cancel'
+        )
 
         return await self._post_json(url, {}, session, timeout)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/query
-    async def query(self, query_request: Dict[str, Any],
-                    session: Optional[Session] = None,
-                    timeout: int = 60) -> Dict[str, Any]:
+    async def query(
+        self, query_request: Dict[str, Any],
+        session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
         """Runs a query synchronously and returns query results if completes
         within a specified timeout."""
         project = await self.project()
@@ -98,9 +110,11 @@ class Job(BigqueryBase):
         return await self._post_json(url, query_request, session, timeout)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
-    async def insert(self, job: Dict[str, Any],
-                     session: Optional[Session] = None,
-                     timeout: int = 60) -> Dict[str, Any]:
+    async def insert(
+        self, job: Dict[str, Any],
+        session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
         """Insert a new asynchronous job."""
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs'
@@ -117,24 +131,29 @@ class Job(BigqueryBase):
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False, use_legacy_sql: bool = True,
-            destination_table: Optional[Any] = None) -> Dict[str, Any]:
+            destination_table: Optional[Any] = None,
+    ) -> Dict[str, Any]:
         """Create table as a result of the query"""
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs'
 
-        body = self._make_query_body(query=query,
-                                     write_disposition=write_disposition,
-                                     use_query_cache=use_query_cache,
-                                     dry_run=dry_run,
-                                     use_legacy_sql=use_legacy_sql,
-                                     destination_table=destination_table)
+        body = self._make_query_body(
+            query=query,
+            write_disposition=write_disposition,
+            use_query_cache=use_query_cache,
+            dry_run=dry_run,
+            use_legacy_sql=use_legacy_sql,
+            destination_table=destination_table,
+        )
         response = await self._post_json(url, body, session, timeout)
         if not dry_run:
             self.job_id = response['jobReference']['jobId']
         return response
 
-    async def result(self,
-                     session: Optional[Session] = None) -> Dict[str, Any]:
+    async def result(
+        self,
+        session: Optional[Session] = None,
+    ) -> Dict[str, Any]:
         data = await self.get_job(session)
         status = data.get('status', {})
         if status.get('state') == 'DONE':

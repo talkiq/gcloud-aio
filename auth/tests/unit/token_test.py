@@ -18,7 +18,7 @@ async def test_service_as_io():
         'auth_uri': 'https://accounts.google.com/o/oauth2/auth',
         'token_uri': 'https://oauth2.googleapis.com/token',
         'auth_provider_x509_cert_url': 'https://www.googleapis.com/oauth2/v1/certs',
-        'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/gcloud-aio%40random-project-123.iam.gserviceaccount.com'
+        'client_x509_cert_url': 'https://www.googleapis.com/robot/v1/metadata/x509/gcloud-aio%40random-project-123.iam.gserviceaccount.com',
     }
 
     # io.StringIO does not like str inputs in python2. So in `py3to2` step in
@@ -26,8 +26,10 @@ async def test_service_as_io():
     # turns this seemingly noop operation to allow the literal string to get
     # converted to unicode.
     service_file = io.StringIO(f'{json.dumps(service_data)}')
-    t = token.Token(service_file=service_file,
-                    scopes=['https://google.com/random-scope'])
+    t = token.Token(
+        service_file=service_file,
+        scopes=['https://google.com/random-scope'],
+    )
 
     assert t.token_type == token.Type.SERVICE_ACCOUNT
     assert t.token_uri == 'https://oauth2.googleapis.com/token'

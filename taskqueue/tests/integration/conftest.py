@@ -14,7 +14,7 @@ else:
 
 def pytest_configure(config):
     config.addinivalue_line(
-        'markers', 'slow: marks tests as slow (deselect with `-m "not slow"`)'
+        'markers', 'slow: marks tests as slow (deselect with `-m "not slow"`)',
     )
 
 
@@ -46,7 +46,11 @@ async def session() -> str:
 
 
 @pytest.fixture(scope='function')
-async def push_queue(project, creds, push_queue_name, push_queue_location,
-                     session):
-    return PushQueue(project, push_queue_name, service_file=creds,
-                     location=push_queue_location, session=session)
+async def push_queue(
+    project, creds, push_queue_name, push_queue_location,
+    session,
+):
+    return PushQueue(
+        project, push_queue_name, service_file=creds,
+        location=push_queue_location, session=session,
+    )

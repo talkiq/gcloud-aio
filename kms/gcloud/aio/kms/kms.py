@@ -51,13 +51,15 @@ class KMS:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self._api_root = (
             f'{self._api_root}/projects/{keyproject}/locations/{location}/'
-            f'keyRings/{keyring}/cryptoKeys/{keyname}')
+            f'keyRings/{keyring}/cryptoKeys/{keyname}'
+        )
 
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file,
             session=self.session.session,  # type: ignore[arg-type]
-            scopes=SCOPES)
+            scopes=SCOPES,
+        )
 
     async def headers(self) -> Dict[str, str]:
         if self._api_is_dev:
@@ -70,8 +72,10 @@ class KMS:
         }
 
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt
-    async def decrypt(self, ciphertext: str,
-                      session: Optional[Session] = None) -> str:
+    async def decrypt(
+        self, ciphertext: str,
+        session: Optional[Session] = None,
+    ) -> str:
         url = f'{self._api_root}:decrypt'
         body = json.dumps({
             'ciphertext': ciphertext,
@@ -79,15 +83,19 @@ class KMS:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, headers=await self.headers(),
-                            data=body)  # type: ignore[arg-type]
+        resp = await s.post(
+            url, headers=await self.headers(),
+            data=body,  # type: ignore[arg-type]
+        )
 
         plaintext: str = (await resp.json())['plaintext']
         return plaintext
 
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt
-    async def encrypt(self, plaintext: str,
-                      session: Optional[Session] = None) -> str:
+    async def encrypt(
+        self, plaintext: str,
+        session: Optional[Session] = None,
+    ) -> str:
         url = f'{self._api_root}:encrypt'
         body = json.dumps({
             'plaintext': plaintext,
@@ -95,8 +103,10 @@ class KMS:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, headers=await self.headers(),
-                            data=body)  # type: ignore[arg-type]
+        resp = await s.post(
+            url, headers=await self.headers(),
+            data=body,  # type: ignore[arg-type]
+        )
 
         ciphertext: str = (await resp.json())['ciphertext']
         return ciphertext

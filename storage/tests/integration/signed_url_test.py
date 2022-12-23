@@ -19,8 +19,10 @@ async def test_gcs_signed_url(bucket_name, creds, data):
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
-        await storage.upload(bucket_name, object_name, data,
-                             force_resumable_upload=True)
+        await storage.upload(
+            bucket_name, object_name, data,
+            force_resumable_upload=True,
+        )
 
         bucket = Bucket(storage, bucket_name)
         blob = await bucket.get_blob(object_name, session=session)

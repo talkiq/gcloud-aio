@@ -54,8 +54,10 @@ class Filter:
 class CompositeFilter(BaseFilter):
     json_key = 'compositeFilter'
 
-    def __init__(self, operator: CompositeFilterOperator,
-                 filters: List[Filter]) -> None:
+    def __init__(
+        self, operator: CompositeFilterOperator,
+        filters: List[Filter],
+    ) -> None:
         self.operator = operator
         self.filters = filters
 
@@ -65,7 +67,8 @@ class CompositeFilter(BaseFilter):
 
         return bool(
             self.operator == other.operator
-            and self.filters == other.filters)
+            and self.filters == other.filters,
+        )
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'CompositeFilter':
@@ -84,8 +87,10 @@ class CompositeFilter(BaseFilter):
 class PropertyFilter(BaseFilter):
     json_key = 'propertyFilter'
 
-    def __init__(self, prop: str, operator: PropertyFilterOperator,
-                 value: Value) -> None:
+    def __init__(
+        self, prop: str, operator: PropertyFilterOperator,
+        value: Value,
+    ) -> None:
         self.prop = prop
         self.operator = operator
         self.value = value
@@ -97,7 +102,8 @@ class PropertyFilter(BaseFilter):
         return bool(
             self.prop == other.prop
             and self.operator == other.operator
-            and self.value == other.value)
+            and self.value == other.value,
+        )
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'PropertyFilter':

@@ -17,10 +17,10 @@ class TestFilter:
         original_filter = property_filters[0]
         data = {
             'property': {
-                'name': original_filter.prop
+                'name': original_filter.prop,
             },
             'op': original_filter.operator,
-            'value': original_filter.value.to_repr()
+            'value': original_filter.value.to_repr(),
         }
 
         output_filter = PropertyFilter.from_repr(data)
@@ -34,7 +34,8 @@ class TestFilter:
         r = query_filter.to_repr()
 
         self._assert_is_correct_prop_dict_for_property_filter(
-            r['propertyFilter'], property_filter)
+            r['propertyFilter'], property_filter,
+        )
 
     @staticmethod
     def test_composite_filter_from_repr(property_filters):
@@ -44,7 +45,8 @@ class TestFilter:
             filters=[
                 Filter(property_filters[0]),
                 Filter(property_filters[1]),
-            ])
+            ],
+        )
         data = {
             'op': original_filter.operator,
             'filters': [
@@ -78,8 +80,9 @@ class TestFilter:
             operator=CompositeFilterOperator.AND,
             filters=[
                 Filter(property_filters[0]),
-                Filter(property_filters[1])
-            ])
+                Filter(property_filters[1]),
+            ],
+        )
         query_filter = Filter(composite_filter)
 
         r = query_filter.to_repr()
@@ -88,17 +91,19 @@ class TestFilter:
         assert composite_filter_dict['op'] == 'AND'
         self._assert_is_correct_prop_dict_for_property_filter(
             composite_filter_dict['filters'][0]['propertyFilter'],
-            property_filters[0])
+            property_filters[0],
+        )
         self._assert_is_correct_prop_dict_for_property_filter(
             composite_filter_dict['filters'][1]['propertyFilter'],
-            property_filters[1])
+            property_filters[1],
+        )
 
     @staticmethod
     def test_filter_from_repr(composite_filter):
         original_filter = Filter(inner_filter=composite_filter)
 
         data = {
-            'compositeFilter': original_filter.inner_filter.to_repr()
+            'compositeFilter': original_filter.inner_filter.to_repr(),
         }
 
         output_filter = Filter.from_repr(data)
@@ -109,7 +114,7 @@ class TestFilter:
     def test_filter_from_repr_unexpected_filter_name():
         unexpected_filter_name = 'unexpectedFilterName'
         data = {
-            unexpected_filter_name: 'DoesNotMatter'
+            unexpected_filter_name: 'DoesNotMatter',
         }
 
         with pytest.raises(ValueError) as ex_info:
@@ -136,13 +141,13 @@ class TestFilter:
             PropertyFilter(
                 prop='prop1',
                 operator=PropertyFilterOperator.LESS_THAN,
-                value=Value('value1')
+                value=Value('value1'),
             ),
             PropertyFilter(
                 prop='prop2',
                 operator=PropertyFilterOperator.GREATER_THAN,
-                value=Value(1234)
-            )
+                value=Value(1234),
+            ),
         ]
 
     @staticmethod
@@ -152,8 +157,9 @@ class TestFilter:
             operator=CompositeFilterOperator.AND,
             filters=[
                 Filter(property_filters[0]),
-                Filter(property_filters[1])
-            ])
+                Filter(property_filters[1]),
+            ],
+        )
 
     @staticmethod
     @pytest.fixture(scope='session')
@@ -167,7 +173,8 @@ class TestFilter:
 
     @staticmethod
     def _assert_is_correct_prop_dict_for_property_filter(
-            prop_dict: Dict[str, Any], property_filter: PropertyFilter):
+            prop_dict: Dict[str, Any], property_filter: PropertyFilter,
+    ):
         assert prop_dict['property']['name'] == property_filter.prop
         assert prop_dict['op'] == property_filter.operator.value
         assert prop_dict['value'] == property_filter.value.to_repr()

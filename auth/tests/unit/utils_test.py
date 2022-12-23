@@ -4,9 +4,13 @@ import pytest
 from gcloud.aio.auth import utils
 
 
-@pytest.mark.parametrize('str_or_bytes', ['Hello Test',
-                                          'UTF-8 Bytes'.encode('utf-8'),
-                                          pickle.dumps([])])
+@pytest.mark.parametrize(
+    'str_or_bytes', [
+        'Hello Test',
+        'UTF-8 Bytes'.encode('utf-8'),
+        pickle.dumps([]),
+    ],
+)
 def test_encode_decode(str_or_bytes):
     encoded = utils.encode(str_or_bytes)
     expected = str_or_bytes

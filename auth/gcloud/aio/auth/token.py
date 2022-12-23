@@ -48,8 +48,10 @@ else:
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
 GCE_ENDPOINT_PROJECT = (f'{GCE_METADATA_BASE}/project/project-id')
-GCE_ENDPOINT_TOKEN = (f'{GCE_METADATA_BASE}/instance/service-accounts'
-                      '/default/token?recursive=true')
+GCE_ENDPOINT_TOKEN = (
+    f'{GCE_METADATA_BASE}/instance/service-accounts'
+    '/default/token?recursive=true'
+)
 GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
 
@@ -61,7 +63,8 @@ class Type(enum.Enum):
 
 
 def get_service_data(
-        service: Optional[Union[str, IO[AnyStr]]]) -> Dict[str, Any]:
+        service: Optional[Union[str, IO[AnyStr]]],
+) -> Dict[str, Any]:
     """
     Get the service data dictionary for the current auth method.
 
@@ -82,14 +85,18 @@ def get_service_data(
         if cloudsdk_config is not None:
             sdkpath = cloudsdk_config
         elif os.name != 'nt':
-            sdkpath = os.path.join(os.path.expanduser('~'), '.config',
-                                   'gcloud')
+            sdkpath = os.path.join(
+                os.path.expanduser('~'), '.config',
+                'gcloud',
+            )
         else:
             try:
                 sdkpath = os.path.join(os.environ['APPDATA'], 'gcloud')
             except KeyError:
-                sdkpath = os.path.join(os.environ.get('SystemDrive', 'C:'),
-                                       '\\', 'gcloud')
+                sdkpath = os.path.join(
+                    os.environ.get('SystemDrive', 'C:'),
+                    '\\', 'gcloud',
+                )
 
         service = os.path.join(sdkpath, 'application_default_credentials.json')
         set_explicitly = bool(cloudsdk_config)
@@ -103,8 +110,10 @@ def get_service_data(
         # also support passing IO objects directly rather than strictly paths
         # on disk
         try:
-            with open(service,  # type: ignore[arg-type]
-                      encoding='utf-8') as f:
+            with open(
+                service,  # type: ignore[arg-type]
+                encoding='utf-8',
+            ) as f:
                 data: Dict[str, Any] = json.loads(f.read())
                 return data
         except TypeError:
@@ -125,14 +134,17 @@ def get_service_data(
 
 class Token:
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-                 session: Optional[Session] = None,
-                 scopes: Optional[List[str]] = None) -> None:
+    def __init__(
+        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+        session: Optional[Session] = None,
+        scopes: Optional[List[str]] = None,
+    ) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
             self.token_uri = self.service_data.get(
-                'token_uri', 'https://oauth2.googleapis.com/token')
+                'token_uri', 'https://oauth2.googleapis.com/token',
+            )
         else:
             # At this point, all we can do is assume we're running somewhere
             # with default credentials, eg. GCE.
@@ -142,8 +154,10 @@ class Token:
         self.session = AioSession(session)
         self.scopes = ' '.join(scopes or [])
         if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
-            raise Exception('scopes must be provided when token type is '
-                            'service account')
+            raise Exception(
+                'scopes must be provided when token type is '
+                'service account',
+            )
 
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
@@ -152,14 +166,18 @@ class Token:
         self.acquiring: Optional['asyncio.Future[Any]'] = None
 
     async def get_project(self) -> Optional[str]:
-        project = (os.environ.get('GOOGLE_CLOUD_PROJECT')
-                   or os.environ.get('GCLOUD_PROJECT')
-                   or os.environ.get('APPLICATION_ID'))
+        project = (
+            os.environ.get('GOOGLE_CLOUD_PROJECT')
+            or os.environ.get('GCLOUD_PROJECT')
+            or os.environ.get('APPLICATION_ID')
+        )
 
         if self.token_type == Type.GCE_METADATA:
             await self.ensure_token()
-            resp = await self.session.get(GCE_ENDPOINT_PROJECT, timeout=10,
-                                          headers=GCE_METADATA_HEADERS)
+            resp = await self.session.get(
+                GCE_ENDPOINT_PROJECT, timeout=10,
+                headers=GCE_METADATA_HEADERS,
+            )
 
             if not project:
                 try:
@@ -200,12 +218,14 @@ class Token:
 
         resp: Response = await self.session.post(  # type: ignore[assignment]
             url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
-            timeout=timeout)
+            timeout=timeout,
+        )
         return resp
 
     async def _refresh_gce_metadata(self, timeout: int) -> Response:
         resp: Response = await self.session.get(  # type: ignore[assignment]
-            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout)
+            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout,
+        )
         return resp
 
     async def _refresh_service_account(self, timeout: int) -> Response:
@@ -219,9 +239,11 @@ class Token:
         }
 
         # N.B. algorithm='RS256' requires an extra 240MB in dependencies...
-        assertion = jwt.encode(assertion_payload,
-                               self.service_data['private_key'],
-                               algorithm='RS256')
+        assertion = jwt.encode(
+            assertion_payload,
+            self.service_data['private_key'],
+            algorithm='RS256',
+        )
         payload = urlencode({
             'assertion': assertion,
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
@@ -229,7 +251,8 @@ class Token:
 
         resp: Response = await self.session.post(  # type: ignore[assignment]
             self.token_uri, data=payload, headers=REFRESH_HEADERS,
-            timeout=timeout)
+            timeout=timeout,
+        )
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)

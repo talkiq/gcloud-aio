@@ -61,13 +61,17 @@ async def test_token_does_not_require_creds() -> None:
 # https://cloud.google.com/appengine/docs/standard/python/appidentity/#asserting_identity_to_third-party_services
 async def verify_signature(data, signature, key_name, iam_client):
     key_data = await iam_client.get_public_key(key_name)
-    cert = x509.load_pem_x509_certificate(decode(key_data['publicKeyData']),
-                                          backend=default_backend())
+    cert = x509.load_pem_x509_certificate(
+        decode(key_data['publicKeyData']),
+        backend=default_backend(),
+    )
     pubkey = cert.public_key()
 
     # raises on failure
-    pubkey.verify(decode(signature), data.encode(), padding.PKCS1v15(),
-                  hashes.SHA256())
+    pubkey.verify(
+        decode(signature), data.encode(), padding.PKCS1v15(),
+        hashes.SHA256(),
+    )
 
 
 @pytest.mark.asyncio
@@ -94,21 +98,29 @@ async def test_get_service_account_public_key(creds: str) -> None:
     async with Session(timeout=10) as s:
         iam_client = IamClient(service_file=creds, session=s)
         resp = await iam_client.list_public_keys(session=s)
-        pub_key_data = await iam_client.get_public_key(key=resp[0]['name'],
-                                                       session=s)
+        pub_key_data = await iam_client.get_public_key(
+            key=resp[0]['name'],
+            session=s,
+        )
 
         assert pub_key_data['name'] == resp[0]['name']
         assert 'publicKeyData' in pub_key_data
 
         key_id = resp[0]['name'].split('/')[-1]
-        pub_key_by_key_id_data = await iam_client.get_public_key(key_id=key_id,
-                                                                 session=s)
+        pub_key_by_key_id_data = await iam_client.get_public_key(
+            key_id=key_id,
+            session=s,
+        )
 
         # Sometimes, one or both keys will be created with "no" expiry.
         pub_key_time = pub_key_data.pop('validBeforeTime')
         pub_key_by_key_id_time = pub_key_by_key_id_data.pop('validBeforeTime')
-        assert (pub_key_time == pub_key_by_key_id_time
-                or '9999-12-31T23:59:59Z' in {pub_key_time,
-                                              pub_key_by_key_id_time})
+        assert (
+            pub_key_time == pub_key_by_key_id_time
+            or '9999-12-31T23:59:59Z' in {
+                pub_key_time,
+                pub_key_by_key_id_time,
+            }
+        )
 
         assert pub_key_data == pub_key_by_key_id_data

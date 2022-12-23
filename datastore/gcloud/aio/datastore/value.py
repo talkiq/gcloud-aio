@@ -22,7 +22,8 @@ class Value:  # pylint:disable=useless-object-inheritance
 
         return bool(
             self.excludeFromIndexes == other.excludeFromIndexes
-            and self.value == other.value)
+            and self.value == other.value,
+        )
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -39,8 +40,10 @@ class Value:  # pylint:disable=useless-object-inheritance
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
                     date_string = data[json_key].rstrip('Z')[:26]
-                    date_fmt = ('%Y-%m-%dT%H:%M:%S.%f'
-                                if '.' in date_string else '%Y-%m-%dT%H:%M:%S')
+                    date_fmt = (
+                        '%Y-%m-%dT%H:%M:%S.%f'
+                        if '.' in date_string else '%Y-%m-%dT%H:%M:%S'
+                    )
                     value = datetime.strptime(date_string, date_fmt)
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
@@ -51,7 +54,8 @@ class Value:  # pylint:disable=useless-object-inheritance
             supported = [name.value for name in supported_types.values()]
             raise NotImplementedError(
                 f'{data.keys()} does not contain a supported value type '
-                f'(any of: {supported})')
+                f'(any of: {supported})',
+            )
 
         # Google may not populate that field. This can happen with both
         # indexed and non-indexed fields.
@@ -61,8 +65,10 @@ class Value:  # pylint:disable=useless-object-inheritance
 
     def to_repr(self) -> Dict[str, Any]:
         value_type = self._infer_type(self.value)
-        if value_type in {TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
-                          TypeName.KEY}:
+        if value_type in {
+            TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
+            TypeName.KEY,
+        }:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
             value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
@@ -85,7 +91,8 @@ class Value:  # pylint:disable=useless-object-inheritance
         except KeyError:
             raise NotImplementedError(  # pylint: disable=raise-missing-from
                 f'{kind} is not a supported value type (any of: '
-                f'{supported_types})')
+                f'{supported_types})',
+            )
 
     @classmethod
     def _get_supported_types(cls) -> Dict[Any, TypeName]:

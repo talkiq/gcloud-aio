@@ -13,9 +13,9 @@ class TestPropertyOrder:
         original_order = property_order
         data = {
             'property': {
-                'name': original_order.prop
+                'name': original_order.prop,
             },
-            'direction': original_order.direction
+            'direction': original_order.direction,
         }
 
         output_order = PropertyOrder.from_repr(data)

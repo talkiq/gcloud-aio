@@ -75,13 +75,16 @@ class BigqueryBase:
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
-            session=self.session.session)  # type: ignore[arg-type]
+            session=self.session.session,  # type: ignore[arg-type]
+        )
 
         self._project = project
         if self._api_is_dev and not project:
-            self._project = (os.environ.get('BIGQUERY_PROJECT_ID')
-                             or os.environ.get('GOOGLE_CLOUD_PROJECT')
-                             or 'dev')
+            self._project = (
+                os.environ.get('BIGQUERY_PROJECT_ID')
+                or os.environ.get('GOOGLE_CLOUD_PROJECT')
+                or 'dev'
+            )
 
     async def project(self) -> str:
         if self._project:
@@ -104,7 +107,8 @@ class BigqueryBase:
 
     async def _post_json(
             self, url: str, body: Dict[str, Any], session: Optional[Session],
-            timeout: int) -> Dict[str, Any]:
+            timeout: int,
+    ) -> Dict[str, Any]:
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -115,20 +119,25 @@ class BigqueryBase:
 
         s = AioSession(session) if session else self.session
         # TODO: the type issue will be fixed in auth-4.0.2
-        resp = await s.post(url, data=payload,  # type: ignore[arg-type]
-                            headers=headers, timeout=timeout)
+        resp = await s.post(
+            url, data=payload,  # type: ignore[arg-type]
+            headers=headers, timeout=timeout,
+        )
         data: Dict[str, Any] = await resp.json()
         return data
 
     async def _get_url(
             self, url: str, session: Optional[Session],
             timeout: int,
-            params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, timeout=timeout,
-                           params=params or {})
+        resp = await s.get(
+            url, headers=headers, timeout=timeout,
+            params=params or {},
+        )
         data: Dict[str, Any] = await resp.json()
         return data
 

@@ -14,7 +14,8 @@ class LatLng:
 
         return bool(
             self.lat == other.lat
-            and self.lon == other.lon)
+            and self.lon == other.lon,
+        )
 
     def __repr__(self) -> str:
         return str(self.to_repr())

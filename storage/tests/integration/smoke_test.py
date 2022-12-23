@@ -15,13 +15,21 @@ else:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('uploaded_data,expected_data,file_extension', [
-    ('test', b'test', 'txt'),
-    (b'test', b'test', 'bin'),
-    (json.dumps({'data': 1}), json.dumps({'data': 1}).encode('utf-8'), 'json'),
-])
-async def test_object_life_cycle(bucket_name, creds, uploaded_data,
-                                 expected_data, file_extension):
+@pytest.mark.parametrize(
+    'uploaded_data,expected_data,file_extension', [
+        ('test', b'test', 'txt'),
+        (b'test', b'test', 'bin'),
+        (
+            json.dumps({'data': 1}), json.dumps(
+                {'data': 1},
+            ).encode('utf-8'), 'json',
+        ),
+    ],
+)
+async def test_object_life_cycle(
+    bucket_name, creds, uploaded_data,
+    expected_data, file_extension,
+):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
     copied_object_name = f'copyof_{object_name}'
 
@@ -37,8 +45,10 @@ async def test_object_life_cycle(bucket_name, creds, uploaded_data,
         direct_result = await storage.download(bucket_name, object_name)
         assert direct_result == expected_data
 
-        await storage.copy(bucket_name, object_name, bucket_name,
-                           new_name=copied_object_name)
+        await storage.copy(
+            bucket_name, object_name, bucket_name,
+            new_name=copied_object_name,
+        )
 
         direct_result = await storage.download(bucket_name, copied_object_name)
         assert direct_result == expected_data

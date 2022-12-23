@@ -26,29 +26,37 @@ class Dataset(BigqueryBase):
             api_root: Optional[str] = None,
     ) -> None:
         self.dataset_name = dataset_name
-        super().__init__(project=project, service_file=service_file,
-                         session=session, token=token, api_root=api_root)
+        super().__init__(
+            project=project, service_file=service_file,
+            session=session, token=token, api_root=api_root,
+        )
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/list
     async def list_tables(
             self, session: Optional[Session] = None,
             timeout: int = 60,
-            params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """List tables in a dataset."""
         project = await self.project()
         if not self.dataset_name:
-            raise ValueError('could not determine dataset,'
-                             ' please set it manually')
+            raise ValueError(
+                'could not determine dataset,'
+                ' please set it manually',
+            )
 
-        url = (f'{self._api_root}/projects/{project}/datasets/'
-               f'{self.dataset_name}/tables')
+        url = (
+            f'{self._api_root}/projects/{project}/datasets/'
+            f'{self.dataset_name}/tables'
+        )
         return await self._get_url(url, session, timeout, params=params)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/list
     async def list_datasets(
             self, session: Optional[Session] = None,
             timeout: int = 60,
-            params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+            params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """List datasets in current project."""
         project = await self.project()
 
@@ -56,23 +64,31 @@ class Dataset(BigqueryBase):
         return await self._get_url(url, session, timeout, params=params)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/get
-    async def get(self, session: Optional[Session] = None,
-                  timeout: int = 60,
-                  params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def get(
+        self, session: Optional[Session] = None,
+        timeout: int = 60,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """Get a specific dataset in current project."""
         project = await self.project()
         if not self.dataset_name:
-            raise ValueError('could not determine dataset,'
-                             ' please set it manually')
+            raise ValueError(
+                'could not determine dataset,'
+                ' please set it manually',
+            )
 
-        url = (f'{self._api_root}/projects/{project}/datasets/'
-               f'{self.dataset_name}')
+        url = (
+            f'{self._api_root}/projects/{project}/datasets/'
+            f'{self.dataset_name}'
+        )
         return await self._get_url(url, session, timeout, params=params)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/insert
-    async def insert(self, dataset: Dict[str, Any],
-                     session: Optional[Session] = None,
-                     timeout: int = 60) -> Dict[str, Any]:
+    async def insert(
+        self, dataset: Dict[str, Any],
+        session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
         """Create datasets in current project."""
         project = await self.project()
 

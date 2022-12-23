@@ -16,16 +16,17 @@ class TestGQLQuery:
             'namedBindings': {
                 'string_param': {
                     'value': {
-                        'stringValue': 'foo'
-                    }
+                        'stringValue': 'foo',
+                    },
                 },
                 'cursor_param': {
-                    'cursor': 'startCursor'
-                }
+                    'cursor': 'startCursor',
+                },
             },
             'positionalBindings': [
                 {'value': {'integerValue': '123'}},
-                {'cursor': 'endCursor'}],
+                {'cursor': 'endCursor'},
+            ],
         }
 
         output_query = GQLQuery.from_repr(data)
@@ -40,16 +41,17 @@ class TestGQLQuery:
                 'string_param': {
                     'value': {
                         'excludeFromIndexes': False,
-                        'stringValue': 'foo'
-                    }
+                        'stringValue': 'foo',
+                    },
                 },
                 'cursor_param': {
-                    'cursor': 'startCursor'
-                }
+                    'cursor': 'startCursor',
+                },
             },
             'positionalBindings': [
                 {'value': {'excludeFromIndexes': False, 'integerValue': 123}},
-                {'cursor': 'endCursor'}],
+                {'cursor': 'endCursor'},
+            ],
         }
 
         output_data = query.to_repr()
@@ -69,16 +71,18 @@ class TestGQLQuery:
     @staticmethod
     @pytest.fixture(scope='session')
     def query(named_bindings, positional_bindings) -> GQLQuery:
-        return GQLQuery('query_string',
-                        named_bindings=named_bindings,
-                        positional_bindings=positional_bindings)
+        return GQLQuery(
+            'query_string',
+            named_bindings=named_bindings,
+            positional_bindings=positional_bindings,
+        )
 
     @staticmethod
     @pytest.fixture(scope='session')
     def named_bindings() -> Dict[str, Any]:
         return {
             'string_param': 'foo',
-            'cursor_param': GQLCursor('startCursor')
+            'cursor_param': GQLCursor('startCursor'),
         }
 
     @staticmethod

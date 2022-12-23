@@ -14,7 +14,7 @@ class TestQuery:
         original_query = query
         data = {
             'kind': original_query.kind,
-            'filter': original_query.query_filter.to_repr()
+            'filter': original_query.query_filter.to_repr(),
         }
 
         output_query = Query.from_repr(data)
@@ -26,7 +26,7 @@ class TestQuery:
         original_query = Query(kind='', query_filter=query_filter)
         data = {
             'kind': [],
-            'filter': original_query.query_filter.to_repr()
+            'filter': original_query.query_filter.to_repr(),
         }
 
         output_query = Query.from_repr(data)
@@ -37,7 +37,7 @@ class TestQuery:
     def test_from_repr_query_with_several_orders():
         orders = [
             PropertyOrder('property1', direction=Direction.ASCENDING),
-            PropertyOrder('property2', direction=Direction.DESCENDING)
+            PropertyOrder('property2', direction=Direction.DESCENDING),
         ]
         original_query = Query(order=orders)
 
@@ -46,17 +46,17 @@ class TestQuery:
             'order': [
                 {
                     'property': {
-                        'name': orders[0].prop
+                        'name': orders[0].prop,
                     },
-                    'direction': orders[0].direction
+                    'direction': orders[0].direction,
                 },
                 {
                     'property': {
-                        'name': orders[1].prop
+                        'name': orders[1].prop,
                     },
-                    'direction': orders[1].direction
-                }
-            ]
+                    'direction': orders[1].direction,
+                },
+            ],
         }
 
         output_query = Query.from_repr(data)
@@ -94,7 +94,7 @@ class TestQuery:
     def test_to_repr_query_with_several_orders():
         orders = [
             PropertyOrder('property1', direction=Direction.ASCENDING),
-            PropertyOrder('property2', direction=Direction.DESCENDING)
+            PropertyOrder('property2', direction=Direction.DESCENDING),
         ]
         query = Query(order=orders)
 
@@ -124,5 +124,6 @@ class TestQuery:
         inner_filter = PropertyFilter(
             prop='property_name',
             operator=PropertyFilterOperator.EQUAL,
-            value=Value(123))
+            value=Value(123),
+        )
         return Filter(inner_filter)
