@@ -4,6 +4,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from typing import Any
+from typing import AnyStr
 from typing import IO
 from typing import Mapping
 from typing import Optional
@@ -42,7 +43,7 @@ class BaseSession:
     @abstractmethod
     async def post(
         self, url: str, headers: Mapping[str, str],
-        data: Optional[Union[bytes, str]], timeout: float,
+        data: Optional[Union[bytes, str, IO[AnyStr]]], timeout: float,
         params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
@@ -58,15 +59,15 @@ class BaseSession:
     @abstractmethod
     async def patch(
         self, url: str, headers: Mapping[str, str],
-        data: Optional[str], timeout: float,
+        data: Optional[Union[bytes, str]], timeout: float,
         params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
 
     @abstractmethod
     async def put(
-        self, url: str, headers: Mapping[str, str], data: IO[Any],
-        timeout: float,
+        self, url: str, headers: Mapping[str, str],
+        data: Union[bytes, str, IO[Any]], timeout: float,
     ) -> Response:
         pass
 
@@ -150,7 +151,7 @@ if not BUILD_GCLOUD_REST:
         async def post(  # type: ignore[override]
             self, url: str,
             headers: Mapping[str, str],
-            data: Optional[Union[bytes, str]] = None,
+            data: Optional[Union[bytes, str, IO[AnyStr]]] = None,
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
@@ -182,8 +183,8 @@ if not BUILD_GCLOUD_REST:
             return resp
 
         async def patch(  # type: ignore[override]
-            self, url: str,
-            headers: Mapping[str, str], data: Optional[str] = None,
+            self, url: str, headers: Mapping[str, str],
+            data: Optional[Union[bytes, str]] = None,
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
@@ -196,7 +197,7 @@ if not BUILD_GCLOUD_REST:
 
         async def put(  # type: ignore[override]
             self, url: str,
-            headers: Mapping[str, str], data: IO[Any],
+            headers: Mapping[str, str], data: Union[bytes, str, IO[Any]],
             timeout: Timeout = 10,
         ) -> aiohttp.ClientResponse:
             resp = await self.session.put(
@@ -258,7 +259,7 @@ if BUILD_GCLOUD_REST:
         # analysis.
         async def post(
             self, url: str, headers: Mapping[str, str],
-            data: Optional[Union[bytes, str]] = None,
+            data: Optional[Union[bytes, str, IO[AnyStr]]] = None,
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
@@ -286,7 +287,7 @@ if BUILD_GCLOUD_REST:
 
         async def patch(
             self, url: str, headers: Mapping[str, str],
-            data: Optional[str] = None, timeout: float = 10,
+            data: Optional[Union[bytes, str]] = None, timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
             with self.google_api_lock:
@@ -298,8 +299,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(
-            self, url: str, headers: Mapping[str, str], data: IO[Any],
-            timeout: float = 10,
+            self, url: str, headers: Mapping[str, str],
+            data: Union[bytes, str, IO[Any]], timeout: float = 10,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.put(

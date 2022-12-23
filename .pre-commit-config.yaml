@@ -127,7 +127,7 @@ repos:
         name: mypy-bigquery
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - types-pkg_resources
         - types-requests
         files: bigquery/
@@ -135,7 +135,7 @@ repos:
         name: mypy-datastore
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - types-pkg_resources
         - types-requests
         files: datastore/
@@ -143,7 +143,7 @@ repos:
         name: mypy-kms
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - types-pkg_resources
         - types-requests
         files: kms/
@@ -151,7 +151,7 @@ repos:
         name: mypy-pubsub
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - prometheus-client
         - types-pkg_resources
         - types-requests
@@ -160,7 +160,7 @@ repos:
         name: mypy-storage
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - rsa
         - types-aiofiles
         - types-pkg_resources
@@ -170,7 +170,7 @@ repos:
         name: mypy-taskqueue
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>4.0.1
+        - gcloud-aio-auth==4.1.0
         - types-pkg_resources
         - types-requests
         files: taskqueue/
