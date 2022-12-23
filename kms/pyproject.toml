@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-kms"
-version = "4.0.0"
+version = "4.1.0"
 description = "Python Client for Google Cloud KMS"
 readme = "README.rst"
 
