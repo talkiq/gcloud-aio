@@ -4,8 +4,8 @@ from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from typing import Any
-from typing import Dict
 from typing import IO
+from typing import Mapping
 from typing import Optional
 from typing import Union
 
@@ -41,46 +41,46 @@ class BaseSession:
 
     @abstractmethod
     async def post(
-        self, url: str, headers: Dict[str, str],
+        self, url: str, headers: Mapping[str, str],
         data: Optional[Union[bytes, str]], timeout: float,
-        params: Optional[Dict[str, Union[int, str]]],
+        params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
 
     @abstractmethod
     async def get(
-        self, url: str, headers: Optional[Dict[str, str]],
-        timeout: float, params: Optional[Dict[str, Union[int, str]]],
+        self, url: str, headers: Optional[Mapping[str, str]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         stream: bool,
     ) -> Response:
         pass
 
     @abstractmethod
     async def patch(
-        self, url: str, headers: Dict[str, str],
+        self, url: str, headers: Mapping[str, str],
         data: Optional[str], timeout: float,
-        params: Optional[Dict[str, Union[int, str]]],
+        params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
 
     @abstractmethod
     async def put(
-        self, url: str, headers: Dict[str, str], data: IO[Any],
+        self, url: str, headers: Mapping[str, str], data: IO[Any],
         timeout: float,
     ) -> Response:
         pass
 
     @abstractmethod
     async def delete(
-        self, url: str, headers: Dict[str, str],
-        params: Optional[Dict[str, Union[int, str]]],
+        self, url: str, headers: Mapping[str, str],
+        params: Optional[Mapping[str, Union[int, str]]],
         timeout: float,
     ) -> Response:
         pass
 
     @abstractmethod
     async def request(
-        self, method: str, url: str, headers: Dict[str, str],
+        self, method: str, url: str, headers: Mapping[str, str],
         auto_raise_for_status: bool = True,
         **kwargs: Any
     ) -> Response:
@@ -149,10 +149,10 @@ if not BUILD_GCLOUD_REST:
 
         async def post(  # type: ignore[override]
             self, url: str,
-            headers: Dict[str, str],
+            headers: Mapping[str, str],
             data: Optional[Union[bytes, str]] = None,
             timeout: Timeout = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
             resp = await self.session.post(
                 url, data=data, headers=headers,
@@ -163,9 +163,9 @@ if not BUILD_GCLOUD_REST:
 
         async def get(  # type: ignore[override]
             self, url: str,
-            headers: Optional[Dict[str, str]] = None,
+            headers: Optional[Mapping[str, str]] = None,
             timeout: Timeout = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
         ) -> aiohttp.ClientResponse:
             if stream is not None:
@@ -183,9 +183,9 @@ if not BUILD_GCLOUD_REST:
 
         async def patch(  # type: ignore[override]
             self, url: str,
-            headers: Dict[str, str], data: Optional[str] = None,
+            headers: Mapping[str, str], data: Optional[str] = None,
             timeout: Timeout = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
             resp = await self.session.patch(
                 url, data=data, headers=headers,
@@ -196,7 +196,7 @@ if not BUILD_GCLOUD_REST:
 
         async def put(  # type: ignore[override]
             self, url: str,
-            headers: Dict[str, str], data: IO[Any],
+            headers: Mapping[str, str], data: IO[Any],
             timeout: Timeout = 10,
         ) -> aiohttp.ClientResponse:
             resp = await self.session.put(
@@ -208,8 +208,8 @@ if not BUILD_GCLOUD_REST:
 
         async def delete(  # type: ignore[override]
             self, url: str,
-            headers: Dict[str, str],
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            headers: Mapping[str, str],
+            params: Optional[Mapping[str, Union[int, str]]] = None,
             timeout: Timeout = 10,
         ) -> aiohttp.ClientResponse:
             resp = await self.session.delete(
@@ -221,7 +221,7 @@ if not BUILD_GCLOUD_REST:
 
         async def request(  # type: ignore[override]
             self, method: str,
-            url: str, headers: Dict[str, str],
+            url: str, headers: Mapping[str, str],
             auto_raise_for_status: bool = True,
             **kwargs: Any
         ) -> aiohttp.ClientResponse:
@@ -257,10 +257,10 @@ if BUILD_GCLOUD_REST:
         # symbol ensures we match the base class's definition for static
         # analysis.
         async def post(
-            self, url: str, headers: Dict[str, str],
+            self, url: str, headers: Mapping[str, str],
             data: Optional[Union[bytes, str]] = None,
             timeout: float = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.post(
@@ -271,9 +271,9 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def get(
-            self, url: str, headers: Optional[Dict[str, str]] = None,
+            self, url: str, headers: Optional[Mapping[str, str]] = None,
             timeout: float = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
         ) -> Response:
             with self.google_api_lock:
@@ -285,9 +285,9 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def patch(
-            self, url: str, headers: Dict[str, str],
+            self, url: str, headers: Mapping[str, str],
             data: Optional[str] = None, timeout: float = 10,
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.patch(
@@ -298,7 +298,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def put(
-            self, url: str, headers: Dict[str, str], data: IO[Any],
+            self, url: str, headers: Mapping[str, str], data: IO[Any],
             timeout: float = 10,
         ) -> Response:
             with self.google_api_lock:
@@ -310,8 +310,8 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def delete(
-            self, url: str, headers: Dict[str, str],
-            params: Optional[Dict[str, Union[int, str]]] = None,
+            self, url: str, headers: Mapping[str, str],
+            params: Optional[Mapping[str, Union[int, str]]] = None,
             timeout: float = 10,
         ) -> Response:
             with self.google_api_lock:
@@ -323,7 +323,7 @@ if BUILD_GCLOUD_REST:
             return resp
 
         async def request(
-            self, method: str, url: str, headers: Dict[str, str],
+            self, method: str, url: str, headers: Mapping[str, str],
             auto_raise_for_status: bool = True, **kwargs: Any
         ) -> Response:
             with self.google_api_lock:
