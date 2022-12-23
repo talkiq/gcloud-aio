@@ -72,11 +72,6 @@ repos:
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.9.0
-    hooks:
-    -   id: reorder-python-imports
-        args: [--py26-plus]
 -   repo: https://github.com/asottile/add-trailing-comma
     rev: v2.4.0
     hooks:
@@ -92,6 +87,11 @@ repos:
         - importlib-metadata<5  # TODO: nuke once we upgrade past py3.7
         args:
         - --ignore=A003,E501,W503,F401,F811
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.9.0
+    hooks:
+    -   id: reorder-python-imports
+        args: [--py26-plus]
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v2.0.1
     hooks:
