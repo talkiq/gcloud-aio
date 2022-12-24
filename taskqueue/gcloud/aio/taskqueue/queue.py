@@ -44,7 +44,7 @@ def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
 class PushQueue:
     _api_root: str
     _api_is_dev: bool
-    _api_root_queue: str
+    _queue_path: str
 
     def __init__(
             self, project: str, taskqueue: str, location: str = 'us-central1',
@@ -53,9 +53,8 @@ class PushQueue:
             api_root: Optional[str] = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
-        self._api_root_queue = (
-            f'{self._api_root}/projects/{project}/locations/{location}/'
-            f'queues/{taskqueue}'
+        self._queue_path = (
+            f'projects/{project}/locations/{location}/queues/{taskqueue}'
         )
 
         self.session = AioSession(session)
@@ -74,13 +73,16 @@ class PushQueue:
             'Content-Type': 'application/json',
         }
 
+    def task_name(self, task_id: str) -> str:
+        return f'{self._queue_path}/tasks/{task_id}'
+
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
     @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def create(
         self, task: Dict[str, Any],
         session: Optional[Session] = None,
     ) -> Any:
-        url = f'{self._api_root_queue}/tasks'
+        url = f'{self._api_root}/{self._queue_path}/tasks'
         payload = json.dumps({
             'task': task,
             'responseView': 'FULL',
@@ -130,7 +132,7 @@ class PushQueue:
         page_token: str = '',
         session: Optional[Session] = None,
     ) -> Any:
-        url = f'{self._api_root_queue}/tasks'
+        url = f'{self._api_root}/{self._queue_path}/tasks'
         params: Dict[str, Union[int, str]] = {
             'responseView': 'FULL' if full else 'BASIC',
             'pageSize': page_size,
