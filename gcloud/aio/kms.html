@@ -91,7 +91,7 @@
 <h2 id="installation">Installation</h2>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">$ </span>pip install --upgrade gcloud-aio-kms
+<pre><span></span><code><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>gcloud-aio-kms
 </code></pre>
 </div>
 
@@ -209,7 +209,7 @@ of your emulator should be enough to do the trick.</p>
     </div>
     <a class="headerlink" href="#decode"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="decode-6"><a href="#decode-6"><span class="linenos"> 6</span></a><span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-</span><span id="decode-7"><a href="#decode-7"><span class="linenos"> 7</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="decode-7"><a href="#decode-7"><span class="linenos"> 7</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="decode-8"><a href="#decode-8"><span class="linenos"> 8</span></a><span class="sd">    https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64</span>
 </span><span id="decode-9"><a href="#decode-9"><span class="linenos"> 9</span></a><span class="sd">    for URL variants exist, where the + and / characters of standard</span>
 </span><span id="decode-10"><a href="#decode-10"><span class="linenos">10</span></a><span class="sd">    Base64 are respectively replaced by - and _</span>
@@ -246,7 +246,7 @@ need to <code>.decode()</code> manually according to your expected encoding sche
     </div>
     <a class="headerlink" href="#encode"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="encode-20"><a href="#encode-20"><span class="linenos">20</span></a><span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="encode-21"><a href="#encode-21"><span class="linenos">21</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="encode-21"><a href="#encode-21"><span class="linenos">21</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="encode-22"><a href="#encode-22"><span class="linenos">22</span></a><span class="sd">    https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64</span>
 </span><span id="encode-23"><a href="#encode-23"><span class="linenos">23</span></a><span class="sd">    for URL variants exist, where the + and / characters of standard</span>
 </span><span id="encode-24"><a href="#encode-24"><span class="linenos">24</span></a><span class="sd">    Base64 are respectively replaced by - and _</span>

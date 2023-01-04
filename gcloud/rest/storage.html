@@ -169,7 +169,7 @@ APIs.</p>
 <h2 id="installation">Installation</h2>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="gp">$ </span>pip install --upgrade gcloud-rest-storage
+<pre><span></span><code><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>gcloud-rest-storage
 </code></pre>
 </div>
 
@@ -274,8 +274,8 @@ to the address of your emulator should be enough to do the trick.</p>
 <p>For example, using <a href="https://github.com/fsouza/fake-gcs-server">fsouza/fake-gcs-server</a>, you can do:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code>docker run -d -p <span class="m">4443</span>:4443 -v <span class="nv">$PWD</span>/my-sample-data:/data fsouza/fake-gcs-server
-<span class="nb">export</span> <span class="nv">STORAGE_EMULATOR_HOST</span><span class="o">=</span><span class="s1">&#39;0.0.0.0:4443&#39;</span>
+<pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">4443</span>:4443<span class="w"> </span>-v<span class="w"> </span><span class="nv">$PWD</span>/my-sample-data:/data<span class="w"> </span>fsouza/fake-gcs-server
+<span class="nb">export</span><span class="w"> </span><span class="nv">STORAGE_EMULATOR_HOST</span><span class="o">=</span><span class="s1">&#39;0.0.0.0:4443&#39;</span>
 </code></pre>
 </div>
 
@@ -546,7 +546,7 @@ you may find it useful to configure something like:</p>
 </span><span id="Blob-120"><a href="#Blob-120"><span class="linenos">120</span></a>            <span class="n">query_params</span>                           <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Blob-121"><a href="#Blob-121"><span class="linenos">121</span></a>            <span class="n">http_method</span>      <span class="o">=</span> <span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">token</span>                  <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Blob-122"><a href="#Blob-122"><span class="linenos">122</span></a>    <span class="p">)</span>       <span class="p">:</span>
-</span><span id="Blob-123"><a href="#Blob-123"><span class="linenos">123</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Blob-123"><a href="#Blob-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Blob-124"><a href="#Blob-124"><span class="linenos">124</span></a><span class="sd">        Create a temporary access URL for Storage Blob accessible by anyone</span>
 </span><span id="Blob-125"><a href="#Blob-125"><span class="linenos">125</span></a><span class="sd">        with the link.</span>
 </span><span id="Blob-126"><a href="#Blob-126"><span class="linenos">126</span></a>
@@ -758,7 +758,7 @@ you may find it useful to configure something like:</p>
 </span><span id="Blob.get_signed_url-120"><a href="#Blob.get_signed_url-120"><span class="linenos">120</span></a>            <span class="n">query_params</span>                           <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Blob.get_signed_url-121"><a href="#Blob.get_signed_url-121"><span class="linenos">121</span></a>            <span class="n">http_method</span>      <span class="o">=</span> <span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">token</span>                  <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Blob.get_signed_url-122"><a href="#Blob.get_signed_url-122"><span class="linenos">122</span></a>    <span class="p">)</span>       <span class="p">:</span>
-</span><span id="Blob.get_signed_url-123"><a href="#Blob.get_signed_url-123"><span class="linenos">123</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Blob.get_signed_url-123"><a href="#Blob.get_signed_url-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Blob.get_signed_url-124"><a href="#Blob.get_signed_url-124"><span class="linenos">124</span></a><span class="sd">        Create a temporary access URL for Storage Blob accessible by anyone</span>
 </span><span id="Blob.get_signed_url-125"><a href="#Blob.get_signed_url-125"><span class="linenos">125</span></a><span class="sd">        with the link.</span>
 </span><span id="Blob.get_signed_url-126"><a href="#Blob.get_signed_url-126"><span class="linenos">126</span></a>
@@ -1204,7 +1204,7 @@ with the link.</p>
 </span><span id="Storage-218"><a href="#Storage-218"><span class="linenos">218</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">metadata</span> <span class="o">=</span>  <span class="kc">None</span>
 </span><span id="Storage-219"><a href="#Storage-219"><span class="linenos">219</span></a>        <span class="k">if</span> <span class="s1">&#39;new_name&#39;</span> <span class="ow">in</span> <span class="n">_3to2kwargs</span><span class="p">:</span> <span class="n">new_name</span> <span class="o">=</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;new_name&#39;</span><span class="p">];</span> <span class="k">del</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;new_name&#39;</span><span class="p">]</span>
 </span><span id="Storage-220"><a href="#Storage-220"><span class="linenos">220</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">new_name</span> <span class="o">=</span>  <span class="kc">None</span>
-</span><span id="Storage-221"><a href="#Storage-221"><span class="linenos">221</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Storage-221"><a href="#Storage-221"><span class="linenos">221</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Storage-222"><a href="#Storage-222"><span class="linenos">222</span></a><span class="sd">        When files are too large, multiple calls to `rewriteTo` are made. We</span>
 </span><span id="Storage-223"><a href="#Storage-223"><span class="linenos">223</span></a><span class="sd">        refer to the same copy job by using the `rewriteToken` from the</span>
 </span><span id="Storage-224"><a href="#Storage-224"><span class="linenos">224</span></a><span class="sd">        previous return payload in subsequent `rewriteTo` calls.</span>
@@ -1355,7 +1355,7 @@ with the link.</p>
 </span><span id="Storage-369"><a href="#Storage-369"><span class="linenos">369</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">timeout</span> <span class="o">=</span>  <span class="n">DEFAULT_TIMEOUT</span>
 </span><span id="Storage-370"><a href="#Storage-370"><span class="linenos">370</span></a>        <span class="k">if</span> <span class="s1">&#39;headers&#39;</span> <span class="ow">in</span> <span class="n">_3to2kwargs</span><span class="p">:</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">];</span> <span class="k">del</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]</span>
 </span><span id="Storage-371"><a href="#Storage-371"><span class="linenos">371</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">headers</span> <span class="o">=</span>  <span class="kc">None</span>
-</span><span id="Storage-372"><a href="#Storage-372"><span class="linenos">372</span></a>        <span class="sd">&quot;&quot;&quot;Download a GCS object in a buffered stream.</span>
+</span><span id="Storage-372"><a href="#Storage-372"><span class="linenos">372</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Download a GCS object in a buffered stream.</span>
 </span><span id="Storage-373"><a href="#Storage-373"><span class="linenos">373</span></a>
 </span><span id="Storage-374"><a href="#Storage-374"><span class="linenos">374</span></a><span class="sd">        Args:</span>
 </span><span id="Storage-375"><a href="#Storage-375"><span class="linenos">375</span></a><span class="sd">            bucket (str): The bucket from which to download.</span>
@@ -1538,7 +1538,7 @@ with the link.</p>
 </span><span id="Storage-552"><a href="#Storage-552"><span class="linenos">552</span></a>
 </span><span id="Storage-553"><a href="#Storage-553"><span class="linenos">553</span></a>    <span class="nd">@staticmethod</span>
 </span><span id="Storage-554"><a href="#Storage-554"><span class="linenos">554</span></a>    <span class="k">def</span> <span class="nf">_format_metadata_key</span><span class="p">(</span><span class="n">key</span>     <span class="p">)</span>       <span class="p">:</span>
-</span><span id="Storage-555"><a href="#Storage-555"><span class="linenos">555</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Storage-555"><a href="#Storage-555"><span class="linenos">555</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Storage-556"><a href="#Storage-556"><span class="linenos">556</span></a><span class="sd">        Formats the fixed-key metadata keys as wanted by the multipart API.</span>
 </span><span id="Storage-557"><a href="#Storage-557"><span class="linenos">557</span></a>
 </span><span id="Storage-558"><a href="#Storage-558"><span class="linenos">558</span></a><span class="sd">        Ex: Content-Disposition --&gt; contentDisposition</span>
@@ -1942,7 +1942,7 @@ with the link.</p>
 </span><span id="Storage.copy-218"><a href="#Storage.copy-218"><span class="linenos">218</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">metadata</span> <span class="o">=</span>  <span class="kc">None</span>
 </span><span id="Storage.copy-219"><a href="#Storage.copy-219"><span class="linenos">219</span></a>        <span class="k">if</span> <span class="s1">&#39;new_name&#39;</span> <span class="ow">in</span> <span class="n">_3to2kwargs</span><span class="p">:</span> <span class="n">new_name</span> <span class="o">=</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;new_name&#39;</span><span class="p">];</span> <span class="k">del</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;new_name&#39;</span><span class="p">]</span>
 </span><span id="Storage.copy-220"><a href="#Storage.copy-220"><span class="linenos">220</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">new_name</span> <span class="o">=</span>  <span class="kc">None</span>
-</span><span id="Storage.copy-221"><a href="#Storage.copy-221"><span class="linenos">221</span></a>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Storage.copy-221"><a href="#Storage.copy-221"><span class="linenos">221</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Storage.copy-222"><a href="#Storage.copy-222"><span class="linenos">222</span></a><span class="sd">        When files are too large, multiple calls to `rewriteTo` are made. We</span>
 </span><span id="Storage.copy-223"><a href="#Storage.copy-223"><span class="linenos">223</span></a><span class="sd">        refer to the same copy job by using the `rewriteToken` from the</span>
 </span><span id="Storage.copy-224"><a href="#Storage.copy-224"><span class="linenos">224</span></a><span class="sd">        previous return payload in subsequent `rewriteTo` calls.</span>
@@ -2173,7 +2173,7 @@ with the link.</p>
 </span><span id="Storage.download_stream-369"><a href="#Storage.download_stream-369"><span class="linenos">369</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">timeout</span> <span class="o">=</span>  <span class="n">DEFAULT_TIMEOUT</span>
 </span><span id="Storage.download_stream-370"><a href="#Storage.download_stream-370"><span class="linenos">370</span></a>        <span class="k">if</span> <span class="s1">&#39;headers&#39;</span> <span class="ow">in</span> <span class="n">_3to2kwargs</span><span class="p">:</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">];</span> <span class="k">del</span> <span class="n">_3to2kwargs</span><span class="p">[</span><span class="s1">&#39;headers&#39;</span><span class="p">]</span>
 </span><span id="Storage.download_stream-371"><a href="#Storage.download_stream-371"><span class="linenos">371</span></a>        <span class="k">else</span><span class="p">:</span> <span class="n">headers</span> <span class="o">=</span>  <span class="kc">None</span>
-</span><span id="Storage.download_stream-372"><a href="#Storage.download_stream-372"><span class="linenos">372</span></a>        <span class="sd">&quot;&quot;&quot;Download a GCS object in a buffered stream.</span>
+</span><span id="Storage.download_stream-372"><a href="#Storage.download_stream-372"><span class="linenos">372</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Download a GCS object in a buffered stream.</span>
 </span><span id="Storage.download_stream-373"><a href="#Storage.download_stream-373"><span class="linenos">373</span></a>
 </span><span id="Storage.download_stream-374"><a href="#Storage.download_stream-374"><span class="linenos">374</span></a><span class="sd">        Args:</span>
 </span><span id="Storage.download_stream-375"><a href="#Storage.download_stream-375"><span class="linenos">375</span></a><span class="sd">            bucket (str): The bucket from which to download.</span>
@@ -2467,7 +2467,7 @@ with the link.</p>
     </div>
     <a class="headerlink" href="#StreamResponse"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="StreamResponse-132"><a href="#StreamResponse-132"><span class="linenos">132</span></a><span class="k">class</span> <span class="nc">StreamResponse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span id="StreamResponse-133"><a href="#StreamResponse-133"><span class="linenos">133</span></a>    <span class="sd">&quot;&quot;&quot;This class provides an abstraction between the slightly different</span>
+</span><span id="StreamResponse-133"><a href="#StreamResponse-133"><span class="linenos">133</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;This class provides an abstraction between the slightly different</span>
 </span><span id="StreamResponse-134"><a href="#StreamResponse-134"><span class="linenos">134</span></a><span class="sd">    recommended streaming implementations between requests and aiohttp.</span>
 </span><span id="StreamResponse-135"><a href="#StreamResponse-135"><span class="linenos">135</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="StreamResponse-136"><a href="#StreamResponse-136"><span class="linenos">136</span></a>
