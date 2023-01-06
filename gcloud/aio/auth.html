@@ -272,7 +272,7 @@ authentication.</li>
 </span><span id="AioSession-136"><a href="#AioSession-136"><span class="linenos">136</span></a>        <span class="nd">@property</span>
 </span><span id="AioSession-137"><a href="#AioSession-137"><span class="linenos">137</span></a>        <span class="k">def</span> <span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
 </span><span id="AioSession-138"><a href="#AioSession-138"><span class="linenos">138</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">:</span>
-</span><span id="AioSession-139"><a href="#AioSession-139"><span class="linenos">139</span></a>                <span class="n">connector</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">verify_ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssl</span><span class="p">)</span>
+</span><span id="AioSession-139"><a href="#AioSession-139"><span class="linenos">139</span></a>                <span class="n">connector</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">ssl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssl</span><span class="p">)</span>
 </span><span id="AioSession-140"><a href="#AioSession-140"><span class="linenos">140</span></a>
 </span><span id="AioSession-141"><a href="#AioSession-141"><span class="linenos">141</span></a>                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">,</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientTimeout</span><span class="p">):</span>
 </span><span id="AioSession-142"><a href="#AioSession-142"><span class="linenos">142</span></a>                    <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span>
@@ -1342,7 +1342,7 @@ authentication.</li>
                 </section>
                 <section id="__version__">
                     <div class="attr variable">
-            <span class="name">__version__</span><span class="default_value"> = &#39;4.1.2&#39;</span>
+            <span class="name">__version__</span><span class="default_value"> = &#39;4.1.3&#39;</span>
 
         
     </div>
