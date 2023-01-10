@@ -115,10 +115,16 @@ jobs:
       - attach_workspace:
           at: /rest
       - run:
+          command: |
+            suffix=$(if [ <<parameters.basedir>> = "/rest" ]; then echo "REST"; else echo "AIO"; fi)
+            token=$(printenv | grep -i PYPI_TOKEN_GCLOUD_$(echo $suffix)_<<parameters.cwd>> | awk -F= '{ print $2 }')
+            echo 'export POETRY_PYPI_TOKEN_PYPI=${token}' >> "$BASH_ENV"
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
+      - run:
           command: poetry build
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
       - run:
-          command: poetry publish -u $TWINE_USERNAME -p $TWINE_PASSWORD
+          command: poetry publish
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
