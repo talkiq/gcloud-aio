@@ -9,7 +9,7 @@ authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
 python = ">= 3.7, < 4.0"
 
 [tool.poetry.dev-dependencies]
-future = "0.18.2"
+future = "0.18.3"
 future-fstrings = { version = "1.2.0", extras = ["rewrite"] }
 strip-hints = "0.1.10"
 
