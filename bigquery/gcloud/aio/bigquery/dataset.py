@@ -94,3 +94,16 @@ class Dataset(BigqueryBase):
 
         url = f'{self._api_root}/projects/{project}/datasets'
         return await self._post_json(url, dataset, session, timeout)
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/delete
+    async def delete(
+        self, dataset_name: Optional[str] = None,
+        session: Optional[Session] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
+        """Delete datasets in current project."""
+        project = await self.project()
+        dataset_name = dataset_name or self.dataset_name
+
+        url = f'{self._api_root}/projects/{project}/datasets/{dataset_name}'
+        return await self._delete(url, session, timeout)

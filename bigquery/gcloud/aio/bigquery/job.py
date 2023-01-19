@@ -162,3 +162,16 @@ class Job(BigqueryBase):
             return data
 
         raise OSError('Job results are still pending')
+
+    # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/delete
+    async def delete(
+        self, session: Optional[Session] = None,
+        job_id: Optional[str] = None,
+        timeout: int = 60,
+    ) -> Dict[str, Any]:
+        """Delete the specified job by job ID."""
+        project = await self.project()
+        job_id = job_id or self.job_id
+        url = f'{self._api_root}/projects/{project}/jobs/{job_id}/delete'
+
+        return await self._delete(url, session, timeout)

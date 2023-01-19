@@ -118,25 +118,30 @@ class BigqueryBase:
         })
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
-        )
+        resp = await s.post(url, data=payload, headers=headers,
+                            timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
     async def _get_url(
-            self, url: str, session: Optional[Session],
-            timeout: int,
+            self, url: str, session: Optional[Session], timeout: int,
             params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(
-            url, headers=headers, timeout=timeout,
-            params=params or {},
-        )
+        resp = await s.get(url, headers=headers, timeout=timeout,
+                           params=params or {})
+        data: Dict[str, Any] = await resp.json()
+        return data
+
+    async def _delete(
+        self, url: str, session: Optional[Session], timeout: int,
+    ) -> Dict[str, Any]:
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(url, headers=headers, timeout=timeout)
         data: Dict[str, Any] = await resp.json()
         return data
 
