@@ -140,6 +140,20 @@ class BigqueryBase:
         data: Dict[str, Any] = await resp.json()
         return data
 
+    async def _delete(
+        self, url: str, session: Optional[Session],
+        timeout: int,
+    ) -> Dict[str, Any]:
+        headers = await self.headers()
+
+        s = AioSession(session) if session else self.session
+        resp = await s.delete(
+            url, headers=headers,
+            timeout=timeout,
+        )
+        data: Dict[str, Any] = await resp.json()
+        return data
+
     async def close(self) -> None:
         await self.session.close()
 
