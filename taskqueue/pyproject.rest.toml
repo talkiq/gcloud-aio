@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-taskqueue"
-version = "5.2.0"
+version = "6.0.0"
 description = "Python Client for Google Cloud Task Queue"
 readme = "README.rst"
 
@@ -21,7 +21,6 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^2.7 || >= 3.7, < 4.0"
-backoff = ">= 1.0.0, < 3.0.0"
 gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
 
 [tool.poetry.dev-dependencies]
