@@ -12,7 +12,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-import backoff
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -77,10 +76,10 @@ class PushQueue:
         return f'{self._queue_path}/tasks/{task_id}'
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def create(
         self, task: Dict[str, Any],
         session: Optional[Session] = None,
+        timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{self._queue_path}/tasks'
         payload = json.dumps({
@@ -91,28 +90,28 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        resp = await s.post(url, headers=headers, data=payload, timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def delete(
         self, tname: str,
         session: Optional[Session] = None,
+        timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}'
 
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers)
+        resp = await s.delete(url, headers=headers, timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def get(
         self, tname: str, full: bool = False,
         session: Optional[Session] = None,
+        timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}'
         params = {
@@ -122,15 +121,15 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params)
+        resp = await s.get(url, headers=headers, params=params, timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def list(
         self, full: bool = False, page_size: int = 1000,
         page_token: str = '',
         session: Optional[Session] = None,
+        timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{self._queue_path}/tasks'
         params: Dict[str, Union[int, str]] = {
@@ -142,14 +141,14 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params)
+        resp = await s.get(url, headers=headers, params=params, timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
     async def run(
         self, tname: str, full: bool = False,
         session: Optional[Session] = None,
+        timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}:run'
         payload = json.dumps({
@@ -159,7 +158,7 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload)
+        resp = await s.post(url, headers=headers, data=payload, timeout=timeout)
         return await resp.json()
 
     async def close(self) -> None:
