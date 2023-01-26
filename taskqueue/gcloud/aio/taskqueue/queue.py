@@ -90,7 +90,8 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload, timeout=timeout)
+        resp = await s.post(url, headers=headers, data=payload,
+                            timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
@@ -121,7 +122,8 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params, timeout=timeout)
+        resp = await s.get(url, headers=headers, params=params,
+                           timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
@@ -141,7 +143,8 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.get(url, headers=headers, params=params, timeout=timeout)
+        resp = await s.get(url, headers=headers, params=params,
+                           timeout=timeout)
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
@@ -158,7 +161,8 @@ class PushQueue:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, data=payload, timeout=timeout)
+        resp = await s.post(url, headers=headers, data=payload,
+                            timeout=timeout)
         return await resp.json()
 
     async def close(self) -> None:
