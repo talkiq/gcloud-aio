@@ -34,7 +34,8 @@ class FakeHttpServerHandler(BaseHTTPRequestHandler):
         self.wfile.write(json_payload)
 
     def _send_headers(self):
-        url = 'http://{}:{}'.format(*self.server.server_address)
+        ip, port = self.server.server_address
+        url = f'http://{ip}:{port}'
 
         self.send_header('Content-Type', 'text/json')
         self.send_header('Location', url)
@@ -59,7 +60,8 @@ class FakeHttpServerHandler(BaseHTTPRequestHandler):
 @pytest.fixture(scope='function')
 def fake_server():
     server = StoppableHTTPServer(('localhost', 0), FakeHttpServerHandler)
-    server_url = 'http://{}:{}/'.format(*server.server_address)
+    ip, port = server.server_address
+    server_url = f'http://{ip}:{port}/'
 
     thread = threading.Thread(target=server.run)
     thread.start()

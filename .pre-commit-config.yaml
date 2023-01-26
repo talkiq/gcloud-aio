@@ -40,14 +40,10 @@ repos:
     hooks:
     -   id: yesqa
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.3.1
+    rev: v1.4.1
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/add-trailing-comma
-    rev: v2.4.0
-    hooks:
-    -   id: add-trailing-comma
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:
@@ -55,9 +51,12 @@ repos:
         additional_dependencies:
         - flake8-2020==1.7.0
         - flake8-broken-line==0.6.0
+        - flake8-builtins==1.5.3
+        # - flake8-commas==2.1.0  # TODO: can we enable this before dropping py2.7?
         - flake8-comprehensions==3.10.1
         - importlib-metadata<5  # TODO: nuke once we upgrade past py3.7
         args:
+        # TODO: un-ignore A003
         - --ignore=A003,E501,W503,F401,F811
 -   repo: https://github.com/asottile/reorder_python_imports
     rev: v3.9.0
@@ -68,8 +67,9 @@ repos:
     rev: v2.0.1
     hooks:
     -   id: autopep8
+        args: [-a, -i, -p2]
 -   repo: https://github.com/PyCQA/pylint
-    rev: v2.15.9
+    rev: v2.16.0b1
     hooks:
     -   id: pylint
         additional_dependencies:
@@ -82,7 +82,9 @@ repos:
         - --max-args=10
         - --score=n
         - -d broad-except
-        - -d deprecated-decorator
+        - -d broad-exception-raised  # TODO: fixme
+        - -d deprecated-class  # TODO: nuke once py2.7 is dropped
+        - -d deprecated-decorator  # TODO: nuke once py2.7 is dropped
         - -d duplicate-code
         - -d fixme
         - -d import-error
@@ -91,18 +93,16 @@ repos:
         - -d locally-disabled
         - -d missing-docstring
         - -d too-few-public-methods
-        - -d too-many-arguments
+        - -d too-many-arguments  # we generally match args to the Google APIs
         - -d try-except-raise
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
-        - -d consider-using-f-string  # we support py27, etc
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991
     hooks:
     -   &mypy
         id: mypy
         name: mypy-auth
-        entry: env MYPYPATH=./stubs mypy  # TODO: use additional_dependencies instead
         require_serial: True
         # N.B. mypy requires an installed version of whatever third-party
         # library it is asked to check against. In practice, that means
@@ -112,6 +112,7 @@ repos:
         # `types-$lib` or `$lib-stubs`.
         additional_dependencies:
         - aiohttp
+        - backoff
         - types-cryptography
         - types-jwt
         - types-pkg_resources
@@ -127,7 +128,7 @@ repos:
         name: mypy-bigquery
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: bigquery/
@@ -135,7 +136,7 @@ repos:
         name: mypy-datastore
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: datastore/
@@ -143,7 +144,7 @@ repos:
         name: mypy-kms
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: kms/
@@ -151,7 +152,7 @@ repos:
         name: mypy-pubsub
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - prometheus-client
         - types-pkg_resources
         - types-requests
@@ -160,7 +161,7 @@ repos:
         name: mypy-storage
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - rsa
         - types-aiofiles
         - types-pkg_resources
@@ -170,7 +171,7 @@ repos:
         name: mypy-taskqueue
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=4.1.2
+        - gcloud-aio-auth
         - types-pkg_resources
         - types-requests
         files: taskqueue/
@@ -180,7 +181,7 @@ repos:
         id: poetry-check
         name: poetry-check-auth
         description: 'Validate the structure of the pyproject.toml file'
-        entry: bash -c 'cd auth && poetry check'
+        entry: bash -c 'cd auth/ && poetry check'
         language: python
         additional_dependencies:
         - poetry>=1.2.0
@@ -188,22 +189,22 @@ repos:
         types: [toml]
     -   <<: *poetry-check
         name: poetry-check-bigquery
-        entry: bash -c 'cd bigquery && poetry check'
+        entry: bash -c 'cd bigquery/ && poetry check'
     -   <<: *poetry-check
         name: poetry-check-datastore
-        entry: bash -c 'cd datastore && poetry check'
+        entry: bash -c 'cd datastore/ && poetry check'
     -   <<: *poetry-check
         name: poetry-check-kms
-        entry: bash -c 'cd kms && poetry check'
+        entry: bash -c 'cd kms/ && poetry check'
     -   <<: *poetry-check
         name: poetry-check-pubsub
-        entry: bash -c 'cd pubsub && poetry check'
+        entry: bash -c 'cd pubsub/ && poetry check'
     -   <<: *poetry-check
         name: poetry-check-storage
-        entry: bash -c 'cd storage && poetry check'
+        entry: bash -c 'cd storage/ && poetry check'
     -   <<: *poetry-check
         name: poetry-check-taskqueue
-        entry: bash -c 'cd taskqueue && poetry check'
+        entry: bash -c 'cd taskqueue/ && poetry check'
     -   id: pytest-fixture-require-scope
         name: Require explicit scope for pytest fixtures
         description: 'Ensure we explicitly set pytest fixture scopes'
@@ -211,7 +212,7 @@ repos:
         language: pygrep
         types: [python]
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
     -   id: python-no-eval
     -   id: python-no-log-warn

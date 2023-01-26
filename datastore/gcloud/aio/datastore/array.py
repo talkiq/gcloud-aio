@@ -1,7 +1,7 @@
 try:
     from collections.abc import Sequence
 except ImportError:
-    from collections import Sequence  # pylint: disable=deprecated-class
+    from collections import Sequence  # type: ignore
 from typing import Any
 from typing import Dict
 from typing import List

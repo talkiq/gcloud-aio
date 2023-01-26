@@ -1,0 +1,10 @@
+from_owner:
+  - pre-commit-ci
+  - talkiq-ops
+
+required_labels: []
+apply_labels: []
+blacklisted_labels:
+  - wip
+
+auto_squash_merge_labels: []

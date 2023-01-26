@@ -47,7 +47,7 @@ else:
 
 GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
-GCE_ENDPOINT_PROJECT = (f'{GCE_METADATA_BASE}/project/project-id')
+GCE_ENDPOINT_PROJECT = f'{GCE_METADATA_BASE}/project/project-id'
 GCE_ENDPOINT_TOKEN = (
     f'{GCE_METADATA_BASE}/instance/service-accounts'
     '/default/token?recursive=true'
