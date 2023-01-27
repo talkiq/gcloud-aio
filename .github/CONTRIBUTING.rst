@@ -24,6 +24,10 @@ And run tests with:
     poetry run pytest tests/unit  # unit tests only
     poetry run pytest tests/integration  # integration tests only
 
+Note that you currently need to use ``poetry==1.1.9`` for working in this repo,
+as we need to be able to generate Python2.7-compatible lockfiles for
+``gcloud-rest-*`` builds.
+
 ``aio`` and ``rest``
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -45,6 +49,11 @@ To build and test against the ``gcloud-rest`` projects, you can run:
 
     cd build/<project>/
     # run the above install & test commands as per normal
+
+Note that if you want modify anything in a ``pyproject.toml`` file, running the
+``bin/build-rest`` script and committing the resulting changes (ie. to the
+``pyproject.rest.toml`` file) is essential! This must be done after having run
+the normal ``poetry lock`` / ``poetry update`` / etc command.
 
 Submitting Changes
 ------------------
