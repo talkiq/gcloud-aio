@@ -55,6 +55,9 @@
                         <li>
                                 <a class="function" href="#Dataset.insert">insert</a>
                         </li>
+                        <li>
+                                <a class="function" href="#Dataset.delete">delete</a>
+                        </li>
                 </ul>
 
             </li>
@@ -99,6 +102,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Job.result">result</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Job.delete">delete</a>
                         </li>
                 </ul>
 
@@ -375,6 +381,19 @@ the address of your emulator should be enough to do the trick.</p>
 </span><span id="Dataset-105"><a href="#Dataset-105"><span class="linenos">105</span></a>
 </span><span id="Dataset-106"><a href="#Dataset-106"><span class="linenos">106</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/projects/</span><span class="si">{}</span><span class="s1">/datasets&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_root</span><span class="p">),</span> <span class="p">(</span><span class="n">project</span><span class="p">))</span>
 </span><span id="Dataset-107"><a href="#Dataset-107"><span class="linenos">107</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_json</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+</span><span id="Dataset-108"><a href="#Dataset-108"><span class="linenos">108</span></a>
+</span><span id="Dataset-109"><a href="#Dataset-109"><span class="linenos">109</span></a>    <span class="c1"># https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/delete</span>
+</span><span id="Dataset-110"><a href="#Dataset-110"><span class="linenos">110</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+</span><span id="Dataset-111"><a href="#Dataset-111"><span class="linenos">111</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_name</span>                <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Dataset-112"><a href="#Dataset-112"><span class="linenos">112</span></a>        <span class="n">session</span>                    <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Dataset-113"><a href="#Dataset-113"><span class="linenos">113</span></a>        <span class="n">timeout</span>      <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+</span><span id="Dataset-114"><a href="#Dataset-114"><span class="linenos">114</span></a>    <span class="p">)</span>                  <span class="p">:</span>
+</span><span id="Dataset-115"><a href="#Dataset-115"><span class="linenos">115</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete datasets in current project.&quot;&quot;&quot;</span>
+</span><span id="Dataset-116"><a href="#Dataset-116"><span class="linenos">116</span></a>        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">()</span>
+</span><span id="Dataset-117"><a href="#Dataset-117"><span class="linenos">117</span></a>        <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span>
+</span><span id="Dataset-118"><a href="#Dataset-118"><span class="linenos">118</span></a>
+</span><span id="Dataset-119"><a href="#Dataset-119"><span class="linenos">119</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/projects/</span><span class="si">{}</span><span class="s1">/datasets/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_root</span><span class="p">),</span> <span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="p">(</span><span class="n">dataset_name</span><span class="p">))</span>
+</span><span id="Dataset-120"><a href="#Dataset-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -536,6 +555,36 @@ the address of your emulator should be enough to do the trick.</p>
 
 
             <div class="docstring"><p>Create datasets in current project.</p>
+</div>
+
+
+                            </div>
+                            <div id="Dataset.delete" class="classattr">
+                                        <input id="Dataset.delete-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">session</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Dataset.delete-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Dataset.delete"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Dataset.delete-110"><a href="#Dataset.delete-110"><span class="linenos">110</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+</span><span id="Dataset.delete-111"><a href="#Dataset.delete-111"><span class="linenos">111</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset_name</span>                <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Dataset.delete-112"><a href="#Dataset.delete-112"><span class="linenos">112</span></a>        <span class="n">session</span>                    <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Dataset.delete-113"><a href="#Dataset.delete-113"><span class="linenos">113</span></a>        <span class="n">timeout</span>      <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+</span><span id="Dataset.delete-114"><a href="#Dataset.delete-114"><span class="linenos">114</span></a>    <span class="p">)</span>                  <span class="p">:</span>
+</span><span id="Dataset.delete-115"><a href="#Dataset.delete-115"><span class="linenos">115</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete datasets in current project.&quot;&quot;&quot;</span>
+</span><span id="Dataset.delete-116"><a href="#Dataset.delete-116"><span class="linenos">116</span></a>        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">()</span>
+</span><span id="Dataset.delete-117"><a href="#Dataset.delete-117"><span class="linenos">117</span></a>        <span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span>
+</span><span id="Dataset.delete-118"><a href="#Dataset.delete-118"><span class="linenos">118</span></a>
+</span><span id="Dataset.delete-119"><a href="#Dataset.delete-119"><span class="linenos">119</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/projects/</span><span class="si">{}</span><span class="s1">/datasets/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_root</span><span class="p">),</span> <span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="p">(</span><span class="n">dataset_name</span><span class="p">))</span>
+</span><span id="Dataset.delete-120"><a href="#Dataset.delete-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Delete datasets in current project.</p>
 </div>
 
 
@@ -773,6 +822,19 @@ the address of your emulator should be enough to do the trick.</p>
 </span><span id="Job-173"><a href="#Job-173"><span class="linenos">173</span></a>            <span class="k">return</span> <span class="n">data</span>
 </span><span id="Job-174"><a href="#Job-174"><span class="linenos">174</span></a>
 </span><span id="Job-175"><a href="#Job-175"><span class="linenos">175</span></a>        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;Job results are still pending&#39;</span><span class="p">)</span>
+</span><span id="Job-176"><a href="#Job-176"><span class="linenos">176</span></a>
+</span><span id="Job-177"><a href="#Job-177"><span class="linenos">177</span></a>    <span class="c1"># https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/delete</span>
+</span><span id="Job-178"><a href="#Job-178"><span class="linenos">178</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+</span><span id="Job-179"><a href="#Job-179"><span class="linenos">179</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">session</span>                    <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Job-180"><a href="#Job-180"><span class="linenos">180</span></a>        <span class="n">job_id</span>                <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Job-181"><a href="#Job-181"><span class="linenos">181</span></a>        <span class="n">timeout</span>      <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+</span><span id="Job-182"><a href="#Job-182"><span class="linenos">182</span></a>    <span class="p">)</span>                  <span class="p">:</span>
+</span><span id="Job-183"><a href="#Job-183"><span class="linenos">183</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the specified job by job ID.&quot;&quot;&quot;</span>
+</span><span id="Job-184"><a href="#Job-184"><span class="linenos">184</span></a>        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">()</span>
+</span><span id="Job-185"><a href="#Job-185"><span class="linenos">185</span></a>        <span class="n">job_id</span> <span class="o">=</span> <span class="n">job_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span>
+</span><span id="Job-186"><a href="#Job-186"><span class="linenos">186</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/projects/</span><span class="si">{}</span><span class="s1">/jobs/</span><span class="si">{}</span><span class="s1">/delete&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_root</span><span class="p">),</span> <span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="p">(</span><span class="n">job_id</span><span class="p">))</span>
+</span><span id="Job-187"><a href="#Job-187"><span class="linenos">187</span></a>
+</span><span id="Job-188"><a href="#Job-188"><span class="linenos">188</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1028,6 +1090,36 @@ within a specified timeout.</p>
 
 
     
+
+                            </div>
+                            <div id="Job.delete" class="classattr">
+                                        <input id="Job.delete-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">session</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">job_id</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Job.delete-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Job.delete"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Job.delete-178"><a href="#Job.delete-178"><span class="linenos">178</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+</span><span id="Job.delete-179"><a href="#Job.delete-179"><span class="linenos">179</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">session</span>                    <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Job.delete-180"><a href="#Job.delete-180"><span class="linenos">180</span></a>        <span class="n">job_id</span>                <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Job.delete-181"><a href="#Job.delete-181"><span class="linenos">181</span></a>        <span class="n">timeout</span>      <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+</span><span id="Job.delete-182"><a href="#Job.delete-182"><span class="linenos">182</span></a>    <span class="p">)</span>                  <span class="p">:</span>
+</span><span id="Job.delete-183"><a href="#Job.delete-183"><span class="linenos">183</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the specified job by job ID.&quot;&quot;&quot;</span>
+</span><span id="Job.delete-184"><a href="#Job.delete-184"><span class="linenos">184</span></a>        <span class="n">project</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">()</span>
+</span><span id="Job.delete-185"><a href="#Job.delete-185"><span class="linenos">185</span></a>        <span class="n">job_id</span> <span class="o">=</span> <span class="n">job_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span>
+</span><span id="Job.delete-186"><a href="#Job.delete-186"><span class="linenos">186</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/projects/</span><span class="si">{}</span><span class="s1">/jobs/</span><span class="si">{}</span><span class="s1">/delete&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_root</span><span class="p">),</span> <span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="p">(</span><span class="n">job_id</span><span class="p">))</span>
+</span><span id="Job.delete-187"><a href="#Job.delete-187"><span class="linenos">187</span></a>
+</span><span id="Job.delete-188"><a href="#Job.delete-188"><span class="linenos">188</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Delete the specified job by job ID.</p>
+</div>
+
 
                             </div>
                             <div class="inherited">
