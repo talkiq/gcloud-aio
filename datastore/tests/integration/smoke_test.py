@@ -14,6 +14,8 @@ from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
 from gcloud.aio.datastore import Value
+from gcloud.aio.datastore.transaction_options import ReadWrite
+from gcloud.aio.datastore.transaction_options import TransactionOptions
 from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
@@ -91,6 +93,39 @@ async def test_insert_value_object(
         properties = {'value': Value(30, exclude_from_indexes=True)}
         insert_result = await ds.insert(key, properties)
         assert len(insert_result['mutationResults']) == 1
+
+
+@pytest.mark.asyncio
+async def test_start_transaction_on_lookup(creds: str,
+                                           kind: str,
+                                           project: str) -> None:
+    key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        options = TransactionOptions(ReadWrite())
+        result = await ds.lookup([key], newTransaction=options, session=s)
+        assert 'transaction' in result and result['transaction'] is not None
+        assert len(result['missing']) == 1
+
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT, key,
+                properties={'animal': 'three-toed sloth'},
+            ),
+            ds.make_mutation(
+                Operation.UPDATE, key,
+                properties={'animal': 'aardvark'},
+            ),
+        ]
+        await ds.commit(
+            mutations,
+            transaction=result['transaction'],
+            session=s)
+
+        actual = await ds.lookup([key], session=s)
+        assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
 
 
 @pytest.mark.asyncio
