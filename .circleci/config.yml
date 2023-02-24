@@ -304,7 +304,6 @@ workflows:
 
       # create github & pypi release
       - github:
-          context: org-global
           filters:
             branches:
               ignore: /.*/
@@ -326,7 +325,6 @@ workflows:
           requires:
            - github
       - poetry-publish-workspace:
-          context: org-global
           name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
           matrix:
             parameters:
