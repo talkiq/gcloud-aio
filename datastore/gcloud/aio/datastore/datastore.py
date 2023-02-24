@@ -20,6 +20,7 @@ from gcloud.aio.datastore.datastore_operation import DatastoreOperation
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.mutation import MutationResult
+from gcloud.aio.datastore.options import TransactionOptions
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
 from gcloud.aio.datastore.value import Value
@@ -38,6 +39,8 @@ SCOPES = [
 ]
 
 log = logging.getLogger(__name__)
+
+LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
 
 
 def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
@@ -292,20 +295,21 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(
-            self, keys: List[Key], transaction: Optional[str] = None,
+            self, keys: List[Key],
+            transaction: Optional[str] = None,
+            newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
             session: Optional[Session] = None, timeout: int = 10,
-    ) -> Dict[str, List[Union[EntityResult, Key]]]:
+    ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
 
-        if transaction:
-            options = {'transaction': transaction}
-        else:
-            options = {'readConsistency': consistency.value}
+        read_options = self.build_read_options(
+            consistency, newTransaction, transaction)
+
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
-            'readOptions': options,
+            'readOptions': read_options,
         }).encode('utf-8')
 
         headers = await self.headers()
@@ -320,9 +324,12 @@ class Datastore:
             timeout=timeout,
         )
 
-        data: Dict[str, List[Any]] = await resp.json()
+        data: Dict[str, Any] = await resp.json()
 
-        return {
+        return self.build_lookup_result(data)
+
+    def build_lookup_result(self, data: Dict[str, Any]) -> LookUpResult:
+        result: Dict[str, Union[str, List[Union[EntityResult, Key]]]] = {
             'found': [
                 self.entity_result_kind.from_repr(e)
                 for e in data.get('found', [])
@@ -336,6 +343,22 @@ class Datastore:
                 for k in data.get('deferred', [])
             ],
         }
+        if 'transaction' in data:
+            new_transaction: str = data['transaction']
+            result['transaction'] = new_transaction
+        return result
+
+    def build_read_options(self,
+                           consistency: Consistency,
+                           newTransaction: Optional[TransactionOptions],
+                           transaction: Optional[str]) -> Dict[str, Any]:
+        if transaction:
+            return {'transaction': transaction}
+
+        if newTransaction:
+            return {'newTransaction': newTransaction.to_repr()}
+
+        return {'readConsistency': consistency.value}
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(
