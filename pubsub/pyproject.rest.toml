@@ -23,6 +23,11 @@ classifiers = [
 python = "^2.7 || >= 3.7, < 4.0"
 gcloud-rest-auth = ">= 3.3.0, < 5.0.0"
 # prometheus-client = ">= 0.13.1, < 1.0.0"
+setuptools = [
+    # TODO: once we drop py2.7 support, we can upgrade to PEP 420 namespace packages
+    { version = "44.1.0", python = "<3.0" },
+    { version = ">= 66.0.0, <67.0.0", python = ">=3.7" },
+]
 
 [tool.poetry.dev-dependencies]
 # aiohttp = ">= 3.3.0, < 4.0.0"
