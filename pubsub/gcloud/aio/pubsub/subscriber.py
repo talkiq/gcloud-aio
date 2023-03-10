@@ -367,14 +367,14 @@ else:
                 message, pulled_at = await message_queue.get()
                 await asyncio.shield(_consume_one(message, pulled_at))
         except asyncio.CancelledError:
-            log.info('consumer worker cancelled, gracefully terminating...')
+            log.debug('consumer worker cancelled, gracefully terminating...')
             for _ in range(max_tasks):
                 await semaphore.acquire()
 
             await ack_queue.join()
             if nack_queue:
                 await nack_queue.join()
-            log.info('consumer terminated gracefully')
+            log.debug('consumer terminated gracefully')
             raise
 
     async def producer(
@@ -417,7 +417,7 @@ else:
 
                 await message_queue.join()
         except asyncio.CancelledError:
-            log.info('producer worker cancelled, gracefully terminating...')
+            log.debug('producer worker cancelled, gracefully terminating...')
 
             if not pull_task.done():
                 # Leaving the connection hanging can result in redelivered
@@ -432,7 +432,7 @@ else:
                 await message_queue.put((m, pulled_at))
 
             await message_queue.join()
-            log.info('producer terminated gracefully')
+            log.debug('producer terminated gracefully')
             raise
 
     async def subscribe(
@@ -533,25 +533,23 @@ else:
             )
             for task in done:
                 task.result()
+
             raise Exception('a subscriber worker shut down unexpectedly')
-        except (asyncio.CancelledError, Exception) as e:
-            log.warning('subscriber exited', exc_info=e)
-            for task in producer_tasks:
-                task.cancel()
-            await asyncio.wait(
-                producer_tasks,
-                return_when=asyncio.ALL_COMPLETED,
-            )
+        except asyncio.CancelledError:
+            log.debug('subscriber exited')
+        except Exception:
+            log.exception('subscriber exited due to error')
 
-            for task in consumer_tasks:
-                task.cancel()
-            await asyncio.wait(
-                consumer_tasks,
-                return_when=asyncio.ALL_COMPLETED,
-            )
+        for task in producer_tasks:
+            task.cancel()
+        await asyncio.wait(producer_tasks, return_when=asyncio.ALL_COMPLETED)
 
-            for task in acker_tasks:
-                task.cancel()
-            await asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
+        for task in consumer_tasks:
+            task.cancel()
+        await asyncio.wait(consumer_tasks, return_when=asyncio.ALL_COMPLETED)
+
+        for task in acker_tasks:
+            task.cancel()
+        await asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
 
         raise asyncio.CancelledError('subscriber shut down')
