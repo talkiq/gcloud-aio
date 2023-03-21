@@ -20,9 +20,19 @@ executors:
       - image: python:3.9.16
     resource_class: small
 
+  python310:
+    docker:
+      - image: python:3.10.10
+    resource_class: small
+
+  python311:
+    docker:
+      - image: python:3.11.2
+    resource_class: small
+
   python-integration:
     docker:
-      - image: python:3.9.16
+      - image: python:3.11.2
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
@@ -57,7 +67,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    executor: python39
+    executor: python311
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -83,7 +93,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    executor: python39
+    executor: python311
     steps:
       - run: pip install pdoc
       - checkout
@@ -191,7 +201,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python37, python38, python39]
+              executor: [python37, python38, python39, python310, python311]
           filters:
             tags:
               only: /.*/
@@ -226,7 +236,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python37, python38, python39]
+              executor: [python37, python38, python39, python310, python311]
           filters:
             tags:
               only: /.*/
