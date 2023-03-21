@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-taskqueue"
-version = "6.0.0"
+version = "6.1.0"
 description = "Python Client for Google Cloud Task Queue"
 readme = "README.rst"
 
@@ -20,13 +20,9 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^2.7 || >= 3.7, < 4.0"
+python = ">= 3.7, < 4.0"
 gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
-setuptools = [
-    # TODO: once we drop py2.7 support, we can upgrade to PEP 420 namespace packages
-    { version = "44.1.0", python = "<3.0" },
-    { version = ">= 66.0.0, <67.0.0", python = ">=3.7" },
-]
+setuptools = ">= 66.0.0, < 67.0.0"  # TODO: upgrade to PEP 420 namespace packages
 
 [tool.poetry.dev-dependencies]
 # aiohttp = ">= 3.3.0, < 4.0.0"
@@ -37,7 +33,7 @@ pytest-mock = ">= 2.0.0, < 4.0.0"
 
 [tool.pytest.ini_options]
 addopts = "-Werror"
-asyncio_mode = "auto"
+# asyncio_mode = "auto"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

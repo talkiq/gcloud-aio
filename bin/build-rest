@@ -26,17 +26,6 @@ for file in $(find . -type f -path '*aio*'); do
     mv $file ${file//aio/rest}
 done
 
-for file in $(find . -type f -path '*py' \
-              | sort -u); do
-    new_file=${file//aio/rest}
-    temp_file="${new_file}.bkp"
-    future-fstrings-show $file > $temp_file
-    strip-hints $temp_file > "${temp_file}.tmp"
-    mv "${temp_file}.tmp" $new_file
-    rm $temp_file
-    echo "Formatting ${new_file}"
-done
-
 # Remove the files with `aio` in file names (we moved all required files
 # already)
 find . -type f -path '*aio*' \
@@ -48,35 +37,19 @@ find . -type f \
 find . -type f \
     | xargs -L1 $SED -Ei 's#docs/aio.md#../docs/rest.md#g'
 
-# Backport other things like type hints, exception handling, etc.
-find . -type f -path '*py' \
-    | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" \
-    | xargs -L1 pasteurize --nobackups --write
-# Delete imports that will be reintroduced later
-find . -type f -path '*py' \
-    | xargs -L1 $SED -Ei '/import warnings/d'
-# https://github.com/PythonCharmers/python-future/issues/551
-find . -type f -path '*py' \
-    | xargs -L1 $SED -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
-
-# Add object class inheritence where needed for python2
-find . -type f -path '*py' \
-    | xargs -L1 $SED -Ei 's/(class\s\w+):/\1(object):/g'
-
 # Physically update files to remove incompatible syntax
 ## dependencies
 find . -type f \
     | grep "pyproject\.toml$" \
     | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
-find . -type f \
-    | grep "pyproject\.toml$" \
-    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.7, < 4.0"/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiohttp/# aiohttp/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiofiles/# aiofiles/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^asyncio_mode/# asyncio_mode/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^# requests/requests/g'
 find . -type f -path '*pyproject.toml' \
@@ -107,8 +80,6 @@ find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/Session\(.*\)\sas/Session() as/g'
-find . -type f -path '*py' \
-    | xargs -L1 $SED -Ei 's/urllib/six.moves.urllib/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
 find . -type f -path '*py' \
