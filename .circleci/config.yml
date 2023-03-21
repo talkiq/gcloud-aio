@@ -7,22 +7,22 @@ orbs:
 executors:
   python37:
     docker:
-      - image: python:3.7.16
+      - image: python:3.11.2
     resource_class: small
 
   python38:
     docker:
-      - image: python:3.8.16
+      - image: python:3.11.2
     resource_class: small
 
   python39:
     docker:
-      - image: python:3.9.16
+      - image: python:3.11.2
     resource_class: small
 
   python-integration:
     docker:
-      - image: python:3.9.16
+      - image: python:3.11.2
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
