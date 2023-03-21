@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-datastore"
-version = "7.2.0"
+version = "7.3.0"
 description = "Python Client for Google Cloud Datastore"
 readme = "README.rst"
 
@@ -20,13 +20,9 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^2.7 || >= 3.7, < 4.0"
+python = ">= 3.7, < 4.0"
 gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
-setuptools = [
-    # TODO: once we drop py2.7 support, we can upgrade to PEP 420 namespace packages
-    { version = "44.1.0", python = "<3.0" },
-    { version = ">= 66.0.0, <67.0.0", python = ">=3.7" },
-]
+setuptools = ">= 66.0.0, < 67.0.0"  # TODO: upgrade to PEP 420 namespace packages
 
 [tool.poetry.dev-dependencies]
 # aiohttp = ">= 3.3.0, < 4.0.0"
@@ -38,14 +34,11 @@ pytest-mock = ">= 2.0.0, < 4.0.0"
 # TODO: this should be inherited from gcloud-rest-storage, but it seems to be
 # skipped for py2 rest testing:
 # https://app.circleci.com/pipelines/github/talkiq/gcloud-rest/1769/workflows/5099f442-b4b2-48bc-bff2-77fb0cce993a/jobs/36773
-rsa = [
-    { version = ">= 3.1.4, < 4.4.0", python = "<3.0" },
-    { version = ">= 3.1.4, < 5.0.0", python = ">=3.7" },
-]
+rsa = ">= 3.1.4, < 5.0.0"
 
 [tool.pytest.ini_options]
 # addopts = "-Werror"  # TODO: fixme
-asyncio_mode = "auto"
+# asyncio_mode = "auto"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

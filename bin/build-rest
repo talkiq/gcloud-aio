@@ -68,15 +68,14 @@ find . -type f -path '*py' \
 find . -type f \
     | grep "pyproject\.toml$" \
     | xargs -L1 $SED -Ei 's#github.com/talkiq/gcloud-rest#github.com/talkiq/gcloud-aio#g'
-find . -type f \
-    | grep "pyproject\.toml$" \
-    | xargs -L1 $SED -Ei 's/^python =.*$/python = "^2.7 || >= 3.7, < 4.0"/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiohttp/# aiohttp/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^aiofiles/# aiofiles/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^pytest-asyncio/# pytest-asyncio/g'
+find . -type f -path '*pyproject.toml' \
+    | xargs -L1 $SED -Ei 's/^asyncio_mode/# asyncio_mode/g'
 find . -type f -path '*pyproject.toml' \
     | xargs -L1 $SED -Ei 's/^# requests/requests/g'
 find . -type f -path '*pyproject.toml' \
