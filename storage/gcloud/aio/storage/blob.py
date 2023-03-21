@@ -4,14 +4,12 @@ import datetime
 import enum
 import hashlib
 import io
-from typing import Any
-from typing import Dict
-from typing import Optional
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from urllib.parse import quote
 
 import rsa
-from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.auth import \
+    BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
 from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 from pyasn1.codec.der import decoder
@@ -148,7 +146,7 @@ class Blob:
         credential = f'{client_email}/{credential_scope}'
 
         headers = headers or {}
-        headers['host'] = f'{self.bucket.name}.{HOST}'
+        headers['host'] = HOST
 
         ordered_headers = collections.OrderedDict(sorted(headers.items()))
         canonical_headers = ''.join(
