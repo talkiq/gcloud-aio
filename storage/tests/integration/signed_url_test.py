@@ -16,7 +16,7 @@ else:
 @pytest.mark.parametrize('data', ['test'])
 @pytest.mark.parametrize('headers', [
     {},
-    {'X-Goog-ACL': 'public-read', 'Content-Type': 'text/plain'}
+    {'X-Goog-ACL': 'public-read', 'Content-Type': 'text/plain'},
 ])
 async def test_gcs_signed_url(bucket_name, creds, data, headers):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'

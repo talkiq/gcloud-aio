@@ -121,7 +121,7 @@ class Blob:
             )
 
         quoted_name = quote(self.name, safe=b'/~')
-        canonical_uri = f'/{quoted_name}'
+        canonical_uri = f'/{self.bucket.name}/{quoted_name}'
 
         datetime_now = datetime.datetime.utcnow()
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
@@ -148,7 +148,7 @@ class Blob:
         credential = f'{client_email}/{credential_scope}'
 
         headers = headers or {}
-        headers['host'] = f'{self.bucket.name}.{HOST}'
+        headers['host'] = HOST
 
         ordered_headers = collections.OrderedDict(
             sorted(headers.items(), key=lambda x: x[0].lower()))
@@ -217,6 +217,6 @@ class Blob:
         signature = binascii.hexlify(signed_blob).decode()
 
         return (
-            f'https://{self.bucket.name}.{HOST}{canonical_uri}?'
+            f'https://{HOST}{canonical_uri}?'
             f'{canonical_query_str}&X-Goog-Signature={signature}'
         )
