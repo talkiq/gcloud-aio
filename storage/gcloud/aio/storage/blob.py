@@ -150,7 +150,8 @@ class Blob:
         headers = headers or {}
         headers['host'] = f'{self.bucket.name}.{HOST}'
 
-        ordered_headers = collections.OrderedDict(sorted(headers.items()))
+        ordered_headers = collections.OrderedDict(
+            sorted(headers.items(), key=lambda x: x[0].lower()))
         canonical_headers = ''.join(
             f'{str(k).lower()}:{str(v).lower()}\n'
             for k, v in ordered_headers.items()
