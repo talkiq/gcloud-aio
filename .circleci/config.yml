@@ -5,24 +5,36 @@ orbs:
   poetry: talkiq/poetry@4
 
 executors:
-  nox:
-    docker:
-      - image: thekevjames/nox:2022.11.21
-    resource_class: small
-
-  python-37:
+  python37:
     docker:
       - image: python:3.7.16
     resource_class: small
 
-  python-38:
+  python38:
     docker:
       - image: python:3.8.16
     resource_class: small
 
-  python-39:
+  python39:
     docker:
       - image: python:3.9.16
+    resource_class: small
+
+  python310:
+    docker:
+      - image: python:3.10.10
+    resource_class: small
+
+  python311:
+    docker:
+      - image: python:3.11.2
+    resource_class: small
+
+  python-integration:
+    docker:
+      - image: python:3.11.2
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
 
 commands:
@@ -51,58 +63,11 @@ commands:
           path: ./build/rest/
 
 jobs:
-  # Since Poetry itself can only be installed in Python 3.7+ (but can target
-  # venvs in older Pythons), we need to modify the default `poetry/run` job to
-  # allow for target_python != runtime_python.
-  # The below modifies `poetry/run` as follows:
-  #
-  # * modify base image to one which has the full matrix of required versions
-  # * include `poetry env use` to set target_python != runtime_python
-  # * `pip install` instead of `poetry install` the current package
-  #
-  #   * I have no idea why this fixed things, maybe a similar issue to
-  #     https://github.com/python-poetry/poetry/issues/3410 ?
-  poetry-run-deprecated-pythons:
-    executor: nox
-    parameters:
-      cmd:
-        type: string
-      cwd:
-        type: string
-      python_version:
-        type: string
-    steps:
-      - run: apt-get update -qy
-      - run: apt-get install -qy python3.8-venv
-      - poetry/install:
-          # TODO: figure out a better way for managing older envs like py27...
-          # ...or hopefully we can drop support before this affects us... more
-          # than it already does...
-          version: 1.1.9
-      - checkout
-      - run:
-          command: poetry env use <<parameters.python_version>>
-          working_directory: <<parameters.cwd>>
-      - run:
-          name: poetry install --no-root
-          command: |
-            # No idea why we need to re-lock here (even if we just locked!),
-            # but it's py2.7 so meh, who cares.
-            [ "v2.7" = "v<<parameters.python_version>>" ] && poetry lock
-            poetry install --no-root
-          working_directory: <<parameters.cwd>>
-      - run:
-          command: poetry run pip install .
-          working_directory: <<parameters.cwd>>
-      - run:
-          command: poetry run <<parameters.cmd>>
-          working_directory: <<parameters.cwd>>
-
   # Inspired by poetry/publish, the addition of `basedir` is meant to support
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    executor: python-39
+    executor: python311
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -128,7 +93,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    executor: python-39
+    executor: python311
     steps:
       - run: pip install pdoc
       - checkout
@@ -164,7 +129,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:19.5.0
+      - image: node:19.8.1
     steps:
       - checkout
       - attach_workspace:
@@ -208,6 +173,7 @@ workflows:
           name: build-rest
           commands:
             - run: poetry run ./bin/build-rest
+          install_flags: --no-ansi
           post-steps:
             - store-rest
           filters:
@@ -218,40 +184,51 @@ workflows:
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
           # support.
-          executor: python-37
+          executor: python37
           filters:
             tags:
               only: /.*/
 
       # run tests
-      - poetry-run-deprecated-pythons:
-          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/unit
+      - poetry/run:
+          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.executor>>
+          commands:
+            - run:
+                command: poetry run pytest tests/unit
+                working_directory: <<matrix.cwd>>
+          install_flags: --no-ansi
           matrix:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              python_version: ['3.7', '3.8', '3.9']
+              executor: [python37, python38, python39, python310, python311]
           filters:
             tags:
               only: /.*/
-      - poetry-run-deprecated-pythons:
-          name: test-integration-/aio/<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/integration
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
           pre-steps:
-            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
-            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - run: echo "${GOOGLE_SERVICE_PUBLIC}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
           matrix:
             alias: test-integration-aio
             parameters:
               cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-              python_version: ['3.9']
           filters:
             tags:
               only: /.*/
-      - poetry-run-deprecated-pythons:
-          name: test-unit-<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/unit
+      - poetry/run:
+          name: test-unit-<<matrix.cwd>>-<<matrix.executor>>
+          commands:
+            - run:
+                command: poetry run pytest tests/unit
+                working_directory: <<matrix.cwd>>
+          install_flags: --no-ansi
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -259,17 +236,21 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.7', '3.8', '3.9']
+              executor: [python37, python38, python39, python310, python311]
           filters:
             tags:
               only: /.*/
           requires:
             - build-rest
-      - poetry-run-deprecated-pythons:
-          name: test-integration-<<matrix.cwd>>-<<matrix.python_version>>
-          cmd: pytest tests/integration
+      - poetry/run:
+          name: test-integration-<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
           pre-steps:
-            - run: echo 'export GOOGLE_APPLICATION_CREDENTIALS="/key.json"' >> $BASH_ENV
             - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
             - attach_workspace:
                 at: /rest
@@ -277,7 +258,6 @@ workflows:
             alias: test-integration-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              python_version: ['2.7', '3.9']
           filters:
             tags:
               only: /.*/

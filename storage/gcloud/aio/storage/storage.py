@@ -5,7 +5,6 @@ import json
 import logging
 import mimetypes
 import os
-import sys
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -58,10 +57,7 @@ def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
 
 def choose_boundary() -> str:
     """Stolen from urllib3.filepost.choose_boundary() as of v1.26.2."""
-    boundary = binascii.hexlify(os.urandom(16))
-    if sys.version_info.major == 2:
-        return boundary  # type: ignore[return-value]
-    return boundary.decode('ascii')
+    return binascii.hexlify(os.urandom(16)).decode('ascii')
 
 
 def encode_multipart_formdata(
