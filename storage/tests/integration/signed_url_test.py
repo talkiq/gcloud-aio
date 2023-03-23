@@ -14,7 +14,11 @@ else:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('data', ['test'])
-async def test_gcs_signed_url(bucket_name, creds, data):
+@pytest.mark.parametrize('headers', [
+    {},
+    {'X-Goog-ACL': 'public-read', 'Content-Type': 'text/plain'},
+])
+async def test_gcs_signed_url(bucket_name, creds, data, headers):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
 
     async with Session() as session:
@@ -27,9 +31,9 @@ async def test_gcs_signed_url(bucket_name, creds, data):
         bucket = Bucket(storage, bucket_name)
         blob = await bucket.get_blob(object_name, session=session)
 
-        signed_url = await blob.get_signed_url(60)
+        signed_url = await blob.get_signed_url(60, headers=headers)
 
-        resp = await session.get(signed_url)
+        resp = await session.get(signed_url, headers=headers)
 
         try:
             downloaded_data: str = await resp.text()
