@@ -54,6 +54,18 @@ class SubscriberClient:
             session=self.session.session,  # type: ignore[arg-type]
         )
 
+    @staticmethod
+    def project_path(project: str) -> str:
+        return f'projects/{project}'
+
+    @classmethod
+    def subscription_path(cls, project: str, subscription: str) -> str:
+        return f'{cls.project_path(project)}/subscriptions/{subscription}'
+
+    @classmethod
+    def topic_path(cls, project: str, topic: str) -> str:
+        return f'{cls.project_path(project)}/topics/{topic}'
+
     async def _headers(self) -> Dict[str, str]:
         headers = {
             'Content-Type': 'application/json',
