@@ -101,6 +101,24 @@ class SubscriberClient:
         result: Dict[str, Any] = await resp.json()
         return result
 
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/patch
+    async def patch_subscription(
+        self,
+        subscription: str,
+        body: Dict[str, Any],
+        *,
+        session: Optional[Session] = None,
+        timeout: int = 10
+    ) -> Dict[str, Any]:
+        url = f'{self._api_root}/{subscription}'
+        headers = await self._headers()
+        encoded = json.dumps(body).encode()
+        s = AioSession(session) if session else self.session
+        resp = await s.patch(url, data=encoded, headers=headers,
+                             timeout=timeout)
+        result: Dict[str, Any] = await resp.json()
+        return result
+
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
     async def delete_subscription(
         self, subscription: str, *,
