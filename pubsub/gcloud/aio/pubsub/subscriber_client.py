@@ -108,7 +108,7 @@ class SubscriberClient:
         body: Dict[str, Any],
         *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
