@@ -20,9 +20,9 @@ from gcloud.aio.datastore.datastore_operation import DatastoreOperation
 from gcloud.aio.datastore.entity import EntityResult
 from gcloud.aio.datastore.key import Key
 from gcloud.aio.datastore.mutation import MutationResult
-from gcloud.aio.datastore.options import TransactionOptions
 from gcloud.aio.datastore.query import BaseQuery
 from gcloud.aio.datastore.query import QueryResultBatch
+from gcloud.aio.datastore.transaction_options import TransactionOptions
 from gcloud.aio.datastore.value import Value
 
 # Selectively load libraries based on the package
@@ -304,7 +304,7 @@ class Datastore:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
 
-        read_options = self.build_read_options(
+        read_options = self._build_read_options(
             consistency, newTransaction, transaction)
 
         payload = json.dumps({
@@ -326,9 +326,9 @@ class Datastore:
 
         data: Dict[str, Any] = await resp.json()
 
-        return self.build_lookup_result(data)
+        return self._build_lookup_result(data)
 
-    def build_lookup_result(self, data: Dict[str, Any]) -> LookUpResult:
+    def _build_lookup_result(self, data: Dict[str, Any]) -> LookUpResult:
         result: Dict[str, Union[str, List[Union[EntityResult, Key]]]] = {
             'found': [
                 self.entity_result_kind.from_repr(e)
@@ -348,10 +348,13 @@ class Datastore:
             result['transaction'] = new_transaction
         return result
 
-    def build_read_options(self,
-                           consistency: Consistency,
-                           newTransaction: Optional[TransactionOptions],
-                           transaction: Optional[str]) -> Dict[str, Any]:
+    def _build_read_options(self,
+                            consistency: Consistency,
+                            newTransaction: Optional[TransactionOptions],
+                            transaction: Optional[str]) -> Dict[str, Any]:
+        # TODO: expose ReadOptions directly to users
+        # See
+        # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
         if transaction:
             return {'transaction': transaction}
 

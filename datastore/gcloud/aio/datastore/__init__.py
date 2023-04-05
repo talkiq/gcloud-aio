@@ -200,6 +200,9 @@ from gcloud.aio.datastore.lat_lng import LatLng
 from gcloud.aio.datastore.mutation import MutationResult
 from gcloud.aio.datastore.projection import Projection
 from gcloud.aio.datastore.property_order import PropertyOrder
+from gcloud.aio.datastore.transaction_options import ReadOnly
+from gcloud.aio.datastore.transaction_options import ReadWrite
+from gcloud.aio.datastore.transaction_options import TransactionOptions
 from gcloud.aio.datastore.query import GQLCursor
 from gcloud.aio.datastore.query import GQLQuery
 from gcloud.aio.datastore.query import Query
@@ -232,8 +235,11 @@ __all__ = [
     'PropertyOrder',
     'Query',
     'QueryResultBatch',
+    'ReadOnly',
+    'ReadWrite',
     'ResultType',
     'SCOPES',
+    'TransactionOptions',
     'Value',
     '__version__',
 ]

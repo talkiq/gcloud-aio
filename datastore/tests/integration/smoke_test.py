@@ -14,7 +14,8 @@ from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
 from gcloud.aio.datastore import Value
-from gcloud.aio.datastore.options import TransactionOptions
+from gcloud.aio.datastore.transaction_options import ReadWrite
+from gcloud.aio.datastore.transaction_options import TransactionOptions
 from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
@@ -103,7 +104,7 @@ async def test_start_transaction_on_lookup(creds: str,
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        options = TransactionOptions()
+        options = TransactionOptions(ReadWrite())
         result = await ds.lookup([key], newTransaction=options, session=s)
         assert 'transaction' in result and result['transaction'] is not None
         assert len(result['missing']) == 1
