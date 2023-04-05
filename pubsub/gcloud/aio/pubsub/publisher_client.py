@@ -89,7 +89,7 @@ class PublisherClient:
         self, project: str,
         query_params: Optional[Dict[str, str]] = None, *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         """
         List topics
@@ -109,7 +109,7 @@ class PublisherClient:
         self, topic: str,
         body: Optional[Dict[str, Any]] = None, *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         """
         Create topic.
@@ -126,7 +126,7 @@ class PublisherClient:
     async def delete_topic(
         self, topic: str, *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> None:
         """
         Delete topic.

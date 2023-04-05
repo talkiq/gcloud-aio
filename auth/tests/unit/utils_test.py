@@ -7,7 +7,7 @@ from gcloud.aio.auth import utils
 @pytest.mark.parametrize(
     'str_or_bytes', [
         'Hello Test',
-        'UTF-8 Bytes'.encode('utf-8'),
+        b'UTF-8 Bytes',
         pickle.dumps([]),
     ],
 )

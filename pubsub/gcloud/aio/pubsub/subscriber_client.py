@@ -85,7 +85,7 @@ class SubscriberClient:
         body: Optional[Dict[str, Any]] = None,
         *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         """
         Create subscription.
@@ -105,7 +105,7 @@ class SubscriberClient:
     async def delete_subscription(
         self, subscription: str, *,
         session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> None:
         """
         Delete subscription.
@@ -119,7 +119,7 @@ class SubscriberClient:
     async def pull(
         self, subscription: str, max_messages: int,
         *, session: Optional[Session] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> List[SubscriberMessage]:
         """
         Pull messages from subscription
@@ -145,7 +145,7 @@ class SubscriberClient:
     async def acknowledge(
         self, subscription: str, ack_ids: List[str],
         *, session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> None:
         """
         Acknowledge messages by ackIds
@@ -165,7 +165,7 @@ class SubscriberClient:
         ack_ids: List[str],
         ack_deadline_seconds: int,
         *, session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> None:
         """
         Modify messages' ack deadline.
@@ -184,7 +184,7 @@ class SubscriberClient:
     async def get_subscription(
         self, subscription: str,
         *, session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         """
         Get Subscription
@@ -201,7 +201,7 @@ class SubscriberClient:
         self, project: str,
         query_params: Optional[Dict[str, str]] = None,
         *, session: Optional[Session] = None,
-        timeout: int = 10
+        timeout: int = 10,
     ) -> Dict[str, Any]:
         """
         List subscriptions

@@ -31,7 +31,7 @@ RANDOM_STRING = ''.join(rand_str_list)
             ).encode('utf-8')[0:2], 'json',
         ),
         (
-            'test'.encode('utf-8'), 'bytes=2-3', 'test'.encode('utf-8')[2:4],
+            b'test', 'bytes=2-3', b'test'[2:4],
             'bin',
         ),
         (

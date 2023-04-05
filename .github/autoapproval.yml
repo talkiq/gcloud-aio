@@ -7,4 +7,5 @@ apply_labels: []
 blacklisted_labels:
   - wip
 
-auto_squash_merge_labels: []
+auto_squash_merge_labels:
+  - auto-merge

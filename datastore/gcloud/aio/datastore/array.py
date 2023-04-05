@@ -1,7 +1,4 @@
-try:
-    from collections.abc import Sequence
-except ImportError:
-    from collections import Sequence
+from collections.abc import Sequence
 from typing import Any
 from typing import Dict
 from typing import List

@@ -9,7 +9,7 @@ from gcloud.aio.auth import encode  # pylint: disable=no-name-in-module
 class PubsubMessage:
     def __init__(
         self, data: Union[bytes, str], ordering_key: str = '',
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         self.data = data
         self.attributes = kwargs

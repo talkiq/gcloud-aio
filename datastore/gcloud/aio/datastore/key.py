@@ -7,7 +7,7 @@ from typing import Optional
 class PathElement:
     def __init__(
         self, kind: str, *, id_: Optional[int] = None,
-        name: Optional[str] = None
+        name: Optional[str] = None,
     ) -> None:
         self.kind = kind
 

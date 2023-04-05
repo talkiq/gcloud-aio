@@ -73,7 +73,7 @@ def encode_multipart_formdata(
     """
     body: List[bytes] = []
     for headers, data in fields:
-        body.append(f'--{boundary}\r\n'.encode('utf-8'))
+        body.append(f'--{boundary}\r\n'.encode())
 
         # The below is from RequestFields.render_headers()
         # Since we only use Content-Type, we could simplify the below to a
@@ -84,19 +84,19 @@ def encode_multipart_formdata(
         ]:
             value = headers.pop(field, None)
             if value:
-                body.append(f'{field}: {value}\r\n'.encode('utf-8'))
+                body.append(f'{field}: {value}\r\n'.encode())
         for field, value in headers.items():
             # N.B. potential bug copied from urllib3 code; zero values should
             # be sent! Keeping it for now, since Google libs use urllib3 for
             # their examples.
             if value:
-                body.append(f'{field}: {value}\r\n'.encode('utf-8'))
+                body.append(f'{field}: {value}\r\n'.encode())
 
         body.append(b'\r\n')
         body.append(data)
         body.append(b'\r\n')
 
-    body.append(f'--{boundary}--\r\n'.encode('utf-8'))
+    body.append(f'--{boundary}--\r\n'.encode())
 
     # N.B. 'multipart/form-data' in upstream, but Google wants 'related'
     content_type = f'multipart/related; boundary={boundary}'
@@ -175,7 +175,6 @@ class Storage:
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
 
-    # pylint: disable=too-many-locals
     async def copy(
         self, bucket: str, object_name: str,
         destination_bucket: str, *, new_name: Optional[str] = None,
@@ -183,9 +182,8 @@ class Storage:
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> Dict[str, Any]:
-
         """
         When files are too large, multiple calls to `rewriteTo` are made. We
         refer to the same copy job by using the `rewriteToken` from the
@@ -202,6 +200,7 @@ class Storage:
 
         https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         """
+        # pylint: disable=too-many-locals
         if not new_name:
             new_name = object_name
 
@@ -260,7 +259,7 @@ class Storage:
         timeout: int = DEFAULT_TIMEOUT,
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> str:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -285,7 +284,7 @@ class Storage:
         self, bucket: str, object_name: str, *,
         headers: Optional[Dict[str, Any]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> bytes:
         return await self._download(
             bucket, object_name, headers=headers,
@@ -295,7 +294,7 @@ class Storage:
 
     async def download_to_filename(
         self, bucket: str, object_name: str,
-        filename: str, **kwargs: Any
+        filename: str, **kwargs: Any,
     ) -> None:
         async with file_open(  # type: ignore[attr-defined]
                 filename,
@@ -309,7 +308,7 @@ class Storage:
         self, bucket: str, object_name: str, *,
         headers: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
-        timeout: int = DEFAULT_TIMEOUT
+        timeout: int = DEFAULT_TIMEOUT,
     ) -> Dict[str, Any]:
         data = await self._download(
             bucket, object_name, headers=headers,
@@ -322,7 +321,7 @@ class Storage:
         self, bucket: str, object_name: str, *,
         headers: Optional[Dict[str, Any]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> StreamResponse:
         """Download a GCS object in a buffered stream.
 
@@ -353,7 +352,7 @@ class Storage:
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
-        timeout: int = DEFAULT_TIMEOUT
+        timeout: int = DEFAULT_TIMEOUT,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_read}/{bucket}/o'
         headers = headers or {}
@@ -377,7 +376,7 @@ class Storage:
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
         force_resumable_upload: Optional[bool] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_write}/{bucket}/o'
 
@@ -429,17 +428,14 @@ class Storage:
     async def upload_from_filename(
         self, bucket: str, object_name: str,
         filename: str,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         async with file_open(  # type: ignore[attr-defined]
                 filename,
                 mode='rb',
         ) as file_object:
             contents = await file_object.read()
-            return await self.upload(
-                bucket, object_name, contents,
-                **kwargs
-            )
+            return await self.upload(bucket, object_name, contents, **kwargs)
 
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
@@ -510,7 +506,7 @@ class Storage:
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> bytes:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -539,7 +535,7 @@ class Storage:
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> StreamResponse:
         # https://cloud.google.com/storage/docs/request-endpoints#encoding
         encoded_object_name = quote(object_name, safe='')
@@ -570,7 +566,7 @@ class Storage:
         stream: IO[AnyStr], params: Dict[str, str],
         headers: Dict[str, str], *,
         session: Optional[Session] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
         params['name'] = object_name
@@ -590,7 +586,7 @@ class Storage:
         headers: Dict[str, str],
         metadata: Dict[str, Any], *,
         session: Optional[Session] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
         params['uploadType'] = 'multipart'
@@ -645,7 +641,7 @@ class Storage:
         headers: Dict[str, str], *,
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
         session_uri = await self._initiate_upload(
@@ -663,7 +659,7 @@ class Storage:
         params: Dict[str, str], headers: Dict[str, str],
         *, metadata: Optional[Dict[str, Any]] = None,
         timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None
+        session: Optional[Session] = None,
     ) -> str:
         params['uploadType'] = 'resumable'
 
@@ -701,14 +697,14 @@ class Storage:
         self, session_uri: str, stream: IO[AnyStr],
         headers: Dict[str, str], *, retries: int = 5,
         session: Optional[Session] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ) -> Dict[str, Any]:
         s = AioSession(session) if session else self.session
 
         original_close = stream.close
         original_position = stream.tell()
         # Prevent the stream being closed if put operation fails
-        stream.close = lambda: None  # type: ignore[assignment]
+        stream.close = lambda: None  # type: ignore[method-assign]
         try:
             for tries in range(retries):
                 try:
@@ -736,7 +732,7 @@ class Storage:
             *, params: Optional[Dict[str, str]] = None,
             headers: Optional[Dict[str, str]] = None,
             session: Optional[Session] = None,
-            timeout: int = DEFAULT_TIMEOUT
+            timeout: int = DEFAULT_TIMEOUT,
     ) -> Dict[str, Any]:
         # https://cloud.google.com/storage/docs/json_api/v1/objects/patch
         encoded_object_name = quote(object_name, safe='')
@@ -760,7 +756,7 @@ class Storage:
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
         session: Optional[Session] = None,
-        timeout: int = DEFAULT_TIMEOUT
+        timeout: int = DEFAULT_TIMEOUT,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_read}/{bucket}'
         headers = headers or {}

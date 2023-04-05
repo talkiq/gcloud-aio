@@ -32,7 +32,7 @@ RANDOM_STRING = ''.join(rand_str_list)
             ).encode('utf-8'), 'json',
         ),
         (json.dumps([1, 2, 3]), json.dumps([1, 2, 3]).encode('utf-8'), 'json'),
-        ('test'.encode('utf-8'), 'test'.encode('utf-8'), 'bin'),
+        (b'test', b'test', 'bin'),
         (io.BytesIO(RANDOM_BINARY), RANDOM_BINARY, 'bin'),
         (io.StringIO(RANDOM_STRING), RANDOM_STRING.encode('utf-8'), 'txt'),
     ],

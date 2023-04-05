@@ -74,7 +74,7 @@ class Table(BigqueryBase):
     def _make_insert_body(
             rows: List[Dict[str, Any]], *, skip_invalid: bool,
             ignore_unknown: bool, template_suffix: Optional[str],
-            insert_id_fn: Callable[[Dict[str, Any]], str]
+            insert_id_fn: Callable[[Dict[str, Any]], str],
     ) -> Dict[str, Any]:
         body = {
             'kind': 'bigquery#tableDataInsertAllRequest',

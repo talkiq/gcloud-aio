@@ -447,7 +447,7 @@ else:
         num_tasks_per_consumer: int = 1,
         enable_nack: bool = True,
         nack_window: float = 0.3,
-        metrics_client: Optional[MetricsAgent] = None
+        metrics_client: Optional[MetricsAgent] = None,
     ) -> None:
         # pylint: disable=too-many-locals
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
