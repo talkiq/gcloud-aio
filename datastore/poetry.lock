@@ -547,7 +547,7 @@ url = "../auth"
 
 [[package]]
 name = "gcloud-aio-storage"
-version = "8.1.0"
+version = "8.2.0"
 description = "Python Client for Google Cloud Storage"
 category = "dev"
 optional = false

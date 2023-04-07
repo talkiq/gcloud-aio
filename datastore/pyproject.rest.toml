@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-datastore"
-version = "7.3.1"
+version = "7.4.0"
 description = "Python Client for Google Cloud Datastore"
 readme = "README.rst"
 
