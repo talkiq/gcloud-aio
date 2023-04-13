@@ -36,7 +36,7 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a6
+    rev: v2.17.2
     hooks:
     -   id: pylint
         additional_dependencies:
