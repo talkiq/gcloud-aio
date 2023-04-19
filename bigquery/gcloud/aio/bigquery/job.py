@@ -90,7 +90,7 @@ class Job(BigqueryBase):
 
         project = await self.project()
         url = (
-            f'{self._api_root}/projects/{project}/queries/{self.job_id}'
+            f'{self._api_root}/projects/{project}/jobs/{self.job_id}'
             '/cancel'
         )
 
