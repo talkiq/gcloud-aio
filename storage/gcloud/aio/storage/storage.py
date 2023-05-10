@@ -175,12 +175,12 @@ class Storage:
     async def list_buckets(
         self, project: str, timeout: int = DEFAULT_TIMEOUT,
     ) -> List[str]:
-        token = await self.token.get()
-        url = (f'curl -X GET -H "Authorization: Bearer {token}"'
-               ' https://storage.googleapis.com/'
+        url = ('https://storage.googleapis.com/'
                f'storage/v1/b?project={project}')
 
-        resp = await self.session.get(url, timeout=timeout)
+        headers = await self._headers()
+        resp = await self.session.get(url,
+                                      timeout=timeout, headers=headers)
 
         data: List[str] = await resp.json(content_type=None)
         return data
