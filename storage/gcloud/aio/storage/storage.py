@@ -173,16 +173,17 @@ class Storage:
         }
 
     async def list_buckets(
-        self, project: str, timeout: int = DEFAULT_TIMEOUT
+        self, project: str, timeout: int = DEFAULT_TIMEOUT,
     ) -> List[str]:
         token = await self.token.get()
-        url = f'curl -X GET -H "Authorization: Bearer {token}"'
-        url += f' https://storage.googleapis.com/storage/v1/b?project={project}'
+        url = (f'curl -X GET -H "Authorization: Bearer {token}"'
+               ' https://storage.googleapis.com/'
+               f'storage/v1/b?project={project}')
 
-        s = AioSession(session) if session else self.session
-        resp = await s.post(url, timeout=timeout)
+        resp = await self.session.get(url, timeout=timeout)
 
-        data: Dict[str, Any] = await resp.json(content_type=None)
+        data: List[str] = await resp.json(content_type=None)
+        return data
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
