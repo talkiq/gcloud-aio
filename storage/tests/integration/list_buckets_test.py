@@ -8,19 +8,17 @@ if BUILD_GCLOUD_REST:
 else:
     from aiohttp import ClientSession as Session
 
-# get_buckets() method has a timeout=DEFAULT_TIMEOUT which I
-# will assume it's ok and there's no need to test it
-
 
 @pytest.mark.asyncio
-async def test_get_buckets(project_name, creds, expected_buckets):
+async def test_list_buckets(project_name, creds, expected_buckets):
 
     async with Session() as session:
         storage = Storage(service_file=creds, session=session)
 
-        buckets = await storage.get_buckets(project_name)
+        buckets = await storage.list_buckets(project_name)
 
+        # there are 4 buckets in dialpad-oss project
         assert len(buckets) == 4
 
         for bucket in buckets:
-            assert bucket.get_name() in expected_buckets
+            assert bucket.name in expected_buckets

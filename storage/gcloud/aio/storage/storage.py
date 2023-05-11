@@ -173,21 +173,36 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-    async def get_buckets(
-        self, project: str, timeout: int = DEFAULT_TIMEOUT,
+    # This method makes the following API call:
+    # https://cloud.google.com/storage/docs/json_api/v1/buckets/list
+    async def list_buckets(
+        self, project: str, *,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT,
     ) -> Set[Bucket]:
-        url = ('https://storage.googleapis.com/'
-               f'storage/v1/b?project={project}')
+        url = f'{self._api_root_read}?project={project}'
+        headers = headers or {}
+        headers.update(await self._headers())
+        if not params:
+            params = {'pageToken': ''}
+        s = AioSession(session) if session else self.session
+        buckets = set()
 
-        headers = await self._headers()
-        resp = await self.session.get(url,
-                                      timeout=timeout, headers=headers)
+        while True:
+            resp = await s.get(url, headers=headers,
+                               params=params or {},
+                               timeout=timeout)
 
-        data = await resp.json(content_type=None)
-        result = set()
-        for item in data['items']:
-            result.add(Bucket(self, item['id']))
-        return result
+            content: Dict[str, Any] = await resp.json(content_type=None)
+            for item in content.get('items', []):
+                buckets.add(Bucket(self, item['id']))
+
+            params['pageToken'] = content.get('nextPageToken', '')
+            if not params['pageToken']:
+                break
+        return buckets
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)
