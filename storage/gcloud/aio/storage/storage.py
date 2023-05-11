@@ -12,6 +12,7 @@ from typing import IO
 from typing import Iterator
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Tuple
 from typing import Union
 from urllib.parse import quote
@@ -172,9 +173,9 @@ class Storage:
             'Authorization': f'Bearer {token}',
         }
 
-    async def list_buckets(
+    async def get_buckets(
         self, project: str, timeout: int = DEFAULT_TIMEOUT,
-    ) -> List[str]:
+    ) -> Set[Bucket]:
         url = ('https://storage.googleapis.com/'
                f'storage/v1/b?project={project}')
 
@@ -182,8 +183,11 @@ class Storage:
         resp = await self.session.get(url,
                                       timeout=timeout, headers=headers)
 
-        data: List[str] = await resp.json(content_type=None)
-        return data
+        data = await resp.json(content_type=None)
+        result = set()
+        for item in data['items']:
+            result.add(Bucket(self, item['id']))
+        return result
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         return Bucket(self, bucket_name)

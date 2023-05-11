@@ -84,6 +84,9 @@ class Bucket:
     def new_blob(self, blob_name: str) -> Blob:
         return Blob(self, blob_name, {'size': 0})
 
+    def get_name(self) -> str:
+        return self.name
+
     async def get_metadata(
             self, params: Optional[Dict[str, Any]] = None,
             session: Optional[Session] = None,
