@@ -12,7 +12,6 @@ from typing import IO
 from typing import Iterator
 from typing import List
 from typing import Optional
-from typing import Set
 from typing import Tuple
 from typing import Union
 from urllib.parse import quote
@@ -181,14 +180,15 @@ class Storage:
         headers: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
         timeout: int = DEFAULT_TIMEOUT,
-    ) -> Set[Bucket]:
+    ) -> List[Bucket]:
         url = f'{self._api_root_read}?project={project}'
         headers = headers or {}
         headers.update(await self._headers())
-        if not params:
-            params = {'pageToken': ''}
+        params = params or {}
+        if not params.get('pageToken'):
+            params['pageToken'] = ''
         s = AioSession(session) if session else self.session
-        buckets = set()
+        buckets = []
 
         while True:
             resp = await s.get(url, headers=headers,
@@ -197,7 +197,7 @@ class Storage:
 
             content: Dict[str, Any] = await resp.json(content_type=None)
             for item in content.get('items', []):
-                buckets.add(Bucket(self, item['id']))
+                buckets.append(Bucket(self, item['id']))
 
             params['pageToken'] = content.get('nextPageToken', '')
             if not params['pageToken']:
