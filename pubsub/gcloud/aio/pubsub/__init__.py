@@ -229,15 +229,17 @@ https://github.com/TheKevJames/tools/tree/master/docker-gcloud-pubsub-emulator
 [endpoint]:
 https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body
 """
-from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-pubsub').version
+import importlib.metadata
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
-from gcloud.aio.pubsub.publisher_client import PublisherClient
-from gcloud.aio.pubsub.subscriber_client import SubscriberClient
-from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
-from gcloud.aio.pubsub.utils import PubsubMessage
 
+from .publisher_client import PublisherClient
+from .subscriber_client import SubscriberClient
+from .subscriber_message import SubscriberMessage
+from .utils import PubsubMessage
+
+
+__version__ = importlib.metadata.version('gcloud-aio-pubsub')
 __all__ = [
     'PublisherClient',
     'PubsubMessage',
@@ -247,5 +249,5 @@ __all__ = [
 ]
 
 if not BUILD_GCLOUD_REST:
-    from gcloud.aio.pubsub.subscriber import subscribe
+    from .subscriber import subscribe
     __all__.append('subscribe')

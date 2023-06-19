@@ -2,9 +2,9 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from gcloud.aio.datastore.constants import CompositeFilterOperator
-from gcloud.aio.datastore.constants import PropertyFilterOperator
-from gcloud.aio.datastore.value import Value
+from .constants import CompositeFilterOperator
+from .constants import PropertyFilterOperator
+from .value import Value
 
 
 class BaseFilter:

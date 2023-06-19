@@ -13,7 +13,8 @@ from typing import Union
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-from gcloud.aio.pubsub.utils import PubsubMessage
+
+from .utils import PubsubMessage
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:

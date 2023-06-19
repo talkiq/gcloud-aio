@@ -22,13 +22,13 @@ the address of your emulator should be enough to do the trick.
 [smoke-tests]:
 https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
 """
-from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-taskqueue').version
+import importlib.metadata
 
-from gcloud.aio.taskqueue.queue import PushQueue
-from gcloud.aio.taskqueue.queue import SCOPES
+from .queue import PushQueue
+from .queue import SCOPES
 
 
+__version__ = importlib.metadata.version('gcloud-aio-taskqueue')
 __all__ = [
     'PushQueue',
     'SCOPES',

@@ -95,7 +95,6 @@ repos:
         - backoff
         - types-cryptography
         - types-jwt
-        - types-pkg_resources
         - types-requests
         args:
         - --show-error-codes
@@ -109,7 +108,6 @@ repos:
         additional_dependencies:
         - aiohttp
         - gcloud-aio-auth
-        - types-pkg_resources
         - types-requests
         files: bigquery/
     -   <<: *mypy
@@ -117,7 +115,6 @@ repos:
         additional_dependencies:
         - aiohttp
         - gcloud-aio-auth
-        - types-pkg_resources
         - types-requests
         files: datastore/
     -   <<: *mypy
@@ -125,7 +122,6 @@ repos:
         additional_dependencies:
         - aiohttp
         - gcloud-aio-auth
-        - types-pkg_resources
         - types-requests
         files: kms/
     -   <<: *mypy
@@ -134,7 +130,6 @@ repos:
         - aiohttp
         - gcloud-aio-auth
         - prometheus-client
-        - types-pkg_resources
         - types-requests
         files: pubsub/
     -   <<: *mypy
@@ -144,7 +139,6 @@ repos:
         - gcloud-aio-auth
         - rsa
         - types-aiofiles
-        - types-pkg_resources
         - types-requests
         files: storage/
     -   <<: *mypy
@@ -152,7 +146,6 @@ repos:
         additional_dependencies:
         - aiohttp
         - gcloud-aio-auth
-        - types-pkg_resources
         - types-requests
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa

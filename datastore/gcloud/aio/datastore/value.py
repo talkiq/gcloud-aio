@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Any
 from typing import Dict
 
-from gcloud.aio.datastore.constants import TypeName
-from gcloud.aio.datastore.constants import TYPES
-from gcloud.aio.datastore.key import Key
+from .constants import TypeName
+from .constants import TYPES
+from .key import Key
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
@@ -97,8 +97,8 @@ class Value:  # pylint:disable=useless-object-inheritance
     @classmethod
     def _get_supported_types(cls) -> Dict[Any, TypeName]:
         # pylint: disable=import-outside-toplevel,cyclic-import
-        from gcloud.aio.datastore import array
-        from gcloud.aio.datastore import entity
+        from . import array
+        from . import entity
 
         supported_types = TYPES
         supported_types.update({

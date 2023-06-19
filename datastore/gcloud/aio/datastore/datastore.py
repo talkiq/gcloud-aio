@@ -13,17 +13,18 @@ from typing import Union
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-from gcloud.aio.datastore.constants import Consistency
-from gcloud.aio.datastore.constants import Mode
-from gcloud.aio.datastore.constants import Operation
-from gcloud.aio.datastore.datastore_operation import DatastoreOperation
-from gcloud.aio.datastore.entity import EntityResult
-from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.mutation import MutationResult
-from gcloud.aio.datastore.query import BaseQuery
-from gcloud.aio.datastore.query import QueryResultBatch
-from gcloud.aio.datastore.transaction_options import TransactionOptions
-from gcloud.aio.datastore.value import Value
+
+from .constants import Consistency
+from .constants import Mode
+from .constants import Operation
+from .datastore_operation import DatastoreOperation
+from .entity import EntityResult
+from .key import Key
+from .mutation import MutationResult
+from .query import BaseQuery
+from .query import QueryResultBatch
+from .transaction_options import TransactionOptions
+from .value import Value
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:

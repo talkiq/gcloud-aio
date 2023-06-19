@@ -1,7 +1,7 @@
 from typing import Any
 from typing import Dict
 
-from gcloud.aio.datastore.constants import Direction
+from .constants import Direction
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#PropertyOrder

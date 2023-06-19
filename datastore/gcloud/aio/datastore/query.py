@@ -3,13 +3,13 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-from gcloud.aio.datastore.constants import MoreResultsType
-from gcloud.aio.datastore.constants import ResultType
-from gcloud.aio.datastore.entity import EntityResult
-from gcloud.aio.datastore.filter import Filter
-from gcloud.aio.datastore.projection import Projection
-from gcloud.aio.datastore.property_order import PropertyOrder
-from gcloud.aio.datastore.value import Value
+from .constants import MoreResultsType
+from .constants import ResultType
+from .entity import EntityResult
+from .filter import Filter
+from .projection import Projection
+from .property_order import PropertyOrder
+from .value import Value
 
 
 class BaseQuery:
