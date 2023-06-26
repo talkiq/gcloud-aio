@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 13.1.1"/>
+    <meta name="generator" content="pdoc 14.0.0"/>
     <title>gcloud.aio.datastore API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -42,6 +42,15 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#CompositeFilter.__init__">CompositeFilter</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#CompositeFilter.json_key">json_key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#CompositeFilter.operator">operator</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#CompositeFilter.filters">filters</a>
                         </li>
                         <li>
                                 <a class="function" href="#CompositeFilter.from_repr">from_repr</a>
@@ -84,6 +93,33 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#Datastore.__init__">Datastore</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.datastore_operation_kind">datastore_operation_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.entity_result_kind">entity_result_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.key_kind">key_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.mutation_result_kind">mutation_result_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.query_result_batch_kind">query_result_batch_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.value_kind">value_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.namespace">namespace</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.session">session</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Datastore.token">token</a>
                         </li>
                         <li>
                                 <a class="function" href="#Datastore.project">project</a>
@@ -149,6 +185,21 @@
                                 <a class="function" href="#DatastoreOperation.__init__">DatastoreOperation</a>
                         </li>
                         <li>
+                                <a class="variable" href="#DatastoreOperation.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DatastoreOperation.done">done</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DatastoreOperation.metadata">metadata</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DatastoreOperation.error">error</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DatastoreOperation.response">response</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#DatastoreOperation.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -179,6 +230,18 @@
                                 <a class="function" href="#Entity.__init__">Entity</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Entity.key_kind">key_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Entity.value_kind">value_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Entity.key">key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Entity.properties">properties</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Entity.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -192,6 +255,18 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#EntityResult.__init__">EntityResult</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#EntityResult.entity_kind">entity_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#EntityResult.entity">entity</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#EntityResult.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#EntityResult.cursor">cursor</a>
                         </li>
                         <li>
                                 <a class="function" href="#EntityResult.from_repr">from_repr</a>
@@ -209,6 +284,9 @@
                                 <a class="function" href="#Filter.__init__">Filter</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Filter.inner_filter">inner_filter</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Filter.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -223,6 +301,9 @@
                         <li>
                                 <a class="function" href="#GQLCursor.__init__">GQLCursor</a>
                         </li>
+                        <li>
+                                <a class="variable" href="#GQLCursor.value">value</a>
+                        </li>
                 </ul>
 
             </li>
@@ -231,6 +312,21 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#GQLQuery.__init__">GQLQuery</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#GQLQuery.json_key">json_key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#GQLQuery.query_string">query_string</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#GQLQuery.allow_literals">allow_literals</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#GQLQuery.named_bindings">named_bindings</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#GQLQuery.positional_bindings">positional_bindings</a>
                         </li>
                         <li>
                                 <a class="function" href="#GQLQuery.from_repr">from_repr</a>
@@ -248,6 +344,18 @@
                                 <a class="function" href="#Key.__init__">Key</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Key.path_element_kind">path_element_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Key.project">project</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Key.namespace">namespace</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Key.path">path</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Key.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -261,6 +369,12 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#LatLng.__init__">LatLng</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LatLng.lat">lat</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#LatLng.lon">lon</a>
                         </li>
                         <li>
                                 <a class="function" href="#LatLng.from_repr">from_repr</a>
@@ -314,6 +428,18 @@
                                 <a class="function" href="#MutationResult.__init__">MutationResult</a>
                         </li>
                         <li>
+                                <a class="variable" href="#MutationResult.key_kind">key_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MutationResult.key">key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MutationResult.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MutationResult.conflict_detected">conflict_detected</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#MutationResult.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -347,6 +473,15 @@
                                 <a class="function" href="#PathElement.__init__">PathElement</a>
                         </li>
                         <li>
+                                <a class="variable" href="#PathElement.kind">kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PathElement.id">id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PathElement.name">name</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#PathElement.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -362,6 +497,9 @@
                                 <a class="function" href="#Projection.__init__">Projection</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Projection.prop">prop</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Projection.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -375,6 +513,18 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#PropertyFilter.__init__">PropertyFilter</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PropertyFilter.json_key">json_key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PropertyFilter.prop">prop</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PropertyFilter.operator">operator</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PropertyFilter.value">value</a>
                         </li>
                         <li>
                                 <a class="function" href="#PropertyFilter.from_repr">from_repr</a>
@@ -419,6 +569,12 @@
                                 <a class="function" href="#PropertyOrder.__init__">PropertyOrder</a>
                         </li>
                         <li>
+                                <a class="variable" href="#PropertyOrder.prop">prop</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PropertyOrder.direction">direction</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#PropertyOrder.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -434,6 +590,36 @@
                                 <a class="function" href="#Query.__init__">Query</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Query.json_key">json_key</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.kind">kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.query_filter">query_filter</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.orders">orders</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.start_cursor">start_cursor</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.end_cursor">end_cursor</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.offset">offset</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.limit">limit</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.projection">projection</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Query.distinct_on">distinct_on</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Query.from_repr">from_repr</a>
                         </li>
                         <li>
@@ -447,6 +633,30 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#QueryResultBatch.__init__">QueryResultBatch</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.entity_result_kind">entity_result_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.end_cursor">end_cursor</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.entity_result_type">entity_result_type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.entity_results">entity_results</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.more_results">more_results</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.skipped_cursor">skipped_cursor</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.skipped_results">skipped_results</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#QueryResultBatch.snapshot_version">snapshot_version</a>
                         </li>
                         <li>
                                 <a class="function" href="#QueryResultBatch.from_repr">from_repr</a>
@@ -471,6 +681,9 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#ReadWrite.__init__">ReadWrite</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ReadWrite.previous_transaction">previous_transaction</a>
                         </li>
                         <li>
                                 <a class="function" href="#ReadWrite.to_repr">to_repr</a>
@@ -506,6 +719,9 @@
                                 <a class="function" href="#TransactionOptions.__init__">TransactionOptions</a>
                         </li>
                         <li>
+                                <a class="variable" href="#TransactionOptions.option">option</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#TransactionOptions.to_repr">to_repr</a>
                         </li>
                 </ul>
@@ -516,6 +732,15 @@
                             <ul class="memberlist">
                         <li>
                                 <a class="function" href="#Value.__init__">Value</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Value.key_kind">key_kind</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Value.value">value</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Value.excludeFromIndexes">excludeFromIndexes</a>
                         </li>
                         <li>
                                 <a class="function" href="#Value.from_repr">from_repr</a>
@@ -1046,6 +1271,40 @@ classes and wire them up to the rest of the custom classes:</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="CompositeFilter.json_key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">json_key</span>        =
+<span class="default_value">&#39;compositeFilter&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CompositeFilter.json_key"></a>
+    
+    
+
+                            </div>
+                            <div id="CompositeFilter.operator" class="classattr">
+                                <div class="attr variable">
+            <span class="name">operator</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CompositeFilter.operator"></a>
+    
+    
+
+                            </div>
+                            <div id="CompositeFilter.filters" class="classattr">
+                                <div class="attr variable">
+            <span class="name">filters</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CompositeFilter.filters"></a>
+    
     
 
                             </div>
@@ -1838,6 +2097,111 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="Datastore.datastore_operation_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">datastore_operation_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#DatastoreOperation">gcloud.aio.datastore.DatastoreOperation</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.datastore_operation_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.entity_result_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity_result_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#EntityResult">gcloud.aio.datastore.EntityResult</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.entity_result_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.key_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Key">gcloud.aio.datastore.Key</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.key_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.mutation_result_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">mutation_result_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#MutationResult">gcloud.aio.datastore.MutationResult</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.mutation_result_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.query_result_batch_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">query_result_batch_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#QueryResultBatch">gcloud.aio.datastore.QueryResultBatch</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.query_result_batch_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.value_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">value_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Value">gcloud.aio.datastore.Value</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.value_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.namespace" class="classattr">
+                                <div class="attr variable">
+            <span class="name">namespace</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.namespace"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.session" class="classattr">
+                                <div class="attr variable">
+            <span class="name">session</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.session"></a>
+    
+    
+
+                            </div>
+                            <div id="Datastore.token" class="classattr">
+                                <div class="attr variable">
+            <span class="name">token</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Datastore.token"></a>
+    
+    
+
+                            </div>
                             <div id="Datastore.project" class="classattr">
                                         <input id="Datastore.project-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -2542,6 +2906,61 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="DatastoreOperation.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DatastoreOperation.name"></a>
+    
+    
+
+                            </div>
+                            <div id="DatastoreOperation.done" class="classattr">
+                                <div class="attr variable">
+            <span class="name">done</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DatastoreOperation.done"></a>
+    
+    
+
+                            </div>
+                            <div id="DatastoreOperation.metadata" class="classattr">
+                                <div class="attr variable">
+            <span class="name">metadata</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DatastoreOperation.metadata"></a>
+    
+    
+
+                            </div>
+                            <div id="DatastoreOperation.error" class="classattr">
+                                <div class="attr variable">
+            <span class="name">error</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DatastoreOperation.error"></a>
+    
+    
+
+                            </div>
+                            <div id="DatastoreOperation.response" class="classattr">
+                                <div class="attr variable">
+            <span class="name">response</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DatastoreOperation.response"></a>
+    
+    
+
+                            </div>
                             <div id="DatastoreOperation.from_repr" class="classattr">
                                         <input id="DatastoreOperation.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -2805,6 +3224,52 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="Entity.key_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Key">gcloud.aio.datastore.Key</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Entity.key_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Entity.value_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">value_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Value">gcloud.aio.datastore.Value</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Entity.value_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Entity.key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Entity.key"></a>
+    
+    
+
+                            </div>
+                            <div id="Entity.properties" class="classattr">
+                                <div class="attr variable">
+            <span class="name">properties</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Entity.properties"></a>
+    
+    
+
+                            </div>
                             <div id="Entity.from_repr" class="classattr">
                                         <input id="Entity.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -2939,6 +3404,51 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="EntityResult.entity_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Entity">gcloud.aio.datastore.Entity</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EntityResult.entity_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="EntityResult.entity" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EntityResult.entity"></a>
+    
+    
+
+                            </div>
+                            <div id="EntityResult.version" class="classattr">
+                                <div class="attr variable">
+            <span class="name">version</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EntityResult.version"></a>
+    
+    
+
+                            </div>
+                            <div id="EntityResult.cursor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">cursor</span>
+
+        
+    </div>
+    <a class="headerlink" href="#EntityResult.cursor"></a>
+    
+    
+
+                            </div>
                             <div id="EntityResult.from_repr" class="classattr">
                                         <input id="EntityResult.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -3052,6 +3562,17 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="Filter.inner_filter" class="classattr">
+                                <div class="attr variable">
+            <span class="name">inner_filter</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Filter.inner_filter"></a>
+    
+    
+
+                            </div>
                             <div id="Filter.from_repr" class="classattr">
                                         <input id="Filter.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -3138,6 +3659,17 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="GQLCursor.value" class="classattr">
+                                <div class="attr variable">
+            <span class="name">value</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLCursor.value"></a>
+    
     
 
                             </div>
@@ -3251,6 +3783,62 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="GQLQuery.json_key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">json_key</span>        =
+<span class="default_value">&#39;gqlQuery&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLQuery.json_key"></a>
+    
+    
+
+                            </div>
+                            <div id="GQLQuery.query_string" class="classattr">
+                                <div class="attr variable">
+            <span class="name">query_string</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLQuery.query_string"></a>
+    
+    
+
+                            </div>
+                            <div id="GQLQuery.allow_literals" class="classattr">
+                                <div class="attr variable">
+            <span class="name">allow_literals</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLQuery.allow_literals"></a>
+    
+    
+
+                            </div>
+                            <div id="GQLQuery.named_bindings" class="classattr">
+                                <div class="attr variable">
+            <span class="name">named_bindings</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLQuery.named_bindings"></a>
+    
+    
+
+                            </div>
+                            <div id="GQLQuery.positional_bindings" class="classattr">
+                                <div class="attr variable">
+            <span class="name">positional_bindings</span>
+
+        
+    </div>
+    <a class="headerlink" href="#GQLQuery.positional_bindings"></a>
+    
+    
+
+                            </div>
                             <div id="GQLQuery.from_repr" class="classattr">
                                         <input id="GQLQuery.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -3315,6 +3903,15 @@ attributes -- see the documentation for details.</p>
 
     
 
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>gcloud.aio.datastore.query.BaseQuery</dt>
+                                <dd id="GQLQuery.value_kind" class="variable">value_kind</dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
                 <section id="Key">
@@ -3396,6 +3993,51 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="Key.path_element_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">path_element_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#PathElement">gcloud.aio.datastore.PathElement</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Key.path_element_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Key.project" class="classattr">
+                                <div class="attr variable">
+            <span class="name">project</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Key.project"></a>
+    
+    
+
+                            </div>
+                            <div id="Key.namespace" class="classattr">
+                                <div class="attr variable">
+            <span class="name">namespace</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Key.namespace"></a>
+    
+    
+
+                            </div>
+                            <div id="Key.path" class="classattr">
+                                <div class="attr variable">
+            <span class="name">path</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Key.path"></a>
+    
     
 
                             </div>
@@ -3513,6 +4155,28 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="LatLng.lat" class="classattr">
+                                <div class="attr variable">
+            <span class="name">lat</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LatLng.lat"></a>
+    
+    
+
+                            </div>
+                            <div id="LatLng.lon" class="classattr">
+                                <div class="attr variable">
+            <span class="name">lon</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LatLng.lon"></a>
+    
     
 
                             </div>
@@ -3921,6 +4585,51 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="MutationResult.key_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Key">gcloud.aio.datastore.Key</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MutationResult.key_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="MutationResult.key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MutationResult.key"></a>
+    
+    
+
+                            </div>
+                            <div id="MutationResult.version" class="classattr">
+                                <div class="attr variable">
+            <span class="name">version</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MutationResult.version"></a>
+    
+    
+
+                            </div>
+                            <div id="MutationResult.conflict_detected" class="classattr">
+                                <div class="attr variable">
+            <span class="name">conflict_detected</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MutationResult.conflict_detected"></a>
+    
+    
+
+                            </div>
                             <div id="MutationResult.from_repr" class="classattr">
                                         <input id="MutationResult.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -4196,6 +4905,39 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="PathElement.kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">kind</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PathElement.kind"></a>
+    
+    
+
+                            </div>
+                            <div id="PathElement.id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">id</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PathElement.id"></a>
+    
+    
+
+                            </div>
+                            <div id="PathElement.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PathElement.name"></a>
+    
+    
+
+                            </div>
                             <div id="PathElement.from_repr" class="classattr">
                                         <input id="PathElement.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -4298,6 +5040,17 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="Projection.prop" class="classattr">
+                                <div class="attr variable">
+            <span class="name">prop</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Projection.prop"></a>
+    
     
 
                             </div>
@@ -4414,6 +5167,51 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="PropertyFilter.json_key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">json_key</span>        =
+<span class="default_value">&#39;propertyFilter&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyFilter.json_key"></a>
+    
+    
+
+                            </div>
+                            <div id="PropertyFilter.prop" class="classattr">
+                                <div class="attr variable">
+            <span class="name">prop</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyFilter.prop"></a>
+    
+    
+
+                            </div>
+                            <div id="PropertyFilter.operator" class="classattr">
+                                <div class="attr variable">
+            <span class="name">operator</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyFilter.operator"></a>
+    
+    
+
+                            </div>
+                            <div id="PropertyFilter.value" class="classattr">
+                                <div class="attr variable">
+            <span class="name">value</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyFilter.value"></a>
+    
     
 
                             </div>
@@ -4714,6 +5512,28 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="PropertyOrder.prop" class="classattr">
+                                <div class="attr variable">
+            <span class="name">prop</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyOrder.prop"></a>
+    
+    
+
+                            </div>
+                            <div id="PropertyOrder.direction" class="classattr">
+                                <div class="attr variable">
+            <span class="name">direction</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyOrder.direction"></a>
+    
+    
+
+                            </div>
                             <div id="PropertyOrder.from_repr" class="classattr">
                                         <input id="PropertyOrder.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -4889,6 +5709,117 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="Query.json_key" class="classattr">
+                                <div class="attr variable">
+            <span class="name">json_key</span>        =
+<span class="default_value">&#39;query&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.json_key"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">kind</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.query_filter" class="classattr">
+                                <div class="attr variable">
+            <span class="name">query_filter</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.query_filter"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.orders" class="classattr">
+                                <div class="attr variable">
+            <span class="name">orders</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.orders"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.start_cursor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">start_cursor</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.start_cursor"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.end_cursor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">end_cursor</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.end_cursor"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.offset" class="classattr">
+                                <div class="attr variable">
+            <span class="name">offset</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.offset"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.limit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">limit</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.limit"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.projection" class="classattr">
+                                <div class="attr variable">
+            <span class="name">projection</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.projection"></a>
+    
+    
+
+                            </div>
+                            <div id="Query.distinct_on" class="classattr">
+                                <div class="attr variable">
+            <span class="name">distinct_on</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Query.distinct_on"></a>
+    
+    
+
+                            </div>
                             <div id="Query.from_repr" class="classattr">
                                         <input id="Query.from_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -4971,6 +5902,15 @@ attributes -- see the documentation for details.</p>
 
     
 
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>gcloud.aio.datastore.query.BaseQuery</dt>
+                                <dd id="Query.value_kind" class="variable">value_kind</dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
                 <section id="QueryResultBatch">
@@ -5089,6 +6029,95 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="QueryResultBatch.entity_result_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity_result_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#EntityResult">gcloud.aio.datastore.EntityResult</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.entity_result_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.end_cursor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">end_cursor</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.end_cursor"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.entity_result_type" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity_result_type</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.entity_result_type"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.entity_results" class="classattr">
+                                <div class="attr variable">
+            <span class="name">entity_results</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.entity_results"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.more_results" class="classattr">
+                                <div class="attr variable">
+            <span class="name">more_results</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.more_results"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.skipped_cursor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">skipped_cursor</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.skipped_cursor"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.skipped_results" class="classattr">
+                                <div class="attr variable">
+            <span class="name">skipped_results</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.skipped_results"></a>
+    
+    
+
+                            </div>
+                            <div id="QueryResultBatch.snapshot_version" class="classattr">
+                                <div class="attr variable">
+            <span class="name">snapshot_version</span>
+
+        
+    </div>
+    <a class="headerlink" href="#QueryResultBatch.snapshot_version"></a>
+    
     
 
                             </div>
@@ -5241,6 +6270,17 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="ReadWrite.previous_transaction" class="classattr">
+                                <div class="attr variable">
+            <span class="name">previous_transaction</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ReadWrite.previous_transaction"></a>
+    
     
 
                             </div>
@@ -5466,6 +6506,17 @@ attributes -- see the documentation for details.</p>
     
 
                             </div>
+                            <div id="TransactionOptions.option" class="classattr">
+                                <div class="attr variable">
+            <span class="name">option</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TransactionOptions.option"></a>
+    
+    
+
+                            </div>
                             <div id="TransactionOptions.to_repr" class="classattr">
                                         <input id="TransactionOptions.to_repr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -5620,6 +6671,40 @@ attributes -- see the documentation for details.</p>
 </span></pre></div>
 
 
+    
+
+                            </div>
+                            <div id="Value.key_kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">key_kind</span>        =
+<span class="default_value">&lt;class &#39;<a href="#Key">gcloud.aio.datastore.Key</a>&#39;&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Value.key_kind"></a>
+    
+    
+
+                            </div>
+                            <div id="Value.value" class="classattr">
+                                <div class="attr variable">
+            <span class="name">value</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Value.value"></a>
+    
+    
+
+                            </div>
+                            <div id="Value.excludeFromIndexes" class="classattr">
+                                <div class="attr variable">
+            <span class="name">excludeFromIndexes</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Value.excludeFromIndexes"></a>
+    
     
 
                             </div>
