@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-auth"
-version = "4.2.2"
+version = "4.2.3"
 description = "Python Client for Google Cloud Auth"
 readme = "README.rst"
 
