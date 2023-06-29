@@ -195,7 +195,7 @@ class Token:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if self.acquiring and not self.acquiring.cancelled():
+        if self.acquiring and not self.acquiring.done():
             await self.acquiring
             return
 
