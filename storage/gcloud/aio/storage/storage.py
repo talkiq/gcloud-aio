@@ -51,7 +51,7 @@ def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
 
     host = os.environ.get('STORAGE_EMULATOR_HOST')
     if host:
-        return True, f'http://{host}'
+        return True, host
 
     return False, 'https://www.googleapis.com'
 
