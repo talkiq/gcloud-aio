@@ -36,7 +36,7 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v2.17.2
+    rev: v3.0.0a7
     hooks:
     -   id: pylint
         additional_dependencies:
@@ -63,22 +63,22 @@ repos:
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
+    rev: v1.5.4
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.9.0
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.10.0
     hooks:
     -   id: reorder-python-imports
         args: [--py37-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.10.1
     hooks:
     -   id: pyupgrade
         args: [--py37-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+    rev: v1.5.1
     hooks:
     -   &mypy
         id: mypy
@@ -156,7 +156,7 @@ repos:
         - types-requests
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
     -   id: yesqa
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
@@ -168,13 +168,13 @@ repos:
         - flake8-commas==2.1.0
         - flake8-comprehensions==3.10.0
         - importlib-metadata<5  # TODO: nuke once we upgrade past py3.7
--   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.2
+-   repo: https://github.com/hhatto/autopep8
+    rev: v2.0.4
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
 -   repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 6.1.0
     hooks:
     -   id: flake8
         additional_dependencies: *flake8deps
@@ -219,7 +219,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.22.0
+  rev: 0.26.3
   hooks:
     - id: check-github-workflows
     - id: check-renovate
