@@ -1,0 +1,12 @@
+{
+  "assignees": ["TheKevJames"],
+  "extends": ["github>thekevjames/tools"],
+  "packageRules": [
+    // only autoupdate python patches, we'll handle minors more explicitly
+    {
+      "matchPackageNames": ["python"],
+      "updateTypes": ["major", "minor"],
+      "enabled": false,
+    },
+  ],
+}
