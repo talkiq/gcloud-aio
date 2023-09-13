@@ -265,7 +265,7 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "gcloud-rest-auth"
-version = "4.2.3"
+version = "5.0.0"
 description = "Python Client for Google Cloud Auth"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -275,7 +275,7 @@ develop = false
 [package.dependencies]
 backoff = ">= 1.0.0, < 3.0.0"
 chardet = ">= 2.0, < 6.0"
-cryptography = ">= 2.0.0, < 42.0.0"
+cryptography = ">= 2.0.0, < 44.0.0"
 pyjwt = ">= 1.5.3, < 3.0.0"
 requests = ">= 2.2.1, < 3.0.0"
 
@@ -489,4 +489,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 4.0"
-content-hash = "8567d3ad2ccb541557a950d72c93499075c04d1c812cde33e818ef3b5f1ae3f3"
+content-hash = "bbb4eb63646f2d00a3e990e5e92c255aad9d73ac3bd190420ff86cf3609657d3"

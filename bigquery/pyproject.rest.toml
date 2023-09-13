@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-bigquery"
-version = "6.3.0"
+version = "7.0.0"
 description = "Python Client for Google Cloud BigQuery"
 readme = "README.rst"
 
@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">= 3.8, < 4.0"
-gcloud-rest-auth = ">= 3.1.0, < 5.0.0"
+gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.dev-dependencies]
 gcloud-rest-auth = { path = "../auth" }

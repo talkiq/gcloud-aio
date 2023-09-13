@@ -475,7 +475,7 @@ files = [
 
 [[package]]
 name = "gcloud-aio-auth"
-version = "4.2.3"
+version = "5.0.0"
 description = "Python Client for Google Cloud Auth"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -486,7 +486,7 @@ develop = false
 aiohttp = ">= 3.3.0, < 4.0.0"
 backoff = ">= 1.0.0, < 3.0.0"
 chardet = ">= 2.0, < 6.0"
-cryptography = ">= 2.0.0, < 42.0.0"
+cryptography = ">= 2.0.0, < 44.0.0"
 pyjwt = ">= 1.5.3, < 3.0.0"
 
 [package.source]
@@ -775,4 +775,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 4.0"
-content-hash = "c48e5da36d7c6617dc9340022d571876a297ed692a148346895f91c1dc94fec9"
+content-hash = "f6f49433e2cf922193197707ab367760361b2c1f4d14b83039a3c5015e637592"

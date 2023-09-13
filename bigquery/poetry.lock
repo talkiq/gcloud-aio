@@ -486,7 +486,7 @@ files = [
 
 [[package]]
 name = "gcloud-aio-auth"
-version = "4.2.3"
+version = "5.0.0"
 description = "Python Client for Google Cloud Auth"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -497,7 +497,7 @@ develop = false
 aiohttp = ">= 3.3.0, < 4.0.0"
 backoff = ">= 1.0.0, < 3.0.0"
 chardet = ">= 2.0, < 6.0"
-cryptography = ">= 2.0.0, < 42.0.0"
+cryptography = ">= 2.0.0, < 44.0.0"
 pyjwt = ">= 1.5.3, < 3.0.0"
 
 [package.source]
@@ -506,7 +506,7 @@ url = "../auth"
 
 [[package]]
 name = "gcloud-aio-datastore"
-version = "7.4.0"
+version = "8.0.0"
 description = "Python Client for Google Cloud Datastore"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -514,7 +514,7 @@ files = []
 develop = false
 
 [package.dependencies]
-gcloud-aio-auth = ">= 3.1.0, < 5.0.0"
+gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 
 [package.source]
 type = "directory"
@@ -522,7 +522,7 @@ url = "../datastore"
 
 [[package]]
 name = "gcloud-aio-storage"
-version = "8.3.0"
+version = "9.0.0"
 description = "Python Client for Google Cloud Storage"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -531,7 +531,7 @@ develop = false
 
 [package.dependencies]
 aiofiles = ">= 0.6.0, < 24.0.0"
-gcloud-aio-auth = ">= 3.6.0, < 5.0.0"
+gcloud-aio-auth = ">= 3.6.0, < 6.0.0"
 pyasn1-modules = ">= 0.2.1, < 0.4.0"
 rsa = ">= 3.1.4, < 5.0.0"
 
@@ -895,4 +895,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 4.0"
-content-hash = "7928f2241017fdeb477f64c1acd60fbb317b8c13a1b8197796a427bd8c6c8006"
+content-hash = "263eec839508900f688a901bc16153587b2a7ca7033ae436fa81f8f68953866b"
