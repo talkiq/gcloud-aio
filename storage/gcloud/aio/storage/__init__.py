@@ -107,7 +107,7 @@ For example, using [fsouza/fake-gcs-server][fake-gcs-server], you can do:
 
 ```shell
 docker run -d -p 4443:4443 -v $PWD/my-sample-data:/data fsouza/fake-gcs-server
-export STORAGE_EMULATOR_HOST='0.0.0.0:4443'
+export STORAGE_EMULATOR_HOST='http://0.0.0.0:4443'
 ```
 
 Any `gcloud-aio-storage` requests made with that environment variable set will
