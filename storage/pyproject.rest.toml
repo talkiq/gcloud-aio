@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-storage"
-version = "8.2.0"
+version = "8.3.0"
 description = "Python Client for Google Cloud Storage"
 readme = "README.rst"
 
@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 4.0"
+python = ">= 3.8, < 4.0"
 # aiofiles = ">= 0.6.0, < 24.0.0"
 gcloud-rest-auth = ">= 3.6.0, < 5.0.0"
 pyasn1-modules = ">= 0.2.1, < 0.3.0"

@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.7
+    python: python3.8
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -63,22 +63,22 @@ repos:
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
+    rev: v1.5.3
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.9.0
+    rev: v3.10.0
     hooks:
     -   id: reorder-python-imports
-        args: [--py37-plus]
+        args: [--py38-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.10.1
     hooks:
     -   id: pyupgrade
-        args: [--py37-plus]
+        args: [--py38-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+    rev: v1.5.0
     hooks:
     -   &mypy
         id: mypy
@@ -156,31 +156,29 @@ repos:
         - types-requests
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
     -   id: yesqa
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
         # required noqa's related to these plugins
         additional_dependencies: &flake8deps
-        - flake8-2020==1.7.0
-        - flake8-broken-line==0.5.0
-        - flake8-builtins==1.5.3
+        - flake8-2020==1.8.1
+        - flake8-broken-line==1.0.0
+        - flake8-builtins==2.1.0
         - flake8-commas==2.1.0
-        - flake8-comprehensions==3.10.0
-        - importlib-metadata<5  # TODO: nuke once we upgrade past py3.7
+        - flake8-comprehensions==3.13.0
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v2.0.2
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
 -   repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 6.1.0
     hooks:
     -   id: flake8
         additional_dependencies: *flake8deps
         args:
-        # TODO: un-ignore A003
-        - --ignore=A003,E501,W503,F401,F811
+        - --ignore=E501,W503,F401,F811
 -   repo: local
     hooks:
     -   id: poetry-check
@@ -219,7 +217,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.22.0
+  rev: 0.24.1
   hooks:
     - id: check-github-workflows
     - id: check-renovate

@@ -127,7 +127,7 @@ class PushQueue:
         return await resp.json()
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/list
-    async def list(
+    async def list(  # noqa: A003
         self, full: bool = False, page_size: int = 1000,
         page_token: str = '',
         session: Optional[Session] = None,

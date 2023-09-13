@@ -6,7 +6,7 @@ and ``gcloud-rest-*``. Both of them are HTTP implementations of the Google
 Cloud client libraries. The former has been built to work with Python 3's
 asyncio. The later is a threadsafe ``requests``-based implementation.
 
-|circleci| |pythons-aio| |pythons-rest|
+|circleci| |pythons|
 
 The following clients are available:
 
@@ -78,10 +78,6 @@ Developer? See our `contribution guide`_ for how you can contribute.
     :alt: Test Status
     :target: https://circleci.com/gh/talkiq/gcloud-aio/tree/master
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (aio)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-auth/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-auth.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (rest)
-    :target: https://pypi.org/project/gcloud-rest-auth/

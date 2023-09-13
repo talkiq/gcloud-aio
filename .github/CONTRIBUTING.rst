@@ -40,8 +40,7 @@ To build and test against the ``gcloud-rest`` projects, you can run:
 
 .. code-block:: console
 
-    poetry install
-    poetry run bin/build-rest
+    ./bin/build-rest
 
     cd build/<project>/
     # run the above install & test commands as per normal
