@@ -494,11 +494,11 @@ files = []
 develop = false
 
 [package.dependencies]
-aiohttp = ">= 3.3.0, < 4.0.0"
-backoff = ">= 1.0.0, < 3.0.0"
-chardet = ">= 2.0, < 6.0"
-cryptography = ">= 2.0.0, < 42.0.0"
-pyjwt = ">= 1.5.3, < 3.0.0"
+aiohttp = "3.8.5"
+backoff = "2.2.1"
+chardet = "5.2.0"
+cryptography = "41.0.3"
+pyjwt = "2.8.0"
 
 [package.source]
 type = "directory"
@@ -895,4 +895,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8, < 4.0"
-content-hash = "d56aeb37235d0edc6ac19ef8002f7cd1a989f8de2b114e685b9ee59e465ce687"
+content-hash = "94b3abaef1944c2a3295adb337927d804dde81b869c6b120d1e8ea424cc48dbe"
