@@ -62,10 +62,10 @@ class Bucket:
             raise e
 
     async def list_blobs(
-        self, prefix: str = '',
+        self, prefix: str = '', match_glob: str = '',
         session: Optional[Session] = None,
     ) -> List[str]:
-        params = {'prefix': prefix, 'pageToken': ''}
+        params = {'prefix': prefix, 'matchGlob': match_glob, 'pageToken': ''}
         items = []
         while True:
             content = await self.storage.list_objects(
