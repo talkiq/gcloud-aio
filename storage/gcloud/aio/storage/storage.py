@@ -5,6 +5,7 @@ import json
 import logging
 import mimetypes
 import os
+import warnings
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -51,6 +52,10 @@ def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
 
     host = os.environ.get('STORAGE_EMULATOR_HOST')
     if host:
+        if not host.startswith('http'):
+            warnings.warn('STORAGE_EMULATOR_HOST must include http:// prefix',
+                          DeprecationWarning)
+            host = f'http://{host}'
         return True, host
 
     return False, 'https://www.googleapis.com'
