@@ -22,19 +22,19 @@ the address of your emulator should be enough to do the trick.
 [smoke-test]:
 https://github.com/talkiq/gcloud-aio/blob/master/bigquery/tests/integration/smoke_test.py
 """
-from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-bigquery').version
+import importlib.metadata
 
-from gcloud.aio.bigquery.bigquery import Disposition
-from gcloud.aio.bigquery.bigquery import SCOPES
-from gcloud.aio.bigquery.bigquery import SchemaUpdateOption
-from gcloud.aio.bigquery.bigquery import SourceFormat
-from gcloud.aio.bigquery.dataset import Dataset
-from gcloud.aio.bigquery.job import Job
-from gcloud.aio.bigquery.table import Table
-from gcloud.aio.bigquery.utils import query_response_to_dict
+from .bigquery import Disposition
+from .bigquery import SchemaUpdateOption
+from .bigquery import SCOPES
+from .bigquery import SourceFormat
+from .dataset import Dataset
+from .job import Job
+from .table import Table
+from .utils import query_response_to_dict
 
 
+__version__ = importlib.metadata.version('gcloud-aio-bigquery')
 __all__ = [
     'Dataset',
     'Disposition',

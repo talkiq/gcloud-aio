@@ -13,10 +13,11 @@ from urllib.parse import quote
 import rsa
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
 from pyasn1.codec.der import decoder
 from pyasn1_modules import pem
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
+
+from .constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:

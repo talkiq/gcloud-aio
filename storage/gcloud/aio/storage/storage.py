@@ -19,8 +19,9 @@ from urllib.parse import quote
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-from gcloud.aio.storage.bucket import Bucket
-from gcloud.aio.storage.constants import DEFAULT_TIMEOUT
+
+from .bucket import Bucket
+from .constants import DEFAULT_TIMEOUT
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:

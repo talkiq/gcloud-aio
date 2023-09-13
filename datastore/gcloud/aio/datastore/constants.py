@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime as dt
 
-from gcloud.aio.datastore.lat_lng import LatLng
+from .lat_lng import LatLng
 
 
 class CompositeFilterOperator(enum.Enum):

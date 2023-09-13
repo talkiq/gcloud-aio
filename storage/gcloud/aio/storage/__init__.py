@@ -146,16 +146,16 @@ class StorageWithBackoff(gcloud.aio.storage.Storage):
 [smoke-test]:
 https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py
 """
-from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-storage').version
+import importlib.metadata
 
-from gcloud.aio.storage.blob import Blob
-from gcloud.aio.storage.bucket import Bucket
-from gcloud.aio.storage.storage import SCOPES
-from gcloud.aio.storage.storage import Storage
-from gcloud.aio.storage.storage import StreamResponse
+from .blob import Blob
+from .bucket import Bucket
+from .storage import SCOPES
+from .storage import Storage
+from .storage import StreamResponse
 
 
+__version__ = importlib.metadata.version('gcloud-aio-storage')
 __all__ = [
     'Blob',
     'Bucket',

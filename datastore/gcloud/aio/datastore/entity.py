@@ -2,8 +2,8 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.value import Value
+from .key import Key
+from .value import Value
 
 
 class Entity:

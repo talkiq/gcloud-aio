@@ -175,41 +175,41 @@ class MyGQLQuery(gcloud.aio.datastore.GQLQuery):
     value_kind = MyValue
 ```
 """
-from pkg_resources import get_distribution
-__version__ = get_distribution('gcloud-aio-datastore').version
+import importlib.metadata
 
-from gcloud.aio.datastore.constants import CompositeFilterOperator
-from gcloud.aio.datastore.constants import Consistency
-from gcloud.aio.datastore.constants import Direction
-from gcloud.aio.datastore.constants import Mode
-from gcloud.aio.datastore.constants import MoreResultsType
-from gcloud.aio.datastore.constants import Operation
-from gcloud.aio.datastore.constants import PropertyFilterOperator
-from gcloud.aio.datastore.constants import ResultType
-from gcloud.aio.datastore.datastore import Datastore
-from gcloud.aio.datastore.datastore import SCOPES
-from gcloud.aio.datastore.datastore_operation import DatastoreOperation
-from gcloud.aio.datastore.entity import Entity
-from gcloud.aio.datastore.entity import EntityResult
-from gcloud.aio.datastore.filter import CompositeFilter
-from gcloud.aio.datastore.filter import Filter
-from gcloud.aio.datastore.filter import PropertyFilter
-from gcloud.aio.datastore.key import Key
-from gcloud.aio.datastore.key import PathElement
-from gcloud.aio.datastore.lat_lng import LatLng
-from gcloud.aio.datastore.mutation import MutationResult
-from gcloud.aio.datastore.projection import Projection
-from gcloud.aio.datastore.property_order import PropertyOrder
-from gcloud.aio.datastore.transaction_options import ReadOnly
-from gcloud.aio.datastore.transaction_options import ReadWrite
-from gcloud.aio.datastore.transaction_options import TransactionOptions
-from gcloud.aio.datastore.query import GQLCursor
-from gcloud.aio.datastore.query import GQLQuery
-from gcloud.aio.datastore.query import Query
-from gcloud.aio.datastore.query import QueryResultBatch
-from gcloud.aio.datastore.value import Value
+from .constants import CompositeFilterOperator
+from .constants import Consistency
+from .constants import Direction
+from .constants import Mode
+from .constants import MoreResultsType
+from .constants import Operation
+from .constants import PropertyFilterOperator
+from .constants import ResultType
+from .datastore import Datastore
+from .datastore import SCOPES
+from .datastore_operation import DatastoreOperation
+from .entity import Entity
+from .entity import EntityResult
+from .filter import CompositeFilter
+from .filter import Filter
+from .filter import PropertyFilter
+from .key import Key
+from .key import PathElement
+from .lat_lng import LatLng
+from .mutation import MutationResult
+from .projection import Projection
+from .property_order import PropertyOrder
+from .query import GQLCursor
+from .query import GQLQuery
+from .query import Query
+from .query import QueryResultBatch
+from .transaction_options import ReadOnly
+from .transaction_options import ReadWrite
+from .transaction_options import TransactionOptions
+from .value import Value
 
 
+__version__ = importlib.metadata.version('gcloud-aio-datastore')
 __all__ = [
     'CompositeFilter',
     'CompositeFilterOperator',

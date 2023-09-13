@@ -2,7 +2,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from gcloud.aio.datastore.key import Key
+from .key import Key
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit#Mutation

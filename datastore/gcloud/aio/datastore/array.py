@@ -3,7 +3,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from gcloud.aio.datastore import value
+from . import value
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue

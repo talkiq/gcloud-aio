@@ -17,10 +17,10 @@ else:
     from typing import TYPE_CHECKING
     from typing import TypeVar
 
-    from gcloud.aio.pubsub import metrics
-    from gcloud.aio.pubsub.subscriber_client import SubscriberClient
-    from gcloud.aio.pubsub.subscriber_message import SubscriberMessage
-    from gcloud.aio.pubsub.metrics_agent import MetricsAgent
+    from . import metrics
+    from .subscriber_client import SubscriberClient
+    from .subscriber_message import SubscriberMessage
+    from .metrics_agent import MetricsAgent
 
     log = logging.getLogger(__name__)
 
