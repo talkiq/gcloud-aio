@@ -36,14 +36,12 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v2.17.2
+    rev: v3.0.0a7
     hooks:
+    # TODO: re-enable pylint-import-modules when it supports pylint v3
     -   id: pylint
-        additional_dependencies:
-        - pylint-import-modules==0.3.0
         args:
-        - --allowed-direct-imports="typing.*"
-        - --load-plugins=pylint_import_modules,pylint.extensions.mccabe
+        - --load-plugins=pylint.extensions.mccabe
         - --max-complexity=10
         - --max-line-length=79
         - --max-args=10
@@ -53,7 +51,6 @@ repos:
         - -d duplicate-code
         - -d fixme
         - -d import-error
-        - -d import-only-modules
         - -d invalid-name
         - -d locally-disabled
         - -d missing-docstring
@@ -63,11 +60,11 @@ repos:
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.3
+    rev: v1.5.4
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports
+-   repo: https://github.com/asottile/reorder-python-imports
     rev: v3.10.0
     hooks:
     -   id: reorder-python-imports
@@ -78,7 +75,7 @@ repos:
     -   id: pyupgrade
         args: [--py38-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.0
+    rev: v1.5.1
     hooks:
     -   &mypy
         id: mypy
@@ -160,8 +157,8 @@ repos:
         - flake8-builtins==2.1.0
         - flake8-commas==2.1.0
         - flake8-comprehensions==3.13.0
--   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.2
+-   repo: https://github.com/hhatto/autopep8
+    rev: v2.0.4
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
@@ -210,7 +207,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.24.1
+  rev: 0.26.3
   hooks:
     - id: check-github-workflows
     - id: check-renovate

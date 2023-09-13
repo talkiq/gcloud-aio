@@ -205,7 +205,8 @@ class Token:
             if delta <= self.access_token_duration / 2:
                 return
 
-        self.acquiring = asyncio.ensure_future(self.acquire_access_token())
+        self.acquiring = asyncio.ensure_future(  # pylint: disable=used-before-assignment
+            self.acquire_access_token())
         await self.acquiring
 
     async def _refresh_authorized_user(self, timeout: int) -> Response:
