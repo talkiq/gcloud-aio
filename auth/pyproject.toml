@@ -27,7 +27,7 @@ chardet = ">= 2.0, < 6.0"
 cryptography = ">= 2.0.0, < 42.0.0"
 pyjwt = ">= 1.5.3, < 3.0.0"
 # requests = ">= 2.2.1, < 3.0.0"
-setuptools = ">= 66.0.0, < 67.0.0"  # TODO: upgrade to PEP 420 namespace packages
+setuptools = ">= 66.0.0, < 69.0.0"  # TODO: upgrade to PEP 420 namespace packages
 
 [tool.poetry.dev-dependencies]
 pytest = ">= 4.0.0, < 8.0.0"

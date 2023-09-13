@@ -25,7 +25,7 @@ aiofiles = ">= 0.6.0, < 24.0.0"
 gcloud-aio-auth = ">= 3.6.0, < 5.0.0"
 pyasn1-modules = ">= 0.2.1, < 0.3.0"
 rsa = ">= 3.1.4, < 5.0.0"
-setuptools = ">= 66.0.0, < 67.0.0"  # TODO: upgrade to PEP 420 namespace packages
+setuptools = ">= 66.0.0, < 69.0.0"  # TODO: upgrade to PEP 420 namespace packages
 
 [tool.poetry.dev-dependencies]
 gcloud-aio-auth = { path = "../auth" }
