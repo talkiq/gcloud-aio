@@ -175,7 +175,7 @@ class Token:
         if self.token_type == Type.GCE_METADATA:
             await self.ensure_token()
             resp = await self.session.get(
-                GCE_ENDPOINT_PROJECT, timeout=10,
+                GCE_ENDPOINT_PROJECT, timeout=10.,
                 headers=GCE_METADATA_HEADERS,
             )
 
@@ -209,7 +209,7 @@ class Token:
             self.acquire_access_token())
         await self.acquiring
 
-    async def _refresh_authorized_user(self, timeout: int) -> Response:
+    async def _refresh_authorized_user(self, timeout: float) -> Response:
         payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
@@ -223,13 +223,13 @@ class Token:
         )
         return resp
 
-    async def _refresh_gce_metadata(self, timeout: int) -> Response:
+    async def _refresh_gce_metadata(self, timeout: float) -> Response:
         resp: Response = await self.session.get(  # type: ignore[assignment]
             url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout,
         )
         return resp
 
-    async def _refresh_service_account(self, timeout: int) -> Response:
+    async def _refresh_service_account(self, timeout: float) -> Response:
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
@@ -257,7 +257,7 @@ class Token:
         return resp
 
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)
-    async def acquire_access_token(self, timeout: int = 10) -> None:
+    async def acquire_access_token(self, timeout: float = 10.) -> None:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:

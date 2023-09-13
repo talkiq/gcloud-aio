@@ -9,9 +9,12 @@ from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
 from .session import AioSession
+from .session import Timeout
 from .token import Token
 from .token import Type
 from .utils import encode
+from .utils import Sentinel
+from .utils import sentinel
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
@@ -62,7 +65,7 @@ class IamClient:
         service_account_email: Optional[str] = None,
         project: Optional[str] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Union[Sentinel, Timeout] = sentinel,
     ) -> Dict[str, str]:
         service_account_email = (
             service_account_email
@@ -94,7 +97,7 @@ class IamClient:
             self, service_account_email: Optional[str] = None,
             project: Optional[str] = None,
             session: Optional[Session] = None,
-            timeout: int = 10,
+            timeout: Union[Sentinel, Timeout] = sentinel,
     ) -> List[Dict[str, str]]:
         service_account_email = (
             service_account_email
@@ -122,7 +125,7 @@ class IamClient:
         service_account_email: Optional[str] = None,
         delegates: Optional[List[str]] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Union[Sentinel, Timeout] = sentinel,
     ) -> Dict[str, str]:
         service_account_email = (
             service_account_email

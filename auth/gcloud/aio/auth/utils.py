@@ -1,5 +1,10 @@
 import base64
+import enum
 from typing import Union
+
+
+Sentinel = enum.Enum('_SENTINEL', 'sentinel')
+sentinel = Sentinel.sentinel
 
 
 def decode(payload: str) -> bytes:
