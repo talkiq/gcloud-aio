@@ -8,5 +8,10 @@
       "updateTypes": ["major", "minor"],
       "enabled": false,
     },
+    {
+      "depTypeList": ["devDependencies"],
+      "rangeStrategy": "pin",
+    },
   ],
+  "rangeStrategy": "widen",
 }
