@@ -52,7 +52,7 @@ class BaseSession:
     async def get(
         self, url: str, headers: Optional[Mapping[str, str]],
         timeout: float, params: Optional[Mapping[str, Union[int, str]]],
-        stream: bool,
+        stream: bool, allow_redirects: bool,
     ) -> Response:
         pass
 
@@ -76,6 +76,14 @@ class BaseSession:
         self, url: str, headers: Mapping[str, str],
         params: Optional[Mapping[str, Union[int, str]]],
         timeout: float,
+    ) -> Response:
+        pass
+
+    @abstractmethod
+    async def head(
+        self, url: str, headers: Optional[Mapping[str, str]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
+        allow_redirects: bool,
     ) -> Response:
         pass
 
@@ -167,6 +175,7 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
+            allow_redirects: bool = False,
         ) -> aiohttp.ClientResponse:
             if stream is not None:
                 log.warning(
@@ -177,6 +186,7 @@ if not BUILD_GCLOUD_REST:
             resp = await self.session.get(
                 url, headers=headers,
                 timeout=timeout, params=params,
+                allow_redirects=allow_redirects,
             )
             await _raise_for_status(resp)
             return resp
@@ -215,6 +225,21 @@ if not BUILD_GCLOUD_REST:
             resp = await self.session.delete(
                 url, headers=headers,
                 params=params, timeout=timeout,
+            )
+            await _raise_for_status(resp)
+            return resp
+
+        async def head(  # type: ignore[override]
+            self, url: str,
+            headers: Optional[Mapping[str, str]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> aiohttp.ClientResponse:
+            resp = await self.session.head(
+                url, headers=headers,
+                params=params, timeout=timeout,
+                allow_redirects=allow_redirects,
             )
             await _raise_for_status(resp)
             return resp
@@ -274,11 +299,13 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
+            allow_redirects: bool = False,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.get(
                     url, headers=headers, timeout=timeout,
                     params=params, stream=stream,
+                    allow_redirects=allow_redirects,
                 )
             resp.raise_for_status()
             return resp
@@ -317,6 +344,20 @@ if BUILD_GCLOUD_REST:
                 resp = self.session.delete(
                     url, params=params, headers=headers,
                     timeout=timeout,
+                )
+            resp.raise_for_status()
+            return resp
+
+        async def head(
+            self, url: str, headers: Optional[Mapping[str, str]] = None,
+            timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> Response:
+            with self.google_api_lock:
+                resp = self.session.head(
+                    url, params=params, headers=headers,
+                    timeout=timeout, allow_redirects=allow_redirects,
                 )
             resp.raise_for_status()
             return resp

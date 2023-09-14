@@ -6,6 +6,9 @@ import enum
 import json
 import os
 import time
+from abc import ABCMeta
+from abc import abstractmethod
+from dataclasses import dataclass
 from typing import Any
 from typing import AnyStr
 from typing import Dict
@@ -13,7 +16,9 @@ from typing import IO
 from typing import List
 from typing import Optional
 from typing import Union
+from urllib.parse import parse_qs
 from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 import backoff
 import cryptography  # pylint: disable=unused-import
@@ -37,10 +42,8 @@ except NameError:
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
-    from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientResponse as Response  # type: ignore[assignment]
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
     import asyncio
 
@@ -51,6 +54,14 @@ GCE_ENDPOINT_PROJECT = f'{GCE_METADATA_BASE}/project/project-id'
 GCE_ENDPOINT_TOKEN = (
     f'{GCE_METADATA_BASE}/instance/service-accounts'
     '/default/token?recursive=true'
+)
+GCE_ENDPOINT_ID_TOKEN = (
+    f'{GCE_METADATA_BASE}/instance/service-accounts'
+    '/default/identity?audience={audience}'
+)
+GCLOUD_ENDPOINT_GENERATE_ID_TOKEN = (
+    'https://iamcredentials.googleapis.com'
+    '/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
 )
 GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -132,12 +143,20 @@ def get_service_data(
         return {}
 
 
-class Token:
+@dataclass
+class TokenResponse:
+    value: str
+    expires_in: int = GCLOUD_TOKEN_DURATION
+
+
+class BaseToken:
+    """GCP auth token base class."""
     # pylint: disable=too-many-instance-attributes
+    __metaclass__ = ABCMeta
+
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
-        scopes: Optional[List[str]] = None,
     ) -> None:
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -152,12 +171,6 @@ class Token:
             self.token_uri = GCE_ENDPOINT_TOKEN
 
         self.session = AioSession(session)
-        self.scopes = ' '.join(scopes or [])
-        if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
-            raise Exception(
-                'scopes must be provided when token type is '
-                'service account',
-            )
 
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
@@ -209,7 +222,48 @@ class Token:
             self.acquire_access_token())
         await self.acquiring
 
-    async def _refresh_authorized_user(self, timeout: int) -> Response:
+    @abstractmethod
+    async def refresh(self, *, timeout: int) -> TokenResponse:
+        pass
+
+    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
+    async def acquire_access_token(self, timeout: int = 10) -> None:
+        resp = await self.refresh(timeout=timeout)
+
+        self.access_token = resp.value
+        self.access_token_duration = resp.expires_in
+        self.access_token_acquired_at = datetime.datetime.utcnow()
+        self.acquiring = None
+
+    async def close(self) -> None:
+        await self.session.close()
+
+    async def __aenter__(self) -> 'BaseToken':
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self.close()
+
+
+class Token(BaseToken):
+    """GCP OAuth 2.0 access token."""
+    # pylint: disable=too-many-instance-attributes
+
+    def __init__(
+        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+        session: Optional[Session] = None,
+        scopes: Optional[List[str]] = None,
+    ) -> None:
+        super().__init__(service_file=service_file, session=session)
+
+        self.scopes = ' '.join(scopes or [])
+        if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
+            raise Exception(
+                'scopes must be provided when token type is '
+                'service account',
+            )
+
+    async def _refresh_authorized_user(self, timeout: int) -> TokenResponse:
         payload = urlencode({
             'grant_type': 'refresh_token',
             'client_id': self.service_data['client_id'],
@@ -217,19 +271,23 @@ class Token:
             'refresh_token': self.service_data['refresh_token'],
         })
 
-        resp: Response = await self.session.post(  # type: ignore[assignment]
+        resp = await self.session.post(
             url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
             timeout=timeout,
         )
-        return resp
+        content = await resp.json()
+        return TokenResponse(value=str(content['access_token']),
+                             expires_in=int(content['expires_in']))
 
-    async def _refresh_gce_metadata(self, timeout: int) -> Response:
-        resp: Response = await self.session.get(  # type: ignore[assignment]
+    async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
+        resp = await self.session.get(
             url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout,
         )
-        return resp
+        content = await resp.json()
+        return TokenResponse(value=str(content['access_token']),
+                             expires_in=int(content['expires_in']))
 
-    async def _refresh_service_account(self, timeout: int) -> Response:
+    async def _refresh_service_account(self, timeout: int) -> TokenResponse:
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
@@ -250,14 +308,15 @@ class Token:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
 
-        resp: Response = await self.session.post(  # type: ignore[assignment]
+        resp = await self.session.post(
             self.token_uri, data=payload, headers=REFRESH_HEADERS,
             timeout=timeout,
         )
-        return resp
+        content = await resp.json()
+        return TokenResponse(value=str(content['access_token']),
+                             expires_in=int(content['expires_in']))
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
-    async def acquire_access_token(self, timeout: int = 10) -> None:
+    async def refresh(self, *, timeout: int) -> TokenResponse:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
@@ -267,18 +326,159 @@ class Token:
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
+        return resp
+
+
+class IapToken(BaseToken):
+    """An OpenID Connect ID token for a single IAP-secured service."""
+
+    def __init__(
+        self, app_uri: str,
+        service_file: Optional[Union[str, IO[AnyStr]]] = None,
+        session: Optional[Session] = None,
+        service_account: Optional[str] = None,
+    ) -> None:
+        super().__init__(service_file=service_file, session=session)
+
+        self.app_uri = app_uri
+        self.service_account = service_account
+
+        if (self.token_type == Type.AUTHORIZED_USER
+                and not self.service_account):
+            raise Exception(
+                'service account name must be provided when token type is '
+                'authorized user',
+            )
+
+    async def _get_iap_client_id(self, *, timeout: int) -> str:
+        """
+        Fetch the IAP client ID from the service URI.
+
+        If not logged in already, then we parse the OAuth redirect location to
+        get the client ID. The redirect location is a header of the form:
+
+            https://accounts.google.com/o/oauth2/v2/auth?client_id=<id>&...
+
+        For more details, see the GCP docs for programmatic IAP access:
+        https://cloud.google.com/iap/docs/authentication-howto
+        """
+        resp = await self.session.head(self.app_uri, timeout=timeout,
+                                       allow_redirects=False)
+
+        redirect_location = resp.headers.get('location')
+        if not redirect_location:
+            raise Exception(f'No redirect location for service {self.app_uri},'
+                            ' is it secured with IAP?')
+
+        parsed_uri = urlparse(redirect_location)
+        query = parse_qs(parsed_uri.query)
+        client_id: str = query.get('client_id', [''])[0]
+        if not client_id:
+            raise Exception(f'No client ID found for service {self.app_uri},'
+                            ' is it secured with IAP?')
+        return client_id
+
+    async def _refresh_authorized_user(
+        self, iap_client_id: str,
+        timeout: int,
+    ) -> TokenResponse:
+        """
+        Fetch IAP ID token by impersonating a service account.
+
+        https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
+        """
+        async def get_access_token(timeout: int) -> str:
+            payload = urlencode({
+                'grant_type': 'refresh_token',
+                'client_id': self.service_data['client_id'],
+                'client_secret': self.service_data['client_secret'],
+                'refresh_token': self.service_data['refresh_token'],
+            })
+
+            resp = await self.session.post(
+                url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+                timeout=timeout,
+            )
+
+            content = await resp.json()
+            return str(content['access_token'])
+
+        headers = {
+            'Authorization': f'Bearer {await get_access_token(timeout)}',
+        }
+        payload = urlencode({
+            'includeEmail': 'true',
+            'audience': iap_client_id,
+        })
+        resp = await self.session.post(
+            GCLOUD_ENDPOINT_GENERATE_ID_TOKEN.format(
+                service_account=self.service_account),
+            data=payload, headers=headers, timeout=timeout)
+
         content = await resp.json()
+        return TokenResponse(value=content['token'])
 
-        self.access_token = str(content['access_token'])
-        self.access_token_duration = int(content['expires_in'])
-        self.access_token_acquired_at = datetime.datetime.utcnow()
-        self.acquiring = None
+    async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
+        """
+        Fetch IAP ID token from the GCE metadata servers.
 
-    async def close(self) -> None:
-        await self.session.close()
+        https://cloud.google.com/docs/authentication/get-id-token#metadata-server
+        """
+        resp = await self.session.get(
+            GCE_ENDPOINT_ID_TOKEN.format(audience=self.app_uri),
+            headers=GCE_METADATA_HEADERS, timeout=timeout,
+            allow_redirects=True)
+        token = await resp.text()
+        return TokenResponse(value=token)
 
-    async def __aenter__(self) -> 'Token':
-        return self
+    async def _refresh_service_account(
+        self, iap_client_id: str,
+        timeout: int,
+    ) -> TokenResponse:
+        now = int(time.time())
+        expiry = now + GCLOUD_TOKEN_DURATION
 
-    async def __aexit__(self, *args: Any) -> None:
-        await self.close()
+        assertion_payload = {
+            'iss': self.service_data['client_email'],
+            'aud': self.token_uri,
+            'exp': expiry,
+            'iat': now,
+            'sub': self.service_data['client_email'],
+            'target_audience': iap_client_id,
+            'scope': 'https://www.googleapis.com/auth/iam',
+        }
+
+        assertion = jwt.encode(
+            assertion_payload,
+            self.service_data['private_key'],
+            algorithm='RS256',
+        )
+
+        payload = urlencode({
+            'assertion': assertion,
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        })
+
+        resp = await self.session.post(self.token_uri, data=payload,
+                                       headers=REFRESH_HEADERS,
+                                       timeout=timeout)
+
+        content = await resp.json()
+        return TokenResponse(value=content['id_token'],
+                             expires_in=expiry - int(time.time()))
+
+    async def refresh(self, *, timeout: int) -> TokenResponse:
+        if self.token_type == Type.AUTHORIZED_USER:
+            iap_client_id = await self._get_iap_client_id(timeout=timeout)
+            resp = await self._refresh_authorized_user(
+                iap_client_id, timeout=timeout)
+        elif self.token_type == Type.GCE_METADATA:
+            resp = await self._refresh_gce_metadata(timeout=timeout)
+        elif self.token_type == Type.SERVICE_ACCOUNT:
+            iap_client_id = await self._get_iap_client_id(timeout=timeout)
+            resp = await self._refresh_service_account(
+                iap_client_id, timeout=timeout)
+        else:
+            raise Exception(f'unsupported token type {self.token_type}')
+
+        return resp
