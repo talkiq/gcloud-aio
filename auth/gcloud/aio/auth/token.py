@@ -406,8 +406,8 @@ class IapToken(BaseToken):
         headers = {
             'Authorization': f'Bearer {await get_access_token(timeout)}',
         }
-        payload = urlencode({
-            'includeEmail': 'true',
+        payload = json.dumps({
+            'includeEmail': True,
             'audience': iap_client_id,
         })
         resp = await self.session.post(
@@ -445,7 +445,6 @@ class IapToken(BaseToken):
             'iat': now,
             'sub': self.service_data['client_email'],
             'target_audience': iap_client_id,
-            'scope': 'https://www.googleapis.com/auth/iam',
         }
 
         assertion = jwt.encode(
