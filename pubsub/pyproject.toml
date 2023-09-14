@@ -24,12 +24,16 @@ python = ">= 3.8, < 4.0"
 gcloud-aio-auth = ">= 3.3.0, < 6.0.0"
 prometheus-client = ">= 0.13.1, < 1.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 aiohttp = ">= 3.3.0, < 4.0.0"
 gcloud-aio-auth = { path = "../auth" }
 pytest = ">= 4.0.0, < 8.0.0"
 pytest-asyncio = ">= 0.16.0, < 0.22.0"
 pytest-mock = ">= 2.0.0, < 4.0.0"
+
+[[tool.poetry.source]]
+name = "pypi"
+priority = "primary"
 
 [tool.pytest.ini_options]
 # addopts = "-Werror"  # TODO: fixme

@@ -61,6 +61,7 @@ class PemKind(enum.Enum):
         if marker_id == 1:
             # "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER
     """
+
     INVALID = -1
     PKCS1 = 0
     PKCS8 = 1

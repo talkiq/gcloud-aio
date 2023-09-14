@@ -117,7 +117,8 @@ class UploadType(enum.Enum):
 
 
 class StreamResponse:
-    """This class provides an abstraction between the slightly different
+    """
+    This class provides an abstraction between the slightly different
     recommended streaming implementations between requests and aiohttp.
     """
 
@@ -223,20 +224,21 @@ class Storage:
         session: Optional[Session] = None,
     ) -> Dict[str, Any]:
         """
-        When files are too large, multiple calls to `rewriteTo` are made. We
-        refer to the same copy job by using the `rewriteToken` from the
-        previous return payload in subsequent `rewriteTo` calls.
+        When files are too large, multiple calls to ``rewriteTo`` are made. We
+        refer to the same copy job by using the ``rewriteToken`` from the
+        previous return payload in subsequent ``rewriteTo`` calls.
 
-        Using the `rewriteTo` GCS API is preferred in part because it is able
-        to make multiple calls to fully copy an object whereas the `copyTo` GCS
-        API only calls `rewriteTo` once under the hood, and thus may fail if
-        files are large.
+        Using the ``rewriteTo`` GCS API is preferred in part because it is able
+        to make multiple calls to fully copy an object whereas the ``copyTo``
+        GCS API only calls ``rewriteTo`` once under the hood, and thus may fail
+        if files are large.
 
         In the rare case you need to resume a copy operation, include the
-        `rewriteToken` in the `params` dictionary. Once you begin a multi-part
-        copy operation, you then have 1 week to complete the copy job.
+        ``rewriteToken`` in the ``params`` dictionary. Once you begin a
+        multi-part copy operation, you then have 1 week to complete the copy
+        job.
 
-        https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+        See https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
         """
         # pylint: disable=too-many-locals
         if not new_name:
@@ -361,18 +363,17 @@ class Storage:
         timeout: int = DEFAULT_TIMEOUT,
         session: Optional[Session] = None,
     ) -> StreamResponse:
-        """Download a GCS object in a buffered stream.
+        """
+        Download a GCS object in a buffered stream.
 
         Args:
-            bucket (str): The bucket from which to download.
-            object_name (str): The object within the bucket to download.
-            headers (Optional[Dict[str, Any]], optional): Custom header values
-                for the request, such as range. Defaults to None.
-            timeout (int, optional): Timeout, in seconds, for the request. Note
-                that with this function, this is the time to the beginning of
-                the response data (TTFB). Defaults to 10.
-            session (Optional[Session], optional): A specific session to
-                (re)use. Defaults to None.
+            bucket: The bucket from which to download.
+            object_name: The object within the bucket to download.
+            headers: Custom header values for the request, such as range.
+            timeout: Timeout, in seconds, for the request. Note that with this
+                function, this is the time to the beginning of the response
+                data (TTFB).
+            session: A specific session to (re)use.
 
         Returns:
             StreamResponse: A object encapsulating the stream, similar to
