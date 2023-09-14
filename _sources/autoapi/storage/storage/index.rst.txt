@@ -201,9 +201,7 @@ Attributes
       multi-part copy operation, you then have 1 week to complete the copy
       job.
 
-      See `docs`_.
-
-      .. _docs: https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+      See https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
 
 
    .. py:method:: delete(bucket, object_name, *, timeout = DEFAULT_TIMEOUT, params = None, headers = None, session = None)
