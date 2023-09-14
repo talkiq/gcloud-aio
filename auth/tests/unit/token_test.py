@@ -22,10 +22,7 @@ async def test_service_as_io():
     }
 
     service_file = io.StringIO(f'{json.dumps(service_data)}')
-    t = token.Token(
-        service_file=service_file,
-        scopes=['https://google.com/random-scope'],
-    )
+    t = token.BaseToken(service_file=service_file)
 
     assert t.token_type == token.Type.SERVICE_ACCOUNT
     assert t.token_uri == 'https://oauth2.googleapis.com/token'
