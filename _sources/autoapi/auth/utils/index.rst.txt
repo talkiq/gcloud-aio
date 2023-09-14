@@ -1,0 +1,36 @@
+:py:mod:`auth.utils`
+====================
+
+.. py:module:: auth.utils
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   auth.utils.decode
+   auth.utils.encode
+
+
+
+.. py:function:: decode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+
+.. py:function:: encode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+

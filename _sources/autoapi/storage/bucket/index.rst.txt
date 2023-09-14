@@ -1,0 +1,54 @@
+:py:mod:`storage.bucket`
+========================
+
+.. py:module:: storage.bucket
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   storage.bucket.Bucket
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   storage.bucket.log
+
+
+.. py:data:: log
+
+   
+
+.. py:class:: Bucket(storage, name)
+
+
+   .. py:method:: get_blob(blob_name, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+   .. py:method:: blob_exists(blob_name, session = None)
+      :async:
+
+
+   .. py:method:: list_blobs(prefix = '', match_glob = '', session = None)
+      :async:
+
+
+   .. py:method:: new_blob(blob_name)
+
+
+   .. py:method:: get_metadata(params = None, session = None)
+      :async:
+
+
+

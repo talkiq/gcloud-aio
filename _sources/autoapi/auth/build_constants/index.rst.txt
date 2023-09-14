@@ -1,0 +1,13 @@
+:py:mod:`auth.build_constants`
+==============================
+
+.. py:module:: auth.build_constants
+
+
+Module Contents
+---------------
+
+.. py:data:: BUILD_GCLOUD_REST
+
+   
+

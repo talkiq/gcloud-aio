@@ -1,0 +1,112 @@
+:py:mod:`pubsub.publisher_client`
+=================================
+
+.. py:module:: pubsub.publisher_client
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.publisher_client.PublisherClient
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.publisher_client.init_api_root
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.publisher_client.SCOPES
+   pubsub.publisher_client.log
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/pubsub']
+
+   
+
+.. py:data:: log
+
+   
+
+.. py:function:: init_api_root(api_root)
+
+
+.. py:class:: PublisherClient(*, service_file = None, session = None, token = None, api_root = None)
+
+
+   .. py:attribute:: _api_root
+      :type: str
+
+      
+
+   .. py:attribute:: _api_is_dev
+      :type: bool
+
+      
+
+   .. py:method:: project_path(project)
+      :staticmethod:
+
+
+   .. py:method:: subscription_path(project, subscription)
+      :classmethod:
+
+
+   .. py:method:: topic_path(project, topic)
+      :classmethod:
+
+
+   .. py:method:: _headers()
+      :async:
+
+
+   .. py:method:: list_topics(project, query_params = None, *, session = None, timeout = 10)
+      :async:
+
+      List topics
+
+
+   .. py:method:: create_topic(topic, body = None, *, session = None, timeout = 10)
+      :async:
+
+      Create topic.
+
+
+   .. py:method:: delete_topic(topic, *, session = None, timeout = 10)
+      :async:
+
+      Delete topic.
+
+
+   .. py:method:: publish(topic, messages, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+

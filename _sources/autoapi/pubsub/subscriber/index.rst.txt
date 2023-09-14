@@ -1,0 +1,13 @@
+:py:mod:`pubsub.subscriber`
+===========================
+
+.. py:module:: pubsub.subscriber
+
+
+Module Contents
+---------------
+
+.. py:data:: log
+
+   
+

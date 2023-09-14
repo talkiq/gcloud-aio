@@ -1,0 +1,53 @@
+:py:mod:`datastore.array`
+=========================
+
+.. py:module:: datastore.array
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   datastore.array.Array
+
+
+
+
+.. py:class:: Array(items)
+
+
+   Bases: :py:obj:`collections.abc.Sequence`
+
+   All the operations on a read-only sequence.
+
+   Concrete subclasses must override __new__ or __init__,
+   __getitem__, and __len__.
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: __getitem__(index)
+
+
+   .. py:method:: __len__()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+

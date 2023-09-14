@@ -1,0 +1,132 @@
+:py:mod:`pubsub.subscriber_client`
+==================================
+
+.. py:module:: pubsub.subscriber_client
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.subscriber_client.SubscriberClient
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.subscriber_client.init_api_root
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.subscriber_client.SCOPES
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/pubsub']
+
+   
+
+.. py:function:: init_api_root(api_root)
+
+
+.. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None)
+
+
+   .. py:attribute:: _api_root
+      :type: str
+
+      
+
+   .. py:attribute:: _api_is_dev
+      :type: bool
+
+      
+
+   .. py:method:: project_path(project)
+      :staticmethod:
+
+
+   .. py:method:: subscription_path(project, subscription)
+      :classmethod:
+
+
+   .. py:method:: topic_path(project, topic)
+      :classmethod:
+
+
+   .. py:method:: _headers()
+      :async:
+
+
+   .. py:method:: create_subscription(subscription, topic, body = None, *, session = None, timeout = 10)
+      :async:
+
+      Create subscription.
+
+
+   .. py:method:: patch_subscription(subscription, body, *, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: delete_subscription(subscription, *, session = None, timeout = 10)
+      :async:
+
+      Delete subscription.
+
+
+   .. py:method:: pull(subscription, max_messages, *, session = None, timeout = 30)
+      :async:
+
+      Pull messages from subscription
+
+
+   .. py:method:: acknowledge(subscription, ack_ids, *, session = None, timeout = 10)
+      :async:
+
+      Acknowledge messages by ackIds
+
+
+   .. py:method:: modify_ack_deadline(subscription, ack_ids, ack_deadline_seconds, *, session = None, timeout = 10)
+      :async:
+
+      Modify messages' ack deadline.
+      Set ack deadline to 0 to nack messages.
+
+
+   .. py:method:: get_subscription(subscription, *, session = None, timeout = 10)
+      :async:
+
+      Get Subscription
+
+
+   .. py:method:: list_subscriptions(project, query_params = None, *, session = None, timeout = 10)
+      :async:
+
+      List subscriptions
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+

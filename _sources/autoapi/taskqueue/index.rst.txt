@@ -1,0 +1,132 @@
+:py:mod:`taskqueue`
+===================
+
+.. py:module:: taskqueue
+
+.. autoapi-nested-parse::
+
+   This library implements various methods for working with the Google Taskqueue
+   APIs.
+
+   Installation
+   ------------
+
+   .. code-block:: console
+
+       $ pip install --upgrade gcloud-aio-taskqueue
+
+   Usage
+   -----
+
+   We're still working on documentation -- for now, you can use the `smoke tests`_
+   as an example.
+
+   Emulators
+   ---------
+
+   For testing purposes, you may want to use ``gcloud-aio-taskqueue`` along with a
+   local emulator. Setting the ``$CLOUDTASKS_EMULATOR_HOST`` environment variable
+   to the address of your emulator should be enough to do the trick.
+
+   .. _smoke tests: https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   queue/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   taskqueue.PushQueue
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   taskqueue.SCOPES
+   taskqueue.__version__
+
+
+.. py:class:: PushQueue(project, taskqueue, location = 'us-central1', service_file = None, session = None, token = None, api_root = None)
+
+
+   .. py:attribute:: _api_root
+      :type: str
+
+      
+
+   .. py:attribute:: _api_is_dev
+      :type: bool
+
+      
+
+   .. py:attribute:: _queue_path
+      :type: str
+
+      
+
+   .. py:method:: headers()
+      :async:
+
+
+   .. py:method:: task_name(task_id)
+
+
+   .. py:method:: create(task, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: delete(tname, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: get(tname, full = False, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: list(full = False, page_size = 1000, page_token = '', session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: run(tname, full = False, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/cloud-tasks']
+
+   
+
+.. py:data:: __version__
+
+   
+

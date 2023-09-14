@@ -1,0 +1,223 @@
+:py:mod:`auth`
+==============
+
+.. py:module:: auth
+
+.. autoapi-nested-parse::
+
+   This library implements various methods for working with the Google IAM / auth
+   APIs. This includes authenticating for the purpose of using other Google APIs,
+   managing service accounts and public keys, URL-signing blobs, etc.
+
+   Installation
+   ------------
+
+   .. code-block:: console
+
+       $ pip install --upgrade gcloud-aio-auth
+
+   Usage
+   -----
+
+   .. code-block:: python
+
+       from gcloud.aio.auth import IamClient
+       from gcloud.aio.auth import Token
+
+
+       client = IamClient()
+       pubkeys = await client.list_public_keys()
+
+       token = Token()
+       print(await token.get())
+
+   Additionally, the ``Token`` constructor accepts the following optional
+   arguments:
+
+   * ``service_file``: path to a `service account`_ authorized user file, or any
+     other application credentials. Alternatively, you can pass a file-like
+     object, like an ``io.StringIO`` instance, in case your credentials are not
+     stored in a file but in memory. If omitted, will attempt to find one on your
+     path or fallback to generating a token from GCE metadata.
+   * ``session``: an ``aiohttp.ClientSession`` instance to be used for all
+     requests. If omitted, a default session will be created. If you use the
+     default session, you may be interested in using ``Token()`` as a context
+     manager (``async with Token(..) as token:``) or explicitly calling the
+     ``Token.close()`` method to ensure the session is cleaned up appropriately.
+   * ``scopes``: an optional list of GCP `scopes`_ for which to generate our
+     token. Only valid (and required!) for `service account`_ authentication.
+
+   CLI
+   ---
+
+   This project can also be used to help you manually authenticate to test GCP
+   routes, eg. we can list our project's uptime checks with a tool such as
+   ``curl``:
+
+   .. code-block:: console
+
+       # using default application credentials
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+       # using a service account (make sure to provide a scope!)
+       export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service.json
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token(scopes=["'"https://www.googleapis.com/auth/cloud-platform"'"]).get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+       # using legacy account credentials
+       export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/EMAIL@DOMAIN.TLD/adc.json
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+   .. _service account: https://console.cloud.google.com/iam-admin/serviceaccounts
+   .. _scopes: https://developers.google.com/identity/protocols/oauth2/scopes
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   build_constants/index.rst
+   iam/index.rst
+   session/index.rst
+   token/index.rst
+   utils/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   auth.IamClient
+   auth.Token
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   auth.decode
+   auth.encode
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   auth.BUILD_GCLOUD_REST
+   auth.__version__
+
+
+.. py:data:: BUILD_GCLOUD_REST
+
+   
+
+.. py:class:: IamClient(service_file = None, session = None, token = None)
+
+
+   .. py:property:: service_account_email
+      :type: Optional[str]
+
+
+   .. py:method:: headers()
+      :async:
+
+
+   .. py:method:: get_public_key(key_id = None, key = None, service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: list_public_keys(service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: sign_blob(payload, service_account_email = None, delegates = None, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:class:: Token(service_file = None, session = None, scopes = None)
+
+
+   .. py:method:: get_project()
+      :async:
+
+
+   .. py:method:: get()
+      :async:
+
+
+   .. py:method:: ensure_token()
+      :async:
+
+
+   .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+   .. py:method:: _refresh_gce_metadata(timeout)
+      :async:
+
+
+   .. py:method:: _refresh_service_account(timeout)
+      :async:
+
+
+   .. py:method:: acquire_access_token(timeout = 10)
+      :async:
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:function:: decode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+
+.. py:function:: encode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+
+.. py:data:: __version__
+
+   
+

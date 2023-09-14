@@ -1,0 +1,14 @@
+:py:mod:`storage.constants`
+===========================
+
+.. py:module:: storage.constants
+
+
+Module Contents
+---------------
+
+.. py:data:: DEFAULT_TIMEOUT
+   :value: 10
+
+   
+

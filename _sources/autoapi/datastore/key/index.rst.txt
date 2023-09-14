@@ -1,0 +1,66 @@
+:py:mod:`datastore.key`
+=======================
+
+.. py:module:: datastore.key
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   datastore.key.PathElement
+   datastore.key.Key
+
+
+
+
+.. py:class:: PathElement(kind, *, id_ = None, name = None)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Key(project, path, namespace = '')
+
+
+   .. py:attribute:: path_element_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+

@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<title>(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python</title>
+<title>gcloud-aio - Search</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha256-NuCn4IvuZXdBaFKJOAcsU2Q3ZpwbdFisd5dux4jkQ5w=" crossorigin="anonymous"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
@@ -24,6 +23,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js" integrity="sha512-2V49R8ndaagCOnwmj8QnbT1Gz/rie17UouD9Re5WxbzRVUGoftCu5IuqqtAM9+UC3fwfHCSJR1hkzNQh/2wdtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/tooltipster@4.2.8/dist/js/tooltipster.bundle.min.js" integrity="sha256-v8akIv8SCqn5f3mbVB7vEWprIizxPh6oV0yhao/dbB4=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <script>
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -36,10 +36,13 @@
       };
       $(document).data('sizzle', {on_load: []});
     </script>
-    <script src="app-data.js"></script>
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
 <link rel="index" title="Index" href="genindex.html" />
-<link rel="search" title="Search" href="search.html" />
-<link rel="next" title="auth" href="autoapi/auth/index.html" />
+<link rel="search" title="Search" href="#" />
+
+  <script src="searchindex.js" defer></script>
+  
 
 </head>
 <body class="full-height test">
@@ -54,12 +57,12 @@
       <div id="hdr-left">
         <i class="fa fa-bars menu-toggle"></i>
         
-<span class="text-logo">gcloud-aio  documentation</span>
+<a href="index.html" class="text-logo">gcloud-aio  documentation</a>
 
       </div>
       <div id="hdr-centre" class="text-center stretch">
-        <h3 title="(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python">(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python</h3>
-        <h6>(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python</h6>
+        <h3 title="Search">Search</h3>
+        <h6>Search</h6>
       </div>
       <div id="hdr-search">
         
@@ -75,32 +78,19 @@
         <a href="genindex.html" class="btn btn-default" title="Go to the index"><i class="fa fa-list"></i></a>
       </div>
 
-      <div id="hdr-source">
-        <a href="_sources/index.rst.txt" class="btn btn-default" title="See the source for this page"><i class="fa fa-code"></i></a>
-      </div>
-
       <div id="hdr-right">
         
-  
-  <div class="prev-next">
-    
-      <div class="pull-right">
-        <a class="btn btn-default next" href="autoapi/auth/index.html" title="Next chapter (auth)"><span class="btn-text">auth</span>&nbsp;<i class="fa fa-chevron-right ml-1em" aria-hidden="true"></i></a>
-      </div>
-    </div>
   
       </div>
       <div id="alt-hdr-right">
 
 
+        <a href="index.html"><i class="fa fa-home mr-8"></i></a>
 
-        <a href="search.html"><i class="fa fa-search mr-8"></i></a>
 
 
         <a href="genindex.html"><i class="fa fa-list mr-8"></i></a>
 
-
-        <a href="autoapi/auth/index.html"><i class="fa fa-chevron-right"></i></a>
 
       </div>
     </div>
@@ -1925,34 +1915,48 @@
           </div>
           <div class="body">
             
-  <section id="asyncio-or-threadsafe-google-cloud-client-libraries-for-python">
-<h1>(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python<a class="headerlink" href="#asyncio-or-threadsafe-google-cloud-client-libraries-for-python" title="Link to this heading">¶</a></h1>
-<p>These docs describe the shared codebase for <code class="docutils literal notranslate"><span class="pre">gcloud-aio-*</span></code> and
-<code class="docutils literal notranslate"><span class="pre">gcloud-rest-*</span></code>. Both of them are HTTP implementations of the Google Cloud
-client libraries: the former has been built to with asyncio (using the
-<code class="docutils literal notranslate"><span class="pre">aiohttp</span></code> library) and the latter is a threadsafe <code class="docutils literal notranslate"><span class="pre">requests</span></code>-based
-implementation.</p>
-<section id="table-of-contents">
-<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/auth/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">auth</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/bigquery/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bigquery</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/datastore/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">datastore</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/kms/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">kms</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/pubsub/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pubsub</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/storage/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">storage</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="autoapi/taskqueue/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">taskqueue</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href=".github/CONTRIBUTING.html">Contributing to <code class="docutils literal notranslate"><span class="pre">gcloud-aio</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href=".github/RELEASE.html">Releasing New Versions</a></li>
-</ul>
-</div>
-<ul class="simple">
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-</ul>
-</section>
-</section>
+  <h1 id="search-documentation">Search</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    Please activate JavaScript to enable the search
+    functionality.
+  </p>
+  </div>
+  <div class="search-page-form">
+    <div class="section">
+      <p>Enter your search words into the box below and hit
+      "search". Note that the search function will automatically search for all
+      of the words. Pages containing fewer words won't appear in the result
+      list.</p>
+    </div>
+    <form class="form-inline" action="#" method="GET" role="form">
+      <div class="input-group">
+        <input name="q" type="text" class="form-control" placeholder="Search docs"/>
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button">search</button>
+        </span>
+      </div>
+      <span id="search-progress" style="padding-left: 10px"></span>
+    </form>
+  </div>
 
+  <div id="search-hint" class="hidden">Enter your search criteria in the search
+  box above or at left.</div>
+  <div id="search-results"></div>
+  <script>
+  function prepare_page() {
+    var params = $.getQueryParameters();
+
+    if (!params.q) {
+      $('#search-hint').removeClass('hidden');
+    }
+  }
+
+  var sizzle = $(document).data('sizzle');
+
+  sizzle.on_load.push(prepare_page);
+  </script>
 
           </div>
         </div>
@@ -1996,7 +2000,12 @@ $(document).ready(function() {
   var nav_width = $nav.width();
 
 
-  var search_url = 'search.html';
+  var params = $.getQueryParameters();
+  var search_url = '';
+  if (params.q) {
+      var query = params.q[0];
+      $search.val(query).filter(':visible').focus();
+  }
 
   function perform_search(e) {
     var $elem;

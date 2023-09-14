@@ -1,0 +1,41 @@
+:py:mod:`pubsub.subscriber_message`
+===================================
+
+.. py:module:: pubsub.subscriber_message
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.subscriber_message.SubscriberMessage
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.subscriber_message.parse_publish_time
+
+
+
+.. py:function:: parse_publish_time(publish_time)
+
+
+.. py:class:: SubscriberMessage(ack_id, message_id, publish_time, data, attributes, delivery_attempt = None)
+
+
+   .. py:method:: from_repr(received_message)
+      :staticmethod:
+
+
+   .. py:method:: to_repr()
+
+
+

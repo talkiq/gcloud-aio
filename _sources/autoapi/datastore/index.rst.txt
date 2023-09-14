@@ -1,0 +1,1313 @@
+:py:mod:`datastore`
+===================
+
+.. py:module:: datastore
+
+.. autoapi-nested-parse::
+
+   This library implements various methods for working with the Google Datastore
+   APIs.
+
+   Installation
+   ------------
+
+   .. code-block:: console
+
+       $ pip install --upgrade gcloud-aio-datastore
+
+   Usage
+   -----
+
+   We're still working on documentation; for now, this should help get you
+   started:
+
+   .. code-block:: python
+
+       from gcloud.aio.datastore import Datastore
+       from gcloud.aio.datastore import Direction
+       from gcloud.aio.datastore import Filter
+       from gcloud.aio.datastore import GQLQuery
+       from gcloud.aio.datastore import Key
+       from gcloud.aio.datastore import PathElement
+       from gcloud.aio.datastore import PropertyFilter
+       from gcloud.aio.datastore import PropertyFilterOperator
+       from gcloud.aio.datastore import PropertyOrder
+       from gcloud.aio.datastore import Query
+       from gcloud.aio.datastore import Value
+
+       ds = Datastore('my-gcloud-project', '/path/to/creds.json')
+       key1 = Key('my-gcloud-project', [PathElement('Kind', 'entityname')])
+       key2 = Key('my-gcloud-project', [PathElement('Kind', 'entityname2')])
+
+       # batched lookups
+       entities = await ds.lookup([key1, key2])
+
+       # convenience functions for any datastore mutations
+       await ds.insert(key1, {'a_boolean': True, 'meaning_of_life': 41})
+       await ds.update(key1, {'a_boolean': True, 'meaning_of_life': 42})
+       await ds.upsert(key1, {'animal': 'aardvark'})
+       await ds.delete(key1)
+
+       # or build your own mutation sequences with full transaction support
+       transaction = await ds.beginTransaction()
+       try:
+           mutations = [
+               ds.make_mutation(Operation.INSERT, key1,
+                                properties={'animal': 'sloth'}),
+               ds.make_mutation(Operation.UPSERT, key1,
+                                properties={'animal': 'aardvark'}),
+               ds.make_mutation(Operation.INSERT, key2,
+                                properties={'animal': 'aardvark'}),
+           ]
+           await ds.commit(transaction, mutations=mutations)
+       except Exception:
+           await ds.rollback(transaction)
+
+       # support for partial keys
+       partial_key = Key('my-gcloud-project', [PathElement('Kind')])
+       # and ID allocation or reservation
+       allocated_keys = await ds.allocateIds([partial_key])
+       await ds.reserveIds(allocated_keys)
+
+       # query support
+       property_filter = PropertyFilter(prop='answer',
+                                        operator=PropertyFilterOperator.EQUAL,
+                                        value=Value(42))
+       property_order = PropertyOrder(prop='length',
+                                      direction=Direction.DESCENDING)
+       query = Query(kind='the_meaning_of_life',
+                     query_filter=Filter(property_filter),
+                     order=property_order)
+       results = await ds.runQuery(query, session=s)
+
+       # alternatively, query support using GQL
+       gql_query = GQLQuery(
+           'SELECT * FROM meaning_of_life WHERE answer = @answer',
+           named_bindings={'answer': 42})
+       results = await ds.runQuery(gql_query, session=s)
+
+       # close the HTTP session
+       # Note that other options include:
+       # * providing your own session: `Datastore(.., session=session)`
+       # * using a context manager: `async with Datastore(..) as ds:`
+       await ds.close()
+
+   Custom Subclasses
+   -----------------
+
+   ``gcloud-aio-datastore`` provides class interfaces mirroring all official
+   Google API types, ie. ``Key`` and ``PathElement``, ``Entity`` and
+   ``EntityResult``, ``QueryResultBatch``, and ``Value``. These types will be
+   returned from arbitrary Datastore operations, for example
+   ``Datastore.allocateIds(...)`` will return a list of ``Key`` entities.
+
+   For advanced usage, all of these datatypes may be overloaded. A common use-case
+   may be to deserialize entities into more specific classes. For example, given a
+   custom entity class such as:
+
+   .. code-block:: python
+
+       class MyEntityKind(gcloud.aio.datastore.Entity):
+           def __init__(self, key, properties = None) -> None:
+               self.key = key
+               self.is_an_aardvark = (properties or {}).get('aardvark', False)
+
+           def __repr__(self):
+               return "I'm an aardvark!" if self.is_an_aardvark else "Sorry, nope"
+
+   We can then configure ``gcloud-aio-datastore`` to serialize/deserialize from
+   this custom entity class with:
+
+   .. code-block:: python
+
+       class MyCustomDatastore(gcloud.aio.datastore.Datastore):
+           entity_result_kind.entity_kind = MyEntityKind
+
+   The full list of classes which may be overridden in this way is:
+
+   .. code-block:: python
+
+       class MyVeryCustomDatastore(gcloud.aio.datastore.Datastore):
+           datastore_operation_kind = DatastoreOperation
+           entity_result_kind = EntityResult
+           entity_result_kind.entity_kind = Entity
+           entity_result_kind.entity_kind.key_kind = Key
+           key_kind = Key
+           key_kind.path_element_kind = PathElement
+           mutation_result_kind = MutationResult
+           mutation_result_kind.key_kind = Key
+           query_result_batch_kind = QueryResultBatch
+           query_result_batch_kind.entity_result_kind = EntityResult
+           value_kind = Value
+           value_kind.key_kind = Key
+
+       class MyVeryCustomQuery(gcloud.aio.datastore.Query):
+           value_kind = Value
+
+       class MyVeryCustomGQLQuery(gcloud.aio.datastore.GQLQuery):
+           value_kind = Value
+
+   You can then drop-in the ``MyVeryCustomDatastore`` class anywhere where you
+   previously used ``Datastore`` and do the same for ``Query`` and ``GQLQuery``.
+
+   To override any sub-key, you'll need to override any parents which use it. For
+   example, if you want to use a custom ``Key`` kind and be able to use queries
+   with it, you will need to implement your own ``Value``, ``Query``, and
+   ``GQLQuery`` classes and wire them up to the rest of the custom classes:
+
+   .. code-block:: python
+
+       class MyKey(gcloud.aio.datastore.Key):
+           pass
+
+       class MyValue(gcloud.aio.datastore.Value):
+           key_kind = MyKey
+
+       class MyEntity(gcloud.aio.datastore.Entity):
+           key_kind = MyKey
+           value_kind = MyValue
+
+       class MyEntityResult(gcloud.aio.datastore.EntityResult):
+           entity_kind = MyEntity
+
+       class MyQueryResultBatch(gcloud.aio.datastore.QueryResultBatch):
+           entity_result_kind = MyEntityResult
+
+       class MyDatastore(gcloud.aio.datastore.Datastore):
+           key_kind = MyKey
+           entity_result_kind = MyEntityResult
+           query_result_batch = MyQueryResultBatch
+           value_kind = MyValue
+
+       class MyQuery(gcloud.aio.datastore.Query):
+           value_kind = MyValue
+
+       class MyGQLQuery(gcloud.aio.datastore.GQLQuery):
+           value_kind = MyValue
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   array/index.rst
+   constants/index.rst
+   datastore/index.rst
+   datastore_operation/index.rst
+   entity/index.rst
+   filter/index.rst
+   key/index.rst
+   lat_lng/index.rst
+   mutation/index.rst
+   projection/index.rst
+   property_order/index.rst
+   query/index.rst
+   transaction_options/index.rst
+   value/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   datastore.CompositeFilterOperator
+   datastore.Consistency
+   datastore.Direction
+   datastore.Mode
+   datastore.MoreResultsType
+   datastore.Operation
+   datastore.PropertyFilterOperator
+   datastore.ResultType
+   datastore.Datastore
+   datastore.DatastoreOperation
+   datastore.Entity
+   datastore.EntityResult
+   datastore.CompositeFilter
+   datastore.Filter
+   datastore.PropertyFilter
+   datastore.Key
+   datastore.PathElement
+   datastore.LatLng
+   datastore.MutationResult
+   datastore.Projection
+   datastore.PropertyOrder
+   datastore.GQLCursor
+   datastore.GQLQuery
+   datastore.Query
+   datastore.QueryResultBatch
+   datastore.ReadOnly
+   datastore.ReadWrite
+   datastore.TransactionOptions
+   datastore.Value
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   datastore.SCOPES
+   datastore.__version__
+
+
+.. py:class:: CompositeFilterOperator(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: AND
+      :value: 'AND'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'OPERATOR_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Consistency(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: EVENTUAL
+      :value: 'EVENTUAL'
+
+      
+
+   .. py:attribute:: STRONG
+      :value: 'STRONG'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'READ_CONSISTENCY_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Direction(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: ASCENDING
+      :value: 'ASCENDING'
+
+      
+
+   .. py:attribute:: DESCENDING
+      :value: 'DESCENDING'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'DIRECTION_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Mode(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: NON_TRANSACTIONAL
+      :value: 'NON_TRANSACTIONAL'
+
+      
+
+   .. py:attribute:: TRANSACTIONAL
+      :value: 'TRANSACTIONAL'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'MODE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: MoreResultsType(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: MORE_RESULTS_AFTER_CURSOR
+      :value: 'MORE_RESULTS_AFTER_CURSOR'
+
+      
+
+   .. py:attribute:: MORE_RESULTS_AFTER_LIMIT
+      :value: 'MORE_RESULTS_AFTER_LIMIT'
+
+      
+
+   .. py:attribute:: NO_MORE_RESULTS
+      :value: 'NO_MORE_RESULTS'
+
+      
+
+   .. py:attribute:: NOT_FINISHED
+      :value: 'NOT_FINISHED'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'MORE_RESULTS_TYPE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Operation(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: DELETE
+      :value: 'delete'
+
+      
+
+   .. py:attribute:: INSERT
+      :value: 'insert'
+
+      
+
+   .. py:attribute:: UPDATE
+      :value: 'update'
+
+      
+
+   .. py:attribute:: UPSERT
+      :value: 'upsert'
+
+      
+
+
+.. py:class:: PropertyFilterOperator(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: EQUAL
+      :value: 'EQUAL'
+
+      
+
+   .. py:attribute:: GREATER_THAN
+      :value: 'GREATER_THAN'
+
+      
+
+   .. py:attribute:: GREATER_THAN_OR_EQUAL
+      :value: 'GREATER_THAN_OR_EQUAL'
+
+      
+
+   .. py:attribute:: HAS_ANCESTOR
+      :value: 'HAS_ANCESTOR'
+
+      
+
+   .. py:attribute:: LESS_THAN
+      :value: 'LESS_THAN'
+
+      
+
+   .. py:attribute:: LESS_THAN_OR_EQUAL
+      :value: 'LESS_THAN_OR_EQUAL'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'OPERATOR_UNSPECIFIED'
+
+      
+
+
+.. py:class:: ResultType(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: FULL
+      :value: 'FULL'
+
+      
+
+   .. py:attribute:: KEY_ONLY
+      :value: 'KEY_ONLY'
+
+      
+
+   .. py:attribute:: PROJECTION
+      :value: 'PROJECTION'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'RESULT_TYPE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Datastore(project = None, service_file = None, namespace = '', session = None, token = None, api_root = None)
+
+
+   .. py:attribute:: datastore_operation_kind
+
+      
+
+   .. py:attribute:: entity_result_kind
+
+      
+
+   .. py:attribute:: key_kind
+
+      
+
+   .. py:attribute:: mutation_result_kind
+
+      
+
+   .. py:attribute:: query_result_batch_kind
+
+      
+
+   .. py:attribute:: value_kind
+
+      
+
+   .. py:attribute:: _project
+      :type: Optional[str]
+
+      
+
+   .. py:attribute:: _api_root
+      :type: str
+
+      
+
+   .. py:attribute:: _api_is_dev
+      :type: bool
+
+      
+
+   .. py:method:: project()
+      :async:
+
+
+   .. py:method:: _make_commit_body(mutations, transaction = None, mode = Mode.TRANSACTIONAL)
+      :staticmethod:
+
+
+   .. py:method:: headers()
+      :async:
+
+
+   .. py:method:: make_mutation(operation, key, properties = None)
+      :classmethod:
+
+
+   .. py:method:: allocateIds(keys, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: beginTransaction(session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: get_datastore_operation(name, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: _build_lookup_result(data)
+
+
+   .. py:method:: _build_read_options(consistency, newTransaction, transaction)
+
+
+   .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: rollback(transaction, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: runQuery(query, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: delete(key, session = None)
+      :async:
+
+
+   .. py:method:: insert(key, properties, session = None)
+      :async:
+
+
+   .. py:method:: update(key, properties, session = None)
+      :async:
+
+
+   .. py:method:: upsert(key, properties, session = None)
+      :async:
+
+
+   .. py:method:: operate(operation, key, properties = None, session = None)
+      :async:
+
+
+   .. py:method:: close()
+      :async:
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/datastore']
+
+   
+
+.. py:class:: DatastoreOperation(name, done, metadata = None, error = None, response = None)
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Entity(key, properties = None)
+
+
+   .. py:attribute:: key_kind
+
+      
+
+   .. py:attribute:: value_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: EntityResult(entity, version = '', cursor = '')
+
+
+   .. py:attribute:: entity_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: CompositeFilter(operator, filters)
+
+
+   Bases: :py:obj:`BaseFilter`
+
+   .. py:attribute:: json_key
+      :value: 'compositeFilter'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Filter(inner_filter)
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: PropertyFilter(prop, operator, value)
+
+
+   Bases: :py:obj:`BaseFilter`
+
+   .. py:attribute:: json_key
+      :value: 'propertyFilter'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Key(project, path, namespace = '')
+
+
+   .. py:attribute:: path_element_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: PathElement(kind, *, id_ = None, name = None)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: LatLng(lat, lon)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: MutationResult(key, version, conflict_detected)
+
+
+   .. py:attribute:: key_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Projection(prop)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: PropertyOrder(prop, direction = Direction.ASCENDING)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: GQLCursor(value)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+
+.. py:class:: GQLQuery(query_string, allow_literals = True, named_bindings = None, positional_bindings = None)
+
+
+   Bases: :py:obj:`BaseQuery`
+
+   .. py:attribute:: json_key
+      :value: 'gqlQuery'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: _param_from_repr(param_repr)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: _param_to_repr(param)
+
+
+
+.. py:class:: Query(kind = '', query_filter = None, order = None, start_cursor = '', end_cursor = '', offset = None, limit = None, projection = None, distinct_on = None)
+
+
+   Bases: :py:obj:`BaseQuery`
+
+   .. py:attribute:: json_key
+      :value: 'query'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
+
+
+   .. py:attribute:: entity_result_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: ReadOnly
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: ReadWrite(previous_transaction = None)
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: TransactionOptions(option)
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: Value(value, exclude_from_indexes = False)
+
+
+   .. py:attribute:: key_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: _infer_type(value)
+
+
+   .. py:method:: _get_supported_types()
+      :classmethod:
+
+
+
+.. py:data:: __version__
+
+   
+

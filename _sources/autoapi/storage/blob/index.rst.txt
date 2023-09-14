@@ -1,0 +1,113 @@
+:py:mod:`storage.blob`
+======================
+
+.. py:module:: storage.blob
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   storage.blob.PemKind
+   storage.blob.Blob
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   storage.blob.HOST
+   storage.blob.PKCS1_MARKER
+   storage.blob.PKCS8_MARKER
+   storage.blob.PKCS8_SPEC
+
+
+.. py:data:: HOST
+   :value: 'storage.googleapis.com'
+
+   
+
+.. py:data:: PKCS1_MARKER
+   :value: ('-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----')
+
+   
+
+.. py:data:: PKCS8_MARKER
+   :value: ('-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----')
+
+   
+
+.. py:data:: PKCS8_SPEC
+
+   
+
+.. py:class:: PemKind(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Tracks the response of ``pem.readPemBlocksFromFile(key, *args)``>
+
+   Note that the specified method returns ``(marker_id, key_bytes)``, where
+   ``marker_id`` is the integer index of the matching ``arg`` (or -1 if no
+   match was found.
+
+   For example::
+
+       (marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
+                                                  PCKS8_MARKER)
+       if marker_id == -1:
+           # "key" did not match either type or was invalid
+       if marker_id == 0:
+           # "key" matched the zeroth provided marker arg, eg. PKCS1_MARKER
+       if marker_id == 1:
+           # "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER
+
+   .. py:attribute:: INVALID
+
+      
+
+   .. py:attribute:: PKCS1
+      :value: 0
+
+      
+
+   .. py:attribute:: PKCS8
+      :value: 1
+
+      
+
+
+.. py:class:: Blob(bucket, name, metadata)
+
+
+   .. py:property:: chunk_size
+      :type: int
+
+
+   .. py:method:: download(timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+   .. py:method:: upload(data, session = None)
+      :async:
+
+
+   .. py:method:: get_signed_url(expiration, headers = None, query_params = None, http_method = 'GET', token = None)
+      :async:
+
+      Create a temporary access URL for Storage Blob accessible by anyone
+      with the link.
+
+      Adapted from Google Documentation:
+      https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+
+
+

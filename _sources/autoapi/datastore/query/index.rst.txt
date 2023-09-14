@@ -1,0 +1,137 @@
+:py:mod:`datastore.query`
+=========================
+
+.. py:module:: datastore.query
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   datastore.query.BaseQuery
+   datastore.query.Query
+   datastore.query.GQLQuery
+   datastore.query.GQLCursor
+   datastore.query.QueryResultBatch
+
+
+
+
+.. py:class:: BaseQuery
+
+
+   .. py:attribute:: json_key
+      :type: str
+
+      
+
+   .. py:attribute:: value_kind
+
+      
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+      :abstractmethod:
+
+
+   .. py:method:: to_repr()
+      :abstractmethod:
+
+
+
+.. py:class:: Query(kind = '', query_filter = None, order = None, start_cursor = '', end_cursor = '', offset = None, limit = None, projection = None, distinct_on = None)
+
+
+   Bases: :py:obj:`BaseQuery`
+
+   .. py:attribute:: json_key
+      :value: 'query'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+
+.. py:class:: GQLQuery(query_string, allow_literals = True, named_bindings = None, positional_bindings = None)
+
+
+   Bases: :py:obj:`BaseQuery`
+
+   .. py:attribute:: json_key
+      :value: 'gqlQuery'
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: _param_from_repr(param_repr)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: _param_to_repr(param)
+
+
+
+.. py:class:: GQLCursor(value)
+
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+
+.. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
+
+
+   .. py:attribute:: entity_result_kind
+
+      
+
+   .. py:method:: __eq__(other)
+
+      Return self==value.
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+   .. py:method:: to_repr()
+
+
+

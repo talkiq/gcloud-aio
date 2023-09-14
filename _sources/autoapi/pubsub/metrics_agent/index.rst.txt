@@ -1,0 +1,32 @@
+:py:mod:`pubsub.metrics_agent`
+==============================
+
+.. py:module:: pubsub.metrics_agent
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.metrics_agent.MetricsAgent
+
+
+
+
+.. py:class:: MetricsAgent
+
+
+   Any metric client should implement this interface
+   to be compatible with subscriber.subscribe
+
+   .. py:method:: histogram(metric, value)
+
+
+   .. py:method:: increment(metric, value = 1)
+
+
+

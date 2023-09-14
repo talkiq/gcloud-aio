@@ -1,0 +1,636 @@
+:py:mod:`datastore.constants`
+=============================
+
+.. py:module:: datastore.constants
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   datastore.constants.CompositeFilterOperator
+   datastore.constants.Consistency
+   datastore.constants.Direction
+   datastore.constants.Mode
+   datastore.constants.MoreResultsType
+   datastore.constants.Operation
+   datastore.constants.PropertyFilterOperator
+   datastore.constants.ResultType
+   datastore.constants.TypeName
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   datastore.constants.TYPES
+
+
+.. py:class:: CompositeFilterOperator(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: AND
+      :value: 'AND'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'OPERATOR_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Consistency(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: EVENTUAL
+      :value: 'EVENTUAL'
+
+      
+
+   .. py:attribute:: STRONG
+      :value: 'STRONG'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'READ_CONSISTENCY_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Direction(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: ASCENDING
+      :value: 'ASCENDING'
+
+      
+
+   .. py:attribute:: DESCENDING
+      :value: 'DESCENDING'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'DIRECTION_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Mode(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: NON_TRANSACTIONAL
+      :value: 'NON_TRANSACTIONAL'
+
+      
+
+   .. py:attribute:: TRANSACTIONAL
+      :value: 'TRANSACTIONAL'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'MODE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: MoreResultsType(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: MORE_RESULTS_AFTER_CURSOR
+      :value: 'MORE_RESULTS_AFTER_CURSOR'
+
+      
+
+   .. py:attribute:: MORE_RESULTS_AFTER_LIMIT
+      :value: 'MORE_RESULTS_AFTER_LIMIT'
+
+      
+
+   .. py:attribute:: NO_MORE_RESULTS
+      :value: 'NO_MORE_RESULTS'
+
+      
+
+   .. py:attribute:: NOT_FINISHED
+      :value: 'NOT_FINISHED'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'MORE_RESULTS_TYPE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: Operation(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: DELETE
+      :value: 'delete'
+
+      
+
+   .. py:attribute:: INSERT
+      :value: 'insert'
+
+      
+
+   .. py:attribute:: UPDATE
+      :value: 'update'
+
+      
+
+   .. py:attribute:: UPSERT
+      :value: 'upsert'
+
+      
+
+
+.. py:class:: PropertyFilterOperator(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: EQUAL
+      :value: 'EQUAL'
+
+      
+
+   .. py:attribute:: GREATER_THAN
+      :value: 'GREATER_THAN'
+
+      
+
+   .. py:attribute:: GREATER_THAN_OR_EQUAL
+      :value: 'GREATER_THAN_OR_EQUAL'
+
+      
+
+   .. py:attribute:: HAS_ANCESTOR
+      :value: 'HAS_ANCESTOR'
+
+      
+
+   .. py:attribute:: LESS_THAN
+      :value: 'LESS_THAN'
+
+      
+
+   .. py:attribute:: LESS_THAN_OR_EQUAL
+      :value: 'LESS_THAN_OR_EQUAL'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'OPERATOR_UNSPECIFIED'
+
+      
+
+
+.. py:class:: ResultType(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: FULL
+      :value: 'FULL'
+
+      
+
+   .. py:attribute:: KEY_ONLY
+      :value: 'KEY_ONLY'
+
+      
+
+   .. py:attribute:: PROJECTION
+      :value: 'PROJECTION'
+
+      
+
+   .. py:attribute:: UNSPECIFIED
+      :value: 'RESULT_TYPE_UNSPECIFIED'
+
+      
+
+
+.. py:class:: TypeName(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access::
+
+   >>> Color.RED
+   <Color.RED: 1>
+
+   - value lookup:
+
+   >>> Color(1)
+   <Color.RED: 1>
+
+   - name lookup:
+
+   >>> Color['RED']
+   <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+   .. py:attribute:: ARRAY
+      :value: 'arrayValue'
+
+      
+
+   .. py:attribute:: BLOB
+      :value: 'blobValue'
+
+      
+
+   .. py:attribute:: BOOLEAN
+      :value: 'booleanValue'
+
+      
+
+   .. py:attribute:: DOUBLE
+      :value: 'doubleValue'
+
+      
+
+   .. py:attribute:: ENTITY
+      :value: 'entityValue'
+
+      
+
+   .. py:attribute:: INTEGER
+      :value: 'integerValue'
+
+      
+
+   .. py:attribute:: GEOPOINT
+      :value: 'geoPointValue'
+
+      
+
+   .. py:attribute:: KEY
+      :value: 'keyValue'
+
+      
+
+   .. py:attribute:: NULL
+      :value: 'nullValue'
+
+      
+
+   .. py:attribute:: STRING
+      :value: 'stringValue'
+
+      
+
+   .. py:attribute:: TIMESTAMP
+      :value: 'timestampValue'
+
+      
+
+
+.. py:data:: TYPES
+
+   
+

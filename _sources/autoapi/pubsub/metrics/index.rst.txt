@@ -1,0 +1,14 @@
+:py:mod:`pubsub.metrics`
+========================
+
+.. py:module:: pubsub.metrics
+
+
+Module Contents
+---------------
+
+.. py:data:: _NAMESPACE
+   :value: 'gcloud_aio'
+
+   
+

@@ -1,0 +1,31 @@
+:py:mod:`pubsub.utils`
+======================
+
+.. py:module:: pubsub.utils
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pubsub.utils.PubsubMessage
+
+
+
+
+.. py:class:: PubsubMessage(data, ordering_key = '', **kwargs)
+
+
+   .. py:method:: __repr__()
+
+      Return repr(self).
+
+
+   .. py:method:: to_repr()
+
+
+

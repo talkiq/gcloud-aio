@@ -1,0 +1,105 @@
+:py:mod:`bigquery.table`
+========================
+
+.. py:module:: bigquery.table
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   bigquery.table.Table
+
+
+
+
+.. py:class:: Table(dataset_name, table_name, project = None, service_file = None, session = None, token = None, api_root = None)
+
+
+   Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
+
+   .. py:method:: _mk_unique_insert_id(row)
+      :staticmethod:
+
+
+   .. py:method:: _make_copy_body(source_project, destination_project, destination_dataset, destination_table)
+
+
+   .. py:method:: _make_insert_body(rows, *, skip_invalid, ignore_unknown, template_suffix, insert_id_fn)
+      :staticmethod:
+
+
+   .. py:method:: _make_load_body(source_uris, project, autodetect, source_format, write_disposition, ignore_unknown_values, schema_update_options)
+
+
+   .. py:method:: _make_query_body(query, project, write_disposition, use_query_cache, dry_run)
+
+
+   .. py:method:: create(table, session = None, timeout = 60)
+      :async:
+
+      Create the table specified by tableId from the dataset.
+
+
+   .. py:method:: patch(table, session = None, timeout = 60)
+      :async:
+
+      Patch an existing table specified by tableId from the dataset.
+
+
+   .. py:method:: delete(session = None, timeout = 60)
+      :async:
+
+      Deletes the table specified by tableId from the dataset.
+
+
+   .. py:method:: get(session = None, timeout = 60)
+      :async:
+
+      Gets the specified table resource by table ID.
+
+
+   .. py:method:: insert(rows, skip_invalid = False, ignore_unknown = True, session = None, template_suffix = None, timeout = 60, *, insert_id_fn = None)
+      :async:
+
+      Streams data into BigQuery
+
+      By default, each row is assigned a unique insertId. This can be
+      customized by supplying an `insert_id_fn` which takes a row and
+      returns an insertId.
+
+      In cases where at least one row has successfully been inserted and at
+      least one row has failed to be inserted, the Google API will return a
+      2xx (successful) response along with an `insertErrors` key in the
+      response JSON containing details on the failing rows.
+
+
+   .. py:method:: insert_via_copy(destination_project, destination_dataset, destination_table, session = None, timeout = 60)
+      :async:
+
+      Copy BQ table to another table in BQ
+
+
+   .. py:method:: insert_via_load(source_uris, session = None, autodetect = False, source_format = SourceFormat.CSV, write_disposition = Disposition.WRITE_TRUNCATE, timeout = 60, ignore_unknown_values = False, schema_update_options = None)
+      :async:
+
+      Loads entities from storage to BigQuery.
+
+
+   .. py:method:: insert_via_query(query, session = None, write_disposition = Disposition.WRITE_EMPTY, timeout = 60, use_query_cache = True, dry_run = False)
+      :async:
+
+      Create table as a result of the query
+
+
+   .. py:method:: list_tabledata(session = None, timeout = 60, params = None)
+      :async:
+
+      List the content of a table in rows.
+
+
+
