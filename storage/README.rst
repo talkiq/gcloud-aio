@@ -4,7 +4,7 @@
     This is a shared codebase for ``gcloud-aio-storage`` and
     ``gcloud-rest-storage``
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -30,10 +30,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version (gcloud-aio-storage)
     :target: https://pypi.org/project/gcloud-aio-storage/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-storage.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-storage)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-storage.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-storage/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-storage.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-storage)
-    :target: https://pypi.org/project/gcloud-rest-storage/

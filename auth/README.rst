@@ -12,7 +12,7 @@ against Google Cloud. The other ``gcloud-aio-*`` package components accept a
 these components or define one for each. Each component corresponds to a given
 Google Cloud service and each service requires various "`scopes`_".
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -25,32 +25,6 @@ Usage
 -----
 
 See `our docs`_.
-
-CLI
-~~~
-
-This project can also be used to help you manually authenticate to test GCP
-routes, eg. we can list our project's uptime checks with a tool such as
-``curl``:
-
-.. code-block:: console
-
-    # using default application credentials
-    curl \
-      -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')" \
-      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
-
-    # using a service account (make sure to provide a scope!)
-    export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service.json
-    curl \
-      -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token(scopes=["'"https://www.googleapis.com/auth/cloud-platform"'"]).get())')" \
-      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
-
-    # using legacy account credentials
-    export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/EMAIL@DOMAIN.TLD/adc.json
-    curl \
-      -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')" \
-      "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
 
 Contributing
 ------------
@@ -65,10 +39,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version (gcloud-aio-auth)
     :target: https://pypi.org/project/gcloud-aio-auth/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-auth)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-auth.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-auth/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-auth.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-auth)
-    :target: https://pypi.org/project/gcloud-rest-auth/

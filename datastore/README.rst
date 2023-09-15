@@ -4,7 +4,7 @@
     This is a shared codebase for ``gcloud-aio-datastore`` and
     ``gcloud-rest-datastore``
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -30,10 +30,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version (gcloud-aio-datastore)
     :target: https://pypi.org/project/gcloud-aio-datastore/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-datastore.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-datastore)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-datastore.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-datastore/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-datastore.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-datastore)
-    :target: https://pypi.org/project/gcloud-rest-datastore/

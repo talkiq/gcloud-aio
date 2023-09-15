@@ -1,42 +1,45 @@
 """
 This library implements various methods for working with the Google KMS APIs.
 
-## Installation
+Installation
+------------
 
-```console
-$ pip install --upgrade gcloud-aio-kms
-```
+.. code-block:: console
 
-## Usage
+    $ pip install --upgrade gcloud-aio-kms
+
+Usage
+-----
 
 We're still working on more complete documentation, but roughly you can do:
 
-```python
-from gcloud.aio.kms import KMS
-from gcloud.aio.kms import decode
-from gcloud.aio.kms import encode
+.. code-block:: python
 
-kms = KMS('my-kms-project', 'my-keyring', 'my-key-name')
+    from gcloud.aio.kms import KMS
+    from gcloud.aio.kms import decode
+    from gcloud.aio.kms import encode
 
-# encrypt
-plaintext = b'the-best-animal-is-the-aardvark'
-ciphertext = await kms.encrypt(encode(plaintext))
+    kms = KMS('my-kms-project', 'my-keyring', 'my-key-name')
 
-# decrypt
-assert decode(await kms.decrypt(ciphertext)) == plaintext
+    # encrypt
+    plaintext = b'the-best-animal-is-the-aardvark'
+    ciphertext = await kms.encrypt(encode(plaintext))
 
-# close the HTTP session
-# Note that other options include:
-# * providing your own session: `KMS(.., session=session)`
-# * using a context manager: `async with KMS(..) as kms:`
-await kms.close()
-```
+    # decrypt
+    assert decode(await kms.decrypt(ciphertext)) == plaintext
 
-## Emulators
+    # close the HTTP session
+    # Note that other options include:
+    # * providing your own session: `KMS(.., session=session)`
+    # * using a context manager: `async with KMS(..) as kms:`
+    await kms.close()
 
-For testing purposes, you may want to use `gcloud-aio-kms` along with a local
-emulator. Setting the `$KMS_EMULATOR_HOST` environment variable to the address
-of your emulator should be enough to do the trick.
+Emulators
+---------
+
+For testing purposes, you may want to use ``gcloud-aio-kms`` along with a local
+emulator. Setting the ``$KMS_EMULATOR_HOST`` environment variable to the
+address of your emulator should be enough to do the trick.
 """
 import importlib.metadata
 

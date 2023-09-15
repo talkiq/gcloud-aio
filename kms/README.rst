@@ -3,7 +3,7 @@
 
     This is a shared codebase for ``gcloud-aio-kms`` and ``gcloud-rest-kms``
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -29,10 +29,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version (gcloud-aio-kms)
     :target: https://pypi.org/project/gcloud-aio-kms/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-kms.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-kms)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-kms.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-kms/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-kms.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-kms)
-    :target: https://pypi.org/project/gcloud-rest-kms/

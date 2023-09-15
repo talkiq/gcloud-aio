@@ -4,7 +4,7 @@
     This is a shared codebase for ``gcloud-aio-pubsub`` and
     ``gcloud-rest-pubsub``
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -30,10 +30,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version
     :target: https://pypi.org/project/gcloud-aio-pubsub/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-pubsub)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-pubsub.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-pubsub/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-pubsub.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-pubsub)
-    :target: https://pypi.org/project/gcloud-rest-pubsub/
