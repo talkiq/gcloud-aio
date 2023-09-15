@@ -426,8 +426,7 @@ class IapToken(BaseToken):
         """
         resp = await self.session.get(
             GCE_ENDPOINT_ID_TOKEN.format(audience=self.app_uri),
-            headers=GCE_METADATA_HEADERS, timeout=timeout,
-            allow_redirects=True)
+            headers=GCE_METADATA_HEADERS, timeout=timeout)
         token = await resp.text()
         return TokenResponse(value=token,
                              expires_in=self.default_token_ttl)

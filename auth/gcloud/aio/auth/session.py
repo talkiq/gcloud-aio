@@ -52,7 +52,7 @@ class BaseSession:
     async def get(
         self, url: str, headers: Optional[Mapping[str, str]],
         timeout: float, params: Optional[Mapping[str, Union[int, str]]],
-        stream: bool, allow_redirects: bool,
+        stream: bool,
     ) -> Response:
         pass
 
@@ -175,7 +175,6 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
-            allow_redirects: bool = False,
         ) -> aiohttp.ClientResponse:
             if stream is not None:
                 log.warning(
@@ -186,7 +185,6 @@ if not BUILD_GCLOUD_REST:
             resp = await self.session.get(
                 url, headers=headers,
                 timeout=timeout, params=params,
-                allow_redirects=allow_redirects,
             )
             await _raise_for_status(resp)
             return resp
@@ -299,13 +297,11 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
-            allow_redirects: bool = False,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.get(
                     url, headers=headers, timeout=timeout,
                     params=params, stream=stream,
-                    allow_redirects=allow_redirects,
                 )
             resp.raise_for_status()
             return resp
