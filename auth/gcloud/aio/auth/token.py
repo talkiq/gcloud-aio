@@ -63,7 +63,6 @@ GCLOUD_ENDPOINT_GENERATE_ID_TOKEN = (
     'https://iamcredentials.googleapis.com'
     '/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
 )
-GCLOUD_TOKEN_DURATION = 3600
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 
@@ -146,7 +145,7 @@ def get_service_data(
 @dataclass
 class TokenResponse:
     value: str
-    expires_in: int = GCLOUD_TOKEN_DURATION
+    expires_in: int
 
 
 class BaseToken:
@@ -248,6 +247,7 @@ class BaseToken:
 class Token(BaseToken):
     """GCP OAuth 2.0 access token."""
     # pylint: disable=too-many-instance-attributes
+    default_token_ttl = 3600
 
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
@@ -291,7 +291,7 @@ class Token(BaseToken):
         now = int(time.time())
         assertion_payload = {
             'aud': self.token_uri,
-            'exp': now + GCLOUD_TOKEN_DURATION,
+            'exp': now + self.default_token_ttl,
             'iat': now,
             'iss': self.service_data['client_email'],
             'scope': self.scopes,
@@ -331,6 +331,8 @@ class Token(BaseToken):
 
 class IapToken(BaseToken):
     """An OpenID Connect ID token for a single IAP-secured service."""
+
+    default_token_ttl = 3600
 
     def __init__(
         self, app_uri: str,
@@ -387,24 +389,21 @@ class IapToken(BaseToken):
 
         https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
         """
-        async def get_access_token(timeout: int) -> str:
-            payload = urlencode({
-                'grant_type': 'refresh_token',
-                'client_id': self.service_data['client_id'],
-                'client_secret': self.service_data['client_secret'],
-                'refresh_token': self.service_data['refresh_token'],
-            })
-
-            resp = await self.session.post(
-                url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
-                timeout=timeout,
-            )
-
-            content = await resp.json()
-            return str(content['access_token'])
+        # Fetch the OAuth access token to use in generating an ID token.
+        refresh_payload = urlencode({
+            'grant_type': 'refresh_token',
+            'client_id': self.service_data['client_id'],
+            'client_secret': self.service_data['client_secret'],
+            'refresh_token': self.service_data['refresh_token'],
+        })
+        refresh_resp = await self.session.post(
+            url=self.token_uri, data=refresh_payload, headers=REFRESH_HEADERS,
+            timeout=timeout,
+        )
+        refresh_content = await refresh_resp.json()
 
         headers = {
-            'Authorization': f'Bearer {await get_access_token(timeout)}',
+            'Authorization': f'Bearer {refresh_content["access_token"]}',
         }
         payload = json.dumps({
             'includeEmail': True,
@@ -416,7 +415,8 @@ class IapToken(BaseToken):
             data=payload, headers=headers, timeout=timeout)
 
         content = await resp.json()
-        return TokenResponse(value=content['token'])
+        return TokenResponse(value=content['token'],
+                             expires_in=self.default_token_ttl)
 
     async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
         """
@@ -429,14 +429,15 @@ class IapToken(BaseToken):
             headers=GCE_METADATA_HEADERS, timeout=timeout,
             allow_redirects=True)
         token = await resp.text()
-        return TokenResponse(value=token)
+        return TokenResponse(value=token,
+                             expires_in=self.default_token_ttl)
 
     async def _refresh_service_account(
         self, iap_client_id: str,
         timeout: int,
     ) -> TokenResponse:
         now = int(time.time())
-        expiry = now + GCLOUD_TOKEN_DURATION
+        expiry = now + self.default_token_ttl
 
         assertion_payload = {
             'iss': self.service_data['client_email'],
