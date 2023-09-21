@@ -39,11 +39,11 @@ The `IapToken` constructor accepts the following optional arguments:
   session, you may be interested in using `Token()` as a context manager
   (`async with Token(..) as token:`) or explicitly calling the `Token.close()`
   method to ensure the session is cleaned up appropriately.
-* `service_account`: an optional string denoting a GCP service account which
-  takes the form of an email address. Only valid (and required!) for
-  authentication with a project's authorized users. [Impersonating a service
-  account][impersonating-sa] is required when generating an ID token in this
-  case.
+* `impersonating_service_account`: an optional string denoting a GCP service
+  account which takes the form of an email address. Only valid (and required!)
+  for authentication with a project's authorized users. [Impersonating a
+  service account][impersonating-sa] is required when generating an ID token in
+  this case.
 
 The `Token` constructor accepts the following optional arguments:
 

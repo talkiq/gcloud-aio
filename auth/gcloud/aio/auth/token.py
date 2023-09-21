@@ -338,12 +338,12 @@ class IapToken(BaseToken):
         self, app_uri: str,
         service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
-        service_account: Optional[str] = None,
+        impersonating_service_account: Optional[str] = None,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
         self.app_uri = app_uri
-        self.service_account = service_account
+        self.service_account = impersonating_service_account
 
         if (self.token_type == Type.AUTHORIZED_USER
                 and not self.service_account):

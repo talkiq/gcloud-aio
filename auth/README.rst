@@ -65,7 +65,7 @@ Similarly it can be used to quickly test your IAP-secured endpoints:
 
     # using default application credentials
     curl \
-      -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, service_account=SA))')" \
+      -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, impersonating_service_account=SA))')" \
       APP_URL
 
 Contributing
