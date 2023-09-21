@@ -1,26 +1,29 @@
+# pylint: disable=line-too-long
 """
 This library implements various methods for working with the Google Bigquery
 APIs.
 
-## Installation
+Installation
+------------
 
-```console
-$ pip install --upgrade gcloud-aio-bigquery
-```
+.. code-block:: console
 
-## Usage
+    $ pip install --upgrade gcloud-aio-bigquery
+
+Usage
+-----
 
 We're still working on documentation -- for now, you can use the
-[smoke test][smoke-test] as an example.
+`smoke test`_ as an example.
 
-## Emulators
+Emulators
+---------
 
-For testing purposes, you may want to use `gcloud-aio-bigquery` along with a
-local emulator. Setting the `$BIGQUERY_EMULATOR_HOST` environment variable to
+For testing purposes, you may want to use ``gcloud-aio-bigquery`` along with a
+local emulator. Setting the ``$BIGQUERY_EMULATOR_HOST`` environment variable to
 the address of your emulator should be enough to do the trick.
 
-[smoke-test]:
-https://github.com/talkiq/gcloud-aio/blob/master/bigquery/tests/integration/smoke_test.py
+.. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/tests/integration/smoke_test.py
 """
 import importlib.metadata
 

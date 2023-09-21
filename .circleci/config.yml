@@ -98,37 +98,22 @@ jobs:
   docs:
     executor: python311
     steps:
-      - run: pip install pdoc
+      - run: pip install sphinx sphinx-autoapi sphinx-sizzle-theme
       - checkout
-      - attach_workspace:
-          at: rest
-      - run:
-          name: install all sub-projects (aio)
-          command: |
-            pip install -e ./auth
-            pip install -e ./bigquery
-            pip install -e ./datastore
-            pip install -e ./kms
-            pip install -e ./pubsub
-            pip install -e ./storage
-            pip install -e ./taskqueue
-      - run:
-          name: install all sub-projects (rest)
-          command: |
-            cd rest/
-            pip install -e ./auth
-            pip install -e ./bigquery
-            pip install -e ./datastore
-            pip install -e ./kms
-            pip install -e ./pubsub
-            pip install -e ./storage
-            pip install -e ./taskqueue
-      - run: mkdir -p ./build
-      - run: pdoc -o ./build/docs gcloud
+      # TODO: generate gcloud-rest-* docs
+      # - attach_workspace:
+      #     at: rest
+      # TODO: add -W after fixing build issues
+      - run: sphinx-build -b html --keep-going . build/docs/
+      # https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
+      # Uploading /root/project/build/docs/.nojekyll: SKIPPED, file is empty
+      - run: echo " " > build/docs/.nojekyll
       - persist_to_workspace:
           root: ./build
           paths:
           - ./docs
+      - store_artifacts:
+          path: ./build/docs/
 
   pages:
     docker:
@@ -137,16 +122,16 @@ jobs:
       - checkout
       - attach_workspace:
           at: build
-      - run: npm install -g --silent gh-pages@2.0.1
-      - run:
-          name: configure git creds
-          command: |
-            git config user.email "voiceai-eng+ci@dialpad.com"
-            git config user.name "Vi Eng (CI)"
+      - run: npm install -g --silent gh-pages@6.0.0
       - add_ssh_keys:
           fingerprints:
             - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      - run: gh-pages --message "[skip ci] updated docs" --dist build/docs
+      # https://github.com/tschaub/gh-pages/issues/354
+      - run: mkdir ./tmp-gh-pages
+      - run:
+          command: gh-pages -u "Vi Eng CI <voiceai-eng+ci@dialpad.com>" -m "[skip ci] updated docs" -td build/docs/
+          environment:
+            CACHE_DIR: ./tmp-gh-pages
 
   github:
     docker:
@@ -268,8 +253,6 @@ workflows:
               only: /master/
             tags:
               ignore: /.*/
-          requires:
-            - build-rest
       - pages:
           filters:
             branches:

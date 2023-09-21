@@ -4,7 +4,7 @@
     This is a shared codebase for ``gcloud-aio-bigquery`` and
     ``gcloud-rest-bigquery``
 
-|pypi| |pythons-aio| |pythons-rest|
+|pypi| |pythons|
 
 Installation
 ------------
@@ -30,10 +30,6 @@ Please see our `contributing guide`_.
     :alt: Latest PyPI Version (gcloud-aio-bigquery)
     :target: https://pypi.org/project/gcloud-aio-bigquery/
 
-.. |pythons-aio| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-bigquery.svg?style=flat-square&label=python (aio)
-    :alt: Python Version Support (gcloud-aio-bigquery)
+.. |pythons| image:: https://img.shields.io/pypi/pyversions/gcloud-aio-bigquery.svg?style=flat-square&label=python
+    :alt: Python Version Support
     :target: https://pypi.org/project/gcloud-aio-bigquery/
-
-.. |pythons-rest| image:: https://img.shields.io/pypi/pyversions/gcloud-rest-bigquery.svg?style=flat-square&label=python (rest)
-    :alt: Python Version Support (gcloud-rest-bigquery)
-    :target: https://pypi.org/project/gcloud-rest-bigquery/

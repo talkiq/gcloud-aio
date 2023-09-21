@@ -1,26 +1,29 @@
+# pylint: disable=line-too-long
 """
 This library implements various methods for working with the Google Taskqueue
 APIs.
 
-## Installation
+Installation
+------------
 
-```console
-$ pip install --upgrade gcloud-aio-taskqueue
-```
+.. code-block:: console
 
-## Usage
+    $ pip install --upgrade gcloud-aio-taskqueue
 
-We're still working on documentation -- for now, you can use the
-[smoke tests][smoke-tests] as an example.
+Usage
+-----
 
-## Emulators
+We're still working on documentation -- for now, you can use the `smoke tests`_
+as an example.
 
-For testing purposes, you may want to use `gcloud-aio-taskqueue` along with a
-local emulator. Setting the `$CLOUDTASKS_EMULATOR_HOST` environment variable to
-the address of your emulator should be enough to do the trick.
+Emulators
+---------
 
-[smoke-tests]:
-https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
+For testing purposes, you may want to use ``gcloud-aio-taskqueue`` along with a
+local emulator. Setting the ``$CLOUDTASKS_EMULATOR_HOST`` environment variable
+to the address of your emulator should be enough to do the trick.
+
+.. _smoke tests: https://github.com/talkiq/gcloud-aio/tree/master/taskqueue/tests/integration
 """
 import importlib.metadata
 

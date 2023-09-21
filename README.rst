@@ -1,5 +1,5 @@
-(Asyncio OR Threadsafe) Google Cloud Client Library for Python
-==============================================================
+(Asyncio OR Threadsafe) Google Cloud Client Libraries for Python
+================================================================
 
 This repository contains a shared codebase for two projects: ``gcloud-aio-*``
 and ``gcloud-rest-*``. Both of them are HTTP implementations of the Google
