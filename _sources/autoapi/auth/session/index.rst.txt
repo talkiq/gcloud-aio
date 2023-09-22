@@ -68,6 +68,11 @@ Attributes
       :async:
 
 
+   .. py:method:: head(url, headers, timeout, params, allow_redirects)
+      :abstractmethod:
+      :async:
+
+
    .. py:method:: request(method, url, headers, auto_raise_for_status = True, **kwargs)
       :abstractmethod:
       :async:
@@ -117,6 +122,10 @@ Attributes
 
 
    .. py:method:: delete(url, headers, params = None, timeout = 10)
+      :async:
+
+
+   .. py:method:: head(url, headers = None, timeout = 10, params = None, allow_redirects = False)
       :async:
 
 

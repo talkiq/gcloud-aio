@@ -208,17 +208,21 @@
 <li class="toctree-l5"><a class="reference internal" href="#auth.IamClient.__aexit__"><code class="docutils literal notranslate"><span class="pre">IamClient.__aexit__()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="#auth.IapToken"><code class="docutils literal notranslate"><span class="pre">IapToken</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken.default_token_ttl"><code class="docutils literal notranslate"><span class="pre">IapToken.default_token_ttl</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._get_iap_client_id"><code class="docutils literal notranslate"><span class="pre">IapToken._get_iap_client_id()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_authorized_user()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_gce_metadata()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_service_account()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken.refresh"><code class="docutils literal notranslate"><span class="pre">IapToken.refresh()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#auth.Token"><code class="docutils literal notranslate"><span class="pre">Token</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.get_project"><code class="docutils literal notranslate"><span class="pre">Token.get_project()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.get"><code class="docutils literal notranslate"><span class="pre">Token.get()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.ensure_token"><code class="docutils literal notranslate"><span class="pre">Token.ensure_token()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.Token.default_token_ttl"><code class="docutils literal notranslate"><span class="pre">Token.default_token_ttl</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">Token._refresh_authorized_user()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">Token._refresh_gce_metadata()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">Token._refresh_service_account()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.acquire_access_token"><code class="docutils literal notranslate"><span class="pre">Token.acquire_access_token()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.close"><code class="docutils literal notranslate"><span class="pre">Token.close()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.__aenter__"><code class="docutils literal notranslate"><span class="pre">Token.__aenter__()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.__aexit__"><code class="docutils literal notranslate"><span class="pre">Token.__aexit__()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.Token.refresh"><code class="docutils literal notranslate"><span class="pre">Token.refresh()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#auth.decode"><code class="docutils literal notranslate"><span class="pre">decode()</span></code></a></li>
@@ -1105,17 +1109,21 @@
 <li class="toctree-l5"><a class="reference internal" href="#auth.IamClient.__aexit__"><code class="docutils literal notranslate"><span class="pre">IamClient.__aexit__()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l4"><a class="reference internal" href="#auth.IapToken"><code class="docutils literal notranslate"><span class="pre">IapToken</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken.default_token_ttl"><code class="docutils literal notranslate"><span class="pre">IapToken.default_token_ttl</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._get_iap_client_id"><code class="docutils literal notranslate"><span class="pre">IapToken._get_iap_client_id()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_authorized_user()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_gce_metadata()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">IapToken._refresh_service_account()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.IapToken.refresh"><code class="docutils literal notranslate"><span class="pre">IapToken.refresh()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#auth.Token"><code class="docutils literal notranslate"><span class="pre">Token</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.get_project"><code class="docutils literal notranslate"><span class="pre">Token.get_project()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.get"><code class="docutils literal notranslate"><span class="pre">Token.get()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.ensure_token"><code class="docutils literal notranslate"><span class="pre">Token.ensure_token()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.Token.default_token_ttl"><code class="docutils literal notranslate"><span class="pre">Token.default_token_ttl</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">Token._refresh_authorized_user()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">Token._refresh_gce_metadata()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#auth.Token._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">Token._refresh_service_account()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.acquire_access_token"><code class="docutils literal notranslate"><span class="pre">Token.acquire_access_token()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.close"><code class="docutils literal notranslate"><span class="pre">Token.close()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.__aenter__"><code class="docutils literal notranslate"><span class="pre">Token.__aenter__()</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#auth.Token.__aexit__"><code class="docutils literal notranslate"><span class="pre">Token.__aexit__()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#auth.Token.refresh"><code class="docutils literal notranslate"><span class="pre">Token.refresh()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#auth.decode"><code class="docutils literal notranslate"><span class="pre">decode()</span></code></a></li>
@@ -1948,18 +1956,40 @@ managing service accounts and public keys, URL-signing blobs, etc.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gcloud.aio.auth</span> <span class="kn">import</span> <span class="n">IamClient</span>
+<span class="kn">from</span> <span class="nn">gcloud.aio.auth</span> <span class="kn">import</span> <span class="n">IapToken</span>
 <span class="kn">from</span> <span class="nn">gcloud.aio.auth</span> <span class="kn">import</span> <span class="n">Token</span>
 
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">IamClient</span><span class="p">()</span>
 <span class="n">pubkeys</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">list_public_keys</span><span class="p">()</span>
 
+<span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span><span class="s1">&#39;https://your.service.url.com&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">iap_token</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>Additionally, the <code class="docutils literal notranslate"><span class="pre">Token</span></code> constructor accepts the following optional
-arguments:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">IapToken</span></code> constructor accepts the following optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">service_file</span></code>: path to a <a class="reference external" href="https://console.cloud.google.com/iam-admin/serviceaccounts">service account</a>, authorized user file, or any
+other application credentials. Alternatively, you can pass a file-like
+object, like an <code class="docutils literal notranslate"><span class="pre">io.StringIO</span></code> instance, in case your credentials are not
+stored in a file but in memory. If omitted, will attempt to find one on your
+path or fallback to generating a token from GCE metadata.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">session</span></code>: an <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientSession</span></code> instance to be used for all
+requests. If omitted, a default session will be created. If you use the
+default session, you may be interested in using <code class="docutils literal notranslate"><span class="pre">IapToken()</span></code> as a context
+manager (<code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">with</span> <span class="pre">IapToken(..)</span> <span class="pre">as</span> <span class="pre">token:</span></code>) or explicitly calling the
+<code class="docutils literal notranslate"><span class="pre">IapToken.close()</span></code> method to ensure the session is cleaned up
+appropriately.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">impersonating_service_account</span></code>: an optional string denoting a GCP service
+account which takes the form of an email address. Only valid (and required!)
+for authentication with a project’s authorized users. <a class="reference external" href="https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases">Impersonating a
+service account</a> is required when generating an ID token in this case.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">Token</span></code> constructor accepts the following optional arguments:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">service_file</span></code>: path to a <a class="reference external" href="https://console.cloud.google.com/iam-admin/serviceaccounts">service account</a> authorized user file, or any
 other application credentials. Alternatively, you can pass a file-like
@@ -1992,6 +2022,11 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import Token; print(Token().get())&#39;)&quot;       &quot;https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs&quot;</span>
 </pre></div>
 </div>
+<p>Similarly it can be used to quickly test your IAP-secured endpoints:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>using<span class="w"> </span>default<span class="w"> </span>application<span class="w"> </span>credentials
+<span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, impersonating_service_account=SA))&#39;)&quot;       APP_URL</span>
+</pre></div>
+</div>
 </section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
@@ -2014,8 +2049,11 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <tr class="row-odd"><td><p><a class="reference internal" href="#auth.IamClient" title="auth.IamClient"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.IamClient"><span class="pre">IamClient</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#auth.Token" title="auth.Token"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.Token"><span class="pre">Token</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#auth.IapToken" title="auth.IapToken"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.IapToken"><span class="pre">IapToken</span></code></a></p></td>
+<td><p>An OpenID Connect ID token for a single IAP-secured service.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.Token" title="auth.Token"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.Token"><span class="pre">Token</span></code></a></p></td>
+<td><p>GCP OAuth 2.0 access token.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2024,10 +2062,10 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h3>
 <table class="autosummary longtable">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#auth.decode" title="auth.decode"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.decode"><span class="pre">decode</span></code></a>(payload)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#auth.decode" title="auth.decode"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.decode"><span class="pre">decode</span></code></a>(payload)</p></td>
 <td><p>Modified Base64 for URL variants exist, where the + and / characters of</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#auth.encode" title="auth.encode"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.encode"><span class="pre">encode</span></code></a>(payload)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.encode" title="auth.encode"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.encode"><span class="pre">encode</span></code></a>(payload)</p></td>
 <td><p>Modified Base64 for URL variants exist, where the + and / characters of</p></td>
 </tr>
 </tbody>
@@ -2037,10 +2075,10 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
 <table class="autosummary longtable">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#auth.BUILD_GCLOUD_REST" title="auth.BUILD_GCLOUD_REST"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.BUILD_GCLOUD_REST"><span class="pre">BUILD_GCLOUD_REST</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#auth.BUILD_GCLOUD_REST" title="auth.BUILD_GCLOUD_REST"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.BUILD_GCLOUD_REST"><span class="pre">BUILD_GCLOUD_REST</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#auth.__version__" title="auth.__version__"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.__version__"><span class="pre">__version__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.__version__" title="auth.__version__"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.__version__"><span class="pre">__version__</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -2175,9 +2213,116 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="auth.IapToken">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">auth.</span></span><span class="sig-name descname"><span class="pre">IapToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impersonating_service_account</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.BaseToken"><span class="pre">BaseToken</span></code></p>
+<p>An OpenID Connect ID token for a single IAP-secured service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_uri</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>service_file</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Union</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">IO</em><em>[</em><em class="hover">AnyStr</em><em>]</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
+<li><p><strong>impersonating_service_account</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="auth.IapToken.default_token_ttl">
+<span class="sig-name descname"><span class="pre">default_token_ttl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3600</span></em><a class="headerlink" href="#auth.IapToken.default_token_ttl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.IapToken._get_iap_client_id">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_iap_client_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken._get_iap_client_id" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch the IAP client ID from the service URI.</p>
+<p>If not logged in already, then we parse the OAuth redirect location to
+get the client ID. The redirect location is a header of the form:</p>
+<blockquote>
+<div><p><a class="reference external" href="https://accounts.google.com/o/oauth2/v2/auth">https://accounts.google.com/o/oauth2/v2/auth</a>?client_id=&lt;id&gt;&amp;…</p>
+</div></blockquote>
+<p>For more details, see the GCP docs for programmatic IAP access:
+<a class="reference external" href="https://cloud.google.com/iap/docs/authentication-howto">https://cloud.google.com/iap/docs/authentication-howto</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.IapToken._refresh_authorized_user">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_authorized_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iap_client_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken._refresh_authorized_user" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch IAP ID token by impersonating a service account.</p>
+<p><a class="reference external" href="https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases">https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iap_client_id</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.IapToken._refresh_gce_metadata">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_gce_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken._refresh_gce_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Fetch IAP ID token from the GCE metadata servers.</p>
+<p><a class="reference external" href="https://cloud.google.com/docs/authentication/get-id-token#metadata-server">https://cloud.google.com/docs/authentication/get-id-token#metadata-server</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.IapToken._refresh_service_account">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_service_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iap_client_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken._refresh_service_account" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iap_client_id</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.IapToken.refresh">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.IapToken.refresh" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="auth.Token">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">auth.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Bases: <code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.BaseToken"><span class="pre">BaseToken</span></code></p>
+<p>GCP OAuth 2.0 access token.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>service_file</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Union</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">IO</em><em>[</em><em class="hover">AnyStr</em><em>]</em><em>]</em><em>]</em>) – </p></li>
@@ -2186,35 +2331,10 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.get_project">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.get_project" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.get">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.get" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.ensure_token">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ensure_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.ensure_token" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="auth.Token.default_token_ttl">
+<span class="sig-name descname"><span class="pre">default_token_ttl</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3600</span></em><a class="headerlink" href="#auth.Token.default_token_ttl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="auth.Token._refresh_authorized_user">
@@ -2224,7 +2344,7 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2237,7 +2357,7 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2250,53 +2370,20 @@ routes, eg. we can list our project’s uptime checks with a tool such as
 <dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.acquire_access_token">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acquire_access_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.acquire_access_token" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="auth.Token.refresh">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">refresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.refresh" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.close">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.close" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.__aenter__">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.__aenter__" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#auth.Token" title="auth.Token">Token</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.Token.__aexit__">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aexit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.Token.__aexit__" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em class="hover">Any</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p><a class="reference internal" href="token/index.html#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2353,7 +2440,7 @@ standard Base64 are respectively replaced by - and _.</p>
   <div id="footer-row" class="row">
 
     <div class="col-md-12">
-        <span title="Built on 2023-09-19" class="pull-right">&copy; Copyright 2017, TalkIQ.
+        <span title="Built on 2023-09-22" class="pull-right">&copy; Copyright 2017, TalkIQ.
         Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6 and the
         <a href="https://pypi.org/project/sphinx-sizzle-theme/"
 

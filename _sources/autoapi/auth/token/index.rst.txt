@@ -18,7 +18,10 @@ Classes
 .. autoapisummary::
 
    auth.token.Type
+   auth.token.TokenResponse
+   auth.token.BaseToken
    auth.token.Token
+   auth.token.IapToken
 
 
 
@@ -41,7 +44,8 @@ Attributes
    auth.token.GCE_METADATA_HEADERS
    auth.token.GCE_ENDPOINT_PROJECT
    auth.token.GCE_ENDPOINT_TOKEN
-   auth.token.GCLOUD_TOKEN_DURATION
+   auth.token.GCE_ENDPOINT_ID_TOKEN
+   auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN
    auth.token.REFRESH_HEADERS
 
 
@@ -67,8 +71,12 @@ Attributes
 
    
 
-.. py:data:: GCLOUD_TOKEN_DURATION
-   :value: 3600
+.. py:data:: GCE_ENDPOINT_ID_TOKEN
+
+   
+
+.. py:data:: GCLOUD_ENDPOINT_GENERATE_ID_TOKEN
+   :value: 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
 
    
 
@@ -146,8 +154,28 @@ Attributes
    https://github.com/googleapis/google-auth-library-python/blob/6c1297c4d69ba40a8b9392775c17411253fcd73b/google/auth/_default.py#L504
 
 
-.. py:class:: Token(service_file = None, session = None, scopes = None)
+.. py:class:: TokenResponse
 
+
+   .. py:attribute:: value
+      :type: str
+
+      
+
+   .. py:attribute:: expires_in
+      :type: int
+
+      
+
+
+.. py:class:: BaseToken(service_file = None, session = None)
+
+
+   GCP auth token base class.
+
+   .. py:attribute:: __metaclass__
+
+      
 
    .. py:method:: get_project()
       :async:
@@ -161,15 +189,8 @@ Attributes
       :async:
 
 
-   .. py:method:: _refresh_authorized_user(timeout)
-      :async:
-
-
-   .. py:method:: _refresh_gce_metadata(timeout)
-      :async:
-
-
-   .. py:method:: _refresh_service_account(timeout)
+   .. py:method:: refresh(*, timeout)
+      :abstractmethod:
       :async:
 
 
@@ -186,6 +207,86 @@ Attributes
 
 
    .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:class:: Token(service_file = None, session = None, scopes = None)
+
+
+   Bases: :py:obj:`BaseToken`
+
+   GCP OAuth 2.0 access token.
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+      
+
+   .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+   .. py:method:: _refresh_gce_metadata(timeout)
+      :async:
+
+
+   .. py:method:: _refresh_service_account(timeout)
+      :async:
+
+
+   .. py:method:: refresh(*, timeout)
+      :async:
+
+
+
+.. py:class:: IapToken(app_uri, service_file = None, session = None, impersonating_service_account = None)
+
+
+   Bases: :py:obj:`BaseToken`
+
+   An OpenID Connect ID token for a single IAP-secured service.
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+      
+
+   .. py:method:: _get_iap_client_id(*, timeout)
+      :async:
+
+      Fetch the IAP client ID from the service URI.
+
+      If not logged in already, then we parse the OAuth redirect location to
+      get the client ID. The redirect location is a header of the form:
+
+          https://accounts.google.com/o/oauth2/v2/auth?client_id=<id>&...
+
+      For more details, see the GCP docs for programmatic IAP access:
+      https://cloud.google.com/iap/docs/authentication-howto
+
+
+   .. py:method:: _refresh_authorized_user(iap_client_id, timeout)
+      :async:
+
+      Fetch IAP ID token by impersonating a service account.
+
+      https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
+
+
+   .. py:method:: _refresh_gce_metadata(timeout)
+      :async:
+
+      Fetch IAP ID token from the GCE metadata servers.
+
+      https://cloud.google.com/docs/authentication/get-id-token#metadata-server
+
+
+   .. py:method:: _refresh_service_account(iap_client_id, timeout)
+      :async:
+
+
+   .. py:method:: refresh(*, timeout)
       :async:
 
 
