@@ -80,6 +80,14 @@ class BaseSession:
         pass
 
     @abstractmethod
+    async def head(
+        self, url: str, headers: Optional[Mapping[str, str]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
+        allow_redirects: bool,
+    ) -> Response:
+        pass
+
+    @abstractmethod
     async def request(
         self, method: str, url: str, headers: Mapping[str, str],
         auto_raise_for_status: bool = True, **kwargs: Any,
@@ -219,6 +227,21 @@ if not BUILD_GCLOUD_REST:
             await _raise_for_status(resp)
             return resp
 
+        async def head(  # type: ignore[override]
+            self, url: str,
+            headers: Optional[Mapping[str, str]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> aiohttp.ClientResponse:
+            resp = await self.session.head(
+                url, headers=headers,
+                params=params, timeout=timeout,
+                allow_redirects=allow_redirects,
+            )
+            await _raise_for_status(resp)
+            return resp
+
         async def request(  # type: ignore[override]
             self, method: str,
             url: str, headers: Mapping[str, str],
@@ -317,6 +340,20 @@ if BUILD_GCLOUD_REST:
                 resp = self.session.delete(
                     url, params=params, headers=headers,
                     timeout=timeout,
+                )
+            resp.raise_for_status()
+            return resp
+
+        async def head(
+            self, url: str, headers: Optional[Mapping[str, str]] = None,
+            timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> Response:
+            with self.google_api_lock:
+                resp = self.session.head(
+                    url, params=params, headers=headers,
+                    timeout=timeout, allow_redirects=allow_redirects,
                 )
             resp.raise_for_status()
             return resp
