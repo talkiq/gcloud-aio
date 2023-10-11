@@ -2387,12 +2387,18 @@ get the client ID. The redirect location is a header of the form:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="auth.token.IapToken._refresh_gce_metadata">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_gce_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.IapToken._refresh_gce_metadata" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_gce_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iap_client_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.IapToken._refresh_gce_metadata" title="Link to this definition">¶</a></dt>
 <dd><p>Fetch IAP ID token from the GCE metadata servers.</p>
+<p>Note: The official documentation states that the URI be used for the
+audience but this is not the case. The typical audience value must be
+used as in other flavours of ID token fetching.</p>
 <p><a class="reference external" href="https://cloud.google.com/docs/authentication/get-id-token#metadata-server">https://cloud.google.com/docs/authentication/get-id-token#metadata-server</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iap_client_id</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
@@ -2444,7 +2450,7 @@ get the client ID. The redirect location is a header of the form:</p>
   <div id="footer-row" class="row">
 
     <div class="col-md-12">
-        <span title="Built on 2023-10-10" class="pull-right">&copy; Copyright 2017, TalkIQ.
+        <span title="Built on 2023-10-11" class="pull-right">&copy; Copyright 2017, TalkIQ.
         Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6 and the
         <a href="https://pypi.org/project/sphinx-sizzle-theme/"
 
