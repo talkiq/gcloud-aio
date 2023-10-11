@@ -418,14 +418,21 @@ class IapToken(BaseToken):
         return TokenResponse(value=content['token'],
                              expires_in=self.default_token_ttl)
 
-    async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
+    async def _refresh_gce_metadata(
+            self, iap_client_id: str,
+            timeout: int,
+    ) -> TokenResponse:
         """
         Fetch IAP ID token from the GCE metadata servers.
+
+        Note: The official documentation states that the URI be used for the
+        audience but this is not the case. The typical audience value must be
+        used as in other flavours of ID token fetching.
 
         https://cloud.google.com/docs/authentication/get-id-token#metadata-server
         """
         resp = await self.session.get(
-            GCE_ENDPOINT_ID_TOKEN.format(audience=self.app_uri),
+            GCE_ENDPOINT_ID_TOKEN.format(audience=iap_client_id),
             headers=GCE_METADATA_HEADERS, timeout=timeout)
         token = await resp.text()
         return TokenResponse(value=token,
@@ -467,16 +474,16 @@ class IapToken(BaseToken):
                              expires_in=expiry - int(time.time()))
 
     async def refresh(self, *, timeout: int) -> TokenResponse:
+        iap_client_id = await self._get_iap_client_id(timeout=timeout)
         if self.token_type == Type.AUTHORIZED_USER:
-            iap_client_id = await self._get_iap_client_id(timeout=timeout)
             resp = await self._refresh_authorized_user(
-                iap_client_id, timeout=timeout)
+                iap_client_id, timeout)
         elif self.token_type == Type.GCE_METADATA:
-            resp = await self._refresh_gce_metadata(timeout=timeout)
+            resp = await self._refresh_gce_metadata(
+                iap_client_id, timeout)
         elif self.token_type == Type.SERVICE_ACCOUNT:
-            iap_client_id = await self._get_iap_client_id(timeout=timeout)
             resp = await self._refresh_service_account(
-                iap_client_id, timeout=timeout)
+                iap_client_id, timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
