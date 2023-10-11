@@ -425,6 +425,10 @@ class IapToken(BaseToken):
         """
         Fetch IAP ID token from the GCE metadata servers.
 
+        Note: The official documentation states that the URI be used for the
+        audience but this is not the case. The typical audience value must be
+        used as in other flavours of ID token fetching.
+
         https://cloud.google.com/docs/authentication/get-id-token#metadata-server
         """
         resp = await self.session.get(
