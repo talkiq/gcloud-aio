@@ -117,7 +117,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:20.8.0
+      - image: node:20.8.1
     steps:
       - checkout
       - attach_workspace:
