@@ -183,6 +183,8 @@ class BaseToken:
             or os.environ.get('GCLOUD_PROJECT')
             or os.environ.get('APPLICATION_ID')
         )
+        if project:
+            return project
 
         if self.token_type == Type.GCE_METADATA:
             await self.ensure_token()
@@ -191,16 +193,15 @@ class BaseToken:
                 headers=GCE_METADATA_HEADERS,
             )
 
-            if not project:
-                try:
-                    project = await resp.text()
-                except (AttributeError, TypeError):
-                    project = str(resp.text)
+            try:
+                return await resp.text()
+            except (AttributeError, TypeError):
+                return str(resp.text)
 
-        elif self.token_type == Type.SERVICE_ACCOUNT:
-            project = project or self.service_data.get('project_id')
+        if self.token_type == Type.SERVICE_ACCOUNT:
+            return self.service_data.get('project_id')
 
-        return project
+        return None
 
     async def get(self) -> Optional[str]:
         await self.ensure_token()
