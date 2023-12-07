@@ -1,5 +1,6 @@
 import uuid
 
+import backoff
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.bigquery import SourceFormat
@@ -12,10 +13,8 @@ from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from requests import Session
-    from time import sleep
 else:
     from aiohttp import ClientSession as Session
-    from asyncio import sleep
 
 
 @pytest.mark.asyncio
@@ -57,15 +56,15 @@ async def test_table_load_copy(
 
         operation = await ds.export(export_bucket_name, kinds=[kind])
 
-        count = 0
-        while (
-            count < 10
-            and operation
-            and operation.metadata['common']['state'] == 'PROCESSING'
-        ):
-            await sleep(10)
-            operation = await ds.get_datastore_operation(operation.name)
-            count += 1
+        def is_processing(operation):
+            return (
+                operation
+                and operation.metadata['common']['state'] == 'PROCESSING'
+            )
+
+        operation = await backoff.on_predicate(
+            backoff.constant, is_processing, interval=10, max_tries=10)(
+                ds.get_datastore_operation)(operation.name)
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
@@ -88,18 +87,19 @@ async def test_table_load_copy(
             source_format=SourceFormat.DATASTORE_BACKUP,
         )
 
-        await sleep(20)
-
-        source_table = await t.get()
+        source_table = await backoff.on_exception(
+            backoff.constant, Exception, max_time=60, jitter=None,
+            interval=10)(t.get)()
         assert int(source_table['numRows']) > 0
 
         await t.insert_via_copy(project, dataset, copy_entity_table)
-        await sleep(20)
         t1 = Table(
             dataset, copy_entity_table, project=project,
             service_file=creds, session=s,
         )
-        copy_table = await t1.get()
+        copy_table = await backoff.on_exception(
+            backoff.constant, Exception, max_time=60, jitter=None,
+            interval=10)(t1.get)()
         assert copy_table['numRows'] == source_table['numRows']
 
         # delete the backup and copy table
