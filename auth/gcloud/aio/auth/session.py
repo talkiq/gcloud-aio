@@ -139,10 +139,19 @@ if not BUILD_GCLOUD_REST:
         _session: aiohttp.ClientSession  # type: ignore[assignment]
         _timeout: Timeout  # type: ignore[assignment]
 
+        # N.B. `aiohttp.TCPConnector` SSL config is not true / false / CA
+        # bundle path like `requests`, but `None` / false / object instead:
+        # * `None` for default SSL check
+        # * `False` to skip SSL certificate validation
+        # * `aiohttp.Fingerprint` for fingerprint validation
+        # * `ssl.SSLContext` for custom SSL certificate validation
+        #
+        # https://docs.aiohttp.org/en/v3.9.1/client_reference.html#aiohttp.TCPConnector
         @property
         def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
-                connector = aiohttp.TCPConnector(ssl=self._ssl)
+                connector = aiohttp.TCPConnector(
+                    ssl=None if self._ssl else False)
 
                 if isinstance(self._timeout, aiohttp.ClientTimeout):
                     timeout = self._timeout
