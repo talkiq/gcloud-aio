@@ -99,9 +99,9 @@ class Blob:
         session: Optional[Session] = None,
     ) -> Dict[str, Any]:
         metadata = await self.bucket.storage.upload(
-            self.bucket.name, 
-            self.name, 
-            data, 
+            self.bucket.name,
+            self.name,
+            data,
             content_type=content_type,
             session=session,
         )
