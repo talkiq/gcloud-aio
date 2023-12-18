@@ -95,10 +95,15 @@ class Blob:
 
     async def upload(
         self, data: Any,
+        content_type: Optional[str] = None,
         session: Optional[Session] = None,
     ) -> Dict[str, Any]:
         metadata = await self.bucket.storage.upload(
-            self.bucket.name, self.name, data, session=session,
+            self.bucket.name, 
+            self.name, 
+            data, 
+            content_type=content_type,
+            session=session,
         )
 
         self.__dict__.update(metadata)
