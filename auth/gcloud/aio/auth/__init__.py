@@ -63,6 +63,15 @@ The ``Token`` constructor accepts the following optional arguments:
   ``Token.close()`` method to ensure the session is cleaned up appropriately.
 * ``scopes``: an optional list of GCP `scopes`_ for which to generate our
   token. Only valid (and required!) for `service account`_ authentication.
+* ``target_principal``: The service account to generate the access token for.
+  The **roles/iam.serviceAccounts.getAccessToken** role on that service account
+  is required.
+* ``delegates``: The sequence of service accounts in a delegation chain.
+  This field is required for delegated requests.
+  Each service account must be granted the **roles/iam.serviceAccountTokenCreator**
+  role on its next service account in the chain. The last service account in
+  the chain must be granted the **roles/iam.serviceAccountTokenCreator** role
+  on the service account that is specified in the ``target_principal``.
 
 CLI
 ---

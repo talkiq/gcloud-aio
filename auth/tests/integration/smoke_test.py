@@ -124,3 +124,53 @@ async def test_get_service_account_public_key(creds: str) -> None:
         )
 
         assert pub_key_data == pub_key_by_key_id_data
+
+
+@pytest.mark.asyncio
+async def test_impersonation(creds: str) -> None:
+    """Impersonate a service account."""
+    pytest.skip('Needs setup by maintainers')
+    target_principal = 'sa_a@project.iam.gserviceaccount.com'
+
+    async with Session(timeout=10) as s:
+        token = Token(
+            service_file=creds,
+            target_principal=target_principal,
+            scopes=['https://www.googleapis.com/auth/userinfo.email'],
+            session=s,
+        )
+        access_token = await token.get()
+        headers = {'authorization': f'Bearer {access_token}'}
+
+        resp = await s.get(
+            'https://www.googleapis.com/oauth2/v2/userinfo',
+            headers=headers)
+        content = await resp.json()
+
+        assert content['email'] == target_principal
+
+
+@pytest.mark.asyncio
+async def test_impersonation_with_delegates(creds: str) -> None:
+    """Impersonate a service account with delegation."""
+    pytest.skip('Needs setup by maintainers')
+    target_principal = 'sa_b@project.iam.gserviceaccount.com'
+    delegates = ['sa_a@project.iam.gserviceaccount.com']
+
+    async with Session(timeout=10) as s:
+        token = Token(
+            service_file=creds,
+            target_principal=target_principal,
+            delegates=delegates,
+            scopes=['https://www.googleapis.com/auth/userinfo.email'],
+            session=s,
+        )
+        access_token = await token.get()
+        headers = {'authorization': f'Bearer {access_token}'}
+
+        resp = await s.get(
+            'https://www.googleapis.com/oauth2/v2/userinfo',
+            headers=headers)
+        content = await resp.json()
+
+        assert content['email'] == target_principal

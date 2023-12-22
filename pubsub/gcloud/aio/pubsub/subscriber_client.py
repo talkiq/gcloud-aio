@@ -45,6 +45,8 @@ class SubscriberClient:
             self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
             token: Optional[Token] = None, session: Optional[Session] = None,
             api_root: Optional[str] = None,
+            target_principal: Optional[str] = None,
+            delegates: Optional[List[str]] = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
 
@@ -52,6 +54,8 @@ class SubscriberClient:
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
             session=self.session.session,  # type: ignore[arg-type]
+            target_principal=target_principal,
+            delegates=delegates,
         )
 
     @staticmethod

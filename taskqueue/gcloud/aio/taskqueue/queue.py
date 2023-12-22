@@ -8,6 +8,7 @@ from typing import Any
 from typing import AnyStr
 from typing import Dict
 from typing import IO
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -50,6 +51,8 @@ class PushQueue:
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
             session: Optional[Session] = None, token: Optional[Token] = None,
             api_root: Optional[str] = None,
+            target_principal: Optional[str] = None,
+            delegates: Optional[List[str]] = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self._queue_path = (
@@ -60,6 +63,8 @@ class PushQueue:
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
             session=self.session.session,  # type: ignore[arg-type]
+            target_principal=target_principal,
+            delegates=delegates,
         )
 
     async def headers(self) -> Dict[str, str]:
