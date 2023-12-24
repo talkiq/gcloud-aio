@@ -23,9 +23,10 @@ class Job(BigqueryBase):
             self, job_id: Optional[str] = None, project: Optional[str] = None,
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
             session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
+            api_root: Optional[str] = None, location: Optional[str] = None,
     ) -> None:
         self.job_id = job_id
+        self.location = location
         super().__init__(
             project=project, service_file=service_file,
             session=session, token=token, api_root=api_root,
@@ -65,6 +66,8 @@ class Job(BigqueryBase):
 
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs/{self.job_id}'
+        if self.location:
+            url += f'?location={self.location}'
 
         return await self._get_url(url, session, timeout)
 
