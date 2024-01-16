@@ -27,7 +27,7 @@ gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-datastore = { path = "../datastore" }
 gcloud-aio-storage = { path = "../storage" }
-pytest = "7.4.3"
+pytest = "7.4.4"
 pytest-asyncio = "0.21.1"
 pytest-mock = "3.12.0"
 
