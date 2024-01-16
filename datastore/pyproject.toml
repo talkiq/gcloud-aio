@@ -24,12 +24,12 @@ python = ">= 3.8, < 4.0"
 gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
-aiohttp = ">= 3.3.0, < 4.0.0"
+aiohttp = "3.9.1"
 gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-storage = { path = "../storage" }
-pytest = ">= 4.0.0, < 8.0.0"
-pytest-asyncio = ">= 0.16.0, < 0.22.0"
-pytest-mock = ">= 2.0.0, < 4.0.0"
+pytest = "7.4.3"
+pytest-asyncio = "0.21.1"
+pytest-mock = "3.12.0"
 
 [[tool.poetry.source]]
 name = "pypi"
