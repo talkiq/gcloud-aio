@@ -145,7 +145,8 @@ class Blob:
         datestamp = datetime_now.strftime('%Y%m%d')
 
         token = token or self.bucket.storage.token
-        signature_method = _SignatureMethod.PEM  # Try to sign locally by default, if available
+        # Try to sign locally by default, if available
+        signature_method = _SignatureMethod.PEM
         client_email = token.service_data.get('client_email')
         private_key = token.service_data.get('private_key')
         if not client_email or not private_key:
