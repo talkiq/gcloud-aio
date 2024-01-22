@@ -38,6 +38,7 @@ async def test_gcs_signed_url(bucket_name, creds, data, headers):
 
         await verify_signed_url(blob, bucket_name, data, headers, session, signed_url, storage)
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize('data', ['test'])
 @pytest.mark.parametrize('headers', [
@@ -46,7 +47,8 @@ async def test_gcs_signed_url(bucket_name, creds, data, headers):
 ])
 async def test_gcs_iam_signed_url(bucket_name, creds, data, headers):
     object_name = f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.txt'
-    token = Token(scopes=['https://www.googleapis.com/auth/devstorage.read_write'])
+    token = Token(
+        scopes=['https://www.googleapis.com/auth/devstorage.read_write'])
 
     async with Session() as session:
         # Passing a token without the service account private key will force
@@ -77,5 +79,3 @@ async def verify_signed_url(blob, bucket_name, data, headers, session, signed_ur
         assert data == downloaded_data
     finally:
         await storage.delete(bucket_name, blob.name)
-
-
