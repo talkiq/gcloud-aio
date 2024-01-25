@@ -4,6 +4,7 @@ import datetime
 import enum
 import hashlib
 import io
+import typing
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -149,7 +150,7 @@ class Blob:
         credential_scope = f'{datestamp}/auto/storage/goog4_request'
         # Try to sign locally if available
         client_email = token.service_data.get('client_email')
-        private_key = token.service_data.get('private_key')
+        private_key = typing.cast(str, token.service_data.get('private_key'))
         if not client_email or not private_key:
             # Cannot sign locally, so we'll have to use Google's IAM API
             signature_method = _SignatureMethod.IAM_API
