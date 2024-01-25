@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-storage"
-version = "9.1.0"
+version = "9.1.1"
 description = "Python Client for Google Cloud Storage"
 readme = "README.rst"
 
