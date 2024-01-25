@@ -145,16 +145,17 @@ class Blob:
         datestamp = datetime_now.strftime('%Y%m%d')
 
         token = token or self.bucket.storage.token
-        # Try to sign locally by default, if available
-        signature_method = _SignatureMethod.PEM
+        credential_scope = f'{datestamp}/auto/storage/goog4_request'
+        # Try to sign locally if available
         client_email = token.service_data.get('client_email')
         private_key = token.service_data.get('private_key')
         if not client_email or not private_key:
             # Cannot sign locally, so we'll have to use Google's IAM API
             signature_method = _SignatureMethod.IAM_API
-
-        credential_scope = f'{datestamp}/auto/storage/goog4_request'
-        credential = f'{client_email}/{credential_scope}'
+            credential = f'{service_account_email}/{credential_scope}'
+        else:
+            signature_method = _SignatureMethod.PEM
+            credential = f'{client_email}/{credential_scope}'
 
         headers = headers or {}
         headers['host'] = HOST
