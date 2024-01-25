@@ -122,7 +122,7 @@ class Blob:
             query_params: Optional[Dict[str, Any]] = None,
             http_method: str = 'GET', iam_client: Optional[IamClient] = None,
             service_account_email: Optional[str] = None,
-            token: Optional[Token] = None, session: Optional[Session] = None
+            token: Optional[Token] = None, session: Optional[Session] = None,
     ) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
@@ -201,7 +201,11 @@ class Blob:
         if signature_method == _SignatureMethod.PEM:
             signed_blob = self.get_pem_signature(str_to_sign, private_key)
         else:
-            iam_client = iam_client or IamClient(token=token, session=session)
+            try:
+                iam_client = iam_client or IamClient(token=token, session=session)
+            except TypeError as e:
+                raise TypeError('Blob signing is not yet supported'
+                                ' for AUTHORIZED_USER tokens') from e
             signed_blob = await self.get_iam_api_signature(str_to_sign, iam_client,
                                                            service_account_email, session)
 
@@ -243,6 +247,6 @@ class Blob:
     @staticmethod
     async def get_iam_api_signature(str_to_sign, iam_client, service_account_email, session):
         signed_resp = await iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email, session=session
+            str_to_sign, service_account_email=service_account_email, session=session,
         )
         return decode(signed_resp)

@@ -63,7 +63,7 @@ async def test_gcs_iam_signed_url(bucket_name, creds, data, headers):
         blob = await bucket.get_blob(object_name, session=session)
         iam_client = IamClient(service_file=creds, session=session)
 
-        signed_url = await blob.get_signed_url(60, iam_client=iam_client)
+        signed_url = await blob.get_signed_url(60, headers=headers, iam_client=iam_client)
 
         await verify_signed_url(blob, bucket_name, data, headers, session, signed_url,
                                 storage)
