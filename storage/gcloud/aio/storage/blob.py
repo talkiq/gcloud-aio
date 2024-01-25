@@ -71,9 +71,10 @@ class PemKind(enum.Enum):
 
 class _SignatureMethod(enum.Enum):
     """
-    Indicates where the url signing will be done through Google's IAM API or through
-    local signing with a PEM file, which is faster but requires that the provided token contains
-    client_email and private_key data
+    Indicates where the url signing will be done through Google's
+    IAM API or through local signing with a PEM file, which is faster
+    but requires that the provided token contains client_email and
+    private_key data
     """
 
     PEM = 0
@@ -208,8 +209,11 @@ class Blob:
             except TypeError as e:
                 raise TypeError('Blob signing is not yet supported'
                                 ' for AUTHORIZED_USER tokens') from e
-            signed_blob = await self.get_iam_api_signature(str_to_sign, iam_client,
-                                                           service_account_email, session)
+            signed_blob = await self.get_iam_api_signature(
+                str_to_sign,
+                iam_client,
+                service_account_email, session
+            )
 
         signature = binascii.hexlify(signed_blob).decode()
 
@@ -243,12 +247,19 @@ class Blob:
             key_bytes = private_key_info.asOctets()
 
         key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format='DER')
-        signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, 'SHA-256')
+        signed_blob = rsa.pkcs1.sign(
+            str_to_sign.encode(),
+            key,
+            'SHA-256',
+        )
         return signed_blob
 
     @staticmethod
-    async def get_iam_api_signature(str_to_sign, iam_client, service_account_email, session):
+    async def get_iam_api_signature(
+            str_to_sign, iam_client, service_account_email, session):
         signed_resp = await iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email, session=session,
+            str_to_sign,
+            service_account_email=service_account_email,
+            session=session,
         )
         return decode(signed_resp['signedBlob'])
