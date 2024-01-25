@@ -250,4 +250,5 @@ class Blob:
         signed_resp = await iam_client.sign_blob(
             str_to_sign, service_account_email=service_account_email, session=session,
         )
+        print(signed_resp)
         return decode(signed_resp['signedBlob'])
