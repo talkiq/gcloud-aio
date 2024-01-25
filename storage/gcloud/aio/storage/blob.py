@@ -212,7 +212,8 @@ class Blob:
             signed_blob = await self.get_iam_api_signature(
                 str_to_sign,
                 iam_client,
-                service_account_email, session
+                service_account_email,
+                session,
             )
 
         signature = binascii.hexlify(signed_blob).decode()
@@ -223,7 +224,7 @@ class Blob:
         )
 
     @staticmethod
-    def get_pem_signature(str_to_sign, private_key):
+    def get_pem_signature(str_to_sign: str, private_key: str) -> bytes:
         # N.B. see the ``PemKind`` enum
         marker_id, key_bytes = pem.readPemBlocksFromFile(
             io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER,
@@ -256,7 +257,9 @@ class Blob:
 
     @staticmethod
     async def get_iam_api_signature(
-            str_to_sign, iam_client, service_account_email, session):
+            str_to_sign: str, iam_client: IamClient,
+            service_account_email: Optional[str], session: Optional[Session],
+    ) -> bytes:
         signed_resp = await iam_client.sign_blob(
             str_to_sign,
             service_account_email=service_account_email,
