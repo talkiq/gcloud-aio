@@ -917,6 +917,8 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.download"><code class="docutils literal notranslate"><span class="pre">Blob.download()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.upload"><code class="docutils literal notranslate"><span class="pre">Blob.upload()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_signed_url"><code class="docutils literal notranslate"><span class="pre">Blob.get_signed_url()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_pem_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_pem_signature()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_iam_api_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_iam_api_signature()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#storage.Bucket"><code class="docutils literal notranslate"><span class="pre">Bucket</span></code></a><ul>
@@ -1818,6 +1820,8 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.download"><code class="docutils literal notranslate"><span class="pre">Blob.download()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.upload"><code class="docutils literal notranslate"><span class="pre">Blob.upload()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_signed_url"><code class="docutils literal notranslate"><span class="pre">Blob.get_signed_url()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_pem_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_pem_signature()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Blob.get_iam_api_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_iam_api_signature()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#storage.Bucket"><code class="docutils literal notranslate"><span class="pre">Bucket</span></code></a><ul>
@@ -1953,7 +1957,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PemKind" title="storage.blob.PemKind"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PemKind"><span class="pre">PemKind</span></code></a></p></td>
 <td><p>Tracks the response of <code class="docutils literal notranslate"><span class="pre">pem.readPemBlocksFromFile(key,</span> <span class="pre">*args)</span></code>&gt;</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.Blob" title="storage.blob.Blob"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.Blob"><span class="pre">Blob</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob._SignatureMethod" title="storage.blob._SignatureMethod"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob._SignatureMethod"><span class="pre">_SignatureMethod</span></code></a></p></td>
+<td><p>Indicates where the url signing will be done through Google's</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.Blob" title="storage.blob.Blob"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.Blob"><span class="pre">Blob</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1963,16 +1970,16 @@
 <h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
 <table class="autosummary longtable">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.HOST" title="storage.blob.HOST"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.HOST"><span class="pre">HOST</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.HOST" title="storage.blob.HOST"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.HOST"><span class="pre">HOST</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.PKCS1_MARKER" title="storage.blob.PKCS1_MARKER"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS1_MARKER"><span class="pre">PKCS1_MARKER</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PKCS1_MARKER" title="storage.blob.PKCS1_MARKER"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS1_MARKER"><span class="pre">PKCS1_MARKER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PKCS8_MARKER" title="storage.blob.PKCS8_MARKER"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS8_MARKER"><span class="pre">PKCS8_MARKER</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.PKCS8_MARKER" title="storage.blob.PKCS8_MARKER"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS8_MARKER"><span class="pre">PKCS8_MARKER</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.PKCS8_SPEC" title="storage.blob.PKCS8_SPEC"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS8_SPEC"><span class="pre">PKCS8_SPEC</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PKCS8_SPEC" title="storage.blob.PKCS8_SPEC"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.PKCS8_SPEC"><span class="pre">PKCS8_SPEC</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -2034,6 +2041,26 @@ match was found.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="storage.blob._SignatureMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">_SignatureMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob._SignatureMethod" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj hover docutils literal notranslate" data-hoverref="storage.blob.enum.Enum"><span class="pre">enum.Enum</span></code></p>
+<p>Indicates where the url signing will be done through Google’s
+IAM API or through local signing with a PEM file, which is faster
+but requires that the provided token contains client_email and
+private_key data</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="storage.blob._SignatureMethod.PEM">
+<span class="sig-name descname"><span class="pre">PEM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#storage.blob._SignatureMethod.PEM" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="storage.blob._SignatureMethod.IAM_API">
+<span class="sig-name descname"><span class="pre">IAM_API</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#storage.blob._SignatureMethod.IAM_API" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="storage.blob.Blob">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">Blob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -2089,7 +2116,7 @@ match was found.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="storage.blob.Blob.get_signed_url">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_signed_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expiration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.get_signed_url" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_signed_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expiration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">http_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'GET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_account_email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.get_signed_url" title="Link to this definition">¶</a></dt>
 <dd><p>Create a temporary access URL for Storage Blob accessible by anyone
 with the link.</p>
 <p>Adapted from Google Documentation:
@@ -2101,11 +2128,48 @@ with the link.</p>
 <li><p><strong>headers</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">str</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>query_params</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>http_method</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>iam_client</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">gcloud.aio.auth.IamClient</em><em>]</em>) – </p></li>
+<li><p><strong>service_account_email</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
 <li><p><strong>token</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">gcloud.aio.auth.Token</em><em>]</em>) – </p></li>
+<li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.blob.Blob.get_pem_signature">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pem_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str_to_sign</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.get_pem_signature" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>str_to_sign</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>private_key</strong> (<em class="hover">str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.blob.Blob.get_iam_api_signature">
+<em class="property"><span class="pre">async</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_iam_api_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">str_to_sign</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_account_email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.get_iam_api_signature" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>str_to_sign</strong> (<em class="hover">str</em>) – </p></li>
+<li><p><strong>iam_client</strong> (<em class="hover">gcloud.aio.auth.IamClient</em>) – </p></li>
+<li><p><strong>service_account_email</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
+<li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2125,7 +2189,7 @@ with the link.</p>
   <div id="footer-row" class="row">
 
     <div class="col-md-12">
-        <span title="Built on 2024-01-25" class="pull-right">&copy; Copyright 2017, TalkIQ.
+        <span title="Built on 2024-01-26" class="pull-right">&copy; Copyright 2017, TalkIQ.
         Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6 and the
         <a href="https://pypi.org/project/sphinx-sizzle-theme/"
 

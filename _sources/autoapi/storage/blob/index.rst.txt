@@ -13,6 +13,7 @@ Classes
 .. autoapisummary::
 
    storage.blob.PemKind
+   storage.blob._SignatureMethod
    storage.blob.Blob
 
 
@@ -85,6 +86,27 @@ Attributes
       
 
 
+.. py:class:: _SignatureMethod(*args, **kwds)
+
+
+   Bases: :py:obj:`enum.Enum`
+
+   Indicates where the url signing will be done through Google's
+   IAM API or through local signing with a PEM file, which is faster
+   but requires that the provided token contains client_email and
+   private_key data
+
+   .. py:attribute:: PEM
+      :value: 0
+
+      
+
+   .. py:attribute:: IAM_API
+      :value: 1
+
+      
+
+
 .. py:class:: Blob(bucket, name, metadata)
 
 
@@ -100,7 +122,7 @@ Attributes
       :async:
 
 
-   .. py:method:: get_signed_url(expiration, headers = None, query_params = None, http_method = 'GET', token = None)
+   .. py:method:: get_signed_url(expiration, headers = None, query_params = None, http_method = 'GET', iam_client = None, service_account_email = None, token = None, session = None)
       :async:
 
       Create a temporary access URL for Storage Blob accessible by anyone
@@ -108,6 +130,15 @@ Attributes
 
       Adapted from Google Documentation:
       https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+
+
+   .. py:method:: get_pem_signature(str_to_sign, private_key)
+      :staticmethod:
+
+
+   .. py:method:: get_iam_api_signature(str_to_sign, iam_client, service_account_email, session)
+      :staticmethod:
+      :async:
 
 
 

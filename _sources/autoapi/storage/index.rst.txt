@@ -210,7 +210,7 @@ Attributes
       :async:
 
 
-   .. py:method:: get_signed_url(expiration, headers = None, query_params = None, http_method = 'GET', token = None)
+   .. py:method:: get_signed_url(expiration, headers = None, query_params = None, http_method = 'GET', iam_client = None, service_account_email = None, token = None, session = None)
       :async:
 
       Create a temporary access URL for Storage Blob accessible by anyone
@@ -218,6 +218,15 @@ Attributes
 
       Adapted from Google Documentation:
       https://cloud.google.com/storage/docs/access-control/signing-urls-manually#python-sample
+
+
+   .. py:method:: get_pem_signature(str_to_sign, private_key)
+      :staticmethod:
+
+
+   .. py:method:: get_iam_api_signature(str_to_sign, iam_client, service_account_email, session)
+      :staticmethod:
+      :async:
 
 
 

@@ -890,6 +890,8 @@
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.download"><code class="docutils literal notranslate"><span class="pre">Blob.download()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.upload"><code class="docutils literal notranslate"><span class="pre">Blob.upload()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_signed_url"><code class="docutils literal notranslate"><span class="pre">Blob.get_signed_url()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_pem_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_pem_signature()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_iam_api_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_iam_api_signature()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/storage/index.html#storage.Bucket"><code class="docutils literal notranslate"><span class="pre">Bucket</span></code></a><ul>
@@ -1791,6 +1793,8 @@
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.download"><code class="docutils literal notranslate"><span class="pre">Blob.download()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.upload"><code class="docutils literal notranslate"><span class="pre">Blob.upload()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_signed_url"><code class="docutils literal notranslate"><span class="pre">Blob.get_signed_url()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_pem_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_pem_signature()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="autoapi/storage/index.html#storage.Blob.get_iam_api_signature"><code class="docutils literal notranslate"><span class="pre">Blob.get_iam_api_signature()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="autoapi/storage/index.html#storage.Bucket"><code class="docutils literal notranslate"><span class="pre">Bucket</span></code></a><ul>
@@ -2178,8 +2182,6 @@
         <li><a href="autoapi/taskqueue/index.html#taskqueue.__version__">(in module taskqueue)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/bigquery/bigquery/index.html#bigquery.bigquery.BigqueryBase._api_is_dev">_api_is_dev (bigquery.bigquery.BigqueryBase attribute)</a>
 
       <ul>
@@ -2208,6 +2210,8 @@
         <li><a href="autoapi/taskqueue/queue/index.html#taskqueue.queue.PushQueue._api_is_dev">(taskqueue.queue.PushQueue attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/bigquery/bigquery/index.html#bigquery.bigquery.BigqueryBase._api_root">_api_root (bigquery.bigquery.BigqueryBase attribute)</a>
 
       <ul>
@@ -2446,6 +2450,8 @@
         <li><a href="autoapi/auth/token/index.html#auth.token.Token._refresh_service_account">(auth.token.Token method)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/storage/blob/index.html#storage.blob._SignatureMethod">_SignatureMethod (class in storage.blob)</a>
+</li>
       <li><a href="autoapi/storage/index.html#storage.Storage._split_content_type">_split_content_type() (storage.Storage static method)</a>
 
       <ul>
@@ -3303,6 +3309,12 @@
         <li><a href="autoapi/datastore/datastore/index.html#datastore.datastore.Datastore.get_datastore_operation">(datastore.datastore.Datastore method)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/storage/index.html#storage.Blob.get_iam_api_signature">get_iam_api_signature() (storage.Blob static method)</a>
+
+      <ul>
+        <li><a href="autoapi/storage/blob/index.html#storage.blob.Blob.get_iam_api_signature">(storage.blob.Blob static method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/bigquery/index.html#bigquery.Job.get_job">get_job() (bigquery.Job method)</a>
@@ -3315,6 +3327,12 @@
 
       <ul>
         <li><a href="autoapi/storage/bucket/index.html#storage.bucket.Bucket.get_metadata">(storage.bucket.Bucket method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/storage/index.html#storage.Blob.get_pem_signature">get_pem_signature() (storage.Blob static method)</a>
+
+      <ul>
+        <li><a href="autoapi/storage/blob/index.html#storage.blob.Blob.get_pem_signature">(storage.blob.Blob static method)</a>
 </li>
       </ul></li>
       <li><a href="autoapi/auth/token/index.html#auth.token.BaseToken.get_project">get_project() (auth.token.BaseToken method)</a>
@@ -3421,6 +3439,8 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/storage/blob/index.html#storage.blob._SignatureMethod.IAM_API">IAM_API (storage.blob._SignatureMethod attribute)</a>
+</li>
       <li><a href="autoapi/auth/index.html#auth.IamClient">IamClient (class in auth)</a>
 
       <ul>
@@ -3993,6 +4013,8 @@
         <li><a href="autoapi/datastore/key/index.html#datastore.key.PathElement">(class in datastore.key)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/storage/blob/index.html#storage.blob._SignatureMethod.PEM">PEM (storage.blob._SignatureMethod attribute)</a>
+</li>
       <li><a href="autoapi/storage/blob/index.html#storage.blob.PemKind">PemKind (class in storage.blob)</a>
 </li>
       <li><a href="autoapi/storage/blob/index.html#storage.blob.PemKind.PKCS1">PKCS1 (storage.blob.PemKind attribute)</a>
@@ -4737,7 +4759,7 @@
   <div id="footer-row" class="row">
 
     <div class="col-md-12">
-        <span title="Built on 2024-01-25" class="pull-right">&copy; Copyright 2017, TalkIQ.
+        <span title="Built on 2024-01-26" class="pull-right">&copy; Copyright 2017, TalkIQ.
         Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6 and the
         <a href="https://pypi.org/project/sphinx-sizzle-theme/"
 
