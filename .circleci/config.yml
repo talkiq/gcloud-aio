@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  linter: talkiq/linter@3
+  linter: talkiq/linter@4
   poetry: talkiq/poetry@4
 
 executors:
@@ -117,7 +117,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:21.1.0
+      - image: node:21.6.0
     steps:
       - checkout
       - attach_workspace:

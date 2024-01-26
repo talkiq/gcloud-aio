@@ -2,16 +2,20 @@
   "assignees": ["TheKevJames"],
   "extends": ["github>thekevjames/tools"],
   "packageRules": [
-    // only autoupdate python patches, we'll handle minors more explicitly
     {
+      // only autoupdate python patches, we'll handle minors more explicitly
       "matchPackageNames": ["python"],
-      "updateTypes": ["major", "minor"],
+      "matchUpdateTypes": ["major", "minor"],
       "enabled": false,
     },
     {
-      "depTypeList": ["devDependencies"],
+      "matchDepTypes": ["dependencies"],
+      "rangeStrategy": "widen",
+    },
+    {
+      "matchDepTypes": ["dev", "devDependencies"],
       "rangeStrategy": "pin",
+      "automerge": true,
     },
   ],
-  "rangeStrategy": "widen",
 }
