@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-storage"
-version = "9.0.0"
+version = "9.1.0"
 description = "Python Client for Google Cloud Storage"
 readme = "README.rst"
 
@@ -28,7 +28,7 @@ rsa = ">= 3.1.4, < 5.0.0"
 
 [tool.poetry.group.dev.dependencies]
 gcloud-aio-auth = { path = "../auth" }
-pytest = "7.4.4"
+pytest = "8.0.0"
 pytest-asyncio = "0.21.1"
 pytest-mock = "3.12.0"
 
