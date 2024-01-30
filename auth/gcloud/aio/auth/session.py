@@ -1,3 +1,4 @@
+import importlib.metadata
 import logging
 import threading
 from abc import ABCMeta
@@ -150,8 +151,18 @@ if not BUILD_GCLOUD_REST:
         @property
         def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
+                ssl_flag: Optional[bool] = False
+                if self._ssl:
+                    aiohttp_version = importlib.metadata.version('aiohttp')
+                    major, minor, patch = aiohttp_version.split('.')
+                    if int(major) > 3 or int(minor) > 9 or int(patch) > 1:
+                        ssl_flag = True
+                    else:
+                        # TODO: drop when min supported aiohttp is 3.9.2
+                        ssl_flag = None
+
                 connector = aiohttp.TCPConnector(
-                    ssl=None if self._ssl else False)
+                    ssl=ssl_flag)  # type: ignore[arg-type]
 
                 if isinstance(self._timeout, aiohttp.ClientTimeout):
                     timeout = self._timeout
