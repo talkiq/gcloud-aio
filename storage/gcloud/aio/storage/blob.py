@@ -141,7 +141,7 @@ class Blob:
         quoted_name = quote(self.name, safe=b'/~')
         canonical_uri = f'/{self.bucket.name}/{quoted_name}'
 
-        datetime_now = datetime.datetime.utcnow()
+        datetime_now = datetime.datetime.now(datetime.timezone.utc)
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
         datestamp = datetime_now.strftime('%Y%m%d')
 
