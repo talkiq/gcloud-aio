@@ -213,7 +213,7 @@ class BaseToken:
             return
 
         if self.access_token:
-            now = datetime.datetime.utcnow()
+            now = datetime.datetime.now(datetime.timezone.utc)
             delta = (now - self.access_token_acquired_at).total_seconds()
             if delta <= self.access_token_duration / 2:
                 return
@@ -232,7 +232,8 @@ class BaseToken:
 
         self.access_token = resp.value
         self.access_token_duration = resp.expires_in
-        self.access_token_acquired_at = datetime.datetime.utcnow()
+        self.access_token_acquired_at = datetime.datetime.now(
+            datetime.timezone.utc)
         self.acquiring = None
 
     async def close(self) -> None:

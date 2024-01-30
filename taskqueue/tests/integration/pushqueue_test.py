@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import timedelta
+import datetime
 
 import pytest
 
@@ -8,10 +7,11 @@ import pytest
 async def test_task_lifecycle_in_push_queue(push_queue):
     # Set to run in the future, giving us enough time to test all
     # functionalities before the task gets dispatched automatically.
-    schedule_time = datetime.utcnow() + timedelta(days=1)
+    schedule_time = (datetime.datetime.now(datetime.timezone.utc)
+                     + datetime.timedelta(days=1))
 
     task = {
-        'scheduleTime': f'{schedule_time.isoformat("T")}Z',
+        'scheduleTime': f'{schedule_time.isoformat("T")}',
         'appEngineHttpRequest': {
             'httpMethod': 'POST',
             # something that we know won't work,

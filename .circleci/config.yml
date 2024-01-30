@@ -25,9 +25,14 @@ executors:
       - image: python:3.11.6
     resource_class: small
 
+  python312:
+    docker:
+      - image: python:3.12.0
+    resource_class: small
+
   python-integration:
     docker:
-      - image: python:3.11.6
+      - image: python:3.12.1
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
@@ -59,7 +64,7 @@ commands:
 
 jobs:
   build-rest:
-    executor: python311
+    executor: python312
     steps:
       - poetry/install
       - checkout
@@ -70,7 +75,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    executor: python311
+    executor: python312
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -96,7 +101,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    executor: python311
+    executor: python312
     steps:
       - run: pip install sphinx sphinx-autoapi sphinx-sizzle-theme
       - checkout
@@ -183,7 +188,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python38, python39, python310, python311]
+              executor: [python38, python39, python310, python311, python312]
           filters:
             tags:
               only: /.*/
@@ -218,7 +223,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python38, python39, python310, python311]
+              executor: [python38, python39, python310, python311, python312]
           filters:
             tags:
               only: /.*/
