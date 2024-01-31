@@ -1,6 +1,9 @@
 {
   "assignees": ["TheKevJames"],
-  "extends": ["github>thekevjames/tools"],
+  "extends": [
+    "github>thekevjames/tools",
+    "github>thekevjames/tools:trustedpackages"
+  ],
   "packageRules": [
     {
       // only autoupdate python patches, we'll handle minors more explicitly
@@ -17,5 +20,13 @@
       "rangeStrategy": "pin",
       "automerge": true,
     },
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
   ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": "before 1pm on monday"
+  },
 }
