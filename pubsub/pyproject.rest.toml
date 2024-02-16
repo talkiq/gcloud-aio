@@ -25,7 +25,7 @@ gcloud-rest-auth = ">= 3.3.0, < 6.0.0"
 # prometheus-client = ">= 0.13.1, < 1.0.0"
 
 [tool.poetry.group.dev.dependencies]
-# aiohttp = "3.9.3"
+# aiohttp = "3.9.1"
 gcloud-rest-auth = { path = "../auth" }
 pytest = "8.0.0"
 # pytest-asyncio = "0.23.5"

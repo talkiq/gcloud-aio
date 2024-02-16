@@ -24,7 +24,7 @@ python = ">= 3.8, < 4.0"
 gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
-# aiohttp = "3.9.3"
+# aiohttp = "3.9.1"
 gcloud-rest-auth = { path = "../auth" }
 pytest = "8.0.0"
 # pytest-asyncio = "0.23.5"
