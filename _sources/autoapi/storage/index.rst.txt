@@ -206,7 +206,7 @@ Attributes
       :async:
 
 
-   .. py:method:: upload(data, session = None)
+   .. py:method:: upload(data, content_type = None, session = None)
       :async:
 
 
