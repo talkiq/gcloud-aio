@@ -314,6 +314,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#bigquery.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._make_query_body"><code class="docutils literal notranslate"><span class="pre">Job._make_query_body()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._config_params"><code class="docutils literal notranslate"><span class="pre">Job._config_params()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_job"><code class="docutils literal notranslate"><span class="pre">Job.get_job()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_query_results"><code class="docutils literal notranslate"><span class="pre">Job.get_query_results()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.cancel"><code class="docutils literal notranslate"><span class="pre">Job.cancel()</span></code></a></li>
@@ -1217,6 +1218,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#bigquery.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._make_query_body"><code class="docutils literal notranslate"><span class="pre">Job._make_query_body()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._config_params"><code class="docutils literal notranslate"><span class="pre">Job._config_params()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_job"><code class="docutils literal notranslate"><span class="pre">Job.get_job()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_query_results"><code class="docutils literal notranslate"><span class="pre">Job.get_query_results()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.cancel"><code class="docutils literal notranslate"><span class="pre">Job.cancel()</span></code></a></li>
@@ -2258,7 +2260,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._post_json">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_post_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._post_json" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_post_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._post_json" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2266,6 +2268,7 @@ attributes – see the documentation for details.</p>
 <li><p><strong>body</strong> (<em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em>) – </p></li>
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 <li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+<li><p><strong>params</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2294,13 +2297,14 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._delete">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._delete" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._delete" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em class="hover">str</em>) – </p></li>
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 <li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+<li><p><strong>params</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

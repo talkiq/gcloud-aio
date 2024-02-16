@@ -305,13 +305,16 @@ Attributes
 
 
 
-.. py:class:: Job(job_id = None, project = None, service_file = None, session = None, token = None, api_root = None)
+.. py:class:: Job(job_id = None, project = None, service_file = None, session = None, token = None, api_root = None, location = None)
 
 
    Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
 
    .. py:method:: _make_query_body(query, write_disposition, use_query_cache, dry_run, use_legacy_sql, destination_table)
       :staticmethod:
+
+
+   .. py:method:: _config_params(params = None)
 
 
    .. py:method:: get_job(session = None, timeout = 60)

@@ -259,7 +259,7 @@ Attributes
       :async:
 
 
-   .. py:method:: _post_json(url, body, session, timeout)
+   .. py:method:: _post_json(url, body, session, timeout, params = None)
       :async:
 
 
@@ -267,7 +267,7 @@ Attributes
       :async:
 
 
-   .. py:method:: _delete(url, session, timeout)
+   .. py:method:: _delete(url, session, timeout, params = None)
       :async:
 
 

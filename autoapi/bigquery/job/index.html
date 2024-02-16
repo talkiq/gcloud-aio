@@ -314,6 +314,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#bigquery.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._make_query_body"><code class="docutils literal notranslate"><span class="pre">Job._make_query_body()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._config_params"><code class="docutils literal notranslate"><span class="pre">Job._config_params()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_job"><code class="docutils literal notranslate"><span class="pre">Job.get_job()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_query_results"><code class="docutils literal notranslate"><span class="pre">Job.get_query_results()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.cancel"><code class="docutils literal notranslate"><span class="pre">Job.cancel()</span></code></a></li>
@@ -1217,6 +1218,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#bigquery.Job"><code class="docutils literal notranslate"><span class="pre">Job</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._make_query_body"><code class="docutils literal notranslate"><span class="pre">Job._make_query_body()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job._config_params"><code class="docutils literal notranslate"><span class="pre">Job._config_params()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_job"><code class="docutils literal notranslate"><span class="pre">Job.get_job()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.get_query_results"><code class="docutils literal notranslate"><span class="pre">Job.get_query_results()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#bigquery.Job.cancel"><code class="docutils literal notranslate"><span class="pre">Job.cancel()</span></code></a></li>
@@ -1961,7 +1963,7 @@
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="bigquery.job.Job">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.job.</span></span><span class="sig-name descname"><span class="pre">Job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.job.Job" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.job.</span></span><span class="sig-name descname"><span class="pre">Job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.job.Job" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.BigqueryBase" title="bigquery.bigquery.BigqueryBase"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="bigquery.job.bigquery.bigquery.BigqueryBase"><span class="pre">bigquery.bigquery.BigqueryBase</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1972,6 +1974,7 @@
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 <li><p><strong>token</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">gcloud.aio.auth.Token</em><em>]</em>) – </p></li>
 <li><p><strong>api_root</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
+<li><p><strong>location</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1988,6 +1991,19 @@
 <li><p><strong>use_legacy_sql</strong> (<em class="hover">bool</em>) – </p></li>
 <li><p><strong>destination_table</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Any</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.job.Job._config_params">
+<span class="sig-name descname"><span class="pre">_config_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.job.Job._config_params" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em><em>]</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dict[str, Any]</p>
