@@ -24,8 +24,10 @@ class Job(BigqueryBase):
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
             session: Optional[Session] = None, token: Optional[Token] = None,
             api_root: Optional[str] = None,
+            location: Optional[str] = None,
     ) -> None:
         self.job_id = job_id
+        self.location = location
         super().__init__(
             project=project, service_file=service_file,
             session=session, token=token, api_root=api_root,
@@ -56,6 +58,14 @@ class Job(BigqueryBase):
             },
         }
 
+    def _config_params(
+        self, params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        params = params.copy() if params else {}
+        if self.location:
+            params['location'] = params.get('location', self.location)
+        return params
+
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(
         self, session: Optional[Session] = None,
@@ -66,7 +76,8 @@ class Job(BigqueryBase):
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs/{self.job_id}'
 
-        return await self._get_url(url, session, timeout)
+        return await self._get_url(url, session, timeout,
+                                   self._config_params())
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     async def get_query_results(
@@ -79,7 +90,8 @@ class Job(BigqueryBase):
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/queries/{self.job_id}'
 
-        return await self._get_url(url, session, timeout, params=params)
+        return await self._get_url(url, session, timeout,
+                                   self._config_params(params))
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
     async def cancel(
@@ -94,7 +106,8 @@ class Job(BigqueryBase):
             '/cancel'
         )
 
-        return await self._post_json(url, {}, session, timeout)
+        return await self._post_json(url, {}, session, timeout,
+                                     self._config_params())
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/query
     async def query(
@@ -174,4 +187,4 @@ class Job(BigqueryBase):
         job_id = job_id or self.job_id
         url = f'{self._api_root}/projects/{project}/jobs/{job_id}/delete'
 
-        return await self._delete(url, session, timeout)
+        return await self._delete(url, session, timeout, self._config_params())
