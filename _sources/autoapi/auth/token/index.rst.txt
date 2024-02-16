@@ -45,6 +45,7 @@ Attributes
    auth.token.GCE_ENDPOINT_PROJECT
    auth.token.GCE_ENDPOINT_TOKEN
    auth.token.GCE_ENDPOINT_ID_TOKEN
+   auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
    auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN
    auth.token.REFRESH_HEADERS
 
@@ -72,6 +73,11 @@ Attributes
    
 
 .. py:data:: GCE_ENDPOINT_ID_TOKEN
+
+   
+
+.. py:data:: GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
+   :value: 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{service_account}:generateAccessToken'
 
    
 
@@ -211,7 +217,7 @@ Attributes
 
 
 
-.. py:class:: Token(service_file = None, session = None, scopes = None)
+.. py:class:: Token(service_file = None, session = None, scopes = None, target_principal = None, delegates = None)
 
 
    Bases: :py:obj:`BaseToken`
@@ -232,6 +238,10 @@ Attributes
 
 
    .. py:method:: _refresh_service_account(timeout)
+      :async:
+
+
+   .. py:method:: _impersonate(token, *, timeout)
       :async:
 
 

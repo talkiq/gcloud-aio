@@ -222,6 +222,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">Token._refresh_authorized_user()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">Token._refresh_gce_metadata()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">Token._refresh_service_account()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._impersonate"><code class="docutils literal notranslate"><span class="pre">Token._impersonate()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token.refresh"><code class="docutils literal notranslate"><span class="pre">Token.refresh()</span></code></a></li>
 </ul>
 </li>
@@ -1126,6 +1127,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_authorized_user"><code class="docutils literal notranslate"><span class="pre">Token._refresh_authorized_user()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_gce_metadata"><code class="docutils literal notranslate"><span class="pre">Token._refresh_gce_metadata()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._refresh_service_account"><code class="docutils literal notranslate"><span class="pre">Token._refresh_service_account()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token._impersonate"><code class="docutils literal notranslate"><span class="pre">Token._impersonate()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#auth.Token.refresh"><code class="docutils literal notranslate"><span class="pre">Token.refresh()</span></code></a></li>
 </ul>
 </li>
@@ -2007,10 +2009,13 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#auth.token.GCE_ENDPOINT_ID_TOKEN" title="auth.token.GCE_ENDPOINT_ID_TOKEN"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.GCE_ENDPOINT_ID_TOKEN"><span class="pre">GCE_ENDPOINT_ID_TOKEN</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN" title="auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN"><span class="pre">GCLOUD_ENDPOINT_GENERATE_ID_TOKEN</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN" title="auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN"><span class="pre">GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#auth.token.REFRESH_HEADERS" title="auth.token.REFRESH_HEADERS"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.REFRESH_HEADERS"><span class="pre">REFRESH_HEADERS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN" title="auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN"><span class="pre">GCLOUD_ENDPOINT_GENERATE_ID_TOKEN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.token.REFRESH_HEADERS" title="auth.token.REFRESH_HEADERS"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.REFRESH_HEADERS"><span class="pre">REFRESH_HEADERS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -2043,6 +2048,11 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="auth.token.GCE_ENDPOINT_ID_TOKEN">
 <span class="sig-prename descclassname"><span class="pre">auth.token.</span></span><span class="sig-name descname"><span class="pre">GCE_ENDPOINT_ID_TOKEN</span></span><a class="headerlink" href="#auth.token.GCE_ENDPOINT_ID_TOKEN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN">
+<span class="sig-prename descclassname"><span class="pre">auth.token.</span></span><span class="sig-name descname"><span class="pre">GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{service_account}:generateAccessToken'</span></em><a class="headerlink" href="#auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -2260,7 +2270,7 @@ updated to match the following commit:</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="auth.token.Token">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">auth.token.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.Token" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">auth.token.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_principal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delegates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.Token" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#auth.token.BaseToken" title="auth.token.BaseToken"><code class="xref py py-obj hover docutils literal notranslate" data-hoverref="auth.token.BaseToken"><span class="pre">BaseToken</span></code></a></p>
 <p>GCP OAuth 2.0 access token.</p>
 <dl class="field-list simple">
@@ -2269,6 +2279,8 @@ updated to match the following commit:</p>
 <li><p><strong>service_file</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Union</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">IO</em><em>[</em><em class="hover">AnyStr</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 <li><p><strong>scopes</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">List</em><em>[</em><em class="hover">str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>target_principal</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">str</em><em>]</em>) – </p></li>
+<li><p><strong>delegates</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">List</em><em>[</em><em class="hover">str</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -2309,6 +2321,22 @@ updated to match the following commit:</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>timeout</strong> (<em class="hover">int</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.token.Token._impersonate">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_impersonate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.Token._impersonate" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> (<a class="reference internal" href="#auth.token.TokenResponse" title="auth.token.TokenResponse"><em class="hover">TokenResponse</em></a>) – </p></li>
+<li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
