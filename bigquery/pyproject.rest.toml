@@ -27,7 +27,7 @@ gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 gcloud-rest-auth = { path = "../auth" }
 gcloud-rest-datastore = { path = "../datastore" }
 gcloud-rest-storage = { path = "../storage" }
-pytest = "8.0.0"
+pytest = "8.1.0"
 # pytest-asyncio = "0.23.5"
 pytest-mock = "3.12.0"
 
