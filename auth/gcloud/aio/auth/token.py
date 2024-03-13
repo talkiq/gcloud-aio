@@ -469,7 +469,10 @@ class IapToken(BaseToken):
         resp = await self.session.get(
             GCE_ENDPOINT_ID_TOKEN.format(audience=iap_client_id),
             headers=GCE_METADATA_HEADERS, timeout=timeout)
-        token = await resp.text()
+        try:
+            token = await resp.text()  # aiohttp lib
+        except (AttributeError, TypeError):
+            token = str(resp.text)  # requests lib
         return TokenResponse(value=token,
                              expires_in=self.default_token_ttl)
 
