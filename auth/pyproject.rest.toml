@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-auth"
-version = "5.2.1"
+version = "5.2.2"
 description = "Python Client for Google Cloud Auth"
 readme = "README.rst"
 
