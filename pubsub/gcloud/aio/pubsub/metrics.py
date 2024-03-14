@@ -35,6 +35,8 @@ else:
         namespace=_NAMESPACE,
         subsystem=_SUBSYSTEM,
         unit='seconds',
+        buckets=(.01, .1, .25, .5, 1.0, 2.5, 5.0, 7.5, 10.0, 20.0,
+                 30.0, 60.0, 120.0, float('inf')),
     )
 
     BATCH_STATUS = prometheus_client.Counter(

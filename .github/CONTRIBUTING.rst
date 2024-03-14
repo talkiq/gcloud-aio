@@ -33,7 +33,7 @@ may need to keep this in mind while developing; all code will need to be
 generateable into both module trees and runnable without asyncio (though there
 are some conversion scripts we run to make things a bit more ergonomic --
 you're generally safe to write standard asyncio code and rely on the
-conversation script). Feel free to ping a maintainer if you're having issues
+conversion script). Feel free to ping a maintainer if you're having issues
 with this!
 
 To build and test against the ``gcloud-rest`` projects, you can run:
