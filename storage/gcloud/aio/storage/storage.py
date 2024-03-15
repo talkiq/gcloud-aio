@@ -491,10 +491,6 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _gzip_wrap_if_needed(data: IO[Any], wrap):
-        return gzip.GzipFile(fileobj=data) if wrap else data
-
-    @staticmethod
     def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[Any]:
         if data is None:
             stream = io.StringIO('')
