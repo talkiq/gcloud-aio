@@ -107,7 +107,7 @@ class BigqueryBase:
 
     async def _post_json(
             self, url: str, body: Dict[str, Any], session: Optional[Session],
-            timeout: int,
+            timeout: int, params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         payload = json.dumps(body).encode('utf-8')
 
@@ -119,7 +119,7 @@ class BigqueryBase:
 
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
-                            timeout=timeout)
+                            timeout=timeout, params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
 
@@ -137,11 +137,13 @@ class BigqueryBase:
 
     async def _delete(
         self, url: str, session: Optional[Session], timeout: int,
+        params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.delete(url, headers=headers, timeout=timeout)
+        resp = await s.delete(url, headers=headers, timeout=timeout,
+                              params=params or {})
         data: Dict[str, Any] = await resp.json()
         return data
 

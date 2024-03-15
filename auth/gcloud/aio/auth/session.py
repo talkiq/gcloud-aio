@@ -1,3 +1,4 @@
+import importlib.metadata
 import logging
 import threading
 from abc import ABCMeta
@@ -150,8 +151,18 @@ if not BUILD_GCLOUD_REST:
         @property
         def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
+                ssl_flag: Optional[bool] = False
+                if self._ssl:
+                    aiohttp_version = importlib.metadata.version('aiohttp')
+                    major, minor, patch = aiohttp_version.split('.')
+                    if int(major) > 3 or int(minor) > 9 or int(patch) > 1:
+                        ssl_flag = True
+                    else:
+                        # TODO: drop when min supported aiohttp is 3.9.2
+                        ssl_flag = None
+
                 connector = aiohttp.TCPConnector(
-                    ssl=None if self._ssl else False)
+                    ssl=ssl_flag)  # type: ignore[arg-type]
 
                 if isinstance(self._timeout, aiohttp.ClientTimeout):
                     timeout = self._timeout
@@ -171,6 +182,9 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             resp = await self.session.post(
                 url, data=data, headers=headers,
                 timeout=timeout, params=params,
@@ -185,6 +199,9 @@ if not BUILD_GCLOUD_REST:
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             if stream is not None:
                 log.warning(
                     'passed unused argument stream=%s to AioSession: '
@@ -204,6 +221,9 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             resp = await self.session.patch(
                 url, data=data, headers=headers,
                 timeout=timeout, params=params,
@@ -216,6 +236,9 @@ if not BUILD_GCLOUD_REST:
             headers: Mapping[str, str], data: Union[bytes, str, IO[Any]],
             timeout: Timeout = 10,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             resp = await self.session.put(
                 url, data=data, headers=headers,
                 timeout=timeout,
@@ -229,6 +252,9 @@ if not BUILD_GCLOUD_REST:
             params: Optional[Mapping[str, Union[int, str]]] = None,
             timeout: Timeout = 10,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             resp = await self.session.delete(
                 url, headers=headers,
                 params=params, timeout=timeout,
@@ -243,6 +269,9 @@ if not BUILD_GCLOUD_REST:
             params: Optional[Mapping[str, Union[int, str]]] = None,
             allow_redirects: bool = False,
         ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             resp = await self.session.head(
                 url, headers=headers,
                 params=params, timeout=timeout,
