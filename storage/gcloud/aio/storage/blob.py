@@ -98,12 +98,15 @@ class Blob:
     async def download(
         self, timeout: int = DEFAULT_TIMEOUT,
         session: Optional[Session] = None,
+        auto_decompress=True,
     ) -> Any:
+        headers = {} if auto_decompress else {'Accept-Encoding': 'gzip'}
         return await self.bucket.storage.download(
             self.bucket.name,
             self.name,
             timeout=timeout,
             session=session,
+            headers=headers,
         )
 
     async def upload(
@@ -122,7 +125,7 @@ class Blob:
             query_params: Optional[Dict[str, Any]] = None,
             http_method: str = 'GET', iam_client: Optional[IamClient] = None,
             service_account_email: Optional[str] = None,
-            token: Optional[Token] = None, session: Optional[Session] = None
+            token: Optional[Token] = None, session: Optional[Session] = None,
     ) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
@@ -145,7 +148,8 @@ class Blob:
         datestamp = datetime_now.strftime('%Y%m%d')
 
         token = token or self.bucket.storage.token
-        signature_method = _SignatureMethod.PEM  # Try to sign locally by default, if available
+        # Try to sign locally by default, if available
+        signature_method = _SignatureMethod.PEM
         client_email = token.service_data.get('client_email')
         private_key = token.service_data.get('private_key')
         if not client_email or not private_key:

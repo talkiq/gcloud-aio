@@ -1,5 +1,6 @@
 import binascii
 import enum
+import gzip
 import io
 import json
 import logging
@@ -415,11 +416,18 @@ class Storage:
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
         force_resumable_upload: Optional[bool] = None,
+        zipped: bool = False,
         timeout: int = 30,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_write}/{bucket}/o'
 
-        stream = self._preprocess_data(file_data)
+        parameters = parameters or {}
+
+        if zipped:
+            parameters['contentEncoding'] = 'gzip'
+
+        # TODO (balboa): pass object_name and use it in gzipFile?
+        stream = self._preprocess_data(file_data, gzip_compress=zipped)
 
         if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
             # HACK: `requests` library does not accept `str` as `data` in `put`
@@ -430,8 +438,6 @@ class Storage:
 
         # mime detection method same as in aiohttp 3.4.4
         content_type = content_type or mimetypes.guess_type(object_name)[0]
-
-        parameters = parameters or {}
 
         headers = headers or {}
         headers.update(await self._headers())
@@ -485,18 +491,23 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _preprocess_data(data: Any) -> IO[Any]:
+    def _gzip_wrap_if_needed(data: IO[Any], wrap):
+        return gzip.GzipFile(fileobj=data) if wrap else data
+
+    @staticmethod
+    def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[Any]:
         if data is None:
-            return io.StringIO('')
+            stream = io.StringIO('')
+        elif isinstance(data, bytes):
+            stream = io.BytesIO(data)
+        elif isinstance(data, str):
+            stream = io.StringIO(data)
+        elif isinstance(data, io.IOBase):
+            stream = data
+        else:
+            raise TypeError(f'unsupported upload type: "{type(data)}"')
 
-        if isinstance(data, bytes):
-            return io.BytesIO(data)
-        if isinstance(data, str):
-            return io.StringIO(data)
-        if isinstance(data, io.IOBase):
-            return data  # type: ignore[return-value]
-
-        raise TypeError(f'unsupported upload type: "{type(data)}"')
+        return gzip.GzipFile(fileobj=stream) if gzip_compress else stream
 
     @staticmethod
     def _decide_upload_type(

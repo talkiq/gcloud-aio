@@ -38,6 +38,7 @@ async def test_gcs_signed_url(bucket_name, creds, data, headers):
 
         await verify_signed_url(blob, bucket_name, data, headers, session, signed_url, storage)
 
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize('data', ['test'])
 @pytest.mark.parametrize('headers', [
@@ -77,5 +78,3 @@ async def verify_signed_url(blob, bucket_name, data, headers, session, signed_ur
         assert data == downloaded_data
     finally:
         await storage.delete(bucket_name, blob.name)
-
-
