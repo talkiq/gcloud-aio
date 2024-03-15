@@ -71,9 +71,10 @@ class PemKind(enum.Enum):
 
 class _SignatureMethod(enum.Enum):
     """
-    Indicates where the url signing will be done through Google's IAM API or through
-    local signing with a PEM file, which is faster but requires that the provided token contains
-    client_email and private_key data
+    Indicates where the url signing will be done through Google's
+    IAM API or through local signing with a PEM file, which is faster
+    but requires that the provided token contains client_email and
+    private_key data
     """
 
     PEM = 0
@@ -98,23 +99,25 @@ class Blob:
     async def download(
         self, timeout: int = DEFAULT_TIMEOUT,
         session: Optional[Session] = None,
-        auto_decompress=True,
     ) -> Any:
-        headers = {} if auto_decompress else {'Accept-Encoding': 'gzip'}
         return await self.bucket.storage.download(
             self.bucket.name,
             self.name,
             timeout=timeout,
             session=session,
-            headers=headers,
         )
 
     async def upload(
         self, data: Any,
+        content_type: Optional[str] = None,
         session: Optional[Session] = None,
     ) -> Dict[str, Any]:
         metadata = await self.bucket.storage.upload(
-            self.bucket.name, self.name, data, session=session,
+            self.bucket.name,
+            self.name,
+            data,
+            content_type=content_type,
+            session=session,
         )
 
         self.__dict__.update(metadata)
@@ -143,21 +146,22 @@ class Blob:
         quoted_name = quote(self.name, safe=b'/~')
         canonical_uri = f'/{self.bucket.name}/{quoted_name}'
 
-        datetime_now = datetime.datetime.utcnow()
+        datetime_now = datetime.datetime.now(datetime.timezone.utc)
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
         datestamp = datetime_now.strftime('%Y%m%d')
 
         token = token or self.bucket.storage.token
-        # Try to sign locally by default, if available
-        signature_method = _SignatureMethod.PEM
+        credential_scope = f'{datestamp}/auto/storage/goog4_request'
+        # Try to sign locally if available
         client_email = token.service_data.get('client_email')
         private_key = token.service_data.get('private_key')
         if not client_email or not private_key:
             # Cannot sign locally, so we'll have to use Google's IAM API
             signature_method = _SignatureMethod.IAM_API
-
-        credential_scope = f'{datestamp}/auto/storage/goog4_request'
-        credential = f'{client_email}/{credential_scope}'
+            credential = f'{service_account_email}/{credential_scope}'
+        else:
+            signature_method = _SignatureMethod.PEM
+            credential = f'{client_email}/{credential_scope}'
 
         headers = headers or {}
         headers['host'] = HOST
@@ -201,12 +205,22 @@ class Blob:
             credential_scope, canonical_req_hash,
         ])
 
-        if signature_method == _SignatureMethod.PEM:
+        if (signature_method == _SignatureMethod.PEM and private_key
+                and isinstance(private_key, str)):
             signed_blob = self.get_pem_signature(str_to_sign, private_key)
         else:
-            iam_client = iam_client or IamClient(token=token, session=session)
-            signed_blob = await self.get_iam_api_signature(str_to_sign, iam_client,
-                                                           service_account_email, session)
+            try:
+                iam_client = iam_client or IamClient(
+                    token=token, session=session)
+            except TypeError as e:
+                raise TypeError('Blob signing is not yet supported'
+                                ' for AUTHORIZED_USER tokens') from e
+            signed_blob = await self.get_iam_api_signature(
+                str_to_sign,
+                iam_client,
+                service_account_email,
+                session,
+            )
 
         signature = binascii.hexlify(signed_blob).decode()
 
@@ -216,7 +230,7 @@ class Blob:
         )
 
     @staticmethod
-    def get_pem_signature(str_to_sign, private_key):
+    def get_pem_signature(str_to_sign: str, private_key: str) -> bytes:
         # N.B. see the ``PemKind`` enum
         marker_id, key_bytes = pem.readPemBlocksFromFile(
             io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER,
@@ -240,12 +254,21 @@ class Blob:
             key_bytes = private_key_info.asOctets()
 
         key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format='DER')
-        signed_blob = rsa.pkcs1.sign(str_to_sign.encode(), key, 'SHA-256')
+        signed_blob = rsa.pkcs1.sign(
+            str_to_sign.encode(),
+            key,
+            'SHA-256',
+        )
         return signed_blob
 
     @staticmethod
-    async def get_iam_api_signature(str_to_sign, iam_client, service_account_email, session):
+    async def get_iam_api_signature(
+            str_to_sign: str, iam_client: IamClient,
+            service_account_email: Optional[str], session: Optional[Session],
+    ) -> bytes:
         signed_resp = await iam_client.sign_blob(
-            str_to_sign, service_account_email=service_account_email, session=session
+            str_to_sign,
+            service_account_email=service_account_email,
+            session=session,
         )
-        return decode(signed_resp)
+        return decode(signed_resp['signedBlob'])
