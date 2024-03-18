@@ -404,7 +404,7 @@ files = [
 
 [[package]]
 name = "gcloud-aio-auth"
-version = "5.2.0"
+version = "5.2.2"
 description = "Python Client for Google Cloud Auth"
 optional = false
 python-versions = ">= 3.8, < 4.0"
@@ -412,7 +412,7 @@ files = []
 develop = false
 
 [package.dependencies]
-aiohttp = ">= 3.3.0, < 3.9.2"
+aiohttp = ">= 3.3.0, < 4.0.0"
 backoff = ">= 1.0.0, < 3.0.0"
 chardet = ">= 2.0, < 6.0"
 cryptography = ">= 2.0.0, < 45.0.0"
