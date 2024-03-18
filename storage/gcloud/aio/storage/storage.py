@@ -491,6 +491,18 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
+    def _compress_file_in_chunks(input_stream, output_stream, chunk_size=8192):
+        with gzip.open(output_stream, 'wb') as f_out:
+            while True:
+                chunk = input_stream.read(chunk_size)
+                if not chunk:
+                    break
+                if isinstance(chunk, str):
+                    chunk = chunk.encode('utf-8')
+                # At this point we assume that chunk is a bytes object
+                f_out.write(chunk)
+
+    @staticmethod
     def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[Any]:
         if data is None:
             stream = io.StringIO('')
@@ -503,7 +515,16 @@ class Storage:
         else:
             raise TypeError(f'unsupported upload type: "{type(data)}"')
 
-        return gzip.GzipFile(fileobj=stream) if gzip_compress else stream
+        if gzip_compress:
+            # Here we load the file-like object data into memory in chunks
+            # and re-write it compressed. This is implemented like this
+            # so we don't load the whole file into memory at once.
+            compressed_stream = io.BytesIO()
+            Storage._compress_file_in_chunks(input_stream=stream,
+                                             output_stream=compressed_stream)
+            stream = compressed_stream
+
+        return stream
 
     @staticmethod
     def _decide_upload_type(
