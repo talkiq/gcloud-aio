@@ -7,8 +7,10 @@ import logging
 import mimetypes
 import os
 import warnings
-from typing import Any, cast, BinaryIO
+from typing import Any
 from typing import AnyStr
+from typing import BinaryIO
+from typing import cast
 from typing import Dict
 from typing import IO
 from typing import Iterator
