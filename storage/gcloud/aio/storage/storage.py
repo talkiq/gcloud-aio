@@ -7,7 +7,7 @@ import logging
 import mimetypes
 import os
 import warnings
-from typing import Any
+from typing import Any, cast, BinaryIO
 from typing import AnyStr
 from typing import Dict
 from typing import IO
@@ -491,8 +491,8 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _compress_file_in_chunks(input_stream: io.IOBase,
-                                 output_stream: io.BytesIO,
+    def _compress_file_in_chunks(input_stream: IO[AnyStr],
+                                 output_stream: BinaryIO,
                                  chunk_size: int = 8192) -> None:
         """
         Reads the contents of input_stream and writes it gzip-compressed to
@@ -514,8 +514,8 @@ class Storage:
         output_stream.seek(0)
 
     @staticmethod
-    def _preprocess_data(data: Any, gzip_compress: bool = False) -> io.IOBase:
-        stream: io.IOBase
+    def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[AnyStr]:
+        stream: IO[AnyStr]
         if data is None:
             stream = io.StringIO('')
         elif isinstance(data, bytes):
@@ -523,7 +523,7 @@ class Storage:
         elif isinstance(data, str):
             stream = io.StringIO(data)
         elif isinstance(data, io.IOBase):
-            stream = data
+            stream = cast(IO[AnyStr], data)
         else:
             raise TypeError(f'unsupported upload type: "{type(data)}"')
 
