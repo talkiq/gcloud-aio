@@ -514,7 +514,8 @@ class Storage:
         output_stream.seek(0)
 
     @staticmethod
-    def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[Any]:
+    def _preprocess_data(data: Any, gzip_compress: bool = False) -> io.IOBase:
+        stream: io.IOBase
         if data is None:
             stream = io.StringIO('')
         elif isinstance(data, bytes):
