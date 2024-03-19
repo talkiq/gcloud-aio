@@ -502,6 +502,10 @@ class Storage:
                 # At this point we assume that chunk is a bytes object
                 f_out.write(chunk)
 
+            # After finished writing, reset the buffer position,
+            # so it can be read
+            f_out.seek(0)
+
     @staticmethod
     def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[Any]:
         if data is None:
