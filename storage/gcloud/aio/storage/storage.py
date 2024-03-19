@@ -491,7 +491,14 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _compress_file_in_chunks(input_stream, output_stream, chunk_size=8192):
+    def _compress_file_in_chunks(input_stream: io.IOBase,
+                                 output_stream: io.BytesIO,
+                                 chunk_size: int = 8192) -> None:
+        """
+        Reads the contents of input_stream and writes it gzip-compressed to
+        output_stream in chunks. The chunk size is 8Kb by default, which is a
+        standard filesystem block size.
+        """
         with gzip.open(output_stream, 'wb') as f_out:
             while True:
                 chunk = input_stream.read(chunk_size)
