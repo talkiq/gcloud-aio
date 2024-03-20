@@ -17,7 +17,7 @@ executors:
 
   python310:
     docker:
-      - image: python:3.10.14
+      - image: python:3.10.13-alpine3.17
     resource_class: small
 
   python311:
