@@ -7,7 +7,7 @@ orbs:
 executors:
   python38:
     docker:
-      - image: python:3.8.18
+      - image: python:3.8.19
     resource_class: small
 
   python39:
