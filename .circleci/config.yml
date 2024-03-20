@@ -12,7 +12,7 @@ executors:
 
   python39:
     docker:
-      - image: python:3.9.18
+      - image: python:3.9.19
     resource_class: small
 
   python310:
