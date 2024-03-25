@@ -518,9 +518,9 @@ class Storage:
     def _preprocess_data(
             data: Any,
             gzip_compress: bool = False,
-    ) -> IO[AnyStr]:
+    ) -> IO[Any]:
 
-        stream: Union[IO[AnyStr], io.IOBase]
+        stream: Union[IO[Any], io.IOBase]
         if data is None:
             stream = io.StringIO('')
         elif isinstance(data, bytes):
@@ -618,7 +618,7 @@ class Storage:
             data = response.raw.read()  # type: ignore[attr-defined]
         else:
             # NOTE: The SyncSession will ignore the auto_decompress argument
-            response = await s.get(
+            response = await s.get(  # type: ignore[call-arg]
                 url, headers=headers, params=params or {},
                 timeout=timeout, auto_decompress=auto_decompress,
             )
