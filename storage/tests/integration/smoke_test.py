@@ -64,6 +64,18 @@ async def test_object_life_cycle(
             await storage.download(bucket_name, copied_object_name)
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'uploaded_data,expected_data,file_extension', [
+        ('test', b'test', 'txt'),
+        (b'test', b'test', 'bin'),
+        (
+            json.dumps({'data': 1}), json.dumps(
+                {'data': 1},
+            ).encode('utf-8'), 'json',
+        ),
+    ],
+)
 async def test_zipped_upload(
     bucket_name, creds, uploaded_data,
     expected_data, file_extension,

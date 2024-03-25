@@ -9,8 +9,6 @@ import os
 import warnings
 from typing import Any
 from typing import AnyStr
-from typing import BinaryIO
-from typing import cast
 from typing import Dict
 from typing import IO
 from typing import Iterator
@@ -45,6 +43,8 @@ MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 SCOPES = [
     'https://www.googleapis.com/auth/devstorage.read_write',
 ]
+
+DataStream = Union[IO[AnyStr], io.RawIOBase, io.TextIOBase, io.BufferedIOBase]
 
 log = logging.getLogger(__name__)
 
@@ -428,7 +428,6 @@ class Storage:
         if zipped:
             parameters['contentEncoding'] = 'gzip'
 
-        # TODO (balboa): pass object_name and use it in gzipFile?
         stream = self._preprocess_data(file_data, gzip_compress=zipped)
 
         if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
@@ -485,7 +484,7 @@ class Storage:
             return await self.upload(bucket, object_name, contents, **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream: IO[AnyStr]) -> int:
+    def _get_stream_len(stream: DataStream) -> int:
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -493,8 +492,8 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _compress_file_in_chunks(input_stream: IO[AnyStr],
-                                 output_stream: BinaryIO,
+    def _compress_file_in_chunks(input_stream: DataStream,
+                                 output_stream: io.IOBase,
                                  chunk_size: int = 8192) -> None:
         """
         Reads the contents of input_stream and writes it gzip-compressed to
@@ -507,25 +506,32 @@ class Storage:
                 if not chunk:
                     break
                 if isinstance(chunk, str):
-                    chunk = chunk.encode('utf-8')
+                    chunk_bytes = chunk.encode('utf-8')
+                else:
+                    chunk_bytes = chunk
                 # At this point we assume that chunk is a bytes object
-                f_out.write(chunk)
+                f_out.write(chunk_bytes)
 
         # After finishing writing, reset the buffer position,
         # so it can be read
         output_stream.seek(0)
 
     @staticmethod
-    def _preprocess_data(data: Any, gzip_compress: bool = False) -> IO[AnyStr]:
-        stream: IO[AnyStr]
+    def _preprocess_data(
+            data: Any,
+            gzip_compress: bool = False,
+    ) -> DataStream:
+
+        stream: DataStream
         if data is None:
             stream = io.StringIO('')
         elif isinstance(data, bytes):
             stream = io.BytesIO(data)
         elif isinstance(data, str):
             stream = io.StringIO(data)
-        elif isinstance(data, io.IOBase):
-            stream = cast(IO[AnyStr], data)
+        elif isinstance(data, (io.RawIOBase, io.TextIOBase,
+                               io.BufferedIOBase)):
+            stream = data
         else:
             raise TypeError(f'unsupported upload type: "{type(data)}"')
 
@@ -595,10 +601,15 @@ class Storage:
         headers = headers or {}
         headers.update(await self._headers())
 
+        # aiohttp automatically decompresses the body if this argument
+        # is not passed. We assume that if the Accept-Encoding header
+        # is present, then the client will handle the decompression
+        auto_decompress = 'Accept-Encoding' not in headers
+
         s = AioSession(session) if session else self.session
         response = await s.get(
             url, headers=headers, params=params or {},
-            timeout=timeout,
+            timeout=timeout, auto_decompress=auto_decompress,
         )
 
         # N.B. the GCS API sometimes returns 'application/octet-stream' when a
@@ -644,7 +655,8 @@ class Storage:
 
     async def _upload_simple(
         self, url: str, object_name: str,
-        stream: IO[AnyStr], params: Dict[str, str],
+        stream: DataStream,
+        params: Dict[str, str],
         headers: Dict[str, str], *,
         session: Optional[Session] = None,
         timeout: int = 30,
@@ -663,7 +675,8 @@ class Storage:
 
     async def _upload_multipart(
         self, url: str, object_name: str,
-        stream: IO[AnyStr], params: Dict[str, str],
+        stream: DataStream,
+        params: Dict[str, str],
         headers: Dict[str, str],
         metadata: Dict[str, Any], *,
         session: Optional[Session] = None,
@@ -718,7 +731,8 @@ class Storage:
 
     async def _upload_resumable(
         self, url: str, object_name: str,
-        stream: IO[AnyStr], params: Dict[str, str],
+        stream: DataStream,
+        params: Dict[str, str],
         headers: Dict[str, str], *,
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
@@ -775,7 +789,7 @@ class Storage:
         return session_uri
 
     async def _do_upload(
-        self, session_uri: str, stream: IO[AnyStr],
+        self, session_uri: str, stream: DataStream,
         headers: Dict[str, str], *, retries: int = 5,
         session: Optional[Session] = None,
         timeout: int = 30,
