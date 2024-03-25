@@ -605,6 +605,7 @@ class Storage:
 
         s = AioSession(session) if session else self.session
 
+        data: bytes
         if not auto_decompress and BUILD_GCLOUD_REST:
             # Requests lib has a different way of reading compressed data.
             # We must pass the stream=True argument and read the response
@@ -614,8 +615,7 @@ class Storage:
                 timeout=timeout, stream=True,
             )
 
-            content_bytes: bytes = response.raw.read()  # type: ignore[attr-defined]
-            return content_bytes
+            data = response.raw.read()  # type: ignore[attr-defined]
         else:
             # NOTE: The SyncSession will ignore the auto_decompress argument
             response = await s.get(
@@ -626,11 +626,11 @@ class Storage:
             # when a string was uploaded. To avoid potential weirdness, always
             # return a bytes object.
             try:
-                data: bytes = await response.read()
+                data = await response.read()
             except (AttributeError, TypeError):
                 data = response.content  # type: ignore[assignment]
 
-            return data
+        return data
 
     async def _download_stream(
         self, bucket: str, object_name: str, *,
