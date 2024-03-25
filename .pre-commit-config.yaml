@@ -158,7 +158,7 @@ repos:
         - flake8-commas==2.1.0
         - flake8-comprehensions==3.13.0
 -   repo: https://github.com/hhatto/autopep8
-    rev: v2.0.4
+    rev: v2.1.0
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
