@@ -807,6 +807,7 @@ class Storage:
         original_position = stream.tell()
         # Prevent the stream being closed if put operation fails
         stream.close = lambda: None  # type: ignore[method-assign]
+        resp = None
         try:
             for tries in range(retries):
                 try:
@@ -815,6 +816,9 @@ class Storage:
                         data=stream, timeout=timeout,
                     )
                 except ResponseError:
+                    if tries == retries - 1:
+                        raise
+
                     headers.update({'Content-Range': '*/*'})
                     stream.seek(original_position)
 
@@ -825,6 +829,9 @@ class Storage:
                     break
         finally:
             original_close()
+
+        if resp is None:
+            raise ValueError('null response, this should not happen')
 
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
