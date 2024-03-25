@@ -54,6 +54,7 @@ class BaseSession:
         self, url: str, headers: Optional[Mapping[str, str]],
         timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         stream: bool,
+        auto_decompress: Optional[bool],
     ) -> Response:
         pass
 
@@ -198,6 +199,7 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
+            auto_decompress: Optional[bool] = None,
         ) -> aiohttp.ClientResponse:
             if not isinstance(timeout, aiohttp.ClientTimeout):
                 timeout = aiohttp.ClientTimeout(total=timeout)
@@ -211,6 +213,7 @@ if not BUILD_GCLOUD_REST:
             resp = await self.session.get(
                 url, headers=headers,
                 timeout=timeout, params=params,
+                auto_decompress=auto_decompress,
             )
             await _raise_for_status(resp)
             return resp
@@ -335,7 +338,9 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
+            auto_decompress: bool = None,
         ) -> Response:
+            del auto_decompress  # Not used in SyncSession
             with self.google_api_lock:
                 resp = self.session.get(
                     url, headers=headers, timeout=timeout,

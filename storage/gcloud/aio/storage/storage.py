@@ -44,8 +44,6 @@ SCOPES = [
     'https://www.googleapis.com/auth/devstorage.read_write',
 ]
 
-DataStream = Union[IO[AnyStr], io.RawIOBase, io.TextIOBase, io.BufferedIOBase]
-
 log = logging.getLogger(__name__)
 
 
@@ -484,7 +482,7 @@ class Storage:
             return await self.upload(bucket, object_name, contents, **kwargs)
 
     @staticmethod
-    def _get_stream_len(stream: DataStream) -> int:
+    def _get_stream_len(stream: IO[AnyStr]) -> int:
         current = stream.tell()
         try:
             return stream.seek(0, os.SEEK_END)
@@ -492,7 +490,7 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _compress_file_in_chunks(input_stream: DataStream,
+    def _compress_file_in_chunks(input_stream: Union[IO[AnyStr], io.IOBase],
                                  output_stream: io.IOBase,
                                  chunk_size: int = 8192) -> None:
         """
@@ -520,17 +518,16 @@ class Storage:
     def _preprocess_data(
             data: Any,
             gzip_compress: bool = False,
-    ) -> DataStream:
+    ) -> IO[AnyStr]:
 
-        stream: DataStream
+        stream: Union[IO[AnyStr], io.IOBase]
         if data is None:
             stream = io.StringIO('')
         elif isinstance(data, bytes):
             stream = io.BytesIO(data)
         elif isinstance(data, str):
             stream = io.StringIO(data)
-        elif isinstance(data, (io.RawIOBase, io.TextIOBase,
-                               io.BufferedIOBase)):
+        elif isinstance(data, io.IOBase):
             stream = data
         else:
             raise TypeError(f'unsupported upload type: "{type(data)}"')
@@ -544,7 +541,7 @@ class Storage:
                                              output_stream=compressed_stream)
             stream = compressed_stream
 
-        return stream
+        return stream  # type: ignore[return-value]
 
     @staticmethod
     def _decide_upload_type(
@@ -607,20 +604,33 @@ class Storage:
         auto_decompress = 'Accept-Encoding' not in headers
 
         s = AioSession(session) if session else self.session
-        response = await s.get(
-            url, headers=headers, params=params or {},
-            timeout=timeout, auto_decompress=auto_decompress,
-        )
 
-        # N.B. the GCS API sometimes returns 'application/octet-stream' when a
-        # string was uploaded. To avoid potential weirdness, always return a
-        # bytes object.
-        try:
-            data: bytes = await response.read()
-        except (AttributeError, TypeError):
-            data = response.content  # type: ignore[assignment]
+        if not auto_decompress and BUILD_GCLOUD_REST:
+            # Requests lib has a different way of reading compressed data.
+            # We must pass the stream=True argument and read the response
+            # using the 'raw' property.
+            response = await s.get(
+                url, headers=headers, params=params or {},
+                timeout=timeout, stream=True,
+            )
 
-        return data
+            content_bytes: bytes = response.raw.read()  # type: ignore[attr-defined]
+            return content_bytes
+        else:
+            # NOTE: The SyncSession will ignore the auto_decompress argument
+            response = await s.get(
+                url, headers=headers, params=params or {},
+                timeout=timeout, auto_decompress=auto_decompress,
+            )
+            # N.B. the GCS API sometimes returns 'application/octet-stream'
+            # when a string was uploaded. To avoid potential weirdness, always
+            # return a bytes object.
+            try:
+                data: bytes = await response.read()
+            except (AttributeError, TypeError):
+                data = response.content  # type: ignore[assignment]
+
+            return data
 
     async def _download_stream(
         self, bucket: str, object_name: str, *,
@@ -655,8 +665,7 @@ class Storage:
 
     async def _upload_simple(
         self, url: str, object_name: str,
-        stream: DataStream,
-        params: Dict[str, str],
+        stream: IO[AnyStr], params: Dict[str, str],
         headers: Dict[str, str], *,
         session: Optional[Session] = None,
         timeout: int = 30,
@@ -675,8 +684,7 @@ class Storage:
 
     async def _upload_multipart(
         self, url: str, object_name: str,
-        stream: DataStream,
-        params: Dict[str, str],
+        stream: IO[AnyStr], params: Dict[str, str],
         headers: Dict[str, str],
         metadata: Dict[str, Any], *,
         session: Optional[Session] = None,
@@ -731,8 +739,7 @@ class Storage:
 
     async def _upload_resumable(
         self, url: str, object_name: str,
-        stream: DataStream,
-        params: Dict[str, str],
+        stream: IO[AnyStr], params: Dict[str, str],
         headers: Dict[str, str], *,
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
@@ -789,7 +796,7 @@ class Storage:
         return session_uri
 
     async def _do_upload(
-        self, session_uri: str, stream: DataStream,
+        self, session_uri: str, stream: IO[AnyStr],
         headers: Dict[str, str], *, retries: int = 5,
         session: Optional[Session] = None,
         timeout: int = 30,
@@ -800,7 +807,6 @@ class Storage:
         original_position = stream.tell()
         # Prevent the stream being closed if put operation fails
         stream.close = lambda: None  # type: ignore[method-assign]
-        resp = None
         try:
             for tries in range(retries):
                 try:
@@ -809,9 +815,6 @@ class Storage:
                         data=stream, timeout=timeout,
                     )
                 except ResponseError:
-                    if tries == retries - 1:
-                        raise
-
                     headers.update({'Content-Range': '*/*'})
                     stream.seek(original_position)
 
@@ -822,9 +825,6 @@ class Storage:
                     break
         finally:
             original_close()
-
-        if resp is None:
-            raise ValueError('null response, this should not happen')
 
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
