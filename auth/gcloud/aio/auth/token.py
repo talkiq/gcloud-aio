@@ -59,6 +59,10 @@ GCE_ENDPOINT_ID_TOKEN = (
     f'{GCE_METADATA_BASE}/instance/service-accounts'
     '/default/identity?audience={audience}'
 )
+GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN = (
+    'https://iamcredentials.googleapis.com'
+    '/v1/projects/-/serviceAccounts/{service_account}:generateAccessToken'
+)
 GCLOUD_ENDPOINT_GENERATE_ID_TOKEN = (
     'https://iamcredentials.googleapis.com'
     '/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
@@ -213,7 +217,7 @@ class BaseToken:
             return
 
         if self.access_token:
-            now = datetime.datetime.utcnow()
+            now = datetime.datetime.now(datetime.timezone.utc)
             delta = (now - self.access_token_acquired_at).total_seconds()
             if delta <= self.access_token_duration / 2:
                 return
@@ -232,7 +236,8 @@ class BaseToken:
 
         self.access_token = resp.value
         self.access_token_duration = resp.expires_in
-        self.access_token_acquired_at = datetime.datetime.utcnow()
+        self.access_token_acquired_at = datetime.datetime.now(
+            datetime.timezone.utc)
         self.acquiring = None
 
     async def close(self) -> None:
@@ -254,15 +259,20 @@ class Token(BaseToken):
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
         scopes: Optional[List[str]] = None,
+        target_principal: Optional[str] = None,
+        delegates: Optional[List[str]] = None,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
         self.scopes = ' '.join(scopes or [])
-        if self.token_type == Type.SERVICE_ACCOUNT and not self.scopes:
+        if (self.token_type == Type.SERVICE_ACCOUNT
+                or target_principal) and not self.scopes:
             raise Exception(
                 'scopes must be provided when token type is '
-                'service account',
+                'service account or using target_principal',
             )
+        self.target_principal = target_principal
+        self.delegates = delegates
 
     async def _refresh_authorized_user(self, timeout: int) -> TokenResponse:
         payload = urlencode({
@@ -317,6 +327,27 @@ class Token(BaseToken):
         return TokenResponse(value=str(content['access_token']),
                              expires_in=int(content['expires_in']))
 
+    async def _impersonate(self, token: TokenResponse,
+                           *, timeout: int) -> TokenResponse:
+        # impersonate the target principal with optional delegates
+        headers = {
+            'Authorization': f'Bearer {token.value}',
+        }
+        payload = json.dumps({
+            'lifetime': f'{self.default_token_ttl}s',
+            'scope': self.scopes.split(' '),
+            'delegates': self.delegates,
+        })
+
+        resp = await self.session.post(
+            GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
+                service_account=self.target_principal),
+            data=payload, headers=headers, timeout=timeout)
+
+        data = await resp.json()
+        token.value = str(data['accessToken'])
+        return token
+
     async def refresh(self, *, timeout: int) -> TokenResponse:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
@@ -326,6 +357,9 @@ class Token(BaseToken):
             resp = await self._refresh_service_account(timeout=timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
+
+        if self.target_principal:
+            resp = await self._impersonate(resp, timeout=timeout)
 
         return resp
 
@@ -435,7 +469,10 @@ class IapToken(BaseToken):
         resp = await self.session.get(
             GCE_ENDPOINT_ID_TOKEN.format(audience=iap_client_id),
             headers=GCE_METADATA_HEADERS, timeout=timeout)
-        token = await resp.text()
+        try:
+            token = await resp.text()  # aiohttp lib
+        except (AttributeError, TypeError):
+            token = str(resp.text)  # requests lib
         return TokenResponse(value=token,
                              expires_in=self.default_token_ttl)
 
