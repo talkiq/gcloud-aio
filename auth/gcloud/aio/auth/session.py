@@ -338,7 +338,7 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
-            auto_decompress: bool = None,
+            auto_decompress: Optional[bool] = None,
         ) -> Response:
             del auto_decompress  # Not used in SyncSession
             with self.google_api_lock:
