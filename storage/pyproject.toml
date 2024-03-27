@@ -23,7 +23,7 @@ classifiers = [
 python = ">= 3.8, < 4.0"
 aiofiles = ">= 0.6.0, < 24.0.0"
 gcloud-aio-auth = ">= 5.3.0, < 6.0.0"
-pyasn1-modules = ">= 0.2.1, < 0.4.0"
+pyasn1-modules = ">= 0.2.1, < 0.4.1"
 rsa = ">= 3.1.4, < 5.0.0"
 
 [tool.poetry.group.dev.dependencies]
