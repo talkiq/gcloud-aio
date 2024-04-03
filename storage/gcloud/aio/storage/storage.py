@@ -420,13 +420,17 @@ class Storage:
         timeout: int = 30,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_write}/{bucket}/o'
+        stream: Union[IO[Any], io.IOBase]
+        stream = self._preprocess_data(file_data)
 
         parameters = parameters or {}
 
         if zipped:
             parameters['contentEncoding'] = 'gzip'
-
-        stream = self._preprocess_data(file_data, gzip_compress=zipped)
+            # Here we load the file-like object data into memory in chunks
+            # and re-write it compressed. This is implemented like this
+            # so we don't load the whole file into memory at once.
+            stream = Storage._compress_file_in_chunks(input_stream=stream)
 
         if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
             # HACK: `requests` library does not accept `str` as `data` in `put`
@@ -490,15 +494,31 @@ class Storage:
             stream.seek(current)
 
     @staticmethod
-    def _compress_file_in_chunks(input_stream: Union[IO[AnyStr], io.IOBase],
-                                 output_stream: io.IOBase,
-                                 chunk_size: int = 8192) -> None:
+    def _preprocess_data(data: Any) -> IO[Any]:
+        if data is None:
+            return io.StringIO('')
+
+        if isinstance(data, bytes):
+            return io.BytesIO(data)
+        if isinstance(data, str):
+            return io.StringIO(data)
+        if isinstance(data, io.IOBase):
+            return data  # type: ignore[return-value]
+
+        raise TypeError(f'unsupported upload type: "{type(data)}"')
+
+    @staticmethod
+    def _compress_file_in_chunks(input_stream: IO[AnyStr],
+                                 chunk_size: int = 8192) -> IO[AnyStr]:
         """
         Reads the contents of input_stream and writes it gzip-compressed to
         output_stream in chunks. The chunk size is 8Kb by default, which is a
         standard filesystem block size.
         """
-        with gzip.open(output_stream, 'wb') as f_out:
+        compressed_stream = io.BytesIO()
+
+        with gzip.open(compressed_stream, 'wb') as gzipped_file:
+            chunk_bytes: bytes
             while True:
                 chunk = input_stream.read(chunk_size)
                 if not chunk:
@@ -507,41 +527,14 @@ class Storage:
                     chunk_bytes = chunk.encode('utf-8')
                 else:
                     chunk_bytes = chunk
-                # At this point we assume that chunk is a bytes object
-                f_out.write(chunk_bytes)
+
+                gzipped_file.write(chunk_bytes)
 
         # After finishing writing, reset the buffer position,
         # so it can be read
-        output_stream.seek(0)
+        compressed_stream.seek(0)
 
-    @staticmethod
-    def _preprocess_data(
-            data: Any,
-            gzip_compress: bool = False,
-    ) -> IO[Any]:
-
-        stream: Union[IO[Any], io.IOBase]
-        if data is None:
-            stream = io.StringIO('')
-        elif isinstance(data, bytes):
-            stream = io.BytesIO(data)
-        elif isinstance(data, str):
-            stream = io.StringIO(data)
-        elif isinstance(data, io.IOBase):
-            stream = data
-        else:
-            raise TypeError(f'unsupported upload type: "{type(data)}"')
-
-        if gzip_compress:
-            # Here we load the file-like object data into memory in chunks
-            # and re-write it compressed. This is implemented like this
-            # so we don't load the whole file into memory at once.
-            compressed_stream = io.BytesIO()
-            Storage._compress_file_in_chunks(input_stream=stream,
-                                             output_stream=compressed_stream)
-            stream = compressed_stream
-
-        return stream  # type: ignore[return-value]
+        return compressed_stream  # type: ignore[return-value]
 
     @staticmethod
     def _decide_upload_type(
