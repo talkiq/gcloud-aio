@@ -48,7 +48,7 @@ Attributes
       :async:
 
 
-   .. py:method:: get(url, headers, timeout, params, stream)
+   .. py:method:: get(url, headers, timeout, params, stream, auto_decompress)
       :abstractmethod:
       :async:
 
@@ -109,7 +109,7 @@ Attributes
       :async:
 
 
-   .. py:method:: get(url, headers = None, timeout = 10, params = None, stream = False)
+   .. py:method:: get(url, headers = None, timeout = 10, params = None, stream = False, auto_decompress = True)
       :async:
 
 
