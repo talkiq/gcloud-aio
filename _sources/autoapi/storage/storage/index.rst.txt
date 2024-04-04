@@ -242,7 +242,7 @@ Attributes
       :async:
 
 
-   .. py:method:: upload(bucket, object_name, file_data, *, content_type = None, parameters = None, headers = None, metadata = None, session = None, force_resumable_upload = None, timeout = 30)
+   .. py:method:: upload(bucket, object_name, file_data, *, content_type = None, parameters = None, headers = None, metadata = None, session = None, force_resumable_upload = None, zipped = False, timeout = 30)
       :async:
 
 
@@ -256,6 +256,14 @@ Attributes
 
    .. py:method:: _preprocess_data(data)
       :staticmethod:
+
+
+   .. py:method:: _compress_file_in_chunks(input_stream, chunk_size = 8192)
+      :staticmethod:
+
+      Reads the contents of input_stream and writes it gzip-compressed to
+      output_stream in chunks. The chunk size is 8Kb by default, which is a
+      standard filesystem block size.
 
 
    .. py:method:: _decide_upload_type(force_resumable_upload, content_length)

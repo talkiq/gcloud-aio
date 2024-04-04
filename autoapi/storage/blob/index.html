@@ -953,6 +953,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage.upload_from_filename"><code class="docutils literal notranslate"><span class="pre">Storage.upload_from_filename()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._get_stream_len"><code class="docutils literal notranslate"><span class="pre">Storage._get_stream_len()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._preprocess_data"><code class="docutils literal notranslate"><span class="pre">Storage._preprocess_data()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._compress_file_in_chunks"><code class="docutils literal notranslate"><span class="pre">Storage._compress_file_in_chunks()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._decide_upload_type"><code class="docutils literal notranslate"><span class="pre">Storage._decide_upload_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._split_content_type"><code class="docutils literal notranslate"><span class="pre">Storage._split_content_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._format_metadata_key"><code class="docutils literal notranslate"><span class="pre">Storage._format_metadata_key()</span></code></a></li>
@@ -1860,6 +1861,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage.upload_from_filename"><code class="docutils literal notranslate"><span class="pre">Storage.upload_from_filename()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._get_stream_len"><code class="docutils literal notranslate"><span class="pre">Storage._get_stream_len()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._preprocess_data"><code class="docutils literal notranslate"><span class="pre">Storage._preprocess_data()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._compress_file_in_chunks"><code class="docutils literal notranslate"><span class="pre">Storage._compress_file_in_chunks()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._decide_upload_type"><code class="docutils literal notranslate"><span class="pre">Storage._decide_upload_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._split_content_type"><code class="docutils literal notranslate"><span class="pre">Storage._split_content_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._format_metadata_key"><code class="docutils literal notranslate"><span class="pre">Storage._format_metadata_key()</span></code></a></li>
@@ -2092,12 +2094,13 @@ private_key data</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="storage.blob.Blob.download">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_TIMEOUT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.download" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_TIMEOUT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_decompress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.blob.Blob.download" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
+<li><p><strong>auto_decompress</strong> (<em class="hover">bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

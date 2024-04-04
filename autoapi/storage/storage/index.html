@@ -953,6 +953,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage.upload_from_filename"><code class="docutils literal notranslate"><span class="pre">Storage.upload_from_filename()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._get_stream_len"><code class="docutils literal notranslate"><span class="pre">Storage._get_stream_len()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._preprocess_data"><code class="docutils literal notranslate"><span class="pre">Storage._preprocess_data()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._compress_file_in_chunks"><code class="docutils literal notranslate"><span class="pre">Storage._compress_file_in_chunks()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._decide_upload_type"><code class="docutils literal notranslate"><span class="pre">Storage._decide_upload_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._split_content_type"><code class="docutils literal notranslate"><span class="pre">Storage._split_content_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._format_metadata_key"><code class="docutils literal notranslate"><span class="pre">Storage._format_metadata_key()</span></code></a></li>
@@ -1860,6 +1861,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage.upload_from_filename"><code class="docutils literal notranslate"><span class="pre">Storage.upload_from_filename()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._get_stream_len"><code class="docutils literal notranslate"><span class="pre">Storage._get_stream_len()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._preprocess_data"><code class="docutils literal notranslate"><span class="pre">Storage._preprocess_data()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._compress_file_in_chunks"><code class="docutils literal notranslate"><span class="pre">Storage._compress_file_in_chunks()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._decide_upload_type"><code class="docutils literal notranslate"><span class="pre">Storage._decide_upload_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._split_content_type"><code class="docutils literal notranslate"><span class="pre">Storage._split_content_type()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#storage.Storage._format_metadata_key"><code class="docutils literal notranslate"><span class="pre">Storage._format_metadata_key()</span></code></a></li>
@@ -2416,7 +2418,7 @@ io.BufferedIOBase, but it only supports the read() function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="storage.storage.Storage.upload">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_resumable_upload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.storage.Storage.upload" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_resumable_upload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zipped</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.storage.Storage.upload" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2429,6 +2431,7 @@ io.BufferedIOBase, but it only supports the read() function.</p>
 <li><p><strong>metadata</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">Dict</em><em>[</em><em class="hover">str</em><em>, </em><em class="hover">Any</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>session</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">requests.Session</em><em>]</em>) – </p></li>
 <li><p><strong>force_resumable_upload</strong> (<em class="hover">Optional</em><em>[</em><em class="hover">bool</em><em>]</em>) – </p></li>
+<li><p><strong>zipped</strong> (<em class="hover">bool</em>) – </p></li>
 <li><p><strong>timeout</strong> (<em class="hover">int</em>) – </p></li>
 </ul>
 </dd>
@@ -2478,6 +2481,25 @@ io.BufferedIOBase, but it only supports the read() function.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>IO[Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="storage.storage.Storage._compress_file_in_chunks">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_compress_file_in_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8192</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#storage.storage.Storage._compress_file_in_chunks" title="Link to this definition">¶</a></dt>
+<dd><p>Reads the contents of input_stream and writes it gzip-compressed to
+output_stream in chunks. The chunk size is 8Kb by default, which is a
+standard filesystem block size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_stream</strong> (<em class="hover">IO</em><em>[</em><em class="hover">AnyStr</em><em>]</em>) – </p></li>
+<li><p><strong>chunk_size</strong> (<em class="hover">int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>IO[bytes]</p>
 </dd>
 </dl>
 </dd></dl>

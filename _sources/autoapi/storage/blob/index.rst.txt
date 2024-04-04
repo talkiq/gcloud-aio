@@ -114,7 +114,7 @@ Attributes
       :type: int
 
 
-   .. py:method:: download(timeout = DEFAULT_TIMEOUT, session = None)
+   .. py:method:: download(timeout = DEFAULT_TIMEOUT, session = None, auto_decompress = True)
       :async:
 
 
