@@ -6,6 +6,7 @@ from .lat_lng import LatLng
 
 class CompositeFilterOperator(enum.Enum):
     AND = 'AND'
+    OR = 'OR'
     UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 
@@ -43,12 +44,14 @@ class Operation(enum.Enum):
 
 
 class PropertyFilterOperator(enum.Enum):
+    # TODO: support IN / NOT_IN (requires rhs to be ArrayValue)
     EQUAL = 'EQUAL'
     GREATER_THAN = 'GREATER_THAN'
     GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
     HAS_ANCESTOR = 'HAS_ANCESTOR'
     LESS_THAN = 'LESS_THAN'
     LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
+    NOT_EQUAL = 'NOT_EQUAL'
     UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 
