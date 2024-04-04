@@ -80,6 +80,11 @@ Attributes
 
       
 
+   .. py:attribute:: OR
+      :value: 'OR'
+
+      
+
    .. py:attribute:: UNSPECIFIED
       :value: 'OPERATOR_UNSPECIFIED'
 
@@ -460,6 +465,11 @@ Attributes
 
    .. py:attribute:: LESS_THAN_OR_EQUAL
       :value: 'LESS_THAN_OR_EQUAL'
+
+      
+
+   .. py:attribute:: NOT_EQUAL
+      :value: 'NOT_EQUAL'
 
       
 

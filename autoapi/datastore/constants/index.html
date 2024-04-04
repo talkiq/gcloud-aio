@@ -464,6 +464,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.AND"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.AND</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.OR"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.OR</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.UNSPECIFIED"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.UNSPECIFIED</span></code></a></li>
 </ul>
 </li>
@@ -507,6 +508,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.HAS_ANCESTOR"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.HAS_ANCESTOR</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.LESS_THAN"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.LESS_THAN</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.LESS_THAN_OR_EQUAL"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.LESS_THAN_OR_EQUAL</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.NOT_EQUAL"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.NOT_EQUAL</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.UNSPECIFIED"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.UNSPECIFIED</span></code></a></li>
 </ul>
 </li>
@@ -1369,6 +1371,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../index.html#attributes">Attributes</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator</span></code></a><ul>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.AND"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.AND</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.OR"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.OR</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.CompositeFilterOperator.UNSPECIFIED"><code class="docutils literal notranslate"><span class="pre">CompositeFilterOperator.UNSPECIFIED</span></code></a></li>
 </ul>
 </li>
@@ -1412,6 +1415,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.HAS_ANCESTOR"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.HAS_ANCESTOR</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.LESS_THAN"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.LESS_THAN</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.LESS_THAN_OR_EQUAL"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.LESS_THAN_OR_EQUAL</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.NOT_EQUAL"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.NOT_EQUAL</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../index.html#datastore.PropertyFilterOperator.UNSPECIFIED"><code class="docutils literal notranslate"><span class="pre">PropertyFilterOperator.UNSPECIFIED</span></code></a></li>
 </ul>
 </li>
@@ -2047,6 +2051,11 @@ attributes – see the documentation for details.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.constants.CompositeFilterOperator.OR">
+<span class="sig-name descname"><span class="pre">OR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OR'</span></em><a class="headerlink" href="#datastore.constants.CompositeFilterOperator.OR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.constants.CompositeFilterOperator.UNSPECIFIED">
 <span class="sig-name descname"><span class="pre">UNSPECIFIED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OPERATOR_UNSPECIFIED'</span></em><a class="headerlink" href="#datastore.constants.CompositeFilterOperator.UNSPECIFIED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2448,6 +2457,11 @@ attributes – see the documentation for details.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.constants.PropertyFilterOperator.NOT_EQUAL">
+<span class="sig-name descname"><span class="pre">NOT_EQUAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NOT_EQUAL'</span></em><a class="headerlink" href="#datastore.constants.PropertyFilterOperator.NOT_EQUAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.constants.PropertyFilterOperator.UNSPECIFIED">
 <span class="sig-name descname"><span class="pre">UNSPECIFIED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'OPERATOR_UNSPECIFIED'</span></em><a class="headerlink" href="#datastore.constants.PropertyFilterOperator.UNSPECIFIED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2639,7 +2653,7 @@ attributes – see the documentation for details.</p>
   <div id="footer-row" class="row">
 
     <div class="col-md-12">
-        <span title="Built on 2024-04-02" class="pull-right">&copy; Copyright 2017, TalkIQ.
+        <span title="Built on 2024-04-04" class="pull-right">&copy; Copyright 2017, TalkIQ.
         Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6 and the
         <a href="https://pypi.org/project/sphinx-sizzle-theme/"
 
