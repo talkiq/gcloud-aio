@@ -1,6 +1,7 @@
 import importlib.metadata
 import logging
 import threading
+import warnings
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
@@ -54,6 +55,7 @@ class BaseSession:
         self, url: str, headers: Optional[Mapping[str, str]],
         timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         stream: bool,
+        auto_decompress: bool,
     ) -> Response:
         pass
 
@@ -198,6 +200,7 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
+            auto_decompress: bool = True,
         ) -> aiohttp.ClientResponse:
             if not isinstance(timeout, aiohttp.ClientTimeout):
                 timeout = aiohttp.ClientTimeout(total=timeout)
@@ -211,6 +214,7 @@ if not BUILD_GCLOUD_REST:
             resp = await self.session.get(
                 url, headers=headers,
                 timeout=timeout, params=params,
+                auto_decompress=auto_decompress,
             )
             await _raise_for_status(resp)
             return resp
@@ -335,7 +339,17 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
+            auto_decompress: bool = True,
         ) -> Response:
+            if not auto_decompress and not stream:
+                warnings.warn(
+                    'the requests library always decompresses responses when '
+                    'outside of streaming mode; when audo_decompress is '
+                    'False, stream = True must also be set',
+                    UserWarning,
+                )
+                stream = True
+
             with self.google_api_lock:
                 resp = self.session.get(
                     url, headers=headers, timeout=timeout,
