@@ -344,7 +344,7 @@ if BUILD_GCLOUD_REST:
             if not auto_decompress and not stream:
                 warnings.warn(
                     'the requests library always decompresses responses when '
-                    'outside of streaming mode; when audo_decompress is '
+                    'outside of streaming mode; when auto_decompress is '
                     'False, stream = True must also be set',
                     UserWarning,
                 )

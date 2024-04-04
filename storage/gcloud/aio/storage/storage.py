@@ -1,5 +1,6 @@
 import binascii
 import enum
+import gzip
 import io
 import json
 import logging
@@ -415,11 +416,19 @@ class Storage:
         metadata: Optional[Dict[str, Any]] = None,
         session: Optional[Session] = None,
         force_resumable_upload: Optional[bool] = None,
+        zipped: bool = False,
         timeout: int = 30,
     ) -> Dict[str, Any]:
         url = f'{self._api_root_write}/{bucket}/o'
-
         stream = self._preprocess_data(file_data)
+
+        parameters = parameters or {}
+        if zipped:
+            parameters['contentEncoding'] = 'gzip'
+            # Here we load the file-like object data into memory in chunks and
+            # re-write it compressed. This is implemented like this so we don't
+            # load the whole file into memory at once.
+            stream = self._compress_file_in_chunks(input_stream=stream)
 
         if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
             # HACK: `requests` library does not accept `str` as `data` in `put`
@@ -430,8 +439,6 @@ class Storage:
 
         # mime detection method same as in aiohttp 3.4.4
         content_type = content_type or mimetypes.guess_type(object_name)[0]
-
-        parameters = parameters or {}
 
         headers = headers or {}
         headers.update(await self._headers())
@@ -499,6 +506,34 @@ class Storage:
         raise TypeError(f'unsupported upload type: "{type(data)}"')
 
     @staticmethod
+    def _compress_file_in_chunks(input_stream: IO[AnyStr],
+                                 chunk_size: int = 8192) -> IO[bytes]:
+        """
+        Reads the contents of input_stream and writes it gzip-compressed to
+        output_stream in chunks. The chunk size is 8Kb by default, which is a
+        standard filesystem block size.
+        """
+        compressed_stream = io.BytesIO()
+
+        with gzip.open(compressed_stream, 'wb') as gzipped_file:
+            chunk_bytes: bytes
+            while True:
+                chunk = input_stream.read(chunk_size)
+                if not chunk:
+                    break
+                if isinstance(chunk, str):
+                    chunk_bytes = chunk.encode('utf-8')
+                else:
+                    chunk_bytes = chunk
+
+                gzipped_file.write(chunk_bytes)
+
+        # After finishing writing, reset the buffer position so it can be read
+        compressed_stream.seek(0)
+
+        return compressed_stream
+
+    @staticmethod
     def _decide_upload_type(
         force_resumable_upload: Optional[bool],
         content_length: int,
@@ -553,19 +588,35 @@ class Storage:
         headers = headers or {}
         headers.update(await self._headers())
 
-        s = AioSession(session) if session else self.session
-        response = await s.get(
-            url, headers=headers, params=params or {},
-            timeout=timeout,
-        )
+        # aiohttp and requests automatically decompress the body if this
+        # argument is not passed. We assume that if the Accept-Encoding header
+        # is present, then the client will handle the decompression
+        auto_decompress = 'accept-encoding' not in {k.lower() for k in headers}
 
-        # N.B. the GCS API sometimes returns 'application/octet-stream' when a
-        # string was uploaded. To avoid potential weirdness, always return a
-        # bytes object.
-        try:
-            data: bytes = await response.read()
-        except (AttributeError, TypeError):
-            data = response.content  # type: ignore[assignment]
+        s = AioSession(session) if session else self.session
+
+        data: bytes
+        if not auto_decompress and BUILD_GCLOUD_REST:
+            # Requests lib has a different way of reading compressed data. We
+            # must pass the stream=True argument and read the response using
+            # the 'raw' property.
+            response = await s.get(
+                url, headers=headers, params=params or {},
+                timeout=timeout, stream=True,
+            )
+            data = response.raw.read()  # type: ignore[attr-defined]
+        else:
+            response = await s.get(
+                url, headers=headers, params=params or {},
+                timeout=timeout, auto_decompress=auto_decompress,
+            )
+            # N.B. the GCS API sometimes returns 'application/octet-stream'
+            # when a string was uploaded. To avoid potential weirdness, always
+            # return a bytes object.
+            try:
+                data = await response.read()
+            except (AttributeError, TypeError):
+                data = response.content  # type: ignore[assignment]
 
         return data
 

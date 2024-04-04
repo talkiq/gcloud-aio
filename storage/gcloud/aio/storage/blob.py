@@ -99,12 +99,15 @@ class Blob:
     async def download(
         self, timeout: int = DEFAULT_TIMEOUT,
         session: Optional[Session] = None,
+        auto_decompress: bool = True,
     ) -> Any:
+        headers = None if auto_decompress else {'accept-encoding': 'gzip'}
         return await self.bucket.storage.download(
             self.bucket.name,
             self.name,
             timeout=timeout,
             session=session,
+            headers=headers,
         )
 
     async def upload(
