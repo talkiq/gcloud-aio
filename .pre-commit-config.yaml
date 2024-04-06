@@ -133,7 +133,7 @@ repos:
         name: mypy-storage
         additional_dependencies:
         - aiohttp
-        - gcloud-aio-auth>=5.3.0
+        - gcloud-aio-auth>=5.3.2
         - rsa
         - types-aiofiles
         - types-requests

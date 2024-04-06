@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-storage"
-version = "9.3.0"
+version = "9.3.1"
 description = "Python Client for Google Cloud Storage"
 readme = "README.rst"
 
