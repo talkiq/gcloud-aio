@@ -55,7 +55,7 @@ class BaseSession:
         self, url: str, headers: Optional[Mapping[str, str]],
         timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         stream: bool,
-        auto_decompress: bool,
+        auto_decompress: Optional[bool],
     ) -> Response:
         pass
 
@@ -200,7 +200,7 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: Optional[bool] = None,
-            auto_decompress: bool = True,
+            auto_decompress: Optional[bool] = None,
         ) -> aiohttp.ClientResponse:
             if not isinstance(timeout, aiohttp.ClientTimeout):
                 timeout = aiohttp.ClientTimeout(total=timeout)
@@ -211,11 +211,21 @@ if not BUILD_GCLOUD_REST:
                     'this argument is only used by SyncSession',
                     stream,
                 )
+
+            # TODO: in aiohttp v3.9.0, session.get(..) learned the
+            # auto_decompress argument. Once our minimum bound is >=3.9.0,
+            # update this block to avoid patching the prviate session
+            # attribute.
+            # pylint: disable=protected-access
+            orig = self.session._auto_decompress
+            if auto_decompress is not None:
+                self.session._auto_decompress = auto_decompress
             resp = await self.session.get(
                 url, headers=headers,
                 timeout=timeout, params=params,
-                auto_decompress=auto_decompress,
             )
+            self.session._auto_decompress = orig
+
             await _raise_for_status(resp)
             return resp
 
@@ -339,9 +349,9 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
-            auto_decompress: bool = True,
+            auto_decompress: Optional[bool] = None,
         ) -> Response:
-            if not auto_decompress and not stream:
+            if auto_decompress is False and not stream:
                 warnings.warn(
                     'the requests library always decompresses responses when '
                     'outside of streaming mode; when auto_decompress is '
