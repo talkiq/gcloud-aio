@@ -122,7 +122,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:21.7.3
+      - image: node:22.0.0
     steps:
       - checkout
       - attach_workspace:
