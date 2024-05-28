@@ -222,7 +222,7 @@ class BaseToken:
             if delta <= self.access_token_duration / 2:
                 return
 
-        self.acquiring = asyncio.ensure_future(  # pylint: disable=used-before-assignment
+        self.acquiring = asyncio.ensure_future(  # pylint: disable=possibly-used-before-assignment
             self.acquire_access_token())
         await self.acquiring
 
