@@ -53,6 +53,7 @@ class PropertyFilterOperator(enum.Enum):
     LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
     NOT_EQUAL = 'NOT_EQUAL'
     UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
+    IN = 'IN'
 
 
 class ResultType(enum.Enum):

@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
+from gcloud.aio.datastore import Array
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLCursor
@@ -274,6 +275,45 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
+async def test_query_with_in_filter(creds: str, kind: str, project: str) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        property_filter = PropertyFilter(
+            prop='value', operator=PropertyFilterOperator.IN,
+            value=Array([Value(99), Value(100)])
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        before = await ds.runQuery(query, session=s)
+        num_results = len(before.entity_results)
+
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 99},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 100},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 101},
+            )
+        ]
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        after = await ds.runQuery(query, session=s)
+        assert len(after.entity_results) == num_results + 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
 async def test_gql_query(creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -309,6 +349,42 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3
 
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
+async def test_gql_query_with_in_filter(creds: str, kind: str, project: str) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        query = GQLQuery(
+            f'SELECT * FROM {kind} WHERE value IN @values',
+            named_bindings={'values': Array([Value(99), Value(100)])},
+        )
+
+        before = await ds.runQuery(query, session=s)
+        num_results = len(before.entity_results)
+
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 99},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 100},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 101},
+            ),
+        ]
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        after = await ds.runQuery(query, session=s)
+        assert len(after.entity_results) == num_results + 2
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
