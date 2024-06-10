@@ -275,7 +275,8 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
-async def test_query_with_in_filter(creds: str, kind: str, project: str) -> None:
+async def test_query_with_in_filter(
+        creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
@@ -349,9 +350,11 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 3
 
+
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
-async def test_gql_query_with_in_filter(creds: str, kind: str, project: str) -> None:
+async def test_gql_query_with_in_filter(
+        creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
@@ -385,6 +388,7 @@ async def test_gql_query_with_in_filter(creds: str, kind: str, project: str) -> 
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 2
+
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
