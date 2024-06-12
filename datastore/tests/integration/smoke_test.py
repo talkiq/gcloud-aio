@@ -315,7 +315,8 @@ async def test_query_with_in_filter(
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
-async def test_query_with_not_in_filter(creds: str, kind: str, project: str) -> None:
+async def test_query_with_not_in_filter(
+        creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
@@ -431,13 +432,15 @@ async def test_gql_query_with_in_filter(
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
-async def test_gql_query_with_not_in_filter(creds: str, kind: str, project: str) -> None:
+async def test_gql_query_with_not_in_filter(
+        creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
         query = GQLQuery(
             f'SELECT * FROM {kind} WHERE value NOT IN @values',
-            named_bindings={'values': Array([Value(30), Value(42), Value(99), Value(100)])},
+            named_bindings={'values': Array(
+                [Value(30), Value(42), Value(99), Value(100)])},
         )
 
         before = await ds.runQuery(query, session=s)
