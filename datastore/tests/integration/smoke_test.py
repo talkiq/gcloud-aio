@@ -315,6 +315,45 @@ async def test_query_with_in_filter(
 
 @pytest.mark.asyncio
 @pytest.mark.xfail(strict=False)
+async def test_query_with_not_in_filter(creds: str, kind: str, project: str) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        property_filter = PropertyFilter(
+            prop='value', operator=PropertyFilterOperator.NOT_IN,
+            value=Array([Value(99), Value(100), Value(30), Value(42)])
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        before = await ds.runQuery(query, session=s)
+        num_results = len(before.entity_results)
+
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 99},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 100},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 999},
+            )
+        ]
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        after = await ds.runQuery(query, session=s)
+        assert len(after.entity_results) == num_results + 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
 async def test_gql_query(creds: str, kind: str, project: str) -> None:
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -388,6 +427,44 @@ async def test_gql_query_with_in_filter(
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.xfail(strict=False)
+async def test_gql_query_with_not_in_filter(creds: str, kind: str, project: str) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        query = GQLQuery(
+            f'SELECT * FROM {kind} WHERE value NOT IN @values',
+            named_bindings={'values': Array([Value(30), Value(42), Value(99), Value(100)])},
+        )
+
+        before = await ds.runQuery(query, session=s)
+        num_results = len(before.entity_results)
+
+        transaction = await ds.beginTransaction(session=s)
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 99},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 100},
+            ),
+            ds.make_mutation(
+                Operation.INSERT,
+                Key(project, [PathElement(kind)]),
+                properties={'value': 999},
+            ),
+        ]
+        await ds.commit(mutations, transaction=transaction, session=s)
+
+        after = await ds.runQuery(query, session=s)
+        assert len(after.entity_results) == num_results + 1
 
 
 @pytest.mark.asyncio
