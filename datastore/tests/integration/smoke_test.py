@@ -282,7 +282,7 @@ async def test_query_with_in_filter(
 
         property_filter = PropertyFilter(
             prop='value', operator=PropertyFilterOperator.IN,
-            value=Array([Value(99), Value(100)])
+            value=Array([Value(99), Value(100)]),
         )
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
@@ -305,7 +305,7 @@ async def test_query_with_in_filter(
                 Operation.INSERT,
                 Key(project, [PathElement(kind)]),
                 properties={'value': 101},
-            )
+            ),
         ]
         await ds.commit(mutations, transaction=transaction, session=s)
 
@@ -322,7 +322,7 @@ async def test_query_with_not_in_filter(
 
         property_filter = PropertyFilter(
             prop='value', operator=PropertyFilterOperator.NOT_IN,
-            value=Array([Value(99), Value(100), Value(30), Value(42)])
+            value=Array([Value(99), Value(100), Value(30), Value(42)]),
         )
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
@@ -345,7 +345,7 @@ async def test_query_with_not_in_filter(
                 Operation.INSERT,
                 Key(project, [PathElement(kind)]),
                 properties={'value': 999},
-            )
+            ),
         ]
         await ds.commit(mutations, transaction=transaction, session=s)
 
