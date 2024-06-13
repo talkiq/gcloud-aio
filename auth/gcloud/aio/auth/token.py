@@ -57,7 +57,7 @@ GCE_ENDPOINT_TOKEN = (
 )
 GCE_ENDPOINT_ID_TOKEN = (
     f'{GCE_METADATA_BASE}/instance/service-accounts'
-    '/default/identity?audience={audience}'
+    '/default/identity?audience={audience}&format=full'
 )
 GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN = (
     'https://iamcredentials.googleapis.com'
