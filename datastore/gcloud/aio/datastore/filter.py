@@ -91,7 +91,7 @@ class PropertyFilter(BaseFilter):
 
     def __init__(
         self, prop: str, operator: PropertyFilterOperator,
-        value: Union[Value, Array]
+        value: Union[Value, Array],
     ) -> None:
         self.prop = prop
         self.operator = operator
@@ -115,11 +115,11 @@ class PropertyFilter(BaseFilter):
         return cls(prop=prop, operator=operator, value=value)
 
     def to_repr(self) -> Dict[str, Any]:
-        rep = {
+        rep: Dict[str, Any] = {
             'op': self.operator.value,
-            'property': {'name': self.prop}
+            'property': {'name': self.prop},
         }
-        # Temporary workaround for handling arrayValue with PropertyFilter
+        # TODO: consider refactoring to look more like Value.to_repr()
         if isinstance(self.value, Array):
             rep['value'] = {'arrayValue': self.value.to_repr()}
         else:

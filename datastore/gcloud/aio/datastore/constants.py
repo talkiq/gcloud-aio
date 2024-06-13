@@ -44,7 +44,6 @@ class Operation(enum.Enum):
 
 
 class PropertyFilterOperator(enum.Enum):
-    # TODO: support IN / NOT_IN (requires rhs to be ArrayValue)
     EQUAL = 'EQUAL'
     GREATER_THAN = 'GREATER_THAN'
     GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
