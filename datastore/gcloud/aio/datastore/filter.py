@@ -1,7 +1,9 @@
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Union
 
+from .array import Array
 from .constants import CompositeFilterOperator
 from .constants import PropertyFilterOperator
 from .value import Value
@@ -89,7 +91,7 @@ class PropertyFilter(BaseFilter):
 
     def __init__(
         self, prop: str, operator: PropertyFilterOperator,
-        value: Value,
+        value: Union[Value, Array],
     ) -> None:
         self.prop = prop
         self.operator = operator
@@ -113,8 +115,13 @@ class PropertyFilter(BaseFilter):
         return cls(prop=prop, operator=operator, value=value)
 
     def to_repr(self) -> Dict[str, Any]:
-        return {
+        rep: Dict[str, Any] = {
             'op': self.operator.value,
             'property': {'name': self.prop},
-            'value': self.value.to_repr(),
         }
+        # TODO: consider refactoring to look more like Value.to_repr()
+        if isinstance(self.value, Array):
+            rep['value'] = {'arrayValue': self.value.to_repr()}
+        else:
+            rep['value'] = self.value.to_repr()
+        return rep

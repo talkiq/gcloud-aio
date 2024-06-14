@@ -181,6 +181,7 @@ with it, you will need to implement your own ``Value``, ``Query``, and
 """
 import importlib.metadata
 
+from .array import Array
 from .constants import CompositeFilterOperator
 from .constants import Consistency
 from .constants import Direction
@@ -215,6 +216,7 @@ from .value import Value
 
 __version__ = importlib.metadata.version('gcloud-aio-datastore')
 __all__ = [
+    'Array',
     'CompositeFilter',
     'CompositeFilterOperator',
     'Consistency',
