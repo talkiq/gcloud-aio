@@ -25,7 +25,7 @@ gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 gcloud-aio-auth = { path = "../auth" }
-pytest = "8.3.0"
+pytest = "8.3.1"
 
 [[tool.poetry.source]]
 name = "pypi"
