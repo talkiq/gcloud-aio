@@ -44,9 +44,14 @@ log = logging.getLogger(__name__)
 LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(
+        api_root: Optional[str], api_is_dev: Optional[bool],
+) -> Tuple[bool, str]:
     if api_root:
-        return True, api_root
+        if api_is_dev is None:
+            # Assume a provided API root is dev unless otherwise specified
+            api_is_dev = True
+        return api_is_dev, api_root
 
     host = os.environ.get('DATASTORE_EMULATOR_HOST')
     if host:
@@ -72,8 +77,9 @@ class Datastore:
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
             namespace: str = '', session: Optional[Session] = None,
             token: Optional[Token] = None, api_root: Optional[str] = None,
+            api_is_dev: Optional[bool] = None,
     ) -> None:
-        self._api_is_dev, self._api_root = init_api_root(api_root)
+        self._api_is_dev, self._api_root = init_api_root(api_root, api_is_dev)
         self.namespace = namespace
         self.session = AioSession(session)
         self.token = token or Token(
