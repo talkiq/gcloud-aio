@@ -944,3 +944,52 @@ else:
         # verify that the subscriber shuts down gracefully
         with pytest.raises(asyncio.CancelledError):
             await asyncio.wait_for(subscribe_task, 1)
+
+    @pytest.mark.asyncio
+    async def test_task_error_after_cancel(
+            subscriber_client,
+            application_callback,
+    ):
+        def exception_handler(_loop, context) -> None:
+            pytest.fail(f"Unhandled exception: {context['message']}")
+
+        # Ensure the test fails on unhandled exceptions
+        asyncio.get_running_loop().set_exception_handler(exception_handler)
+
+        pull_ret = asyncio.Future()
+        pull_called = asyncio.Event()
+
+        async def pull(*_args, **_kwargs):
+            pull_called.set()
+            return await pull_ret
+
+        subscriber_client.pull = pull
+
+        subscribe_task = asyncio.ensure_future(
+            subscribe(
+                'fake_subscription', application_callback,
+                subscriber_client, num_producers=1,
+                max_messages_per_producer=100, ack_window=0.0,
+                ack_deadline_cache_timeout=1000,
+                num_tasks_per_consumer=1, enable_nack=True,
+                nack_window=0.0,
+            ),
+        )
+
+        # Wait for the subscriber's producer task to call `pull()`
+        await pull_called.wait()
+
+        # Cancel the subscribe task
+        subscribe_task.cancel()
+
+        # Yield control to the event loop to allow the cancellation to be
+        # handled and graceful termination of the worker to occur
+        await asyncio.sleep(0)
+
+        # Cause the ongoing `pull()` invocation in the worker task to raise an
+        # error
+        pull_ret.set_exception(aiohttp.ServerConnectionError('pull error'))
+
+        # verify that the subscriber still shuts down gracefully
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(subscribe_task, 1)
