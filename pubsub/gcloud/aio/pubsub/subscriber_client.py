@@ -26,9 +26,14 @@ SCOPES = [
 ]
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(
+        api_root: Optional[str], api_is_dev: Optional[bool],
+) -> Tuple[bool, str]:
     if api_root:
-        return True, api_root
+        if api_is_dev is None:
+            # Assume a provided API root is dev unless otherwise specified
+            api_is_dev = True
+        return api_is_dev, api_root
 
     host = os.environ.get('PUBSUB_EMULATOR_HOST')
     if host:
@@ -44,9 +49,9 @@ class SubscriberClient:
     def __init__(
             self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
             token: Optional[Token] = None, session: Optional[Session] = None,
-            api_root: Optional[str] = None,
+            api_root: Optional[str] = None, api_is_dev: Optional[bool] = None,
     ) -> None:
-        self._api_is_dev, self._api_root = init_api_root(api_root)
+        self._api_is_dev, self._api_root = init_api_root(api_root, api_is_dev)
 
         self.session = AioSession(session, verify_ssl=not self._api_is_dev)
         self.token = token or Token(
