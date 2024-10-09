@@ -4,10 +4,12 @@ from typing import Optional
 
 
 class DatastoreOperation:
-    def __init__(self, name: str, done: bool,
-                 metadata: Optional[Dict[str, Any]] = None,
-                 error: Optional[Dict[str, str]] = None,
-                 response: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(
+        self, name: str, done: bool,
+        metadata: Optional[Dict[str, Any]] = None,
+        error: Optional[Dict[str, str]] = None,
+        response: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.name = name
         self.done = done
 
@@ -20,8 +22,10 @@ class DatastoreOperation:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'DatastoreOperation':
-        return cls(data['name'], data.get('done', False), data.get('metadata'),
-                   data.get('error'), data.get('response'))
+        return cls(
+            data['name'], data.get('done', False), data.get('metadata'),
+            data.get('error'), data.get('response'),
+        )
 
     def to_repr(self) -> Dict[str, Any]:
         return {

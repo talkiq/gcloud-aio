@@ -1,13 +1,15 @@
 from typing import Any
 from typing import Dict
 
-from gcloud.aio.datastore.constants import Direction
+from .constants import Direction
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#PropertyOrder
 class PropertyOrder:
-    def __init__(self, prop: str,
-                 direction: Direction = Direction.ASCENDING) -> None:
+    def __init__(
+        self, prop: str,
+        direction: Direction = Direction.ASCENDING,
+    ) -> None:
         self.prop = prop
         self.direction = direction
 
@@ -17,7 +19,8 @@ class PropertyOrder:
 
         return bool(
             self.prop == other.prop
-            and self.direction == other.direction)
+            and self.direction == other.direction,
+        )
 
     def __repr__(self) -> str:
         return str(self.to_repr())

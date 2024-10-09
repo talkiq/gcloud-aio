@@ -1,4 +1,4 @@
-import gcloud.aio.storage.blob as blob  # pylint: disable=unused-import
+from gcloud.aio.storage import blob  # pylint: disable=unused-import
 
 
 def test_importable():

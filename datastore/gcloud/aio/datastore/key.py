@@ -5,8 +5,10 @@ from typing import Optional
 
 
 class PathElement:
-    def __init__(self, kind: str, *, id_: Optional[int] = None,
-                 name: Optional[str] = None) -> None:
+    def __init__(
+        self, kind: str, *, id_: Optional[int] = None,
+        name: Optional[str] = None,
+    ) -> None:
         self.kind = kind
 
         self.id = id_
@@ -18,8 +20,10 @@ class PathElement:
         if not isinstance(other, PathElement):
             return False
 
-        return bool(self.kind == other.kind and self.id == other.id
-                    and self.name == other.name)
+        return bool(
+            self.kind == other.kind and self.id == other.id
+            and self.name == other.name,
+        )
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -44,8 +48,10 @@ class PathElement:
 class Key:
     path_element_kind = PathElement
 
-    def __init__(self, project: str, path: List[PathElement],
-                 namespace: str = '') -> None:
+    def __init__(
+        self, project: str, path: List[PathElement],
+        namespace: str = '',
+    ) -> None:
         self.project = project
         self.namespace = namespace
         self.path = path
@@ -54,19 +60,25 @@ class Key:
         if not isinstance(other, Key):
             return False
 
-        return bool(self.project == other.project
-                    and self.namespace == other.namespace
-                    and self.path == other.path)
+        return bool(
+            self.project == other.project
+            and self.namespace == other.namespace
+            and self.path == other.path,
+        )
 
     def __repr__(self) -> str:
         return str(self.to_repr())
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'Key':
-        return cls(data['partitionId']['projectId'],
-                   path=[cls.path_element_kind.from_repr(p)
-                         for p in data['path']],
-                   namespace=data['partitionId'].get('namespaceId', ''))
+        return cls(
+            data['partitionId']['projectId'],
+            path=[
+                cls.path_element_kind.from_repr(p)
+                for p in data['path']
+            ],
+            namespace=data['partitionId'].get('namespaceId', ''),
+        )
 
     def to_repr(self) -> Dict[str, Any]:
         return {

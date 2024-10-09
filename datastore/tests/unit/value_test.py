@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 
 import pytest
@@ -10,20 +9,22 @@ from gcloud.aio.datastore import Value
 
 class TestValue:
     @staticmethod
-    @pytest.mark.parametrize('json_key,json_value', [
-        ('booleanValue', True),
-        ('doubleValue', 34.48),
-        ('integerValue', 8483),
-        ('stringValue', 'foobar'),
-        ('booleanValue', False),
-        ('doubleValue', 0.0),
-        ('integerValue', 0),
-        ('stringValue', ''),
-    ])
+    @pytest.mark.parametrize(
+        'json_key,json_value', [
+            ('booleanValue', True),
+            ('doubleValue', 34.48),
+            ('integerValue', 8483),
+            ('stringValue', 'foobar'),
+            ('booleanValue', False),
+            ('doubleValue', 0.0),
+            ('integerValue', 0),
+            ('stringValue', ''),
+        ],
+    )
     def test_from_repr(json_key, json_value):
         data = {
             'excludeFromIndexes': False,
-            json_key: json_value
+            json_key: json_value,
         }
 
         value = Value.from_repr(data)
@@ -35,7 +36,7 @@ class TestValue:
     def test_from_repr_with_null_value():
         data = {
             'excludeFromIndexes': False,
-            'nullValue': 'NULL_VALUE'
+            'nullValue': 'NULL_VALUE',
         }
 
         value = Value.from_repr(data)
@@ -44,37 +45,52 @@ class TestValue:
         assert value.value is None
 
     @staticmethod
-    @pytest.mark.parametrize('v,expected', [
-        ('1998-07-12T11:22:33.456789000Z',
-         datetime(year=1998, month=7, day=12, hour=11,
-                  minute=22, second=33, microsecond=456789)),
-        ('1998-07-12T11:22:33.456789Z',
-         datetime(year=1998, month=7, day=12, hour=11,
-                  minute=22, second=33, microsecond=456789)),
-        ('1998-07-12T11:22:33.456Z',
-         datetime(year=1998, month=7, day=12, hour=11,
-                  minute=22, second=33, microsecond=456000)),
-        ('1998-07-12T11:22:33',
-         datetime(year=1998, month=7, day=12, hour=11,
-                  minute=22, second=33, microsecond=0)),
-    ])
+    @pytest.mark.parametrize(
+        'v,expected', [
+            (
+                '1998-07-12T11:22:33.456789000Z',
+                datetime(
+                    year=1998, month=7, day=12, hour=11,
+                    minute=22, second=33, microsecond=456789,
+                ),
+            ),
+            (
+                '1998-07-12T11:22:33.456789Z',
+                datetime(
+                    year=1998, month=7, day=12, hour=11,
+                    minute=22, second=33, microsecond=456789,
+                ),
+            ),
+            (
+                '1998-07-12T11:22:33.456Z',
+                datetime(
+                    year=1998, month=7, day=12, hour=11,
+                    minute=22, second=33, microsecond=456000,
+                ),
+            ),
+            (
+                '1998-07-12T11:22:33',
+                datetime(
+                    year=1998, month=7, day=12, hour=11,
+                    minute=22, second=33, microsecond=0,
+                ),
+            ),
+        ],
+    )
     def test_from_repr_with_datetime_value(v, expected):
         data = {
             'excludeFromIndexes': False,
-            'timestampValue': v
+            'timestampValue': v,
         }
 
         value = Value.from_repr(data)
         assert value.value == expected
 
     @staticmethod
-    @pytest.mark.skipif(sys.version_info[0] < 3,
-                        reason='skipping because python2 has same '
-                               'type for str and bytes')
     def test_from_repr_with_blob_value():
         data = {
             'excludedFromIndexed': False,
-            'blobValue': 'Zm9vYmFy'
+            'blobValue': 'Zm9vYmFy',
         }
 
         value = Value.from_repr(data)
@@ -84,7 +100,7 @@ class TestValue:
     def test_from_repr_with_key_value(key):
         data = {
             'excludeFromIndexes': False,
-            'keyValue': key.to_repr()
+            'keyValue': key.to_repr(),
         }
 
         value = Value.from_repr(data)
@@ -95,7 +111,7 @@ class TestValue:
     def test_from_repr_with_geo_point_value(lat_lng):
         data = {
             'excludeFromIndexes': False,
-            'geoPointValue': lat_lng.to_repr()
+            'geoPointValue': lat_lng.to_repr(),
         }
 
         value = Value.from_repr(data)
@@ -114,16 +130,18 @@ class TestValue:
         assert 'excludeFromIndexes' in ex_info.value.args[0]
 
     @staticmethod
-    @pytest.mark.parametrize('v,expected_json_key', [
-        (True, 'booleanValue'),
-        (34.48, 'doubleValue'),
-        (8483, 'integerValue'),
-        ('foobar', 'stringValue'),
-        (False, 'booleanValue'),
-        (0.0, 'doubleValue'),
-        (0, 'integerValue'),
-        ('', 'stringValue'),
-    ])
+    @pytest.mark.parametrize(
+        'v,expected_json_key', [
+            (True, 'booleanValue'),
+            (34.48, 'doubleValue'),
+            (8483, 'integerValue'),
+            ('foobar', 'stringValue'),
+            (False, 'booleanValue'),
+            (0.0, 'doubleValue'),
+            (0, 'integerValue'),
+            ('', 'stringValue'),
+        ],
+    )
     def test_to_repr(v, expected_json_key):
         value = Value(v)
 
@@ -143,8 +161,10 @@ class TestValue:
 
     @staticmethod
     def test_to_repr_with_datetime_value():
-        dt = datetime(year=2018, month=7, day=15, hour=11, minute=22,
-                      second=33, microsecond=456789)
+        dt = datetime(
+            year=2018, month=7, day=15, hour=11, minute=22,
+            second=33, microsecond=456789,
+        )
         value = Value(dt)
 
         r = value.to_repr()
@@ -152,9 +172,6 @@ class TestValue:
         assert r['timestampValue'] == '2018-07-15T11:22:33.456789000Z'
 
     @staticmethod
-    @pytest.mark.skipif(sys.version_info[0] < 3,
-                        reason='skipping because python2 has same '
-                               'type for str and bytes')
     def test_to_repr_with_blob_value():
         value = Value(b'foobar')
 

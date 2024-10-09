@@ -1,0 +1,32 @@
+{
+  "assignees": ["TheKevJames"],
+  "extends": [
+    "github>thekevjames/tools",
+    "github>thekevjames/tools:trustedpackages"
+  ],
+  "packageRules": [
+    {
+      // only autoupdate python patches, we'll handle minors more explicitly
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false,
+    },
+    {
+      "matchDepTypes": ["dependencies"],
+      "rangeStrategy": "widen",
+    },
+    {
+      "matchDepTypes": ["dev", "devDependencies"],
+      "rangeStrategy": "pin",
+      "automerge": true,
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": "before 1pm on monday"
+  },
+}

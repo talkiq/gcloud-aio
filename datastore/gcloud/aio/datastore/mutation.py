@@ -2,7 +2,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from gcloud.aio.datastore.key import Key
+from .key import Key
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit#Mutation
@@ -15,8 +15,10 @@ class Mutation:
 class MutationResult:
     key_kind = Key
 
-    def __init__(self, key: Optional[Key], version: str,
-                 conflict_detected: bool) -> None:
+    def __init__(
+        self, key: Optional[Key], version: str,
+        conflict_detected: bool,
+    ) -> None:
         self.key = key
         self.version = version
         self.conflict_detected = conflict_detected
@@ -43,7 +45,7 @@ class MutationResult:
     def to_repr(self) -> Dict[str, Any]:
         data = {
             'version': self.version,
-            'conflictDetected': self.conflict_detected
+            'conflictDetected': self.conflict_detected,
         }
         if self.key:
             data['key'] = self.key.to_repr()

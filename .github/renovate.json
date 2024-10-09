@@ -1,8 +1,0 @@
-{
-  "assignees": ["TheKevJames"],
-  "extends": ["github>thekevjames/tools"],
-  "packageRules": [{
-    "managers": ["pip_requirements"],
-    "rangeStrategy": "widen"
-  }]
-}

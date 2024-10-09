@@ -1,4 +1,4 @@
-import gcloud.aio.auth.iam as iam  # pylint: disable=unused-import
+from gcloud.aio.auth import iam  # pylint: disable=unused-import
 
 
 def test_importable():

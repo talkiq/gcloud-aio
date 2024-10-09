@@ -1,12 +1,16 @@
+import importlib.metadata
 import logging
 import threading
+import warnings
 from abc import ABCMeta
 from abc import abstractmethod
 from abc import abstractproperty
 from typing import Any
-from typing import Dict
+from typing import AnyStr
 from typing import IO
+from typing import Mapping
 from typing import Optional
+from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
 
@@ -15,8 +19,8 @@ if BUILD_GCLOUD_REST:
     from requests import Response
     from requests import Session
 else:
-    from aiohttp import ClientResponse as Response  # type: ignore[no-redef]
-    from aiohttp import ClientSession as Session  # type: ignore[no-redef]
+    from aiohttp import ClientResponse as Response  # type: ignore[assignment]
+    from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
 
 log = logging.getLogger(__name__)
@@ -25,49 +29,72 @@ log = logging.getLogger(__name__)
 class BaseSession:
     __metaclass__ = ABCMeta
 
-    def __init__(self, session: Optional[Session] = None, timeout: int = 10,
-                 verify_ssl: bool = True) -> None:
+    def __init__(
+        self, session: Optional[Session] = None, timeout: float = 10,
+        verify_ssl: bool = True,
+    ) -> None:
         self._shared_session = bool(session)
         self._session = session
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty
+    @abstractproperty  # pylint: disable=deprecated-decorator
     def session(self) -> Optional[Session]:
         return self._session
 
     @abstractmethod
-    async def post(self, url: str, headers: Dict[str, str],
-                   data: Optional[str], timeout: int,
-                   params: Optional[Dict[str, str]]) -> Response:
+    async def post(
+        self, url: str, headers: Mapping[str, str],
+        data: Optional[Union[bytes, str, IO[AnyStr]]], timeout: float,
+        params: Optional[Mapping[str, Union[int, str]]],
+    ) -> Response:
         pass
 
     @abstractmethod
-    async def get(self, url: str, headers: Optional[Dict[str, str]],
-                  timeout: int, params: Optional[Dict[str, str]],
-                  stream: bool) -> Response:
+    async def get(
+        self, url: str, headers: Optional[Mapping[str, str]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
+        stream: bool,
+        auto_decompress: bool,
+    ) -> Response:
         pass
 
     @abstractmethod
-    async def patch(self, url: str, headers: Dict[str, str],
-                    data: Optional[str], timeout: int,
-                    params: Optional[Dict[str, str]]) -> Response:
+    async def patch(
+        self, url: str, headers: Mapping[str, str],
+        data: Optional[Union[bytes, str]], timeout: float,
+        params: Optional[Mapping[str, Union[int, str]]],
+    ) -> Response:
         pass
 
     @abstractmethod
-    async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                  timeout: int) -> Response:
+    async def put(
+        self, url: str, headers: Mapping[str, str],
+        data: Union[bytes, str, IO[Any]], timeout: float,
+    ) -> Response:
         pass
 
     @abstractmethod
-    async def delete(self, url: str, headers: Dict[str, str],
-                     params: Dict[str, str], timeout: int) -> Response:
+    async def delete(
+        self, url: str, headers: Mapping[str, str],
+        params: Optional[Mapping[str, Union[int, str]]],
+        timeout: float,
+    ) -> Response:
         pass
 
     @abstractmethod
-    async def request(self, method: str, url: str, headers: Dict[str, str],
-                      auto_raise_for_status: bool = True,
-                      **kwargs: Any) -> Response:
+    async def head(
+        self, url: str, headers: Optional[Mapping[str, str]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
+        allow_redirects: bool,
+    ) -> Response:
+        pass
+
+    @abstractmethod
+    async def request(
+        self, method: str, url: str, headers: Mapping[str, str],
+        auto_raise_for_status: bool = True, **kwargs: Any,
+    ) -> Response:
         pass
 
     @abstractmethod
@@ -75,8 +102,11 @@ class BaseSession:
         pass
 
 
+# pylint: disable=too-complex
 if not BUILD_GCLOUD_REST:
     import aiohttp
+
+    Timeout = Union[aiohttp.ClientTimeout, float]
 
     async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
@@ -101,87 +131,177 @@ if not BUILD_GCLOUD_REST:
             # Google's error messages are useful, pass 'em through
             body = await resp.text(errors='replace')
             resp.release()
-            raise aiohttp.ClientResponseError(resp.request_info, resp.history,
-                                              status=resp.status,
-                                              message=f'{resp.reason}: {body}',
-                                              headers=resp.headers)
+            raise aiohttp.ClientResponseError(
+                resp.request_info, resp.history,
+                status=resp.status,
+                message=f'{resp.reason}: {body}',
+                headers=resp.headers,
+            )
 
     class AioSession(BaseSession):
+        _session: aiohttp.ClientSession  # type: ignore[assignment]
+        _timeout: Timeout  # type: ignore[assignment]
+
+        # N.B. `aiohttp.TCPConnector` SSL config is not true / false / CA
+        # bundle path like `requests`, but `None` / false / object instead:
+        # * `None` for default SSL check
+        # * `False` to skip SSL certificate validation
+        # * `aiohttp.Fingerprint` for fingerprint validation
+        # * `ssl.SSLContext` for custom SSL certificate validation
+        #
+        # https://docs.aiohttp.org/en/v3.9.1/client_reference.html#aiohttp.TCPConnector
         @property
-        def session(self) -> aiohttp.ClientSession:
+        def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
-                connector = aiohttp.TCPConnector(ssl=self._ssl)
-                timeout = aiohttp.ClientTimeout(self._timeout)
-                self._session = aiohttp.ClientSession(connector=connector,
-                                                      timeout=timeout)
+                ssl_flag: Optional[bool] = False
+                if self._ssl:
+                    aiohttp_version = importlib.metadata.version('aiohttp')
+                    major, minor, patch = aiohttp_version.split('.')
+                    if int(major) > 3 or int(minor) > 9 or int(patch) > 1:
+                        ssl_flag = True
+                    else:
+                        # TODO: drop when min supported aiohttp is 3.9.2
+                        ssl_flag = None
+
+                connector = aiohttp.TCPConnector(
+                    ssl=ssl_flag)  # type: ignore[arg-type]
+
+                if isinstance(self._timeout, aiohttp.ClientTimeout):
+                    timeout = self._timeout
+                else:
+                    timeout = aiohttp.ClientTimeout(total=self._timeout)
+
+                self._session = aiohttp.ClientSession(
+                    connector=connector,
+                    timeout=timeout,
+                )
             return self._session
 
-        async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
-                       params: Optional[Dict[str, str]] = None
-                       ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
-            resp = await self.session.post(url, data=data, headers=headers,
-                                           timeout=timeout_, params=params)
+        async def post(  # type: ignore[override]
+            self, url: str,
+            headers: Mapping[str, str],
+            data: Optional[Union[bytes, str, IO[AnyStr]]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
+            resp = await self.session.post(
+                url, data=data, headers=headers,
+                timeout=timeout, params=params,
+            )
             await _raise_for_status(resp)
             return resp
 
-        async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                      timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None,
-                      stream: Optional[bool] = None) -> aiohttp.ClientResponse:
+        async def get(  # type: ignore[override]
+            self, url: str,
+            headers: Optional[Mapping[str, str]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            stream: Optional[bool] = None,
+            auto_decompress: bool = True,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
             if stream is not None:
-                log.warning('passed unused argument stream=%s to AioSession: '
-                            'this argument is only used by SyncSession',
-                            stream)
-            timeout_ = aiohttp.ClientTimeout(timeout)
-            resp = await self.session.get(url, headers=headers,
-                                          timeout=timeout_, params=params)
+                log.warning(
+                    'passed unused argument stream=%s to AioSession: '
+                    'this argument is only used by SyncSession',
+                    stream,
+                )
+            resp = await self.session.get(
+                url, headers=headers,
+                timeout=timeout, params=params,
+                auto_decompress=auto_decompress,
+            )
             await _raise_for_status(resp)
             return resp
 
-        async def patch(self, url: str, headers: Dict[str, str],
-                        data: Optional[str] = None, timeout: int = 10,
-                        params: Optional[Dict[str, str]] = None
-                        ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
-            resp = await self.session.patch(url, data=data, headers=headers,
-                                            timeout=timeout_, params=params)
+        async def patch(  # type: ignore[override]
+            self, url: str, headers: Mapping[str, str],
+            data: Optional[Union[bytes, str]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
+            resp = await self.session.patch(
+                url, data=data, headers=headers,
+                timeout=timeout, params=params,
+            )
             await _raise_for_status(resp)
             return resp
 
-        async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
-            resp = await self.session.put(url, data=data, headers=headers,
-                                          timeout=timeout_)
+        async def put(  # type: ignore[override]
+            self, url: str,
+            headers: Mapping[str, str], data: Union[bytes, str, IO[Any]],
+            timeout: Timeout = 10,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
+            resp = await self.session.put(
+                url, data=data, headers=headers,
+                timeout=timeout,
+            )
             await _raise_for_status(resp)
             return resp
 
-        async def delete(self, url: str, headers: Dict[str, str],
-                         params: Optional[Dict[str, str]] = None,
-                         timeout: int = 10
-                         ) -> aiohttp.ClientResponse:
-            timeout_ = aiohttp.ClientTimeout(timeout)
-            resp = await self.session.delete(url, headers=headers,
-                                             params=params, timeout=timeout_)
+        async def delete(  # type: ignore[override]
+            self, url: str,
+            headers: Mapping[str, str],
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            timeout: Timeout = 10,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
+            resp = await self.session.delete(
+                url, headers=headers,
+                params=params, timeout=timeout,
+            )
             await _raise_for_status(resp)
             return resp
 
-        async def request(self, method: str, url: str, headers: Dict[str, str],
-                          auto_raise_for_status: bool = True, **kwargs: Any
-                          ) -> aiohttp.ClientResponse:
-            resp = await self.session.request(method, url, headers=headers,
-                                              **kwargs)
+        async def head(  # type: ignore[override]
+            self, url: str,
+            headers: Optional[Mapping[str, str]] = None,
+            timeout: Timeout = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> aiohttp.ClientResponse:
+            if not isinstance(timeout, aiohttp.ClientTimeout):
+                timeout = aiohttp.ClientTimeout(total=timeout)
+
+            resp = await self.session.head(
+                url, headers=headers,
+                params=params, timeout=timeout,
+                allow_redirects=allow_redirects,
+            )
+            await _raise_for_status(resp)
+            return resp
+
+        async def request(  # type: ignore[override]
+            self, method: str,
+            url: str, headers: Mapping[str, str],
+            auto_raise_for_status: bool = True,
+            **kwargs: Any,
+        ) -> aiohttp.ClientResponse:
+            resp = await self.session.request(
+                method, url, headers=headers, **kwargs,
+            )
             if auto_raise_for_status:
                 await _raise_for_status(resp)
             return resp
 
         async def close(self) -> None:
             if not self._shared_session and self._session:
-                await self._session.close()  # type: ignore[func-returns-value]
+                await self._session.close()
 
-
+# pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
@@ -200,58 +320,104 @@ if BUILD_GCLOUD_REST:
         # N.B.: none of these will be `async` in compiled form, but adding the
         # symbol ensures we match the base class's definition for static
         # analysis.
-        async def post(self, url: str, headers: Dict[str, str],
-                       data: Optional[str] = None, timeout: int = 10,
-                       params: Optional[Dict[str, str]] = None) -> Response:
+        async def post(
+            self, url: str, headers: Mapping[str, str],
+            data: Optional[Union[bytes, str, IO[AnyStr]]] = None,
+            timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+        ) -> Response:
             with self.google_api_lock:
-                resp = self.session.post(url, data=data, headers=headers,
-                                         timeout=timeout, params=params)
+                resp = self.session.post(
+                    url, data=data, headers=headers,
+                    timeout=timeout, params=params,
+                )
             resp.raise_for_status()
             return resp
 
-        async def get(self, url: str, headers: Optional[Dict[str, str]] = None,
-                      timeout: int = 10,
-                      params: Optional[Dict[str, str]] = None,
-                      stream: bool = False) -> Response:
+        async def get(
+            self, url: str, headers: Optional[Mapping[str, str]] = None,
+            timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            stream: bool = False,
+            auto_decompress: bool = True,
+        ) -> Response:
+            if not auto_decompress and not stream:
+                warnings.warn(
+                    'the requests library always decompresses responses when '
+                    'outside of streaming mode; when auto_decompress is '
+                    'False, stream = True must also be set',
+                    UserWarning,
+                )
+                stream = True
+
             with self.google_api_lock:
-                resp = self.session.get(url, headers=headers, timeout=timeout,
-                                        params=params, stream=stream)
+                resp = self.session.get(
+                    url, headers=headers, timeout=timeout,
+                    params=params, stream=stream,
+                )
             resp.raise_for_status()
             return resp
 
-        async def patch(self, url: str, headers: Dict[str, str],
-                        data: Optional[str] = None, timeout: int = 10,
-                        params: Optional[Dict[str, str]] = None) -> Response:
+        async def patch(
+            self, url: str, headers: Mapping[str, str],
+            data: Optional[Union[bytes, str]] = None, timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+        ) -> Response:
             with self.google_api_lock:
-                resp = self.session.patch(url, data=data, headers=headers,
-                                          timeout=timeout, params=params)
+                resp = self.session.patch(
+                    url, data=data, headers=headers,
+                    timeout=timeout, params=params,
+                )
             resp.raise_for_status()
             return resp
 
-        async def put(self, url: str, headers: Dict[str, str], data: IO[Any],
-                      timeout: int = 10) -> Response:
+        async def put(
+            self, url: str, headers: Mapping[str, str],
+            data: Union[bytes, str, IO[Any]], timeout: float = 10,
+        ) -> Response:
             with self.google_api_lock:
-                resp = self.session.put(url, data=data, headers=headers,
-                                        timeout=timeout)
+                resp = self.session.put(
+                    url, data=data, headers=headers,
+                    timeout=timeout,
+                )
             resp.raise_for_status()
             return resp
 
-        async def delete(self, url: str, headers: Dict[str, str],
-                         params: Optional[Dict[str, str]] = None,
-                         timeout: int = 10
-                         ) -> Response:
+        async def delete(
+            self, url: str, headers: Mapping[str, str],
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            timeout: float = 10,
+        ) -> Response:
             with self.google_api_lock:
-                resp = self.session.delete(url, params=params, headers=headers,
-                                           timeout=timeout)
+                resp = self.session.delete(
+                    url, params=params, headers=headers,
+                    timeout=timeout,
+                )
             resp.raise_for_status()
             return resp
 
-        async def request(self, method: str, url: str, headers: Dict[str, str],
-                          auto_raise_for_status: bool = True, **kwargs: Any
-                          ) -> Response:
+        async def head(
+            self, url: str, headers: Optional[Mapping[str, str]] = None,
+            timeout: float = 10,
+            params: Optional[Mapping[str, Union[int, str]]] = None,
+            allow_redirects: bool = False,
+        ) -> Response:
             with self.google_api_lock:
-                resp = self.session.request(method, url, headers=headers,
-                                            **kwargs)
+                resp = self.session.head(
+                    url, params=params, headers=headers,
+                    timeout=timeout, allow_redirects=allow_redirects,
+                )
+            resp.raise_for_status()
+            return resp
+
+        async def request(
+            self, method: str, url: str, headers: Mapping[str, str],
+            auto_raise_for_status: bool = True, **kwargs: Any,
+        ) -> Response:
+            with self.google_api_lock:
+                resp = self.session.request(
+                    method, url, headers=headers, **kwargs,
+                )
             if auto_raise_for_status:
                 resp.raise_for_status()
             return resp

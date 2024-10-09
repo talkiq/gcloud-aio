@@ -1,6 +1,13 @@
+ci:
+    autofix_commit_msg: 'refactor(lint): apply automatic lint fixes'
+    autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
+
+default_language_version:
+    python: python3.8
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.6.0
     hooks:
     -   id: check-case-conflict
     -   id: check-executables-have-shebangs
@@ -28,120 +35,166 @@ repos:
     -   id: double-quote-string-fixer
     -   id: name-tests-test
     -   id: requirements-txt-fixer
--   repo: https://github.com/pycqa/pylint
-    rev: v2.8.2
+-   repo: https://github.com/PyCQA/pylint
+    rev: v3.2.7
     hooks:
+    # TODO: re-enable pylint-import-modules when it supports pylint v3
     -   id: pylint
-        additional_dependencies:
-        # TODO: >0.2.0
-        - git+https://github.com/bayesimpact/pylint_import_modules@016f79e4d2
         args:
-        - --allowed-direct-imports="typing.*"
-        - --load-plugins=pylint_import_modules
+        - --load-plugins=pylint.extensions.mccabe
+        - --max-complexity=10
         - --max-line-length=79
         - --max-args=10
         - --score=n
         - -d broad-except
+        - -d broad-exception-raised  # TODO: fixme
         - -d duplicate-code
         - -d fixme
         - -d import-error
-        - -d import-only-modules
         - -d invalid-name
         - -d locally-disabled
         - -d missing-docstring
         - -d too-few-public-methods
-        - -d too-many-arguments
+        - -d too-many-arguments  # we generally match args to the Google APIs
+        - -d try-except-raise
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.10
+    rev: v1.5.5
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.13.0
     hooks:
     -   id: reorder-python-imports
-        args: [--py26-plus]
+        args: [--py38-plus]
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py38-plus]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910
+    rev: v1.11.2
     hooks:
     -   &mypy
         id: mypy
         name: mypy-auth
-        entry: env MYPYPATH=./stubs mypy
         require_serial: True
+        # N.B. mypy requires an installed version of whatever third-party
+        # library it is asked to check against. In practice, that means
+        # whenever we see an error telling us to do so, we should add the
+        # relevant library to `additional_dependencies`.
+        # Note that some libraries keep their type hints in packages named
+        # `types-$lib` or `$lib-stubs`.
         additional_dependencies:
+        - aiohttp
+        - backoff
         - types-cryptography
         - types-jwt
-        - types-pkg_resources
         - types-requests
         args:
-        - --ignore-missing-imports
-        - --follow-imports=silent
         - --show-error-codes
         - --strict
         - --strict-equality
         - --warn-unreachable
         files: auth/
-        exclude: (tests/.*)|(noxfile.py)
+        exclude: tests/
     -   <<: *mypy
         name: mypy-bigquery
         additional_dependencies:
-        - types-pkg_resources
+        - aiohttp
+        - gcloud-aio-auth
         - types-requests
         files: bigquery/
     -   <<: *mypy
         name: mypy-datastore
         additional_dependencies:
-        - types-pkg_resources
+        - aiohttp
+        - gcloud-aio-auth
         - types-requests
         files: datastore/
     -   <<: *mypy
         name: mypy-kms
         additional_dependencies:
-        - types-pkg_resources
+        - aiohttp
+        - gcloud-aio-auth
         - types-requests
         files: kms/
     -   <<: *mypy
         name: mypy-pubsub
         additional_dependencies:
-        - types-pkg_resources
+        - aiohttp
+        - gcloud-aio-auth
+        - prometheus-client
         - types-requests
         files: pubsub/
     -   <<: *mypy
         name: mypy-storage
         additional_dependencies:
+        - aiohttp
+        - gcloud-aio-auth>=5.3.0
+        - rsa
         - types-aiofiles
-        - types-pkg_resources
         - types-requests
         files: storage/
     -   <<: *mypy
         name: mypy-taskqueue
         additional_dependencies:
-        - types-pkg_resources
+        - aiohttp
+        - gcloud-aio-auth
         - types-requests
         files: taskqueue/
 -   repo: https://github.com/asottile/yesqa
-    rev: v1.2.3
+    rev: v1.5.0
     hooks:
     -   id: yesqa
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+        # N.B. keep these in sync with flake8, otherwise yesqa will remove
+        # required noqa's related to these plugins
+        additional_dependencies: &flake8deps
+        - flake8-2020==1.8.1
+        - flake8-broken-line==1.0.0
+        - flake8-builtins==2.1.0
+        - flake8-commas==2.1.0
+        - flake8-comprehensions==3.13.0
+-   repo: https://github.com/hhatto/autopep8
+    rev: v2.3.1
+    hooks:
+    -   id: autopep8
+        args: [-a, -i, -p2]
+-   repo: https://github.com/PyCQA/flake8
+    rev: 7.1.1
     hooks:
     -   id: flake8
+        additional_dependencies: *flake8deps
         args:
         - --ignore=E501,W503,F401,F811
 -   repo: local
     hooks:
-    -   id: pytest-fixture-require-scope
-        name: Require explicit scope for pytest fixtures
+    -   id: poetry-check
+        name: check pyproject.toml validity
+        description: 'Validate the structure of the pyproject.toml file'
+        entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
+        language: python
+        additional_dependencies:
+        - poetry>=1.2.0
+        pass_filenames: true
+        files: 'pyproject\.toml$'
+    -   id: poetry-use-version-ranges
+        name: avoid using carets for version ranges
+        description: 'Avoid using carets for version ranges'
+        entry: '\^'
+        language: pygrep
+        types: [toml]
+        files: 'pyproject.toml$'
+    -   id: pytest-fixtures-require-scope
+        name: ensure pytest fixture scopes are explicitly set
         description: 'Ensure we explicitly set pytest fixture scopes'
         entry: '@pytest\.fixture( |\n|(\(\)))'
         language: pygrep
         types: [python]
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
     -   id: python-no-eval
     -   id: python-no-log-warn
@@ -151,3 +204,12 @@ repos:
     -   id: rst-backticks
     -   id: rst-directive-colons
     -   id: rst-inline-touching-normal
+
+# json
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.29.3
+  hooks:
+    - id: check-github-workflows
+    - id: check-renovate
+      additional_dependencies:
+      - pyjson5

@@ -1,123 +1,142 @@
 version: 2.1
 
 orbs:
-  linter: talkiq/linter@1
-  tester: talkiq/tester@3.0
+  linter: talkiq/linter@4
+  poetry: talkiq/poetry@4
+
+executors:
+  python38:
+    docker:
+      - image: python:3.8.19
+    resource_class: small
+
+  python39:
+    docker:
+      - image: python:3.9.19
+    resource_class: small
+
+  python310:
+    docker:
+      - image: python:3.10.14
+    resource_class: small
+
+  python311:
+    docker:
+      - image: python:3.11.9
+    resource_class: small
+
+  python312:
+    docker:
+      - image: python:3.12.5
+    resource_class: small
+
+  python-integration:
+    docker:
+      - image: python:3.12.5
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    resource_class: small
+
+commands:
+  store-rest:
+    description: >
+      Stores the files created by `bin/build-rest` for use in subsequent jobs.
+      Also uploads the artifacts to CircleCI for manual debugging.
+    steps:
+      - persist_to_workspace:
+          root: ./build
+          paths:
+          - ./*
+      - run:
+          name: build gcloud-rest tarballs
+          command: |
+            mkdir rest
+            tar cf rest/auth.tgz auth
+            tar cf rest/bigquery.tgz bigquery
+            tar cf rest/datastore.tgz datastore
+            tar cf rest/kms.tgz kms
+            tar cf rest/pubsub.tgz pubsub
+            tar cf rest/storage.tgz storage
+            tar cf rest/taskqueue.tgz taskqueue
+          working_directory: build
+      - store_artifacts:
+          path: ./build/rest/
 
 jobs:
-  nox:
-    docker:
-      - image: thekevjames/nox:2021.10.1
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /key.json
-    parameters:
-      folder:
-        type: string
+  build-rest:
+    executor: python312
     steps:
-      - run: |
-          apt-get -qy update
-          apt-get -qy install libssl-dev
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+      - poetry/install
       - checkout
-      - run: nox -f <<parameters.folder>>/noxfile.py
+      - run: ./bin/build-rest
+      - store-rest
 
-  nox-rest:
-    docker:
-      - image: thekevjames/nox:2021.10.1
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /key.json
+  # Inspired by poetry/publish, the addition of `basedir` is meant to support
+  # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
+  # path which breaks the tag filter).
+  poetry-publish-workspace:
+    executor: python312
     parameters:
-      folder:
+      basedir:
+        enum: [/rest, /root/project]
+        type: enum
+      cwd:
         type: string
     steps:
-      - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > ${GOOGLE_APPLICATION_CREDENTIALS}
+      - poetry/install
+      - checkout
       - attach_workspace:
-          at: rest
-      - run: python3 -m pip install future==0.18.2
-      - run: nox -f rest/<<parameters.folder>>/noxfile.py
+          at: /rest
+      - run:
+          command: |
+            suffix=$(if [ <<parameters.basedir>> = "/rest" ]; then echo "REST"; else echo "AIO"; fi)
+            token=$(printenv | grep -i PYPI_TOKEN_GCLOUD_$(echo $suffix)_<<parameters.cwd>> | awk -F= '{ print $2 }')
+            echo "export POETRY_PYPI_TOKEN_PYPI=$token" >> "$BASH_ENV"
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
+      - run:
+          command: poetry build
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
+      - run:
+          command: poetry publish
+          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    docker:
-      - image: python:3.9.8
+    executor: python312
     steps:
-      - run: pip install pdoc3
-      - run:
-          name: patch pdoc
-          command: |
-            sed -i -re 's/(at 0x\\.*)$/\1\n            else:\n                from enum import Enum\n                if isinstance(p.default, Enum):\n                    replacement = str(p.default)/' /usr/local/lib/python3.9/site-packages/pdoc/__init__.py
+      - run: pip install sphinx sphinx-autoapi sphinx-sizzle-theme
       - checkout
-      - attach_workspace:
-          at: rest
-      - run:
-          name: install all sub-projects (aio)
-          command: |
-            pip install ./auth
-            pip install ./bigquery
-            pip install ./datastore
-            pip install ./kms
-            pip install ./pubsub
-            pip install ./storage
-            pip install ./taskqueue
-      - run:
-          name: install all sub-projects (rest)
-          command: |
-            cd rest/
-            pip install ./auth
-            pip install ./bigquery
-            pip install ./datastore
-            pip install ./kms
-            pip install ./pubsub
-            pip install ./storage
-            pip install ./taskqueue
-      - run: pdoc --html -o ./docs gcloud
+      # TODO: generate gcloud-rest-* docs
+      # - attach_workspace:
+      #     at: rest
+      # TODO: add -W after fixing build issues
+      - run: sphinx-build -b html --keep-going . build/docs/
+      # https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
+      # Uploading /root/project/build/docs/.nojekyll: SKIPPED, file is empty
+      - run: echo " " > build/docs/.nojekyll
       - persist_to_workspace:
-          root: docs
-          paths: gcloud
+          root: ./build
+          paths:
+          - ./docs
+      - store_artifacts:
+          path: ./build/docs/
 
   pages:
     docker:
-      - image: node:17.1.0
+      - image: node:22.9.0
     steps:
       - checkout
       - attach_workspace:
-          at: docs
-      - run: npm install -g --silent gh-pages@2.0.1
-      - run:
-          name: configure git creds
-          command: |
-            git config user.email "voiceai-eng+ci@dialpad.com"
-            git config user.name "Vi Eng (CI)"
+          at: build
+      - run: npm install -g --silent gh-pages@6.0.0
       - add_ssh_keys:
           fingerprints:
             - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      - run: gh-pages --message "[skip ci] updated docs" --dist docs/gcloud
-
-  pypi:
-    docker:
-      - image: python:3.9.8-slim
-    steps:
-      - run: pip install pyopenssl==19.0.0 twine==1.14.0
-      - checkout
-      - deploy:
-          name: upload to pypi
-          command: |
-            cd "${CIRCLE_TAG%-*}"
-            python setup.py sdist bdist_wheel
-            twine upload dist/*
-
-  pypi-rest:
-    docker:
-      - image: python:3.9.8-slim
-    steps:
-      - run: pip install future==0.18.2 pyopenssl==19.0.0 twine==1.14.0
-      - attach_workspace:
-          at: rest
-      - deploy:
-          name: upload to pypi
-          command: |
-            cd "rest/${CIRCLE_TAG%-*}"
-            python setup.py sdist bdist_wheel
-            twine upload dist/*
+      # https://github.com/tschaub/gh-pages/issues/354
+      - run: mkdir ./tmp-gh-pages
+      - run:
+          command: gh-pages -u "Vi Eng CI <voiceai-eng+ci@dialpad.com>" -m "[skip ci] updated docs" -td build/docs/
+          environment:
+            CACHE_DIR: ./tmp-gh-pages
 
   github:
     docker:
@@ -139,109 +158,98 @@ jobs:
             git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' | grep "${PROJECT}" >> CHANGELOG.md ||:
       - run: hub release create -FCHANGELOG.md "${CIRCLE_TAG}"
 
-  py3to2:
-    docker:
-      - image: python:3.9.8-slim
-    steps:
-      - checkout
-      - run: pip install -r requirements.txt
-
-      # Remove caches and config directories
-      - run: find . -exec dirname {} \; | sort -u | grep -E '/\..*' | xargs -L1 rm -rf
-
-      # Rename files and paths to `rest` and make strings py2 compatible
-      - run: find . -path '*aio*' -exec dirname {} \; | sed 's/aio/rest/g' | xargs -L1 mkdir -p
-      - run: for file in $(find . -type f -path '*aio*'); do mv $file ${file//aio/rest}; done
-
-      # For some files with conflicts due to unicode encoding in py2, do not use
-      # the automated string conversion tools
-      - run: for file in $(find . -type f -path '*py' | grep -E "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; cp $file $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Skipped formatting ${new_file}"; done
-      - run: for file in $(find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | sort -u); do new_file=${file//aio/rest}; temp_file="${new_file}.bkp"; future-fstrings-show $file > $temp_file; strip-hints $temp_file > "${temp_file}.tmp"; mv "${temp_file}.tmp" $new_file; rm $temp_file; echo "Formatting ${new_file}"; done
-
-      # Remove the files with `aio` in file names (we moved all required files
-      # already)
-      - run: find . -type f -path '*aio*' | xargs -L1 rm -rf
-
-      # Replace build metadata
-      - run: find . -type f | xargs -L1 sed -Ei 's/gcloud(.)aio/gcloud\1rest/g'
-      - run: find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/python_requires='>= 3\.6'/python_requires='>= 2\.7,!=3\.0\.\*,!=3\.1\.\*,!=3\.2\.\*,!=3\.3\.\*'/g"
-      - run: >-
-          find . -type f | grep "setup\.py$" | xargs -L1 sed -Ei "s/classifiers=\[/classifiers=\['Programming Language :: Python :: 2','Programming Language :: Python :: 2.7','Programming Language :: Python :: 3.4','Programming Language :: Python :: 3.5',/g"
-
-      # Backport other things like type hints, exception handling, etc.
-      - run: find . -type f -path '*py' | grep -Ev "datastore.*(value|constants|value_types_test|value_test)\.py$" | xargs -L1 pasteurize --nobackups --write
-      # Delete imports that will be reintroduced later
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei '/import warnings/d'
-      # https://github.com/PythonCharmers/python-future/issues/551
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/^(.*)from future import standard_library/\1import warnings\n\1with warnings.catch_warnings():\n\1    warnings.simplefilter("ignore")\n\1    from future import standard_library/g'
-
-      # Add object class inheritence where needed for python2
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(class\s\w+):/\1(object):/g'
-
-      # Physically update files to remove incompatible syntax
-      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/aiohttp/# aiohttp/g'
-      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/aiofiles/# aiofiles/g'
-      - run: find . -type f -path '*requirements.txt' | xargs -L1 sed -Ei 's/# requests/requests/g'
-      - run: find . -type f | grep -v "session.py" | xargs -L1 sed -Ei 's/AioSession/SyncSession/g'
-      - run: find . -type f | xargs -L1 sed -Ei 's/asyncio.ensure_future(.*)/\1/g'
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/(async|await) //g'
-      - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
-      - run: find . -type f -path '*tests/*' | xargs -L1 sed -Ei 's/Session\(.*\)\sas/Session() as/g'
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/urllib/six.moves.urllib/g'
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aenter__/__enter__/g'
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/__aexit__/__exit__/g'
-      # aiohttp vs requests
-      - run: find . -type f -path '*py' | xargs -L1 sed -Ei 's/content_type=None//g'
-
-      # Update the nox files
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/'aiohttp',//g"
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/,\s*'pytest-asyncio'//g"
-      ## unit tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.6'/python=\['2.7', '3.5', '3.6'/g"
-      ## integration tests
-      - run: find . -type f -path '*noxfile.py' | xargs -L1 sed -Ei "s/python=\['3.9'/python=\['2.7', '3.9'/g"
-
-      # Persist updated files in a workspace for tests & package deployment
-      - persist_to_workspace:
-          root: .
-          paths:
-          - ./*
-
-      # Store tarballs of each ``rest`` package for local verification
-      - run: |
-          mkdir rest
-          tar cf rest/auth.tgz auth
-          tar cf rest/bigquery.tgz bigquery
-          tar cf rest/datastore.tgz datastore
-          tar cf rest/kms.tgz kms
-          tar cf rest/pubsub.tgz pubsub
-          tar cf rest/storage.tgz storage
-          tar cf rest/taskqueue.tgz taskqueue
-      - store_artifacts:
-          path: ./rest/
-
 workflows:
   run-jobs:
     jobs:
-      # build `-aio-*` -> `-rest-*`
-      - py3to2:
-          name: build-rest
+      # build gcloud-rest-*
+      - build-rest:
           filters:
             tags:
               only: /.*/
 
+      # run linters
       - linter/pre-commit:
-          python_version: 3.8.6  # TODO: https://github.com/PyCQA/pylint/issues/3882
+          # N.B. keep this pinned to the oldest 3.x to make sure we maintain
+          # support.
+          executor: python38
           filters:
             tags:
               only: /.*/
 
-      - tester/pipcheck:
-          python_version: 3.9.0
+      # run tests
+      - poetry/run:
+          name: test-unit-/aio/<<matrix.cwd>>-<<matrix.executor>>
+          commands:
+            - run:
+                command: poetry run pytest tests/unit
+                working_directory: <<matrix.cwd>>
+          install_flags: --no-ansi
           matrix:
-            alias: pipcheck
+            alias: test-unit-aio
             parameters:
-              install_args: [auth/, bigquery/, datastore/, kms/, pubsub/, storage/, taskqueue/]
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
+              executor: [python38, python39, python310, python311, python312]
+          filters:
+            tags:
+              only: /.*/
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
+          pre-steps:
+            - run: echo "${GOOGLE_SERVICE_PUBLIC}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-integration-aio
+            parameters:
+              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
+          filters:
+            tags:
+              only: /.*/
+      - poetry/run:
+          name: test-unit-<<matrix.cwd>>-<<matrix.executor>>
+          commands:
+            - run:
+                command: poetry run pytest tests/unit
+                working_directory: <<matrix.cwd>>
+          install_flags: --no-ansi
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          matrix:
+            alias: test-unit-rest
+            parameters:
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
+              executor: [python38, python39, python310, python311, python312]
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
+      - poetry/run:
+          name: test-integration-<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
+          pre-steps:
+            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - attach_workspace:
+                at: /rest
+          matrix:
+            alias: test-integration-rest
+            parameters:
+              cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-rest
 
       # build docs
       - docs:
@@ -250,8 +258,6 @@ workflows:
               only: /master/
             tags:
               ignore: /.*/
-          requires:
-            - build-rest
       - pages:
           filters:
             branches:
@@ -261,65 +267,38 @@ workflows:
           requires:
             - docs
 
-      - nox:
-          name: test-<<matrix.folder>>
-          matrix:
-            alias: test
-            parameters:
-              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-          filters:
-            tags:
-              only: /.*/
-      - nox-rest:
-          name: test-rest-<<matrix.folder>>
-          matrix:
-            alias: test-rest
-            parameters:
-              folder: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-rest
-
+      # create github & pypi release
       - github:
-          context: org-global
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              only: /[a-z]+-.*/
           requires:
             - linter/pre-commit
-            - pipcheck
-            - test
-            - test-rest
-
+            - test-unit-aio
+            - test-integration-aio
+            - test-unit-rest
+            - test-integration-rest
       - hold:
           type: approval
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              only: /[a-z]+-.*/
           requires:
            - github
-
-      - pypi:
-          context: org-global
+      - poetry-publish-workspace:
+          name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
+          matrix:
+            parameters:
+              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
+              basedir: [/rest, /root/project]
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
-          requires:
-            - hold
-      - pypi-rest:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-[0-9]+\.[0-9]+\.[0-9]+/
+              only: /<<matrix.cwd>>-.*/
           requires:
             - hold

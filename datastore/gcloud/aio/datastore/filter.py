@@ -1,10 +1,12 @@
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Union
 
-from gcloud.aio.datastore.constants import CompositeFilterOperator
-from gcloud.aio.datastore.constants import PropertyFilterOperator
-from gcloud.aio.datastore.value import Value
+from .array import Array
+from .constants import CompositeFilterOperator
+from .constants import PropertyFilterOperator
+from .value import Value
 
 
 class BaseFilter:
@@ -54,8 +56,10 @@ class Filter:
 class CompositeFilter(BaseFilter):
     json_key = 'compositeFilter'
 
-    def __init__(self, operator: CompositeFilterOperator,
-                 filters: List[Filter]) -> None:
+    def __init__(
+        self, operator: CompositeFilterOperator,
+        filters: List[Filter],
+    ) -> None:
         self.operator = operator
         self.filters = filters
 
@@ -65,7 +69,8 @@ class CompositeFilter(BaseFilter):
 
         return bool(
             self.operator == other.operator
-            and self.filters == other.filters)
+            and self.filters == other.filters,
+        )
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'CompositeFilter':
@@ -84,8 +89,10 @@ class CompositeFilter(BaseFilter):
 class PropertyFilter(BaseFilter):
     json_key = 'propertyFilter'
 
-    def __init__(self, prop: str, operator: PropertyFilterOperator,
-                 value: Value) -> None:
+    def __init__(
+        self, prop: str, operator: PropertyFilterOperator,
+        value: Union[Value, Array],
+    ) -> None:
         self.prop = prop
         self.operator = operator
         self.value = value
@@ -97,7 +104,8 @@ class PropertyFilter(BaseFilter):
         return bool(
             self.prop == other.prop
             and self.operator == other.operator
-            and self.value == other.value)
+            and self.value == other.value,
+        )
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'PropertyFilter':
@@ -107,8 +115,13 @@ class PropertyFilter(BaseFilter):
         return cls(prop=prop, operator=operator, value=value)
 
     def to_repr(self) -> Dict[str, Any]:
-        return {
+        rep: Dict[str, Any] = {
             'op': self.operator.value,
             'property': {'name': self.prop},
-            'value': self.value.to_repr(),
         }
+        # TODO: consider refactoring to look more like Value.to_repr()
+        if isinstance(self.value, Array):
+            rep['value'] = {'arrayValue': self.value.to_repr()}
+        else:
+            rep['value'] = self.value.to_repr()
+        return rep

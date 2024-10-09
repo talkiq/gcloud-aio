@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "gcloud-rest-datastore"
+version = "8.1.0"
+description = "Python Client for Google Cloud Datastore"
+readme = "README.rst"
+
+repository = "https://github.com/talkiq/gcloud-aio"
+authors = ["Vi Engineering <voiceai-eng@dialpad.com>"]
+license = "MIT"
+
+packages = [
+    { include = "gcloud" },
+]
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Topic :: Internet',
+]
+
+[tool.poetry.dependencies]
+python = ">= 3.8, < 4.0"
+gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
+
+[tool.poetry.group.dev.dependencies]
+# aiohttp = "3.9.1"
+gcloud-rest-auth = { path = "../auth" }
+gcloud-rest-storage = { path = "../storage" }
+pytest = "8.2.2"
+# pytest-asyncio = "0.23.7"
+pytest-mock = "3.14.0"
+
+[[tool.poetry.source]]
+name = "pypi"
+priority = "primary"
+
+[tool.pytest.ini_options]
+# addopts = "-Werror"  # TODO: fixme
+# asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

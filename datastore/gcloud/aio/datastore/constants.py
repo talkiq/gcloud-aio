@@ -1,11 +1,12 @@
 import enum
 from datetime import datetime as dt
 
-from gcloud.aio.datastore.lat_lng import LatLng
+from .lat_lng import LatLng
 
 
 class CompositeFilterOperator(enum.Enum):
     AND = 'AND'
+    OR = 'OR'
     UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 
@@ -47,8 +48,11 @@ class PropertyFilterOperator(enum.Enum):
     GREATER_THAN = 'GREATER_THAN'
     GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL'
     HAS_ANCESTOR = 'HAS_ANCESTOR'
+    IN = 'IN'
     LESS_THAN = 'LESS_THAN'
     LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL'
+    NOT_EQUAL = 'NOT_EQUAL'
+    NOT_IN = 'NOT_IN'
     UNSPECIFIED = 'OPERATOR_UNSPECIFIED'
 
 

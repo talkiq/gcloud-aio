@@ -1,5 +1,6 @@
 import uuid
 
+import backoff
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.bigquery import SourceFormat
@@ -12,28 +13,32 @@ from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from requests import Session
-    from time import sleep
 else:
     from aiohttp import ClientSession as Session
-    from asyncio import sleep
 
 
 @pytest.mark.asyncio
-async def test_data_is_inserted(creds: str, dataset: str, project: str,
-                                table: str) -> None:
+async def test_data_is_inserted(
+    creds: str, dataset: str, project: str,
+    table: str,
+) -> None:
     rows = [{'key': uuid.uuid4().hex, 'value': uuid.uuid4().hex}
             for _ in range(3)]
 
     async with Session() as s:
         # TODO: create this table (with a random name)
-        t = Table(dataset, table, project=project, service_file=creds,
-                  session=s)
+        t = Table(
+            dataset, table, project=project, service_file=creds,
+            session=s,
+        )
         await t.insert(rows)
 
 
 @pytest.mark.asyncio
-async def test_table_load_copy(creds: str, dataset: str, project: str,
-                               export_bucket_name: str) -> None:
+async def test_table_load_copy(
+    creds: str, dataset: str, project: str,
+    export_bucket_name: str,
+) -> None:
     # pylint: disable=too-many-locals
     # N.B. this test relies on Datastore.export -- see `test_datastore_export`
     # in the `gcloud-aio-datastore` smoke tests.
@@ -44,18 +49,22 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        await ds.insert(Key(project, [PathElement(kind)]),
-                        properties={'rand_str': rand_uuid})
+        await ds.insert(
+            Key(project, [PathElement(kind)]),
+            properties={'rand_str': rand_uuid},
+        )
 
         operation = await ds.export(export_bucket_name, kinds=[kind])
 
-        count = 0
-        while (count < 10
-               and operation
-               and operation.metadata['common']['state'] == 'PROCESSING'):
-            await sleep(10)
-            operation = await ds.get_datastore_operation(operation.name)
-            count += 1
+        def is_processing(operation):
+            return (
+                operation
+                and operation.metadata['common']['state'] == 'PROCESSING'
+            )
+
+        operation = await backoff.on_predicate(
+            backoff.constant, is_processing, interval=10, max_tries=10)(
+                ds.get_datastore_operation)(operation.name)
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
@@ -64,24 +73,33 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         backup_entity_table = f'public_test_backup_entity_{uuid_}'
         copy_entity_table = f'{backup_entity_table}_copy'
 
-        t = Table(dataset, backup_entity_table, project=project,
-                  service_file=creds, session=s)
+        t = Table(
+            dataset, backup_entity_table, project=project,
+            service_file=creds, session=s,
+        )
         gs_prefix = operation.metadata['outputUrlPrefix']
-        gs_file = (f'{gs_prefix}/all_namespaces/kind_{kind}/'
-                   f'all_namespaces_kind_{kind}.export_metadata')
-        await t.insert_via_load([gs_file],
-                                source_format=SourceFormat.DATASTORE_BACKUP)
+        gs_file = (
+            f'{gs_prefix}/all_namespaces/kind_{kind}/'
+            f'all_namespaces_kind_{kind}.export_metadata'
+        )
+        await t.insert_via_load(
+            [gs_file],
+            source_format=SourceFormat.DATASTORE_BACKUP,
+        )
 
-        await sleep(10)
-
-        source_table = await t.get()
+        source_table = await backoff.on_exception(
+            backoff.constant, Exception, max_time=60, jitter=None,
+            interval=10)(t.get)()
         assert int(source_table['numRows']) > 0
 
         await t.insert_via_copy(project, dataset, copy_entity_table)
-        await sleep(10)
-        t1 = Table(dataset, copy_entity_table, project=project,
-                   service_file=creds, session=s)
-        copy_table = await t1.get()
+        t1 = Table(
+            dataset, copy_entity_table, project=project,
+            service_file=creds, session=s,
+        )
+        copy_table = await backoff.on_exception(
+            backoff.constant, Exception, max_time=60, jitter=None,
+            interval=10)(t1.get)()
         assert copy_table['numRows'] == source_table['numRows']
 
         # delete the backup and copy table
@@ -94,7 +112,9 @@ async def test_table_load_copy(creds: str, dataset: str, project: str,
         export_path = operation.metadata['outputUrlPrefix'][prefix_len:]
 
         storage = Storage(service_file=creds, session=s)
-        files = await storage.list_objects(export_bucket_name,
-                                           params={'prefix': export_path})
+        files = await storage.list_objects(
+            export_bucket_name,
+            params={'prefix': export_path},
+        )
         for file in files['items']:
             await storage.delete(export_bucket_name, file['name'])
