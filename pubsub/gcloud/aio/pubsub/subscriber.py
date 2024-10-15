@@ -542,14 +542,33 @@ else:
 
         for task in producer_tasks:
             task.cancel()
-        await asyncio.wait(producer_tasks, return_when=asyncio.ALL_COMPLETED)
+        producer_done, _ = await asyncio.wait(
+            producer_tasks,
+            return_when=asyncio.ALL_COMPLETED,
+        )
 
         for task in consumer_tasks:
             task.cancel()
-        await asyncio.wait(consumer_tasks, return_when=asyncio.ALL_COMPLETED)
+        consumer_done, _ = await asyncio.wait(
+            consumer_tasks,
+            return_when=asyncio.ALL_COMPLETED,
+        )
 
         for task in acker_tasks:
             task.cancel()
-        await asyncio.wait(acker_tasks, return_when=asyncio.ALL_COMPLETED)
+        acker_done, _ = await asyncio.wait(
+            acker_tasks,
+            return_when=asyncio.ALL_COMPLETED,
+        )
+
+        done = producer_done | consumer_done | acker_done
+        task_results = await asyncio.gather(*done, return_exceptions=True)
+        for result in task_results:
+            if isinstance(result, Exception) and not isinstance(
+                    result, asyncio.CancelledError):
+                log.info(
+                    'subscriber task exited with error',
+                    exc_info=result,
+                )
 
         raise asyncio.CancelledError('subscriber shut down')
