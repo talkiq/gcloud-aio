@@ -307,15 +307,12 @@ class Token(BaseToken):
                              expires_in=int(content['expires_in']))
 
     async def _refresh_source_authorized_user(self, timeout: int) -> TokenResponse:
+        source_credentials = self.service_data['source_credentials']
         payload = urlencode({
             'grant_type': 'refresh_token',
-            'client_id': self.service_data['source_credentials']['client_id'],
-            'client_secret': self.service_data['source_credentials'][
-                'client_secret'
-            ],
-            'refresh_token': self.service_data['source_credentials'][
-                'refresh_token'
-            ],
+            'client_id': source_credentials['client_id'],
+            'client_secret': source_credentials['client_secret'],
+            'refresh_token': source_credentials['refresh_token'],
         })
 
         resp = await self.session.post(
