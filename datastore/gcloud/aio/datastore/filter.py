@@ -122,6 +122,10 @@ class PropertyFilter(BaseFilter):
         # TODO: consider refactoring to look more like Value.to_repr()
         if isinstance(self.value, Array):
             rep['value'] = {'arrayValue': self.value.to_repr()}
+        elif isinstance(self.value, Value) and isinstance(self.value.value, list):
+            # This is a special case where the value is type of Value, but its value is a list
+            rep['value'] = {'arrayValue': {'values': [Value(x).to_repr() for x in
+                                                      self.value.value]}}
         else:
             rep['value'] = self.value.to_repr()
         return rep
