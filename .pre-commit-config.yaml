@@ -7,7 +7,7 @@ default_language_version:
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
     -   id: check-case-conflict
     -   id: check-executables-have-shebangs
@@ -36,7 +36,7 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v3.2.7
+    rev: v3.3.2
     hooks:
     # TODO: re-enable pylint-import-modules when it supports pylint v3
     -   id: pylint
@@ -70,7 +70,7 @@ repos:
     -   id: reorder-python-imports
         args: [--py38-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.19.0
     hooks:
     -   id: pyupgrade
         args: [--py38-plus]
@@ -207,7 +207,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.29.4
+  rev: 0.30.0
   hooks:
     - id: check-github-workflows
     - id: check-renovate
