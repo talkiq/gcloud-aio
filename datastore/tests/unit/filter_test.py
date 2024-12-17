@@ -135,9 +135,14 @@ class TestFilter:
         assert repr(query_filter) == str(query_filter.to_repr())
 
     def test_in_filter_with_list_arg(self):
-        expected_value = {'arrayValue': {
-            'values': [{'excludeFromIndexes': False, 'stringValue': 'value1'},
-                       {'excludeFromIndexes': False, 'stringValue': 'value2'}]}}
+        expected_value = {
+            'arrayValue': {
+                'values': [
+                    {'excludeFromIndexes': False, 'stringValue': 'value1'},
+                    {'excludeFromIndexes': False, 'stringValue': 'value2'},
+                ],
+            },
+        }
 
         prop = 'prop1'
         value = ['value1', 'value2']
