@@ -149,7 +149,7 @@ def get_service_data(
 @dataclass
 class TokenResponse:
     value: str
-    expires_in: int # Token TTL in seconds
+    expires_in: int  # Token TTL in seconds
 
 
 class BaseToken:
@@ -164,9 +164,11 @@ class BaseToken:
         cache_refresh_after: float = 0.95,
     ) -> None:
         if cache_preempt_after <= 0 or cache_preempt_after > 1:
-            raise ValueError('cache_preempt_after must be a value between 0 and 1')
+            raise ValueError(
+                'cache_preempt_after must be a value between 0 and 1')
         if cache_refresh_after <= 0 or cache_refresh_after > 1:
-            raise ValueError('cache_refresh_after must be a value between 0 and 1')
+            raise ValueError(
+                'cache_refresh_after must be a value between 0 and 1')
         # Portion of TTL after which a background refresh would start
         self.cache_preempt_after = cache_preempt_after
         # Portion of TTL after which a cached token is considered invalid
@@ -189,8 +191,10 @@ class BaseToken:
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
-        self.access_token_preempt_after = 0 # Timestamp after which we pre-fetch.
-        self.access_token_refresh_after = 0 # Timestamp after which we must re-fetch.
+        # Timestamp after which we pre-fetch.
+        self.access_token_preempt_after = 0
+        # Timestamp after which we must re-fetch.
+        self.access_token_refresh_after = 0
 
         self.acquiring: Optional['asyncio.Task[None]'] = None
 
@@ -227,14 +231,17 @@ class BaseToken:
     async def ensure_token(self) -> None:
         if self.access_token:
             # Cached token exists
-            now_ts = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+            now_ts = int(
+                datetime.datetime.now(
+                    datetime.timezone.utc).timestamp())
             if now_ts > self.access_token_refresh_after:
                 # Cached token does not have enough duration left, fall through
                 pass
             elif now_ts > self.access_token_preempt_after:
                 # Token is okay, but we need to fire up a preemptive refresh
                 if not self.acquiring:
-                    self.acquiring = asyncio.create_task(self.acquire_access_token())
+                    self.acquiring = asyncio.create_task(
+                        self.acquire_access_token())
                 return
             else:
                 # Cached token is valid for use
@@ -257,8 +264,10 @@ class BaseToken:
         self.access_token_acquired_at = datetime.datetime.now(
             datetime.timezone.utc)
         base_timstamp = self.access_token_acquired_at.timestamp()
-        self.access_token_preempt_after = int(base_timstamp + (resp.expires_in * self.cache_preempt_after))
-        self.access_token_refresh_after = int(base_timstamp + (resp.expires_in * self.cache_refresh_after))
+        self.access_token_preempt_after = int(
+            base_timstamp + (resp.expires_in * self.cache_preempt_after))
+        self.access_token_refresh_after = int(
+            base_timstamp + (resp.expires_in * self.cache_refresh_after))
         self.acquiring = None
 
     async def close(self) -> None:
