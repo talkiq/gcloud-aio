@@ -240,7 +240,7 @@ class BaseToken:
             elif now_ts > self.access_token_preempt_after:
                 # Token is okay, but we need to fire up a preemptive refresh
                 if not self.acquiring:
-                    self.acquiring = asyncio.create_task(
+                    self.acquiring = asyncio.create_task( # pylint: disable=possibly-used-before-assignment
                         self.acquire_access_token())
                 return
             else:
@@ -248,7 +248,8 @@ class BaseToken:
                 return
 
         if not self.acquiring:
-            self.acquiring = asyncio.create_task(self.acquire_access_token())
+            self.acquiring = asyncio.create_task( # pylint: disable=possibly-used-before-assignment
+                self.acquire_access_token())
         await self.acquiring
 
     @abstractmethod
