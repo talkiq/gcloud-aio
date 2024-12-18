@@ -1,7 +1,15 @@
-:py:mod:`pubsub.metrics`
-========================
+pubsub.metrics
+==============
 
 .. py:module:: pubsub.metrics
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pubsub.metrics._NAMESPACE
 
 
 Module Contents
@@ -10,5 +18,4 @@ Module Contents
 .. py:data:: _NAMESPACE
    :value: 'gcloud_aio'
 
-   
 

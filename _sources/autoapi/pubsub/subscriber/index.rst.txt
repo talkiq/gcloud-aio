@@ -1,13 +1,19 @@
-:py:mod:`pubsub.subscriber`
-===========================
+pubsub.subscriber
+=================
 
 .. py:module:: pubsub.subscriber
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pubsub.subscriber.log
 
 
 Module Contents
 ---------------
 
 .. py:data:: log
-
-   
 

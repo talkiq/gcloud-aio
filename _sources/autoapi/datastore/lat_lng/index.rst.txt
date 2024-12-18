@@ -1,40 +1,39 @@
-:py:mod:`datastore.lat_lng`
-===========================
+datastore.lat_lng
+=================
 
 .. py:module:: datastore.lat_lng
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    datastore.lat_lng.LatLng
 
 
-
+Module Contents
+---------------
 
 .. py:class:: LatLng(lat, lon)
+
+   .. py:attribute:: lat
+
+
+   .. py:attribute:: lon
 
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

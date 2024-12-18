@@ -1,40 +1,39 @@
-:py:mod:`datastore.property_order`
-==================================
+datastore.property_order
+========================
 
 .. py:module:: datastore.property_order
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    datastore.property_order.PropertyOrder
 
 
-
+Module Contents
+---------------
 
 .. py:class:: PropertyOrder(prop, direction = Direction.ASCENDING)
+
+   .. py:attribute:: prop
+
+
+   .. py:attribute:: direction
 
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

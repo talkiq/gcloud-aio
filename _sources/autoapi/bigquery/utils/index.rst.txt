@@ -1,15 +1,20 @@
-:py:mod:`bigquery.utils`
-========================
+bigquery.utils
+==============
 
 .. py:module:: bigquery.utils
 
 
-Module Contents
----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   bigquery.utils.log
+   bigquery.utils.utc
 
 
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
@@ -18,23 +23,12 @@ Functions
    bigquery.utils.query_response_to_dict
 
 
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   bigquery.utils.log
-   bigquery.utils.utc
-
+Module Contents
+---------------
 
 .. py:data:: log
 
-   
-
 .. py:data:: utc
-
-   
 
 .. py:function:: flatten(x)
 

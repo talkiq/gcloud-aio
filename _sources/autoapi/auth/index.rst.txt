@@ -1,5 +1,5 @@
-:py:mod:`auth`
-==============
+auth
+====
 
 .. py:module:: auth
 
@@ -113,22 +113,28 @@
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   build_constants/index.rst
-   iam/index.rst
-   session/index.rst
-   token/index.rst
-   utils/index.rst
+   /autoapi/auth/build_constants/index
+   /autoapi/auth/iam/index
+   /autoapi/auth/session/index
+   /autoapi/auth/token/index
+   /autoapi/auth/utils/index
 
 
-Package Contents
-----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.BUILD_GCLOUD_REST
+   auth.__version__
+
 
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -137,9 +143,8 @@ Classes
    auth.Token
 
 
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
@@ -147,49 +152,54 @@ Functions
    auth.encode
 
 
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   auth.BUILD_GCLOUD_REST
-   auth.__version__
-
+Package Contents
+----------------
 
 .. py:data:: BUILD_GCLOUD_REST
+   :value: True
 
-   
 
 .. py:class:: IamClient(service_file = None, session = None, token = None)
 
+   .. py:attribute:: session
 
-   .. py:property:: service_account_email
-      :type: Optional[str]
+
+   .. py:attribute:: token
 
 
    .. py:method:: headers()
       :async:
 
 
+
+   .. py:property:: service_account_email
+      :type: Optional[str]
+
+
+
    .. py:method:: get_public_key(key_id = None, key = None, service_account_email = None, project = None, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: list_public_keys(service_account_email = None, project = None, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: sign_blob(payload, service_account_email = None, delegates = None, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)
@@ -199,18 +209,28 @@ Attributes
 
 .. py:class:: IapToken(app_uri, service_file = None, session = None, impersonating_service_account = None)
 
-
    Bases: :py:obj:`BaseToken`
 
+
    An OpenID Connect ID token for a single IAP-secured service.
+
 
    .. py:attribute:: default_token_ttl
       :value: 3600
 
-      
+
+
+   .. py:attribute:: app_uri
+
+
+   .. py:attribute:: service_account
+      :value: None
+
+
 
    .. py:method:: _get_iap_client_id(*, timeout)
       :async:
+
 
       Fetch the IAP client ID from the service URI.
 
@@ -223,16 +243,20 @@ Attributes
       https://cloud.google.com/iap/docs/authentication-howto
 
 
+
    .. py:method:: _refresh_authorized_user(iap_client_id, timeout)
       :async:
+
 
       Fetch IAP ID token by impersonating a service account.
 
       https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
 
 
+
    .. py:method:: _refresh_gce_metadata(iap_client_id, timeout)
       :async:
+
 
       Fetch IAP ID token from the GCE metadata servers.
 
@@ -243,8 +267,10 @@ Attributes
       https://cloud.google.com/docs/authentication/get-id-token#metadata-server
 
 
+
    .. py:method:: _refresh_service_account(iap_client_id, timeout)
       :async:
+
 
 
    .. py:method:: refresh(*, timeout)
@@ -254,30 +280,50 @@ Attributes
 
 .. py:class:: Token(service_file = None, session = None, scopes = None, target_principal = None, delegates = None)
 
-
    Bases: :py:obj:`BaseToken`
 
+
    GCP OAuth 2.0 access token.
+
 
    .. py:attribute:: default_token_ttl
       :value: 3600
 
-      
+
+
+   .. py:attribute:: scopes
+      :value: ''
+
+
+
+   .. py:attribute:: target_principal
+      :value: None
+
+
+
+   .. py:attribute:: delegates
+      :value: None
+
+
 
    .. py:method:: _refresh_authorized_user(timeout)
       :async:
+
 
 
    .. py:method:: _refresh_gce_metadata(timeout)
       :async:
 
 
+
    .. py:method:: _refresh_service_account(timeout)
       :async:
 
 
+
    .. py:method:: _impersonate(token, *, timeout)
       :async:
+
 
 
    .. py:method:: refresh(*, timeout)
@@ -302,6 +348,4 @@ Attributes
 
 
 .. py:data:: __version__
-
-   
 

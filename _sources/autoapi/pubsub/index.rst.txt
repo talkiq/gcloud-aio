@@ -1,5 +1,5 @@
-:py:mod:`pubsub`
-================
+pubsub
+======
 
 .. py:module:: pubsub
 
@@ -247,24 +247,29 @@
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   metrics/index.rst
-   metrics_agent/index.rst
-   publisher_client/index.rst
-   subscriber/index.rst
-   subscriber_client/index.rst
-   subscriber_message/index.rst
-   utils/index.rst
+   /autoapi/pubsub/metrics/index
+   /autoapi/pubsub/metrics_agent/index
+   /autoapi/pubsub/publisher_client/index
+   /autoapi/pubsub/subscriber/index
+   /autoapi/pubsub/subscriber_client/index
+   /autoapi/pubsub/subscriber_message/index
+   /autoapi/pubsub/utils/index
 
 
-Package Contents
-----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   pubsub.__version__
+
 
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -274,73 +279,82 @@ Classes
    pubsub.PubsubMessage
 
 
-
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   pubsub.__version__
-
+Package Contents
+----------------
 
 .. py:class:: PublisherClient(*, service_file = None, session = None, token = None, api_root = None)
 
-
    .. py:attribute:: _api_root
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: _api_is_dev
-      :type: bool
+      :type:  bool
 
-      
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
 
    .. py:method:: project_path(project)
       :staticmethod:
+
 
 
    .. py:method:: subscription_path(project, subscription)
       :classmethod:
 
 
+
    .. py:method:: topic_path(project, topic)
       :classmethod:
+
 
 
    .. py:method:: _headers()
       :async:
 
 
+
    .. py:method:: list_topics(project, query_params = None, *, session = None, timeout = 10)
       :async:
 
+
       List topics
+
 
 
    .. py:method:: create_topic(topic, body = None, *, session = None, timeout = 10)
       :async:
 
+
       Create topic.
+
 
 
    .. py:method:: delete_topic(topic, *, session = None, timeout = 10)
       :async:
 
+
       Delete topic.
+
 
 
    .. py:method:: publish(topic, messages, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)
@@ -350,86 +364,110 @@ Attributes
 
 .. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None)
 
-
    .. py:attribute:: _api_root
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: _api_is_dev
-      :type: bool
+      :type:  bool
 
-      
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
 
    .. py:method:: project_path(project)
       :staticmethod:
+
 
 
    .. py:method:: subscription_path(project, subscription)
       :classmethod:
 
 
+
    .. py:method:: topic_path(project, topic)
       :classmethod:
+
 
 
    .. py:method:: _headers()
       :async:
 
 
+
    .. py:method:: create_subscription(subscription, topic, body = None, *, session = None, timeout = 10)
       :async:
 
+
       Create subscription.
+
 
 
    .. py:method:: patch_subscription(subscription, body, *, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: delete_subscription(subscription, *, session = None, timeout = 10)
       :async:
 
+
       Delete subscription.
+
 
 
    .. py:method:: pull(subscription, max_messages, *, session = None, timeout = 30)
       :async:
 
+
       Pull messages from subscription
+
 
 
    .. py:method:: acknowledge(subscription, ack_ids, *, session = None, timeout = 10)
       :async:
 
+
       Acknowledge messages by ackIds
+
 
 
    .. py:method:: modify_ack_deadline(subscription, ack_ids, ack_deadline_seconds, *, session = None, timeout = 10)
       :async:
 
+
       Modify messages' ack deadline.
       Set ack deadline to 0 to nack messages.
+
 
 
    .. py:method:: get_subscription(subscription, *, session = None, timeout = 10)
       :async:
 
+
       Get Subscription
+
 
 
    .. py:method:: list_subscriptions(project, query_params = None, *, session = None, timeout = 10)
       :async:
 
+
       List subscriptions
+
 
 
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)
@@ -439,28 +477,52 @@ Attributes
 
 .. py:class:: SubscriberMessage(ack_id, message_id, publish_time, data, attributes, delivery_attempt = None)
 
+   .. py:attribute:: ack_id
+
+
+   .. py:attribute:: message_id
+
+
+   .. py:attribute:: publish_time
+
+
+   .. py:attribute:: data
+
+
+   .. py:attribute:: attributes
+
+
+   .. py:attribute:: delivery_attempt
+      :value: None
+
+
 
    .. py:method:: from_repr(received_message)
       :staticmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: PubsubMessage(data, ordering_key = '', **kwargs)
 
+   .. py:attribute:: data
+
+
+   .. py:attribute:: attributes
+
+
+   .. py:attribute:: ordering_key
+      :value: ''
+
+
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: to_repr()
 
 
-
 .. py:data:: __version__
-
-   
 

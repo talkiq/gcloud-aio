@@ -1,5 +1,5 @@
-:py:mod:`datastore`
-===================
+datastore
+=========
 
 .. py:module:: datastore
 
@@ -189,34 +189,41 @@
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   array/index.rst
-   constants/index.rst
-   datastore/index.rst
-   datastore_operation/index.rst
-   entity/index.rst
-   filter/index.rst
-   key/index.rst
-   lat_lng/index.rst
-   mutation/index.rst
-   projection/index.rst
-   property_order/index.rst
-   query/index.rst
-   transaction_options/index.rst
-   value/index.rst
+   /autoapi/datastore/array/index
+   /autoapi/datastore/constants/index
+   /autoapi/datastore/datastore/index
+   /autoapi/datastore/datastore_operation/index
+   /autoapi/datastore/entity/index
+   /autoapi/datastore/filter/index
+   /autoapi/datastore/key/index
+   /autoapi/datastore/lat_lng/index
+   /autoapi/datastore/mutation/index
+   /autoapi/datastore/projection/index
+   /autoapi/datastore/property_order/index
+   /autoapi/datastore/query/index
+   /autoapi/datastore/transaction_options/index
+   /autoapi/datastore/value/index
 
 
-Package Contents
-----------------
-
-Classes
-~~~~~~~
+Attributes
+----------
 
 .. autoapisummary::
 
+   datastore.SCOPES
+   datastore.__version__
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   datastore.Array
    datastore.CompositeFilterOperator
    datastore.Consistency
    datastore.Direction
@@ -248,21 +255,47 @@ Classes
    datastore.Value
 
 
+Package Contents
+----------------
+
+.. py:class:: Array(items)
+
+   Bases: :py:obj:`collections.abc.Sequence`
 
 
-Attributes
-~~~~~~~~~~
+   All the operations on a read-only sequence.
 
-.. autoapisummary::
+   Concrete subclasses must override __new__ or __init__,
+   __getitem__, and __len__.
 
-   datastore.SCOPES
-   datastore.__version__
+
+   .. py:attribute:: items
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __getitem__(index)
+
+
+   .. py:method:: __len__()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
 
 
 .. py:class:: CompositeFilterOperator(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -300,27 +333,27 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: AND
       :value: 'AND'
 
-      
+
 
    .. py:attribute:: OR
       :value: 'OR'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'OPERATOR_UNSPECIFIED'
 
-      
 
 
 .. py:class:: Consistency(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -358,27 +391,27 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: EVENTUAL
       :value: 'EVENTUAL'
 
-      
+
 
    .. py:attribute:: STRONG
       :value: 'STRONG'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'READ_CONSISTENCY_UNSPECIFIED'
 
-      
 
 
 .. py:class:: Direction(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -416,27 +449,27 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: ASCENDING
       :value: 'ASCENDING'
 
-      
+
 
    .. py:attribute:: DESCENDING
       :value: 'DESCENDING'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'DIRECTION_UNSPECIFIED'
 
-      
 
 
 .. py:class:: Mode(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -474,27 +507,27 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: NON_TRANSACTIONAL
       :value: 'NON_TRANSACTIONAL'
 
-      
+
 
    .. py:attribute:: TRANSACTIONAL
       :value: 'TRANSACTIONAL'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'MODE_UNSPECIFIED'
 
-      
 
 
 .. py:class:: MoreResultsType(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -532,37 +565,37 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: MORE_RESULTS_AFTER_CURSOR
       :value: 'MORE_RESULTS_AFTER_CURSOR'
 
-      
+
 
    .. py:attribute:: MORE_RESULTS_AFTER_LIMIT
       :value: 'MORE_RESULTS_AFTER_LIMIT'
 
-      
+
 
    .. py:attribute:: NO_MORE_RESULTS
       :value: 'NO_MORE_RESULTS'
 
-      
+
 
    .. py:attribute:: NOT_FINISHED
       :value: 'NOT_FINISHED'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'MORE_RESULTS_TYPE_UNSPECIFIED'
 
-      
 
 
 .. py:class:: Operation(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -600,32 +633,32 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: DELETE
       :value: 'delete'
 
-      
+
 
    .. py:attribute:: INSERT
       :value: 'insert'
 
-      
+
 
    .. py:attribute:: UPDATE
       :value: 'update'
 
-      
+
 
    .. py:attribute:: UPSERT
       :value: 'upsert'
 
-      
 
 
 .. py:class:: PropertyFilterOperator(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -663,52 +696,62 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: EQUAL
       :value: 'EQUAL'
 
-      
+
 
    .. py:attribute:: GREATER_THAN
       :value: 'GREATER_THAN'
 
-      
+
 
    .. py:attribute:: GREATER_THAN_OR_EQUAL
       :value: 'GREATER_THAN_OR_EQUAL'
 
-      
+
 
    .. py:attribute:: HAS_ANCESTOR
       :value: 'HAS_ANCESTOR'
 
-      
+
+
+   .. py:attribute:: IN
+      :value: 'IN'
+
+
 
    .. py:attribute:: LESS_THAN
       :value: 'LESS_THAN'
 
-      
+
 
    .. py:attribute:: LESS_THAN_OR_EQUAL
       :value: 'LESS_THAN_OR_EQUAL'
 
-      
+
 
    .. py:attribute:: NOT_EQUAL
       :value: 'NOT_EQUAL'
 
-      
+
+
+   .. py:attribute:: NOT_IN
+      :value: 'NOT_IN'
+
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'OPERATOR_UNSPECIFIED'
 
-      
 
 
 .. py:class:: ResultType(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -747,107 +790,118 @@ Attributes
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
 
+
    .. py:attribute:: FULL
       :value: 'FULL'
 
-      
+
 
    .. py:attribute:: KEY_ONLY
       :value: 'KEY_ONLY'
 
-      
+
 
    .. py:attribute:: PROJECTION
       :value: 'PROJECTION'
 
-      
+
 
    .. py:attribute:: UNSPECIFIED
       :value: 'RESULT_TYPE_UNSPECIFIED'
 
-      
 
 
 .. py:class:: Datastore(project = None, service_file = None, namespace = '', session = None, token = None, api_root = None)
 
-
    .. py:attribute:: datastore_operation_kind
 
-      
 
    .. py:attribute:: entity_result_kind
 
-      
 
    .. py:attribute:: key_kind
 
-      
 
    .. py:attribute:: mutation_result_kind
 
-      
 
    .. py:attribute:: query_result_batch_kind
 
-      
 
    .. py:attribute:: value_kind
 
-      
 
    .. py:attribute:: _project
-      :type: Optional[str]
+      :type:  Optional[str]
 
-      
 
    .. py:attribute:: _api_root
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: _api_is_dev
-      :type: bool
+      :type:  bool
 
-      
+
+   .. py:attribute:: namespace
+      :value: ''
+
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
 
    .. py:method:: project()
       :async:
+
 
 
    .. py:method:: _make_commit_body(mutations, transaction = None, mode = Mode.TRANSACTIONAL)
       :staticmethod:
 
 
+
    .. py:method:: headers()
       :async:
+
 
 
    .. py:method:: make_mutation(operation, key, properties = None)
       :classmethod:
 
 
+
    .. py:method:: allocateIds(keys, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: beginTransaction(session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: get_datastore_operation(name, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: _build_lookup_result(data)
@@ -860,40 +914,50 @@ Attributes
       :async:
 
 
+
    .. py:method:: rollback(transaction, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: runQuery(query, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: delete(key, session = None)
       :async:
+
 
 
    .. py:method:: insert(key, properties, session = None)
       :async:
 
 
+
    .. py:method:: update(key, properties, session = None)
       :async:
+
 
 
    .. py:method:: upsert(key, properties, session = None)
       :async:
 
 
+
    .. py:method:: operate(operation, key, properties = None, session = None)
       :async:
+
 
 
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)
@@ -904,309 +968,372 @@ Attributes
 .. py:data:: SCOPES
    :value: ['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/datastore']
 
-   
 
 .. py:class:: DatastoreOperation(name, done, metadata = None, error = None, response = None)
 
+   .. py:attribute:: name
+
+
+   .. py:attribute:: done
+
+
+   .. py:attribute:: metadata
+      :value: None
+
+
+
+   .. py:attribute:: error
+      :value: None
+
+
+
+   .. py:attribute:: response
+      :value: None
+
+
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: Entity(key, properties = None)
 
-
    .. py:attribute:: key_kind
 
-      
 
    .. py:attribute:: value_kind
 
-      
+
+   .. py:attribute:: key
+
+
+   .. py:attribute:: properties
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: EntityResult(entity, version = '', cursor = '')
 
-
    .. py:attribute:: entity_kind
 
-      
+
+   .. py:attribute:: entity
+
+
+   .. py:attribute:: version
+      :value: ''
+
+
+
+   .. py:attribute:: cursor
+      :value: ''
+
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: CompositeFilter(operator, filters)
 
-
    Bases: :py:obj:`BaseFilter`
+
 
    .. py:attribute:: json_key
       :value: 'compositeFilter'
 
-      
+
+
+   .. py:attribute:: operator
+
+
+   .. py:attribute:: filters
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: Filter(inner_filter)
 
+   .. py:attribute:: inner_filter
+
 
    .. py:method:: __repr__()
 
-      Return repr(self).
-
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: PropertyFilter(prop, operator, value)
 
-
    Bases: :py:obj:`BaseFilter`
+
 
    .. py:attribute:: json_key
       :value: 'propertyFilter'
 
-      
+
+
+   .. py:attribute:: prop
+
+
+   .. py:attribute:: operator
+
+
+   .. py:attribute:: value
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: Key(project, path, namespace = '')
 
-
    .. py:attribute:: path_element_kind
 
-      
+
+   .. py:attribute:: project
+
+
+   .. py:attribute:: namespace
+      :value: ''
+
+
+
+   .. py:attribute:: path
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: PathElement(kind, *, id_ = None, name = None)
 
+   .. py:attribute:: kind
+
+
+   .. py:attribute:: id
+      :value: None
+
+
+
+   .. py:attribute:: name
+      :value: None
+
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: LatLng(lat, lon)
 
+   .. py:attribute:: lat
+
+
+   .. py:attribute:: lon
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: MutationResult(key, version, conflict_detected)
 
-
    .. py:attribute:: key_kind
 
-      
+
+   .. py:attribute:: key
+
+
+   .. py:attribute:: version
+
+
+   .. py:attribute:: conflict_detected
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: Projection(prop)
 
+   .. py:attribute:: prop
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: PropertyOrder(prop, direction = Direction.ASCENDING)
 
+   .. py:attribute:: prop
+
+
+   .. py:attribute:: direction
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: __repr__()
 
-      Return repr(self).
-
 
    .. py:method:: from_repr(data)
       :classmethod:
+
 
 
    .. py:method:: to_repr()
 
 
-
 .. py:class:: GQLCursor(value)
+
+   .. py:attribute:: value
 
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
-
 
 
 .. py:class:: GQLQuery(query_string, allow_literals = True, named_bindings = None, positional_bindings = None)
 
-
    Bases: :py:obj:`BaseQuery`
+
 
    .. py:attribute:: json_key
       :value: 'gqlQuery'
 
-      
+
+
+   .. py:attribute:: query_string
+
+
+   .. py:attribute:: allow_literals
+      :value: True
+
+
+
+   .. py:attribute:: named_bindings
+
+
+   .. py:attribute:: positional_bindings
+      :value: []
+
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
+
    .. py:method:: _param_from_repr(param_repr)
       :classmethod:
+
 
 
    .. py:method:: to_repr()
@@ -1215,95 +1342,165 @@ Attributes
    .. py:method:: _param_to_repr(param)
 
 
-
 .. py:class:: Query(kind = '', query_filter = None, order = None, start_cursor = '', end_cursor = '', offset = None, limit = None, projection = None, distinct_on = None)
 
-
    Bases: :py:obj:`BaseQuery`
+
 
    .. py:attribute:: json_key
       :value: 'query'
 
-      
+
+
+   .. py:attribute:: kind
+      :value: ''
+
+
+
+   .. py:attribute:: query_filter
+      :value: None
+
+
+
+   .. py:attribute:: orders
+      :value: []
+
+
+
+   .. py:attribute:: start_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: end_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: offset
+      :value: None
+
+
+
+   .. py:attribute:: limit
+      :value: None
+
+
+
+   .. py:attribute:: projection
+      :value: []
+
+
+
+   .. py:attribute:: distinct_on
+      :value: []
+
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
 
-
    .. py:attribute:: entity_result_kind
 
-      
+
+   .. py:attribute:: end_cursor
+
+
+   .. py:attribute:: entity_result_type
+
+
+   .. py:attribute:: entity_results
+      :value: []
+
+
+
+   .. py:attribute:: more_results
+
+
+   .. py:attribute:: skipped_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: skipped_results
+      :value: 0
+
+
+
+   .. py:attribute:: snapshot_version
+      :value: ''
+
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: ReadOnly
 
-
    .. py:method:: to_repr()
-
 
 
 .. py:class:: ReadWrite(previous_transaction = None)
 
+   .. py:attribute:: previous_transaction
+      :value: None
+
+
 
    .. py:method:: to_repr()
-
 
 
 .. py:class:: TransactionOptions(option)
 
+   .. py:attribute:: option
+
 
    .. py:method:: to_repr()
 
 
-
 .. py:class:: Value(value, exclude_from_indexes = False)
-
 
    .. py:attribute:: key_kind
 
-      
+
+   .. py:attribute:: value
+
+
+   .. py:attribute:: excludeFromIndexes
+      :value: False
+
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: __repr__()
 
-      Return repr(self).
-
 
    .. py:method:: from_repr(data)
       :classmethod:
+
 
 
    .. py:method:: to_repr()
@@ -1318,6 +1515,4 @@ Attributes
 
 
 .. py:data:: __version__
-
-   
 

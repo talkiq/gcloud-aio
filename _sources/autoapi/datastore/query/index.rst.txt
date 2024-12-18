@@ -1,14 +1,11 @@
-:py:mod:`datastore.query`
-=========================
+datastore.query
+===============
 
 .. py:module:: datastore.query
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -19,28 +16,26 @@ Classes
    datastore.query.QueryResultBatch
 
 
-
+Module Contents
+---------------
 
 .. py:class:: BaseQuery
 
-
    .. py:attribute:: json_key
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: value_kind
 
-      
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
+
       :abstractmethod:
+
 
 
    .. py:method:: to_repr()
@@ -50,48 +45,107 @@ Classes
 
 .. py:class:: Query(kind = '', query_filter = None, order = None, start_cursor = '', end_cursor = '', offset = None, limit = None, projection = None, distinct_on = None)
 
-
    Bases: :py:obj:`BaseQuery`
+
 
    .. py:attribute:: json_key
       :value: 'query'
 
-      
+
+
+   .. py:attribute:: kind
+      :value: ''
+
+
+
+   .. py:attribute:: query_filter
+      :value: None
+
+
+
+   .. py:attribute:: orders
+      :value: []
+
+
+
+   .. py:attribute:: start_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: end_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: offset
+      :value: None
+
+
+
+   .. py:attribute:: limit
+      :value: None
+
+
+
+   .. py:attribute:: projection
+      :value: []
+
+
+
+   .. py:attribute:: distinct_on
+      :value: []
+
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
+
 
 
    .. py:method:: to_repr()
 
 
-
 .. py:class:: GQLQuery(query_string, allow_literals = True, named_bindings = None, positional_bindings = None)
 
-
    Bases: :py:obj:`BaseQuery`
+
 
    .. py:attribute:: json_key
       :value: 'gqlQuery'
 
-      
+
+
+   .. py:attribute:: query_string
+
+
+   .. py:attribute:: allow_literals
+      :value: True
+
+
+
+   .. py:attribute:: named_bindings
+
+
+   .. py:attribute:: positional_bindings
+      :value: []
+
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
+
    .. py:method:: _param_from_repr(param_repr)
       :classmethod:
+
 
 
    .. py:method:: to_repr()
@@ -100,38 +154,59 @@ Classes
    .. py:method:: _param_to_repr(param)
 
 
-
 .. py:class:: GQLCursor(value)
+
+   .. py:attribute:: value
 
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
-
 
 
 .. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
 
-
    .. py:attribute:: entity_result_kind
 
-      
+
+   .. py:attribute:: end_cursor
+
+
+   .. py:attribute:: entity_result_type
+
+
+   .. py:attribute:: entity_results
+      :value: []
+
+
+
+   .. py:attribute:: more_results
+
+
+   .. py:attribute:: skipped_cursor
+      :value: ''
+
+
+
+   .. py:attribute:: skipped_results
+      :value: 0
+
+
+
+   .. py:attribute:: snapshot_version
+      :value: ''
+
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

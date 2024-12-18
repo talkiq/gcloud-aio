@@ -1,15 +1,11 @@
-:py:mod:`kms.utils`
-===================
+kms.utils
+=========
 
 .. py:module:: kms.utils
 
 
-Module Contents
----------------
-
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
@@ -17,6 +13,8 @@ Functions
    kms.utils.encode
 
 
+Module Contents
+---------------
 
 .. py:function:: decode(payload)
 

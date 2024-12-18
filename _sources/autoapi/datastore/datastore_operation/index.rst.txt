@@ -1,35 +1,51 @@
-:py:mod:`datastore.datastore_operation`
-=======================================
+datastore.datastore_operation
+=============================
 
 .. py:module:: datastore.datastore_operation
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    datastore.datastore_operation.DatastoreOperation
 
 
-
+Module Contents
+---------------
 
 .. py:class:: DatastoreOperation(name, done, metadata = None, error = None, response = None)
 
+   .. py:attribute:: name
+
+
+   .. py:attribute:: done
+
+
+   .. py:attribute:: metadata
+      :value: None
+
+
+
+   .. py:attribute:: error
+      :value: None
+
+
+
+   .. py:attribute:: response
+      :value: None
+
+
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

@@ -1,53 +1,65 @@
-:py:mod:`bigquery.dataset`
-==========================
+bigquery.dataset
+================
 
 .. py:module:: bigquery.dataset
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    bigquery.dataset.Dataset
 
 
-
+Module Contents
+---------------
 
 .. py:class:: Dataset(dataset_name = None, project = None, service_file = None, session = None, token = None, api_root = None)
 
-
    Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
+
+
+   .. py:attribute:: dataset_name
+      :value: None
+
+
 
    .. py:method:: list_tables(session = None, timeout = 60, params = None)
       :async:
 
+
       List tables in a dataset.
+
 
 
    .. py:method:: list_datasets(session = None, timeout = 60, params = None)
       :async:
 
+
       List datasets in current project.
+
 
 
    .. py:method:: get(session = None, timeout = 60, params = None)
       :async:
 
+
       Get a specific dataset in current project.
+
 
 
    .. py:method:: insert(dataset, session = None, timeout = 60)
       :async:
 
+
       Create datasets in current project.
+
 
 
    .. py:method:: delete(dataset_name = None, session = None, timeout = 60)
       :async:
+
 
       Delete datasets in current project.
 

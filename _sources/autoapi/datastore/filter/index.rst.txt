@@ -1,14 +1,11 @@
-:py:mod:`datastore.filter`
-==========================
+datastore.filter
+================
 
 .. py:module:: datastore.filter
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -18,24 +15,23 @@ Classes
    datastore.filter.PropertyFilter
 
 
-
+Module Contents
+---------------
 
 .. py:class:: BaseFilter
 
-
    .. py:attribute:: json_key
-      :type: str
+      :type:  str
 
-      
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
+
       :abstractmethod:
+
 
 
    .. py:method:: to_repr()
@@ -45,68 +41,77 @@ Classes
 
 .. py:class:: Filter(inner_filter)
 
+   .. py:attribute:: inner_filter
+
 
    .. py:method:: __repr__()
 
-      Return repr(self).
-
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: CompositeFilter(operator, filters)
 
-
    Bases: :py:obj:`BaseFilter`
+
 
    .. py:attribute:: json_key
       :value: 'compositeFilter'
 
-      
+
+
+   .. py:attribute:: operator
+
+
+   .. py:attribute:: filters
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 
 .. py:class:: PropertyFilter(prop, operator, value)
 
-
    Bases: :py:obj:`BaseFilter`
+
 
    .. py:attribute:: json_key
       :value: 'propertyFilter'
 
-      
+
+
+   .. py:attribute:: prop
+
+
+   .. py:attribute:: operator
+
+
+   .. py:attribute:: value
+
 
    .. py:method:: __eq__(other)
-
-      Return self==value.
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

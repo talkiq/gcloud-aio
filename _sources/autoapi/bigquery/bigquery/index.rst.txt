@@ -1,14 +1,20 @@
-:py:mod:`bigquery.bigquery`
-===========================
+bigquery.bigquery
+=================
 
 .. py:module:: bigquery.bigquery
 
 
-Module Contents
----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   bigquery.bigquery.SCOPES
+   bigquery.bigquery.log
+
 
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -18,41 +24,29 @@ Classes
    bigquery.bigquery.BigqueryBase
 
 
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    bigquery.bigquery.init_api_root
 
 
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   bigquery.bigquery.SCOPES
-   bigquery.bigquery.log
-
+Module Contents
+---------------
 
 .. py:data:: SCOPES
    :value: ['https://www.googleapis.com/auth/bigquery.insertdata', 'https://www.googleapis.com/auth/bigquery']
 
-   
 
 .. py:data:: log
 
-   
-
 .. py:function:: init_api_root(api_root)
-
 
 .. py:class:: SourceFormat(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -90,42 +84,42 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: AVRO
       :value: 'AVRO'
 
-      
+
 
    .. py:attribute:: CSV
       :value: 'CSV'
 
-      
+
 
    .. py:attribute:: DATASTORE_BACKUP
       :value: 'DATASTORE_BACKUP'
 
-      
+
 
    .. py:attribute:: NEWLINE_DELIMITED_JSON
       :value: 'NEWLINE_DELIMITED_JSON'
 
-      
+
 
    .. py:attribute:: ORC
       :value: 'ORC'
 
-      
+
 
    .. py:attribute:: PARQUET
       :value: 'PARQUET'
 
-      
 
 
 .. py:class:: Disposition(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -163,27 +157,27 @@ Attributes
 
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
+
 
    .. py:attribute:: WRITE_APPEND
       :value: 'WRITE_APPEND'
 
-      
+
 
    .. py:attribute:: WRITE_EMPTY
       :value: 'WRITE_EMPTY'
 
-      
+
 
    .. py:attribute:: WRITE_TRUNCATE
       :value: 'WRITE_TRUNCATE'
 
-      
 
 
 .. py:class:: SchemaUpdateOption(*args, **kwds)
 
-
    Bases: :py:obj:`enum.Enum`
+
 
    Create a collection of name/value pairs.
 
@@ -222,61 +216,70 @@ Attributes
    Methods can be added to enumerations, and members can have their own
    attributes -- see the documentation for details.
 
+
    .. py:attribute:: ALLOW_FIELD_ADDITION
       :value: 'ALLOW_FIELD_ADDITION'
 
-      
+
 
    .. py:attribute:: ALLOW_FIELD_RELAXATION
       :value: 'ALLOW_FIELD_RELAXATION'
 
-      
 
 
 .. py:class:: BigqueryBase(project = None, service_file = None, session = None, token = None, api_root = None)
 
-
    .. py:attribute:: _project
-      :type: Optional[str]
+      :type:  Optional[str]
 
-      
 
    .. py:attribute:: _api_root
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: _api_is_dev
-      :type: bool
+      :type:  bool
 
-      
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
 
    .. py:method:: project()
       :async:
+
 
 
    .. py:method:: headers()
       :async:
 
 
+
    .. py:method:: _post_json(url, body, session, timeout, params = None)
       :async:
+
 
 
    .. py:method:: _get_url(url, session, timeout, params = None)
       :async:
 
 
+
    .. py:method:: _delete(url, session, timeout, params = None)
       :async:
+
 
 
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)

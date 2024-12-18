@@ -1,14 +1,11 @@
-:py:mod:`datastore.mutation`
-============================
+datastore.mutation
+==================
 
 .. py:module:: datastore.mutation
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -16,34 +13,36 @@ Classes
    datastore.mutation.MutationResult
 
 
-
+Module Contents
+---------------
 
 .. py:class:: Mutation
 
-
-
 .. py:class:: MutationResult(key, version, conflict_detected)
-
 
    .. py:attribute:: key_kind
 
-      
+
+   .. py:attribute:: key
+
+
+   .. py:attribute:: version
+
+
+   .. py:attribute:: conflict_detected
+
 
    .. py:method:: __eq__(other)
 
-      Return self==value.
-
 
    .. py:method:: __repr__()
-
-      Return repr(self).
 
 
    .. py:method:: from_repr(data)
       :classmethod:
 
 
-   .. py:method:: to_repr()
 
+   .. py:method:: to_repr()
 
 

@@ -1,15 +1,11 @@
-:py:mod:`auth.utils`
-====================
+auth.utils
+==========
 
 .. py:module:: auth.utils
 
 
-Module Contents
----------------
-
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
@@ -17,6 +13,8 @@ Functions
    auth.utils.encode
 
 
+Module Contents
+---------------
 
 .. py:function:: decode(payload)
 

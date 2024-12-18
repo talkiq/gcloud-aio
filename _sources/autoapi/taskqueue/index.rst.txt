@@ -1,5 +1,5 @@
-:py:mod:`taskqueue`
-===================
+taskqueue
+=========
 
 .. py:module:: taskqueue
 
@@ -34,28 +34,15 @@
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   queue/index.rst
-
-
-Package Contents
-----------------
-
-Classes
-~~~~~~~
-
-.. autoapisummary::
-
-   taskqueue.PushQueue
-
-
+   /autoapi/taskqueue/queue/index
 
 
 Attributes
-~~~~~~~~~~
+----------
 
 .. autoapisummary::
 
@@ -63,26 +50,40 @@ Attributes
    taskqueue.__version__
 
 
+Classes
+-------
+
+.. autoapisummary::
+
+   taskqueue.PushQueue
+
+
+Package Contents
+----------------
+
 .. py:class:: PushQueue(project, taskqueue, location = 'us-central1', service_file = None, session = None, token = None, api_root = None)
 
-
    .. py:attribute:: _api_root
-      :type: str
+      :type:  str
 
-      
 
    .. py:attribute:: _api_is_dev
-      :type: bool
+      :type:  bool
 
-      
 
    .. py:attribute:: _queue_path
-      :type: str
+      :type:  str
 
-      
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
 
    .. py:method:: headers()
       :async:
+
 
 
    .. py:method:: task_name(task_id)
@@ -92,28 +93,35 @@ Attributes
       :async:
 
 
+
    .. py:method:: delete(tname, session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: get(tname, full = False, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: list(full = False, page_size = 1000, page_token = '', session = None, timeout = 10)
       :async:
+
 
 
    .. py:method:: run(tname, full = False, session = None, timeout = 10)
       :async:
 
 
+
    .. py:method:: close()
       :async:
 
 
+
    .. py:method:: __aenter__()
       :async:
+
 
 
    .. py:method:: __aexit__(*args)
@@ -124,9 +132,6 @@ Attributes
 .. py:data:: SCOPES
    :value: ['https://www.googleapis.com/auth/cloud-tasks']
 
-   
 
 .. py:data:: __version__
-
-   
 

@@ -1,14 +1,11 @@
-:py:mod:`datastore.transaction_options`
-=======================================
+datastore.transaction_options
+=============================
 
 .. py:module:: datastore.transaction_options
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -17,26 +14,29 @@ Classes
    datastore.transaction_options.TransactionOptions
 
 
-
+Module Contents
+---------------
 
 .. py:class:: ReadOnly
 
-
    .. py:method:: to_repr()
-
 
 
 .. py:class:: ReadWrite(previous_transaction = None)
 
+   .. py:attribute:: previous_transaction
+      :value: None
+
+
 
    .. py:method:: to_repr()
-
 
 
 .. py:class:: TransactionOptions(option)
 
+   .. py:attribute:: option
+
 
    .. py:method:: to_repr()
-
 
 
