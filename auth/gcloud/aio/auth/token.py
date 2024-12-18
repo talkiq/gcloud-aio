@@ -160,7 +160,18 @@ class BaseToken:
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
+        cache_preempt_after: float = 0.5,
+        cache_refresh_after: float = 0.95,
     ) -> None:
+        if cache_preempt_after <= 0 or cache_preempt_after > 1:
+            raise ValueError('cache_preempt_after must be a value between 0 and 1')
+        if cache_refresh_after <= 0 or cache_refresh_after > 1:
+            raise ValueError('cache_refresh_after must be a value between 0 and 1')
+        # Portion of TTL after which a background refresh would start
+        self.cache_preempt_after = cache_preempt_after
+        # Portion of TTL after which a cached token is considered invalid
+        self.cache_refresh_after = cache_refresh_after
+
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
@@ -223,16 +234,14 @@ class BaseToken:
             elif now_ts > self.access_token_preempt_after:
                 # Token is okay, but we need to fire up a preemptive refresh
                 if not self.acquiring:
-                    self.acquiring = asyncio.create_task( # pylint: disable=possibly-used-before-assignment
-                        self.acquire_access_token())
+                    self.acquiring = asyncio.create_task(self.acquire_access_token())
                 return
             else:
                 # Cached token is valid for use
                 return
 
         if not self.acquiring:
-            self.acquiring = asyncio.create_task( # pylint: disable=possibly-used-before-assignment
-                self.acquire_access_token())
+            self.acquiring = asyncio.create_task(self.acquire_access_token())
         await self.acquiring
 
     @abstractmethod
@@ -248,8 +257,8 @@ class BaseToken:
         self.access_token_acquired_at = datetime.datetime.now(
             datetime.timezone.utc)
         base_timstamp = self.access_token_acquired_at.timestamp()
-        self.access_token_preempt_after = int(base_timstamp + (resp.expires_in * 0.5))
-        self.access_token_refresh_after = int(base_timstamp + (resp.expires_in * 0.75))
+        self.access_token_preempt_after = int(base_timstamp + (resp.expires_in * self.cache_preempt_after))
+        self.access_token_refresh_after = int(base_timstamp + (resp.expires_in * self.cache_refresh_after))
         self.acquiring = None
 
     async def close(self) -> None:
