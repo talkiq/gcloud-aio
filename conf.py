@@ -26,5 +26,3 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
-
-html_theme = 'sizzle'

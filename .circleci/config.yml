@@ -98,7 +98,7 @@ jobs:
   docs:
     executor: python312
     steps:
-      - run: pip install sphinx sphinx-autoapi sphinx-sizzle-theme
+      - run: pip install sphinx sphinx-autoapi
       - checkout
       # TODO: generate gcloud-rest-* docs
       # - attach_workspace:
