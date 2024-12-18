@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.8
+    python: python3.9
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -36,7 +36,7 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v3.2.7
+    rev: v3.3.2
     hooks:
     -   id: pylint
         args:
@@ -44,6 +44,7 @@ repos:
         - --max-complexity=10
         - --max-line-length=79
         - --max-args=10
+        - --max-positional-arguments=10
         - --score=n
         - -d broad-except
         - -d broad-exception-raised  # TODO: fixme
@@ -69,7 +70,7 @@ repos:
     -   id: reorder-python-imports
         args: [--py38-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.19.1
     hooks:
     -   id: pyupgrade
         args: [--py38-plus]
