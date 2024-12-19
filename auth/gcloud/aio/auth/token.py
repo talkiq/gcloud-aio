@@ -160,19 +160,19 @@ class BaseToken:
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
-        cache_preempt_after: float = 0.5,
-        cache_refresh_after: float = 0.95,
+        background_refresh_after: float = 0.5,
+        force_refresh_after: float = 0.95,
     ) -> None:
-        if cache_preempt_after <= 0 or cache_preempt_after > 1:
+        if background_refresh_after <= 0 or background_refresh_after > 1:
             raise ValueError(
-                'cache_preempt_after must be a value between 0 and 1')
-        if cache_refresh_after <= 0 or cache_refresh_after > 1:
+                'background_refresh_after must be a value between 0 and 1')
+        if force_refresh_after <= 0 or force_refresh_after > 1:
             raise ValueError(
-                'cache_refresh_after must be a value between 0 and 1')
+                'force_refresh_after must be a value between 0 and 1')
         # Portion of TTL after which a background refresh would start
-        self.cache_preempt_after = cache_preempt_after
+        self.background_refresh_after = background_refresh_after
         # Portion of TTL after which a cached token is considered invalid
-        self.cache_refresh_after = cache_refresh_after
+        self.force_refresh_after = force_refresh_after
 
         self.service_data = get_service_data(service_file)
         if self.service_data:
@@ -264,11 +264,11 @@ class BaseToken:
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
             datetime.timezone.utc)
-        base_timstamp = self.access_token_acquired_at.timestamp()
+        base_timestamp = self.access_token_acquired_at.timestamp()
         self.access_token_preempt_after = int(
-            base_timstamp + (resp.expires_in * self.cache_preempt_after))
+            base_timestamp + (resp.expires_in * self.background_refresh_after))
         self.access_token_refresh_after = int(
-            base_timstamp + (resp.expires_in * self.cache_refresh_after))
+            base_timestamp + (resp.expires_in * self.force_refresh_after))
         self.acquiring = None
 
     async def close(self) -> None:
@@ -355,7 +355,9 @@ class Token(BaseToken):
             timeout=timeout,
         )
         content = await resp.json()
-        token = str(content.get('access_token') or content.get('id_token'))
+
+        # no .get() on the second option - Raises KeyError if neither found
+        token = str(content.get('access_token') or content['id_token'])
         expires = int(content.get('expires_in', '0')) or self.default_token_ttl
         return TokenResponse(value=token, expires_in=expires)
 
