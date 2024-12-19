@@ -164,7 +164,7 @@ repos:
         # renovate: datasource=pypi depName=flake8-builtins
         - flake8-builtins==2.5.0
         # renovate: datasource=pypi depName=flake8-comprehensions
-        - flake8-comprehensions==3.15.0
+        - flake8-comprehensions==3.16.0
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v2.0.4
     hooks:
