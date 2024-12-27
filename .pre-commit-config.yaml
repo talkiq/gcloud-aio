@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.9
+    python: python3.13
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
