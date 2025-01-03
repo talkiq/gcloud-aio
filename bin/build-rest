@@ -74,6 +74,8 @@ find . -type f \
     | xargs -L1 $SED -Ei 's/AioSession/SyncSession/g'
 find . -type f \
     | xargs -L1 $SED -Ei 's/asyncio.ensure_future(.*)/\1/g'
+find . -type f \
+    | xargs -L1 $SED -Ei 's/asyncio.create_task(.*)/\1/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/(async|await) //g'
 find . -type f -path '*tests/*' \
