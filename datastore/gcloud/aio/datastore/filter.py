@@ -122,6 +122,13 @@ class PropertyFilter(BaseFilter):
         # TODO: consider refactoring to look more like Value.to_repr()
         if isinstance(self.value, Array):
             rep['value'] = {'arrayValue': self.value.to_repr()}
+        elif (isinstance(self.value, Value)
+              and isinstance(self.value.value, list)):
+            # This allows for a bit of syntactic sugar such that folks can pass
+            # in a list directly (ie. as a Value instead of as an Array, as the
+            # Google APIs would return it).
+            values = [Value(x).to_repr() for x in self.value.value]
+            rep['value'] = {'arrayValue': {'values': values}}
         else:
             rep['value'] = self.value.to_repr()
         return rep

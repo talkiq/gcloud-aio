@@ -5,11 +5,6 @@ orbs:
   poetry: talkiq/poetry@4
 
 executors:
-  python38:
-    docker:
-      - image: python:3.8.19
-    resource_class: small
-
   python39:
     docker:
       - image: python:3.9.19
@@ -103,7 +98,7 @@ jobs:
   docs:
     executor: python312
     steps:
-      - run: pip install sphinx sphinx-autoapi sphinx-sizzle-theme
+      - run: pip install sphinx sphinx-autoapi
       - checkout
       # TODO: generate gcloud-rest-* docs
       # - attach_workspace:
@@ -122,7 +117,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:22.9.0
+      - image: node:22.13.1
     steps:
       - checkout
       - attach_workspace:
@@ -171,7 +166,7 @@ workflows:
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
           # support.
-          executor: python38
+          executor: python39
           filters:
             tags:
               only: /.*/
@@ -188,7 +183,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python38, python39, python310, python311, python312]
+              executor: [python39, python310, python311, python312]
           filters:
             tags:
               only: /.*/
@@ -223,7 +218,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python38, python39, python310, python311, python312]
+              executor: [python39, python310, python311, python312]
           filters:
             tags:
               only: /.*/

@@ -3,11 +3,11 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.8
+    python: python3.9
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
     -   id: check-case-conflict
     -   id: check-executables-have-shebangs
@@ -36,15 +36,15 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
 -   repo: https://github.com/PyCQA/pylint
-    rev: v3.2.7
+    rev: v3.3.4
     hooks:
-    # TODO: re-enable pylint-import-modules when it supports pylint v3
     -   id: pylint
         args:
         - --load-plugins=pylint.extensions.mccabe
         - --max-complexity=10
         - --max-line-length=79
         - --max-args=10
+        - --max-positional-arguments=10
         - --score=n
         - -d broad-except
         - -d broad-exception-raised  # TODO: fixme
@@ -64,18 +64,23 @@ repos:
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.13.0
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.14.0
     hooks:
     -   id: reorder-python-imports
         args: [--py38-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.19.1
     hooks:
     -   id: pyupgrade
         args: [--py38-plus]
+# TODO: enable me
+# -   repo: https://github.com/asottile/add-trailing-comma
+#     rev: v3.1.0
+#     hooks:
+#     -   id: add-trailing-comma
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.14.1
     hooks:
     -   &mypy
         id: mypy
@@ -152,13 +157,16 @@ repos:
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
         # required noqa's related to these plugins
         additional_dependencies: &flake8deps
+        # renovate: datasource=pypi depName=flake8-2020
         - flake8-2020==1.8.1
+        # renovate: datasource=pypi depName=flake8-broken-line
         - flake8-broken-line==1.0.0
-        - flake8-builtins==2.1.0
-        - flake8-commas==2.1.0
-        - flake8-comprehensions==3.13.0
--   repo: https://github.com/hhatto/autopep8
-    rev: v2.3.1
+        # renovate: datasource=pypi depName=flake8-builtins
+        - flake8-builtins==2.5.0
+        # renovate: datasource=pypi depName=flake8-comprehensions
+        - flake8-comprehensions==3.16.0
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.4
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
@@ -177,7 +185,8 @@ repos:
         entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
         language: python
         additional_dependencies:
-        - poetry>=1.2.0
+        # renovate: datasource=pypi depName=poetry
+        - poetry==1.8.5
         pass_filenames: true
         files: 'pyproject\.toml$'
     -   id: poetry-use-version-ranges
@@ -207,9 +216,11 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.29.3
+  rev: 0.31.0
   hooks:
+    - id: check-circle-ci
     - id: check-github-workflows
     - id: check-renovate
       additional_dependencies:
-      - pyjson5
+      # renovate: datasource=pypi depName=pyjson5
+      - pyjson5==1.6.8

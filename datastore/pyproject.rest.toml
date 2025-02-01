@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-rest-datastore"
-version = "8.1.0"
+version = "8.2.0"
 description = "Python Client for Google Cloud Datastore"
 readme = "README.rst"
 
@@ -20,15 +20,15 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.8, < 4.0"
+python = ">= 3.9, < 4.0"
 gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 # aiohttp = "3.9.1"
 gcloud-rest-auth = { path = "../auth" }
 gcloud-rest-storage = { path = "../storage" }
-pytest = "8.2.2"
-# pytest-asyncio = "0.23.7"
+pytest = "8.3.3"
+# pytest-asyncio = "0.23.8"
 pytest-mock = "3.14.0"
 
 [[tool.poetry.source]]

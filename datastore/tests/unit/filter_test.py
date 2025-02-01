@@ -134,6 +134,26 @@ class TestFilter:
     def test_repr_returns_to_repr_as_string(query_filter):
         assert repr(query_filter) == str(query_filter.to_repr())
 
+    def test_in_filter_with_list_arg(self):
+        expected_value = {
+            'arrayValue': {
+                'values': [
+                    {'excludeFromIndexes': False, 'stringValue': 'value1'},
+                    {'excludeFromIndexes': False, 'stringValue': 'value2'},
+                ],
+            },
+        }
+
+        prop = 'prop1'
+        value = ['value1', 'value2']
+        operator = PropertyFilterOperator.IN
+        property_filter = PropertyFilter(prop, operator, Value(value))
+        query_filter = Filter(property_filter)
+        r = query_filter.to_repr()
+        assert r['propertyFilter']['property']['name'] == prop
+        assert r['propertyFilter']['op'] == operator.value
+        assert r['propertyFilter']['value'] == expected_value
+
     @staticmethod
     @pytest.fixture(scope='session')
     def property_filters() -> List[PropertyFilter]:

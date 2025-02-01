@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.8, < 4.0"
+python = ">= 3.9, < 4.0"
 aiofiles = ">= 0.6.0, < 25.0.0"
 gcloud-aio-auth = ">= 5.3.0, < 6.0.0"
 pyasn1-modules = ">= 0.2.1, < 0.4.2"
@@ -29,7 +29,7 @@ rsa = ">= 3.1.4, < 5.0.0"
 [tool.poetry.group.dev.dependencies]
 gcloud-aio-auth = { path = "../auth" }
 pytest = "8.3.3"
-pytest-asyncio = "0.23.8"
+pytest-asyncio = "0.25.3"
 pytest-mock = "3.14.0"
 
 [[tool.poetry.source]]
