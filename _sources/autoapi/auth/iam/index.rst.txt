@@ -1,0 +1,87 @@
+auth.iam
+========
+
+.. py:module:: auth.iam
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.iam.API_ROOT_IAM
+   auth.iam.API_ROOT_IAM_CREDENTIALS
+   auth.iam.SCOPES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   auth.iam.IamClient
+
+
+Module Contents
+---------------
+
+.. py:data:: API_ROOT_IAM
+   :value: 'https://iam.googleapis.com/v1'
+
+
+.. py:data:: API_ROOT_IAM_CREDENTIALS
+   :value: 'https://iamcredentials.googleapis.com/v1'
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/iam']
+
+
+.. py:class:: IamClient(service_file = None, session = None, token = None)
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
+
+   .. py:method:: headers()
+      :async:
+
+
+
+   .. py:property:: service_account_email
+      :type: Optional[str]
+
+
+
+   .. py:method:: get_public_key(key_id = None, key = None, service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: list_public_keys(service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: sign_blob(payload, service_account_email = None, delegates = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+

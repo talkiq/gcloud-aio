@@ -1,0 +1,52 @@
+datastore.value
+===============
+
+.. py:module:: datastore.value
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   datastore.value.Value
+
+
+Module Contents
+---------------
+
+.. py:class:: Value(value, exclude_from_indexes = False)
+
+   .. py:attribute:: key_kind
+
+
+   .. py:attribute:: value
+
+
+   .. py:attribute:: excludeFromIndexes
+      :value: False
+
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: _infer_type(value)
+
+
+   .. py:method:: _get_supported_types()
+      :classmethod:
+
+
+

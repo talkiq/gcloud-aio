@@ -1,0 +1,21 @@
+auth.build_constants
+====================
+
+.. py:module:: auth.build_constants
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.build_constants.BUILD_GCLOUD_REST
+
+
+Module Contents
+---------------
+
+.. py:data:: BUILD_GCLOUD_REST
+   :value: True
+
+

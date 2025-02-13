@@ -1,0 +1,177 @@
+auth.session
+============
+
+.. py:module:: auth.session
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.session.log
+   auth.session.Timeout
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   auth.session.BaseSession
+   auth.session.SyncSession
+
+
+Module Contents
+---------------
+
+.. py:data:: log
+
+.. py:class:: BaseSession(session = None, timeout = 10, verify_ssl = True)
+
+   .. py:attribute:: __metaclass__
+
+
+   .. py:attribute:: _shared_session
+      :value: False
+
+
+
+   .. py:attribute:: _session
+      :value: None
+
+
+
+   .. py:attribute:: _ssl
+      :value: True
+
+
+
+   .. py:attribute:: _timeout
+      :value: 10
+
+
+
+   .. py:property:: session
+      :type: Optional[requests.Session]
+
+      :abstractmethod:
+
+
+
+   .. py:method:: post(url, headers, data, timeout, params)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: get(url, headers, timeout, params, stream, auto_decompress)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: patch(url, headers, data, timeout, params)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: put(url, headers, data, timeout)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: delete(url, headers, params, timeout)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: head(url, headers, timeout, params, allow_redirects)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: request(method, url, headers, auto_raise_for_status = True, **kwargs)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: close()
+      :abstractmethod:
+
+      :async:
+
+
+
+.. py:data:: Timeout
+
+.. py:class:: SyncSession(session = None, timeout = 10, verify_ssl = True)
+
+   Bases: :py:obj:`BaseSession`
+
+
+   .. py:attribute:: _google_api_lock
+
+
+   .. py:property:: google_api_lock
+      :type: threading.RLock
+
+
+
+   .. py:property:: session
+      :type: requests.Session
+
+
+
+   .. py:method:: post(url, headers, data = None, timeout = 10, params = None)
+      :async:
+
+
+
+   .. py:method:: get(url, headers = None, timeout = 10, params = None, stream = False, auto_decompress = True)
+      :async:
+
+
+
+   .. py:method:: patch(url, headers, data = None, timeout = 10, params = None)
+      :async:
+
+
+
+   .. py:method:: put(url, headers, data, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: delete(url, headers, params = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: head(url, headers = None, timeout = 10, params = None, allow_redirects = False)
+      :async:
+
+
+
+   .. py:method:: request(method, url, headers, auto_raise_for_status = True, **kwargs)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+

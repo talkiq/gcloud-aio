@@ -1,0 +1,528 @@
+bigquery
+========
+
+.. py:module:: bigquery
+
+.. autoapi-nested-parse::
+
+   This library implements various methods for working with the Google Bigquery
+   APIs.
+
+   Installation
+   ------------
+
+   .. code-block:: console
+
+       $ pip install --upgrade gcloud-aio-bigquery
+
+   Usage
+   -----
+
+   We're still working on documentation -- for now, you can use the
+   `smoke test`_ as an example.
+
+   Emulators
+   ---------
+
+   For testing purposes, you may want to use ``gcloud-aio-bigquery`` along with a
+   local emulator. Setting the ``$BIGQUERY_EMULATOR_HOST`` environment variable to
+   the address of your emulator should be enough to do the trick.
+
+   .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/bigquery/tests/integration/smoke_test.py
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/bigquery/bigquery/index
+   /autoapi/bigquery/dataset/index
+   /autoapi/bigquery/job/index
+   /autoapi/bigquery/table/index
+   /autoapi/bigquery/utils/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   bigquery.SCOPES
+   bigquery.__version__
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   bigquery.Disposition
+   bigquery.SchemaUpdateOption
+   bigquery.SourceFormat
+   bigquery.Dataset
+   bigquery.Job
+   bigquery.Table
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bigquery.query_response_to_dict
+
+
+Package Contents
+----------------
+
+.. py:class:: Disposition(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: WRITE_APPEND
+      :value: 'WRITE_APPEND'
+
+
+
+   .. py:attribute:: WRITE_EMPTY
+      :value: 'WRITE_EMPTY'
+
+
+
+   .. py:attribute:: WRITE_TRUNCATE
+      :value: 'WRITE_TRUNCATE'
+
+
+
+.. py:class:: SchemaUpdateOption(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: ALLOW_FIELD_ADDITION
+      :value: 'ALLOW_FIELD_ADDITION'
+
+
+
+   .. py:attribute:: ALLOW_FIELD_RELAXATION
+      :value: 'ALLOW_FIELD_RELAXATION'
+
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/bigquery.insertdata', 'https://www.googleapis.com/auth/bigquery']
+
+
+.. py:class:: SourceFormat(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: AVRO
+      :value: 'AVRO'
+
+
+
+   .. py:attribute:: CSV
+      :value: 'CSV'
+
+
+
+   .. py:attribute:: DATASTORE_BACKUP
+      :value: 'DATASTORE_BACKUP'
+
+
+
+   .. py:attribute:: NEWLINE_DELIMITED_JSON
+      :value: 'NEWLINE_DELIMITED_JSON'
+
+
+
+   .. py:attribute:: ORC
+      :value: 'ORC'
+
+
+
+   .. py:attribute:: PARQUET
+      :value: 'PARQUET'
+
+
+
+.. py:class:: Dataset(dataset_name = None, project = None, service_file = None, session = None, token = None, api_root = None)
+
+   Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
+
+
+   .. py:attribute:: dataset_name
+      :value: None
+
+
+
+   .. py:method:: list_tables(session = None, timeout = 60, params = None)
+      :async:
+
+
+      List tables in a dataset.
+
+
+
+   .. py:method:: list_datasets(session = None, timeout = 60, params = None)
+      :async:
+
+
+      List datasets in current project.
+
+
+
+   .. py:method:: get(session = None, timeout = 60, params = None)
+      :async:
+
+
+      Get a specific dataset in current project.
+
+
+
+   .. py:method:: insert(dataset, session = None, timeout = 60)
+      :async:
+
+
+      Create datasets in current project.
+
+
+
+   .. py:method:: delete(dataset_name = None, session = None, timeout = 60)
+      :async:
+
+
+      Delete datasets in current project.
+
+
+
+.. py:class:: Job(job_id = None, project = None, service_file = None, session = None, token = None, api_root = None, location = None)
+
+   Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
+
+
+   .. py:attribute:: job_id
+      :value: None
+
+
+
+   .. py:attribute:: location
+      :value: None
+
+
+
+   .. py:method:: _make_query_body(query, write_disposition, use_query_cache, dry_run, use_legacy_sql, destination_table)
+      :staticmethod:
+
+
+
+   .. py:method:: _config_params(params = None)
+
+
+   .. py:method:: get_job(session = None, timeout = 60)
+      :async:
+
+
+      Get the specified job resource by job ID.
+
+
+
+   .. py:method:: get_query_results(session = None, timeout = 60, params = None)
+      :async:
+
+
+      Get the specified jobQueryResults by job ID.
+
+
+
+   .. py:method:: cancel(session = None, timeout = 60)
+      :async:
+
+
+      Cancel the specified job by job ID.
+
+
+
+   .. py:method:: query(query_request, session = None, timeout = 60)
+      :async:
+
+
+      Runs a query synchronously and returns query results if completes
+      within a specified timeout.
+
+
+
+   .. py:method:: insert(job, session = None, timeout = 60)
+      :async:
+
+
+      Insert a new asynchronous job.
+
+
+
+   .. py:method:: insert_via_query(query, session = None, write_disposition = Disposition.WRITE_EMPTY, timeout = 60, use_query_cache = True, dry_run = False, use_legacy_sql = True, destination_table = None)
+      :async:
+
+
+      Create table as a result of the query
+
+
+
+   .. py:method:: result(session = None)
+      :async:
+
+
+
+   .. py:method:: delete(session = None, job_id = None, timeout = 60)
+      :async:
+
+
+      Delete the specified job by job ID.
+
+
+
+.. py:class:: Table(dataset_name, table_name, project = None, service_file = None, session = None, token = None, api_root = None)
+
+   Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
+
+
+   .. py:attribute:: dataset_name
+
+
+   .. py:attribute:: table_name
+
+
+   .. py:method:: _mk_unique_insert_id(row)
+      :staticmethod:
+
+
+
+   .. py:method:: _make_copy_body(source_project, destination_project, destination_dataset, destination_table)
+
+
+   .. py:method:: _make_insert_body(rows, *, skip_invalid, ignore_unknown, template_suffix, insert_id_fn)
+      :staticmethod:
+
+
+
+   .. py:method:: _make_load_body(source_uris, project, autodetect, source_format, write_disposition, ignore_unknown_values, schema_update_options)
+
+
+   .. py:method:: _make_query_body(query, project, write_disposition, use_query_cache, dry_run)
+
+
+   .. py:method:: create(table, session = None, timeout = 60)
+      :async:
+
+
+      Create the table specified by tableId from the dataset.
+
+
+
+   .. py:method:: patch(table, session = None, timeout = 60)
+      :async:
+
+
+      Patch an existing table specified by tableId from the dataset.
+
+
+
+   .. py:method:: delete(session = None, timeout = 60)
+      :async:
+
+
+      Deletes the table specified by tableId from the dataset.
+
+
+
+   .. py:method:: get(session = None, timeout = 60)
+      :async:
+
+
+      Gets the specified table resource by table ID.
+
+
+
+   .. py:method:: insert(rows, skip_invalid = False, ignore_unknown = True, session = None, template_suffix = None, timeout = 60, *, insert_id_fn = None)
+      :async:
+
+
+      Streams data into BigQuery
+
+      By default, each row is assigned a unique insertId. This can be
+      customized by supplying an `insert_id_fn` which takes a row and
+      returns an insertId.
+
+      In cases where at least one row has successfully been inserted and at
+      least one row has failed to be inserted, the Google API will return a
+      2xx (successful) response along with an `insertErrors` key in the
+      response JSON containing details on the failing rows.
+
+
+
+   .. py:method:: insert_via_copy(destination_project, destination_dataset, destination_table, session = None, timeout = 60)
+      :async:
+
+
+      Copy BQ table to another table in BQ
+
+
+
+   .. py:method:: insert_via_load(source_uris, session = None, autodetect = False, source_format = SourceFormat.CSV, write_disposition = Disposition.WRITE_TRUNCATE, timeout = 60, ignore_unknown_values = False, schema_update_options = None)
+      :async:
+
+
+      Loads entities from storage to BigQuery.
+
+
+
+   .. py:method:: insert_via_query(query, session = None, write_disposition = Disposition.WRITE_EMPTY, timeout = 60, use_query_cache = True, dry_run = False)
+      :async:
+
+
+      Create table as a result of the query
+
+
+
+   .. py:method:: list_tabledata(session = None, timeout = 60, params = None)
+      :async:
+
+
+      List the content of a table in rows.
+
+
+
+.. py:function:: query_response_to_dict(response)
+
+   Convert a query response to a dictionary.
+
+   API responses for job queries are packed into a difficult-to-use format.
+   This method deserializes a response into a List of rows, with each row
+   being a dictionary of field names to the row's value.
+
+   This method also handles converting the values according to the schema
+   defined in the response (eg. into builtin python types).
+
+
+.. py:data:: __version__
+

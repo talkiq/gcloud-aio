@@ -1,0 +1,36 @@
+datastore.projection
+====================
+
+.. py:module:: datastore.projection
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   datastore.projection.Projection
+
+
+Module Contents
+---------------
+
+.. py:class:: Projection(prop)
+
+   .. py:attribute:: prop
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+

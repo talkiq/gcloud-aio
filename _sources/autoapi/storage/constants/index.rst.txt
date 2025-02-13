@@ -1,0 +1,21 @@
+storage.constants
+=================
+
+.. py:module:: storage.constants
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   storage.constants.DEFAULT_TIMEOUT
+
+
+Module Contents
+---------------
+
+.. py:data:: DEFAULT_TIMEOUT
+   :value: 10
+
+

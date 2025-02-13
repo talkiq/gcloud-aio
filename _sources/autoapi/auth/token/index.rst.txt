@@ -1,0 +1,361 @@
+auth.token
+==========
+
+.. py:module:: auth.token
+
+.. autoapi-nested-parse::
+
+   Google Cloud auth via service account file
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.token.CustomFileError
+   auth.token.GCE_METADATA_BASE
+   auth.token.GCE_METADATA_HEADERS
+   auth.token.GCE_ENDPOINT_PROJECT
+   auth.token.GCE_ENDPOINT_TOKEN
+   auth.token.GCE_ENDPOINT_ID_TOKEN
+   auth.token.GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
+   auth.token.GCLOUD_ENDPOINT_GENERATE_ID_TOKEN
+   auth.token.REFRESH_HEADERS
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   auth.token.Type
+   auth.token.TokenResponse
+   auth.token.BaseToken
+   auth.token.Token
+   auth.token.IapToken
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   auth.token.get_service_data
+
+
+Module Contents
+---------------
+
+.. py:data:: CustomFileError
+   :type:  Any
+
+.. py:data:: GCE_METADATA_BASE
+   :value: 'http://metadata.google.internal/computeMetadata/v1'
+
+
+.. py:data:: GCE_METADATA_HEADERS
+
+.. py:data:: GCE_ENDPOINT_PROJECT
+   :value: 'http://metadata.google.internal/computeMetadata/v1/project/project-id'
+
+
+.. py:data:: GCE_ENDPOINT_TOKEN
+   :value: 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token?recur...
+
+
+.. py:data:: GCE_ENDPOINT_ID_TOKEN
+   :value: 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?au...
+
+
+.. py:data:: GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
+   :value: 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{service_account}:generateAc...
+
+
+.. py:data:: GCLOUD_ENDPOINT_GENERATE_ID_TOKEN
+   :value: 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
+
+
+.. py:data:: REFRESH_HEADERS
+
+.. py:class:: Type(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: AUTHORIZED_USER
+      :value: 'authorized_user'
+
+
+
+   .. py:attribute:: GCE_METADATA
+      :value: 'gce_metadata'
+
+
+
+   .. py:attribute:: SERVICE_ACCOUNT
+      :value: 'service_account'
+
+
+
+.. py:function:: get_service_data(service)
+
+   Get the service data dictionary for the current auth method.
+
+   This method is meant to match the official ``google.auth.default()``
+   method (or rather, the subset relevant to our use-case). Things such as the
+   precedence order of various approaches MUST be maintained. It was last
+   updated to match the following commit:
+
+   https://github.com/googleapis/google-auth-library-python/blob/6c1297c4d69ba40a8b9392775c17411253fcd73b/google/auth/_default.py#L504
+
+
+.. py:class:: TokenResponse
+
+   .. py:attribute:: value
+      :type:  str
+
+
+   .. py:attribute:: expires_in
+      :type:  int
+
+
+.. py:class:: BaseToken(service_file = None, session = None)
+
+   GCP auth token base class.
+
+
+   .. py:attribute:: __metaclass__
+
+
+   .. py:attribute:: service_data
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: access_token
+      :type:  Optional[str]
+      :value: None
+
+
+
+   .. py:attribute:: access_token_duration
+      :value: 0
+
+
+
+   .. py:attribute:: access_token_acquired_at
+
+
+   .. py:attribute:: acquiring
+      :type:  Optional[asyncio.Future[Any]]
+      :value: None
+
+
+
+   .. py:method:: get_project()
+      :async:
+
+
+
+   .. py:method:: get()
+      :async:
+
+
+
+   .. py:method:: ensure_token()
+      :async:
+
+
+
+   .. py:method:: refresh(*, timeout)
+      :abstractmethod:
+
+      :async:
+
+
+
+   .. py:method:: acquire_access_token(timeout = 10)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:class:: Token(service_file = None, session = None, scopes = None, target_principal = None, delegates = None)
+
+   Bases: :py:obj:`BaseToken`
+
+
+   GCP OAuth 2.0 access token.
+
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+
+
+   .. py:attribute:: scopes
+      :value: ''
+
+
+
+   .. py:attribute:: target_principal
+      :value: None
+
+
+
+   .. py:attribute:: delegates
+      :value: None
+
+
+
+   .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_gce_metadata(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_service_account(timeout)
+      :async:
+
+
+
+   .. py:method:: _impersonate(token, *, timeout)
+      :async:
+
+
+
+   .. py:method:: refresh(*, timeout)
+      :async:
+
+
+
+.. py:class:: IapToken(app_uri, service_file = None, session = None, impersonating_service_account = None)
+
+   Bases: :py:obj:`BaseToken`
+
+
+   An OpenID Connect ID token for a single IAP-secured service.
+
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+
+
+   .. py:attribute:: app_uri
+
+
+   .. py:attribute:: service_account
+      :value: None
+
+
+
+   .. py:method:: _get_iap_client_id(*, timeout)
+      :async:
+
+
+      Fetch the IAP client ID from the service URI.
+
+      If not logged in already, then we parse the OAuth redirect location to
+      get the client ID. The redirect location is a header of the form:
+
+          https://accounts.google.com/o/oauth2/v2/auth?client_id=<id>&...
+
+      For more details, see the GCP docs for programmatic IAP access:
+      https://cloud.google.com/iap/docs/authentication-howto
+
+
+
+   .. py:method:: _refresh_authorized_user(iap_client_id, timeout)
+      :async:
+
+
+      Fetch IAP ID token by impersonating a service account.
+
+      https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
+
+
+
+   .. py:method:: _refresh_gce_metadata(iap_client_id, timeout)
+      :async:
+
+
+      Fetch IAP ID token from the GCE metadata servers.
+
+      Note: The official documentation states that the URI be used for the
+      audience but this is not the case. The typical audience value must be
+      used as in other flavours of ID token fetching.
+
+      https://cloud.google.com/docs/authentication/get-id-token#metadata-server
+
+
+
+   .. py:method:: _refresh_service_account(iap_client_id, timeout)
+      :async:
+
+
+
+   .. py:method:: refresh(*, timeout)
+      :async:
+
+
+

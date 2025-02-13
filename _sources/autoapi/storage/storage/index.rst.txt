@@ -1,0 +1,372 @@
+storage.storage
+===============
+
+.. py:module:: storage.storage
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   storage.storage.MAX_CONTENT_LENGTH_SIMPLE_UPLOAD
+   storage.storage.SCOPES
+   storage.storage.log
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   storage.storage.UploadType
+   storage.storage.StreamResponse
+   storage.storage.Storage
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   storage.storage.init_api_root
+   storage.storage.choose_boundary
+   storage.storage.encode_multipart_formdata
+
+
+Module Contents
+---------------
+
+.. py:data:: MAX_CONTENT_LENGTH_SIMPLE_UPLOAD
+   :value: 5242880
+
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/devstorage.read_write']
+
+
+.. py:data:: log
+
+.. py:function:: init_api_root(api_root)
+
+.. py:function:: choose_boundary()
+
+   Stolen from urllib3.filepost.choose_boundary() as of v1.26.2.
+
+
+.. py:function:: encode_multipart_formdata(fields, boundary)
+
+   Stolen from urllib3.filepost.encode_multipart_formdata() as of v1.26.2.
+
+   Very heavily modified to be compatible with our gcloud-rest converter and
+   to avoid unnecessary urllib3 dependencies (since that's only included with
+   requests, not aiohttp).
+
+
+.. py:class:: UploadType(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Create a collection of name/value pairs.
+
+   Example enumeration:
+
+   >>> class Color(Enum):
+   ...     RED = 1
+   ...     BLUE = 2
+   ...     GREEN = 3
+
+   Access them by:
+
+   - attribute access:
+
+     >>> Color.RED
+     <Color.RED: 1>
+
+   - value lookup:
+
+     >>> Color(1)
+     <Color.RED: 1>
+
+   - name lookup:
+
+     >>> Color['RED']
+     <Color.RED: 1>
+
+   Enumerations can be iterated over, and know how many members they have:
+
+   >>> len(Color)
+   3
+
+   >>> list(Color)
+   [<Color.RED: 1>, <Color.BLUE: 2>, <Color.GREEN: 3>]
+
+   Methods can be added to enumerations, and members can have their own
+   attributes -- see the documentation for details.
+
+
+   .. py:attribute:: SIMPLE
+      :value: 1
+
+
+
+   .. py:attribute:: RESUMABLE
+      :value: 2
+
+
+
+   .. py:attribute:: MULTIPART
+      :value: 3
+
+
+
+.. py:class:: StreamResponse(response)
+
+   This class provides an abstraction between the slightly different
+   recommended streaming implementations between requests and aiohttp.
+
+
+   .. py:attribute:: _response
+
+
+   .. py:attribute:: _iter
+      :type:  Optional[Iterator[bytes]]
+      :value: None
+
+
+
+   .. py:property:: content_length
+      :type: int
+
+
+
+   .. py:method:: read(size = -1)
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*exc_info)
+      :async:
+
+
+
+.. py:class:: Storage(*, service_file = None, token = None, session = None, api_root = None)
+
+   .. py:attribute:: _api_root
+      :type:  str
+
+
+   .. py:attribute:: _api_is_dev
+      :type:  bool
+
+
+   .. py:attribute:: _api_root_read
+      :type:  str
+
+
+   .. py:attribute:: _api_root_write
+      :type:  str
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
+
+   .. py:method:: _headers()
+      :async:
+
+
+
+   .. py:method:: list_buckets(project, *, params = None, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
+   .. py:method:: get_bucket(bucket_name)
+
+
+   .. py:method:: copy(bucket, object_name, destination_bucket, *, new_name = None, metadata = None, params = None, headers = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+      When files are too large, multiple calls to ``rewriteTo`` are made. We
+      refer to the same copy job by using the ``rewriteToken`` from the
+      previous return payload in subsequent ``rewriteTo`` calls.
+
+      Using the ``rewriteTo`` GCS API is preferred in part because it is able
+      to make multiple calls to fully copy an object whereas the ``copyTo``
+      GCS API only calls ``rewriteTo`` once under the hood, and thus may fail
+      if files are large.
+
+      In the rare case you need to resume a copy operation, include the
+      ``rewriteToken`` in the ``params`` dictionary. Once you begin a
+      multi-part copy operation, you then have 1 week to complete the copy
+      job.
+
+      See https://cloud.google.com/storage/docs/json_api/v1/objects/rewrite
+
+
+
+   .. py:method:: delete(bucket, object_name, *, timeout = DEFAULT_TIMEOUT, params = None, headers = None, session = None)
+      :async:
+
+
+
+   .. py:method:: download(bucket, object_name, *, headers = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+
+   .. py:method:: download_to_filename(bucket, object_name, filename, **kwargs)
+      :async:
+
+
+
+   .. py:method:: download_metadata(bucket, object_name, *, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
+   .. py:method:: download_stream(bucket, object_name, *, headers = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+      Download a GCS object in a buffered stream.
+
+      :param bucket: The bucket from which to download.
+      :param object_name: The object within the bucket to download.
+      :param headers: Custom header values for the request, such as range.
+      :param timeout: Timeout, in seconds, for the request. Note that with this
+                      function, this is the time to the beginning of the response
+                      data (TTFB).
+      :param session: A specific session to (re)use.
+
+      :returns: A object encapsulating the stream, similar to
+                io.BufferedIOBase, but it only supports the read() function.
+      :rtype: StreamResponse
+
+
+
+   .. py:method:: list_objects(bucket, *, params = None, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
+   .. py:method:: upload(bucket, object_name, file_data, *, content_type = None, parameters = None, headers = None, metadata = None, session = None, force_resumable_upload = None, zipped = False, timeout = 30)
+      :async:
+
+
+
+   .. py:method:: upload_from_filename(bucket, object_name, filename, **kwargs)
+      :async:
+
+
+
+   .. py:method:: _get_stream_len(stream)
+      :staticmethod:
+
+
+
+   .. py:method:: _preprocess_data(data)
+      :staticmethod:
+
+
+
+   .. py:method:: _compress_file_in_chunks(input_stream, chunk_size = 8192)
+      :staticmethod:
+
+
+      Reads the contents of input_stream and writes it gzip-compressed to
+      output_stream in chunks. The chunk size is 8Kb by default, which is a
+      standard filesystem block size.
+
+
+
+   .. py:method:: _decide_upload_type(force_resumable_upload, content_length)
+      :staticmethod:
+
+
+
+   .. py:method:: _split_content_type(content_type)
+      :staticmethod:
+
+
+
+   .. py:method:: _format_metadata_key(key)
+      :staticmethod:
+
+
+      Formats the fixed-key metadata keys as wanted by the multipart API.
+
+      Ex: Content-Disposition --> contentDisposition
+
+
+
+   .. py:method:: _download(bucket, object_name, *, params = None, headers = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+
+   .. py:method:: _download_stream(bucket, object_name, *, params = None, headers = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+
+   .. py:method:: _upload_simple(url, object_name, stream, params, headers, *, session = None, timeout = 30)
+      :async:
+
+
+
+   .. py:method:: _upload_multipart(url, object_name, stream, params, headers, metadata, *, session = None, timeout = 30)
+      :async:
+
+
+
+   .. py:method:: _upload_resumable(url, object_name, stream, params, headers, *, metadata = None, session = None, timeout = 30)
+      :async:
+
+
+
+   .. py:method:: _initiate_upload(url, object_name, params, headers, *, metadata = None, timeout = DEFAULT_TIMEOUT, session = None)
+      :async:
+
+
+
+   .. py:method:: _do_upload(session_uri, stream, headers, *, retries = 5, session = None, timeout = 30)
+      :async:
+
+
+
+   .. py:method:: patch_metadata(bucket, object_name, metadata, *, params = None, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
+   .. py:method:: get_bucket_metadata(bucket, *, params = None, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+

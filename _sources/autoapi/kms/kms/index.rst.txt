@@ -1,0 +1,90 @@
+kms.kms
+=======
+
+.. py:module:: kms.kms
+
+.. autoapi-nested-parse::
+
+   An asynchronous client for Google Cloud KMS
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   kms.kms.SCOPES
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   kms.kms.KMS
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   kms.kms.init_api_root
+
+
+Module Contents
+---------------
+
+.. py:data:: SCOPES
+   :value: ['https://www.googleapis.com/auth/cloudkms']
+
+
+.. py:function:: init_api_root(api_root)
+
+.. py:class:: KMS(keyproject, keyring, keyname, service_file = None, location = 'global', session = None, token = None, api_root = None)
+
+   .. py:attribute:: _api_root
+      :type:  str
+
+
+   .. py:attribute:: _api_is_dev
+      :type:  bool
+
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
+
+   .. py:method:: headers()
+      :async:
+
+
+
+   .. py:method:: decrypt(ciphertext, session = None)
+      :async:
+
+
+
+   .. py:method:: encrypt(plaintext, session = None)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+

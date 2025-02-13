@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bigquery.table &#8212; gcloud-aio  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="bigquery.utils" href="../utils/index.html" />
+    <link rel="prev" title="bigquery.job" href="../job/index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-bigquery.table">
+<span id="bigquery-table"></span><h1>bigquery.table<a class="headerlink" href="#module-bigquery.table" title="Link to this heading">¶</a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bigquery.table.Table" title="bigquery.table.Table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Table</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bigquery.table.Table">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.table.</span></span><span class="sig-name descname"><span class="pre">Table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.BigqueryBase" title="bigquery.bigquery.BigqueryBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bigquery.bigquery.BigqueryBase</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>project</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>service_file</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>IO</em><em>[</em><em>AnyStr</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>token</strong> (<em>Optional</em><em>[</em><em>gcloud.aio.auth.Token</em><em>]</em>)</p></li>
+<li><p><strong>api_root</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bigquery.table.Table.dataset_name">
+<span class="sig-name descname"><span class="pre">dataset_name</span></span><a class="headerlink" href="#bigquery.table.Table.dataset_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bigquery.table.Table.table_name">
+<span class="sig-name descname"><span class="pre">table_name</span></span><a class="headerlink" href="#bigquery.table.Table.table_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table._mk_unique_insert_id">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_mk_unique_insert_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table._mk_unique_insert_id" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>row</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table._make_copy_body">
+<span class="sig-name descname"><span class="pre">_make_copy_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_table</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table._make_copy_body" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_project</strong> (<em>str</em>)</p></li>
+<li><p><strong>destination_project</strong> (<em>str</em>)</p></li>
+<li><p><strong>destination_dataset</strong> (<em>str</em>)</p></li>
+<li><p><strong>destination_table</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table._make_insert_body">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_make_insert_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_invalid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_unknown</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_suffix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_id_fn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table._make_insert_body" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>skip_invalid</strong> (<em>bool</em>)</p></li>
+<li><p><strong>ignore_unknown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>template_suffix</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>insert_id_fn</strong> (<em>Callable</em><em>[</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>str</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table._make_load_body">
+<span class="sig-name descname"><span class="pre">_make_load_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_uris</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autodetect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_disposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_unknown_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_update_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table._make_load_body" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_uris</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>autodetect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>source_format</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.SourceFormat" title="bigquery.bigquery.SourceFormat"><em>bigquery.bigquery.SourceFormat</em></a>)</p></li>
+<li><p><strong>write_disposition</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.Disposition" title="bigquery.bigquery.Disposition"><em>bigquery.bigquery.Disposition</em></a>)</p></li>
+<li><p><strong>ignore_unknown_values</strong> (<em>bool</em>)</p></li>
+<li><p><strong>schema_update_options</strong> (<em>List</em><em>[</em><a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.SchemaUpdateOption" title="bigquery.bigquery.SchemaUpdateOption"><em>bigquery.bigquery.SchemaUpdateOption</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table._make_query_body">
+<span class="sig-name descname"><span class="pre">_make_query_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_disposition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_query_cache</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table._make_query_body" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>)</p></li>
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>write_disposition</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.Disposition" title="bigquery.bigquery.Disposition"><em>bigquery.bigquery.Disposition</em></a>)</p></li>
+<li><p><strong>use_query_cache</strong> (<em>bool</em>)</p></li>
+<li><p><strong>dry_run</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.create">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.create" title="Link to this definition">¶</a></dt>
+<dd><p>Create the table specified by tableId from the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.patch">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.patch" title="Link to this definition">¶</a></dt>
+<dd><p>Patch an existing table specified by tableId from the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.delete">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.delete" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes the table specified by tableId from the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.get">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.get" title="Link to this definition">¶</a></dt>
+<dd><p>Gets the specified table resource by table ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.insert">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_invalid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_unknown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insert_id_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.insert" title="Link to this definition">¶</a></dt>
+<dd><p>Streams data into BigQuery</p>
+<p>By default, each row is assigned a unique insertId. This can be
+customized by supplying an <cite>insert_id_fn</cite> which takes a row and
+returns an insertId.</p>
+<p>In cases where at least one row has successfully been inserted and at
+least one row has failed to be inserted, the Google API will return a
+2xx (successful) response along with an <cite>insertErrors</cite> key in the
+response JSON containing details on the failing rows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rows</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>skip_invalid</strong> (<em>bool</em>)</p></li>
+<li><p><strong>ignore_unknown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>template_suffix</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>insert_id_fn</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>[</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.insert_via_copy">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insert_via_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination_project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.insert_via_copy" title="Link to this definition">¶</a></dt>
+<dd><p>Copy BQ table to another table in BQ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>destination_project</strong> (<em>str</em>)</p></li>
+<li><p><strong>destination_dataset</strong> (<em>str</em>)</p></li>
+<li><p><strong>destination_table</strong> (<em>str</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../job/index.html#bigquery.job.Job" title="bigquery.job.Job">bigquery.job.Job</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.insert_via_load">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insert_via_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_uris</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autodetect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SourceFormat.CSV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_disposition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Disposition.WRITE_TRUNCATE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_unknown_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_update_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.insert_via_load" title="Link to this definition">¶</a></dt>
+<dd><p>Loads entities from storage to BigQuery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_uris</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>autodetect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>source_format</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.SourceFormat" title="bigquery.bigquery.SourceFormat"><em>bigquery.bigquery.SourceFormat</em></a>)</p></li>
+<li><p><strong>write_disposition</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.Disposition" title="bigquery.bigquery.Disposition"><em>bigquery.bigquery.Disposition</em></a>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>ignore_unknown_values</strong> (<em>bool</em>)</p></li>
+<li><p><strong>schema_update_options</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.SchemaUpdateOption" title="bigquery.bigquery.SchemaUpdateOption"><em>bigquery.bigquery.SchemaUpdateOption</em></a><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../job/index.html#bigquery.job.Job" title="bigquery.job.Job">bigquery.job.Job</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.insert_via_query">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insert_via_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_disposition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Disposition.WRITE_EMPTY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_query_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.insert_via_query" title="Link to this definition">¶</a></dt>
+<dd><p>Create table as a result of the query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>write_disposition</strong> (<a class="reference internal" href="../bigquery/index.html#bigquery.bigquery.Disposition" title="bigquery.bigquery.Disposition"><em>bigquery.bigquery.Disposition</em></a>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>use_query_cache</strong> (<em>bool</em>)</p></li>
+<li><p><strong>dry_run</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="../job/index.html#bigquery.job.Job" title="bigquery.job.Job">bigquery.job.Job</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bigquery.table.Table.list_tabledata">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_tabledata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.table.Table.list_tabledata" title="Link to this definition">¶</a></dt>
+<dd><p>List the content of a table in rows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">gcloud-aio</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../auth/index.html">auth</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">bigquery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datastore/index.html">datastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kms/index.html">kms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pubsub/index.html">pubsub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage/index.html">storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../taskqueue/index.html">taskqueue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../.github/CONTRIBUTING.html">Contributing to <code class="docutils literal notranslate"><span class="pre">gcloud-aio</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../.github/RELEASE.html">Releasing New Versions</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">bigquery</a><ul>
+      <li>Previous: <a href="../job/index.html" title="previous chapter">bigquery.job</a></li>
+      <li>Next: <a href="../utils/index.html" title="next chapter">bigquery.utils</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, TalkIQ.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/autoapi/bigquery/table/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

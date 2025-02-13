@@ -1,0 +1,351 @@
+auth
+====
+
+.. py:module:: auth
+
+.. autoapi-nested-parse::
+
+   This library implements various methods for working with the Google IAM / auth
+   APIs. This includes authenticating for the purpose of using other Google APIs,
+   managing service accounts and public keys, URL-signing blobs, etc.
+
+   Installation
+   ------------
+
+   .. code-block:: console
+
+       $ pip install --upgrade gcloud-aio-auth
+
+   Usage
+   -----
+
+   .. code-block:: python
+
+       from gcloud.aio.auth import IamClient
+       from gcloud.aio.auth import IapToken
+       from gcloud.aio.auth import Token
+
+
+       client = IamClient()
+       pubkeys = await client.list_public_keys()
+
+       iap_token = IapToken('https://your.service.url.com')
+       print(await iap_token.get())
+
+       token = Token()
+       print(await token.get())
+   ```
+
+   The ``IapToken`` constructor accepts the following optional arguments:
+
+   * ``service_file``: path to a `service account`_, authorized user file, or any
+     other application credentials. Alternatively, you can pass a file-like
+     object, like an ``io.StringIO`` instance, in case your credentials are not
+     stored in a file but in memory. If omitted, will attempt to find one on your
+     path or fallback to generating a token from GCE metadata.
+   * ``session``: an ``aiohttp.ClientSession`` instance to be used for all
+     requests. If omitted, a default session will be created. If you use the
+     default session, you may be interested in using ``IapToken()`` as a context
+     manager (``async with IapToken(..) as token:``) or explicitly calling the
+     ``IapToken.close()`` method to ensure the session is cleaned up
+     appropriately.
+   * ``impersonating_service_account``: an optional string denoting a GCP service
+     account which takes the form of an email address. Only valid (and required!)
+     for authentication with a project's authorized users. `Impersonating a
+     service account`_ is required when generating an ID token in this case.
+
+   The ``Token`` constructor accepts the following optional arguments:
+
+   * ``service_file``: path to a `service account`_ authorized user file, or any
+     other application credentials. Alternatively, you can pass a file-like
+     object, like an ``io.StringIO`` instance, in case your credentials are not
+     stored in a file but in memory. If omitted, will attempt to find one on your
+     path or fallback to generating a token from GCE metadata.
+   * ``session``: an ``aiohttp.ClientSession`` instance to be used for all
+     requests. If omitted, a default session will be created. If you use the
+     default session, you may be interested in using ``Token()`` as a context
+     manager (``async with Token(..) as token:``) or explicitly calling the
+     ``Token.close()`` method to ensure the session is cleaned up appropriately.
+   * ``scopes``: an optional list of GCP `scopes`_ for which to generate our
+     token. Only valid (and required!) for `service account`_ authentication.
+   * ``target_principal``: The service account to generate the access token for.
+     The **iam.serviceAccounts.getAccessToken** permission on that service account
+     is required.
+   * ``delegates``: The sequence of service accounts in a delegation chain. This
+     field is required for delegated requests. Each service account must be
+     granted the **roles/iam.serviceAccountTokenCreator** role on its next service
+     account in the chain. The last service account in the chain must be granted
+     the **roles/iam.serviceAccountTokenCreator** role on the service account that
+     is specified in the ``target_principal``.
+
+   CLI
+   ---
+
+   This project can also be used to help you manually authenticate to test GCP
+   routes, eg. we can list our project's uptime checks with a tool such as
+   ``curl``:
+
+   .. code-block:: console
+
+       # using default application credentials
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+       # using a service account (make sure to provide a scope!)
+       export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service.json
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token(scopes=["'"https://www.googleapis.com/auth/cloud-platform"'"]).get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+       # using legacy account credentials
+       export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/EMAIL@DOMAIN.TLD/adc.json
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"
+
+   Similarly it can be used to quickly test your IAP-secured endpoints:
+
+   .. code-block:: console
+
+       # using default application credentials
+       curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, impersonating_service_account=SA))')"       APP_URL
+
+   .. _service account: https://console.cloud.google.com/iam-admin/serviceaccounts
+   .. _Impersonating a service account: https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
+   .. _scopes: https://developers.google.com/identity/protocols/oauth2/scopes
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/auth/build_constants/index
+   /autoapi/auth/iam/index
+   /autoapi/auth/session/index
+   /autoapi/auth/token/index
+   /autoapi/auth/utils/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   auth.BUILD_GCLOUD_REST
+   auth.__version__
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   auth.IamClient
+   auth.IapToken
+   auth.Token
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   auth.decode
+   auth.encode
+
+
+Package Contents
+----------------
+
+.. py:data:: BUILD_GCLOUD_REST
+   :value: True
+
+
+.. py:class:: IamClient(service_file = None, session = None, token = None)
+
+   .. py:attribute:: session
+
+
+   .. py:attribute:: token
+
+
+   .. py:method:: headers()
+      :async:
+
+
+
+   .. py:property:: service_account_email
+      :type: Optional[str]
+
+
+
+   .. py:method:: get_public_key(key_id = None, key = None, service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: list_public_keys(service_account_email = None, project = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: sign_blob(payload, service_account_email = None, delegates = None, session = None, timeout = 10)
+      :async:
+
+
+
+   .. py:method:: close()
+      :async:
+
+
+
+   .. py:method:: __aenter__()
+      :async:
+
+
+
+   .. py:method:: __aexit__(*args)
+      :async:
+
+
+
+.. py:class:: IapToken(app_uri, service_file = None, session = None, impersonating_service_account = None)
+
+   Bases: :py:obj:`BaseToken`
+
+
+   An OpenID Connect ID token for a single IAP-secured service.
+
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+
+
+   .. py:attribute:: app_uri
+
+
+   .. py:attribute:: service_account
+      :value: None
+
+
+
+   .. py:method:: _get_iap_client_id(*, timeout)
+      :async:
+
+
+      Fetch the IAP client ID from the service URI.
+
+      If not logged in already, then we parse the OAuth redirect location to
+      get the client ID. The redirect location is a header of the form:
+
+          https://accounts.google.com/o/oauth2/v2/auth?client_id=<id>&...
+
+      For more details, see the GCP docs for programmatic IAP access:
+      https://cloud.google.com/iap/docs/authentication-howto
+
+
+
+   .. py:method:: _refresh_authorized_user(iap_client_id, timeout)
+      :async:
+
+
+      Fetch IAP ID token by impersonating a service account.
+
+      https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
+
+
+
+   .. py:method:: _refresh_gce_metadata(iap_client_id, timeout)
+      :async:
+
+
+      Fetch IAP ID token from the GCE metadata servers.
+
+      Note: The official documentation states that the URI be used for the
+      audience but this is not the case. The typical audience value must be
+      used as in other flavours of ID token fetching.
+
+      https://cloud.google.com/docs/authentication/get-id-token#metadata-server
+
+
+
+   .. py:method:: _refresh_service_account(iap_client_id, timeout)
+      :async:
+
+
+
+   .. py:method:: refresh(*, timeout)
+      :async:
+
+
+
+.. py:class:: Token(service_file = None, session = None, scopes = None, target_principal = None, delegates = None)
+
+   Bases: :py:obj:`BaseToken`
+
+
+   GCP OAuth 2.0 access token.
+
+
+   .. py:attribute:: default_token_ttl
+      :value: 3600
+
+
+
+   .. py:attribute:: scopes
+      :value: ''
+
+
+
+   .. py:attribute:: target_principal
+      :value: None
+
+
+
+   .. py:attribute:: delegates
+      :value: None
+
+
+
+   .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_gce_metadata(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_service_account(timeout)
+      :async:
+
+
+
+   .. py:method:: _impersonate(token, *, timeout)
+      :async:
+
+
+
+   .. py:method:: refresh(*, timeout)
+      :async:
+
+
+
+.. py:function:: decode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+
+.. py:function:: encode(payload)
+
+   Modified Base64 for URL variants exist, where the + and / characters of
+   standard Base64 are respectively replaced by - and _.
+
+   See https://en.wikipedia.org/wiki/Base64#URL_applications
+
+
+.. py:data:: __version__
+

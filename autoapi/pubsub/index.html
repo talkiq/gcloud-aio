@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pubsub &#8212; gcloud-aio  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pubsub.metrics" href="metrics/index.html" />
+    <link rel="prev" title="kms.utils" href="../kms/utils/index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-pubsub">
+<span id="pubsub"></span><h1>pubsub<a class="headerlink" href="#module-pubsub" title="Link to this heading">¶</a></h1>
+<p>This library implements various methods for working with the Google Pubsub
+APIs.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>gcloud-aio-pubsub
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="subscriber">
+<h3>Subscriber<a class="headerlink" href="#subscriber" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">gcloud-aio-pubsub</span></code> provides <code class="docutils literal notranslate"><span class="pre">SubscriberClient</span></code> as an interface to call
+pubsub’s HTTP API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubscriberClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubscriberMessage</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SubscriberClient</span><span class="p">()</span>
+<span class="c1"># create subscription</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_subscription</span><span class="p">(</span>
+    <span class="s1">&#39;projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;projects/&lt;project_name&gt;/topics/&lt;topic_name&gt;&#39;</span><span class="p">)</span>
+
+<span class="c1"># pull messages</span>
+<span class="n">messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SubscriberMessage</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span>
+    <span class="s1">&#39;projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;&#39;</span><span class="p">,</span>
+    <span class="n">max_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There’s also <code class="docutils literal notranslate"><span class="pre">gcloud.aio.pubsub.subscribe</span></code> helper function you can use to
+setup a pubsub processing pipeline. It is built with <code class="docutils literal notranslate"><span class="pre">asyncio</span></code> and thus only
+available in the <code class="docutils literal notranslate"><span class="pre">gcloud-aio-pubsub</span></code> package. The usage is fairly simple:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubscriberClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">subscribe</span>
+
+<span class="n">subscriber_client</span> <span class="o">=</span> <span class="n">SubscriberClient</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">return</span>
+
+<span class="k">await</span> <span class="n">subscribe</span><span class="p">(</span>
+    <span class="s1">&#39;projects/&lt;my_project&gt;/subscriptions/&lt;my_subscription&gt;&#39;</span><span class="p">,</span>
+    <span class="n">handler</span><span class="p">,</span>
+    <span class="n">subscriber_client</span><span class="p">,</span>
+    <span class="n">num_producers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_messages_per_producer</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">ack_window</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">num_tasks_per_consumer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">enable_nack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">nack_window</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>While defaults are somewhat sensible, it is highly recommended to performance
+test your application and tweak function parameter to your specific needs.
+Here’s a few hints:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">handler</span></code>: An async function that will be called for each message. It
+should accept an instance of <code class="docutils literal notranslate"><span class="pre">SubscriberMessage</span></code> as its only argument and
+return <code class="docutils literal notranslate"><span class="pre">None</span></code> if the message should be acked. An exception raised within
+the handler will result in the message being left to expire, and thus it will
+be redelivered according to your subscription’s ack deadline.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_producers</span></code>: Number of workers that will be making <code class="docutils literal notranslate"><span class="pre">pull</span></code> requests to
+pubsub. Please note that a worker will only fetch new batch once the
+<code class="docutils literal notranslate"><span class="pre">handler</span></code> was called for each message from the previous batch. This means
+that running only a single worker will most likely make your application IO
+bound. If you notice this being an issue don’t hesitate to bump this
+parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_messages_per_producer</span></code>: Number of pubsub messages a worker will try to
+fetch in a single batch. This value is passed to <code class="docutils literal notranslate"><span class="pre">pull</span></code> <a class="reference external" href="https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body">endpoint</a> as
+<code class="docutils literal notranslate"><span class="pre">maxMessages</span></code> parameter. A rule of thumb here is the faster your handler is
+the bigger this value should be.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ack_window</span></code>: Ack requests are handled separately and are done in batches.
+This parameters specifies how often ack requests will be made. Setting it to
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code> will effectively disable batching.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_tasks_per_consumer</span></code>: How many <code class="docutils literal notranslate"><span class="pre">handle</span></code> calls a worker can make until
+it blocks to wait for them to return. If you process messages independently
+from each other you should be good with the default value of <code class="docutils literal notranslate"><span class="pre">1</span></code>. If you do
+something fancy (e.g. aggregate messages before processing them), you’ll want
+a higher pool here. You can think of <code class="docutils literal notranslate"><span class="pre">num_producers</span> <span class="pre">x</span>
+<span class="pre">num_tasks_per_consumer</span></code> as an upper limit of how many messages can possibly
+be within your application state at any given moment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_nack</span></code>: If enabled messages for which <code class="docutils literal notranslate"><span class="pre">callback</span></code> raised an
+exception will be explicitly nacked using <code class="docutils literal notranslate"><span class="pre">modifyAckDeadline</span></code> endpoint so
+they can be retried immediately.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nack_window</span></code>: Same as <code class="docutils literal notranslate"><span class="pre">ack_window</span></code> but for nack requests.</p></li>
+</ul>
+<p>Note that this method was built under the assumption that it is the main thread
+of your application. It may work just fine otherwise, but be aware that the
+usecase of running it in a background thread has not been extensively tested.</p>
+<p>As it is generally assumed to run in the foreground, it relies on task
+cancellation to shut itself down (ie. caused by process termination). To cancel
+it from a thread, you can send an <code class="docutils literal notranslate"><span class="pre">asyncio.CancelledError</span></code> event via
+<code class="docutils literal notranslate"><span class="pre">Task.cancel()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subscribe_task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">gcloud</span><span class="o">.</span><span class="n">aio</span><span class="o">.</span><span class="n">pubsub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+
+<span class="c1"># snip</span>
+
+<span class="n">subscribe_task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="prometheus-metrics">
+<h3>Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Link to this heading">¶</a></h3>
+<p>If you like pull-based metrics like Prometheus you will be pleased to know that
+the subscriber records Prometheus metrics in the form
+<code class="docutils literal notranslate"><span class="pre">gcloud_aio_pubsub_&lt;metric&gt;</span></code>, which will have no effect if you don’t use
+Prometheus to scrape app metrics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_batch_size</span></code> - [histogram] how many messages were pulled from
+the subscription in a single batch</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_consume</span></code> (labels: <code class="docutils literal notranslate"><span class="pre">outcome</span> <span class="pre">=</span> <span class="pre">{'succeeded',</span> <span class="pre">'cancelled',</span>
+<span class="pre">'failed',</span> <span class="pre">'failfast'}</span></code>) - [counter] a consume operation has completed with a
+given outcome</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_consume_latency_seconds</span></code> (labels: <code class="docutils literal notranslate"><span class="pre">phase</span> <span class="pre">=</span> <span class="pre">{'receive',</span>
+<span class="pre">'queueing',</span> <span class="pre">'runtime'}</span></code>) - [histogram] how many seconds taken to receive a
+message, while waiting for processing, or to complete the callback</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_batch_status</span></code> (labels: <code class="docutils literal notranslate"><span class="pre">component</span> <span class="pre">=</span> <span class="pre">{'acker',</span> <span class="pre">'nacker'},</span>
+<span class="pre">outcome</span> <span class="pre">=</span> <span class="pre">{'succeeded',</span> <span class="pre">'failed'}</span></code>) - [counter] a batch has succeeded or
+failed to be acked or nacked</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_messages_processed</span></code> (labels: <code class="docutils literal notranslate"><span class="pre">component</span> <span class="pre">=</span> <span class="pre">{'acker',</span>
+<span class="pre">'nacker'}</span></code>) - [counter] the number of messages that were processed, either
+by being acked or nacked</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subscriber_messages_received</span></code> - [counter] the number of messages pulled
+from pubsub</p></li>
+</ul>
+</section>
+<section id="metrics-agent-deprecated">
+<h3>Metrics Agent (Deprecated)<a class="headerlink" href="#metrics-agent-deprecated" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">subscribe</span></code> has also an optional <code class="docutils literal notranslate"><span class="pre">metrics_client</span></code> argument which will be
+removed in a future release. You can provide any metrics agent that implements
+the same interface as <code class="docutils literal notranslate"><span class="pre">MetricsAgent</span></code> (Datadog client will do ;) ) and get the
+following metrics:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.producer.batch</span></code> - [histogram] actual size of a batch retrieved from
+pubsub.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.failfast</span></code> - [increment] a message was dropped due to its
+lease being expired.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.latency.receive</span></code> - [histogram] how many seconds it took
+for a message to reach handler after it was published.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.succeeded</span></code> - [increment] <code class="docutils literal notranslate"><span class="pre">handler</span></code> call was successfull.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.failed</span></code> - [increment] <code class="docutils literal notranslate"><span class="pre">handler</span></code> call raised an
+exception.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.latency.runtime</span></code> - [histogram] <code class="docutils literal notranslate"><span class="pre">handler</span></code> execution time
+in seconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.acker.batch.failed</span></code> - [increment] ack request failed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.acker.batch</span></code> - [histogram] actual number of messages that was acked
+in a single request.</p></li>
+</ul>
+</section>
+</section>
+<section id="publisher">
+<h2>Publisher<a class="headerlink" href="#publisher" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">PublisherClient</span></code> is a dead-simple alternative to the official Google
+Cloud Pub/Sub publisher client. The main design goal was to eliminate all the
+additional gRPC overhead implemented by the upstream client.</p>
+<p>If migrating between this library and the official one, the main difference is
+this: the <code class="docutils literal notranslate"><span class="pre">gcloud-{aio,rest}-pubsub</span></code> publisher’s <code class="docutils literal notranslate"><span class="pre">.publish()</span></code> method
+<em>immediately</em> publishes the messages you’ve provided, rather than maintaining
+our own publishing queue, implementing batching and flow control, etc. If
+you’re looking for a full-featured publishing library with all the bells and
+whistles built in, you may be interested in the upstream provider. If you’re
+looking to manage your own batching / timeouts / retry / threads / etc, this
+library should be a bit easier to work with.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">PubsubMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.pubsub</span><span class="w"> </span><span class="kn">import</span> <span class="n">PublisherClient</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">PublisherClient</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+
+    <span class="n">topic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">topic_path</span><span class="p">(</span><span class="s1">&#39;my-gcp-project&#39;</span><span class="p">,</span> <span class="s1">&#39;my-topic-name&#39;</span><span class="p">)</span>
+
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;payload&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
+        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;other payload&#39;</span><span class="p">,</span> <span class="n">other_attribute</span><span class="o">=</span><span class="s1">&#39;whatever&#39;</span><span class="p">,</span>
+                      <span class="n">more_attributes</span><span class="o">=</span><span class="s1">&#39;something else&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
+    <span class="c1"># response == {&#39;messageIds&#39;: [&#39;1&#39;, &#39;2&#39;]}</span>
+</pre></div>
+</div>
+</section>
+<section id="emulators">
+<h2>Emulators<a class="headerlink" href="#emulators" title="Link to this heading">¶</a></h2>
+<p>For testing purposes, you may want to use <code class="docutils literal notranslate"><span class="pre">gcloud-aio-pubsub</span></code> along with a
+local Pubsub emulator. Setting the <code class="docutils literal notranslate"><span class="pre">$PUBSUB_EMULATOR_HOST</span></code> environment
+variable to the local address of your emulator should be enough to do the
+trick.</p>
+<p>For example, using the official Google Pubsub emulator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">gcloud beta emulators pubsub start --host-port=0.0.0.0:8681</span>
+<span class="go">export PUBSUB_EMULATOR_HOST=&#39;0.0.0.0:8681&#39;</span>
+</pre></div>
+</div>
+<p>Any <code class="docutils literal notranslate"><span class="pre">gcloud-aio-pubsub</span></code> Publisher requests made with that environment
+variable set will query the emulator instead of the official GCS APIs.</p>
+<p>For easier ergonomics, you may be interested in
+<a class="reference external" href="https://github.com/TheKevJames/tools/tree/master/docker-gcloud-pubsub-emulator">thekevjames/gcloud-pubsub-emulator</a>.</p>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Link to this heading">¶</a></h2>
+<p>This library mostly tries to stay agnostic of potential use-cases; as such, we
+do not implement any sort of retrying or other policies under the assumption
+that we wouldn’t get things right for every user’s situation.</p>
+<p>As such, we recommend configuring your own policies on an as-needed basis. The
+<a class="reference external" href="https://pypi.org/project/backoff/">backoff</a> library can make this quite straightforward! For example, you may
+find it useful to configure something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SubscriberClientWithBackoff</span><span class="p">(</span><span class="n">SubscriberClient</span><span class="p">):</span>
+    <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span><span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponseError</span><span class="p">,</span>
+                          <span class="n">max_tries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="metrics/index.html">pubsub.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_agent/index.html">pubsub.metrics_agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publisher_client/index.html">pubsub.publisher_client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subscriber/index.html">pubsub.subscriber</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subscriber_client/index.html">pubsub.subscriber_client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="subscriber_message/index.html">pubsub.subscriber_message</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils/index.html">pubsub.utils</a></li>
+</ul>
+</div>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pubsub.__version__" title="pubsub.__version__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__version__</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pubsub.PublisherClient" title="pubsub.PublisherClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PublisherClient</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pubsub.SubscriberClient" title="pubsub.SubscriberClient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubscriberClient</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pubsub.SubscriberMessage" title="pubsub.SubscriberMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubscriberMessage</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pubsub.PubsubMessage" title="pubsub.PubsubMessage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PubsubMessage</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pubsub.PublisherClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pubsub.</span></span><span class="sig-name descname"><span class="pre">PublisherClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_file</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>IO</em><em>[</em><em>AnyStr</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>token</strong> (<em>Optional</em><em>[</em><em>gcloud.aio.auth.Token</em><em>]</em>)</p></li>
+<li><p><strong>api_root</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PublisherClient._api_root">
+<span class="sig-name descname"><span class="pre">_api_root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pubsub.PublisherClient._api_root" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PublisherClient._api_is_dev">
+<span class="sig-name descname"><span class="pre">_api_is_dev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pubsub.PublisherClient._api_is_dev" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.session">
+<span class="sig-name descname"><span class="pre">session</span></span><a class="headerlink" href="#pubsub.PublisherClient.session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.token">
+<span class="sig-name descname"><span class="pre">token</span></span><a class="headerlink" href="#pubsub.PublisherClient.token" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.project_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.project_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.subscription_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subscription_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.subscription_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.topic_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">topic_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.topic_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient._headers">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_headers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient._headers" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.list_topics">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_topics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.list_topics" title="Link to this definition">¶</a></dt>
+<dd><p>List topics</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>query_params</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.create_topic">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.create_topic" title="Link to this definition">¶</a></dt>
+<dd><p>Create topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+<li><p><strong>body</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.delete_topic">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.delete_topic" title="Link to this definition">¶</a></dt>
+<dd><p>Delete topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.publish">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.publish" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+<li><p><strong>messages</strong> (<em>List</em><em>[</em><a class="reference internal" href="utils/index.html#pubsub.utils.PubsubMessage" title="pubsub.utils.PubsubMessage"><em>pubsub.utils.PubsubMessage</em></a><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.close">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.close" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.__aenter__">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.__aenter__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pubsub.PublisherClient" title="pubsub.PublisherClient">PublisherClient</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PublisherClient.__aexit__">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aexit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PublisherClient.__aexit__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pubsub.</span></span><span class="sig-name descname"><span class="pre">SubscriberClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_file</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>IO</em><em>[</em><em>AnyStr</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>token</strong> (<em>Optional</em><em>[</em><em>gcloud.aio.auth.Token</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>api_root</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient._api_root">
+<span class="sig-name descname"><span class="pre">_api_root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pubsub.SubscriberClient._api_root" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient._api_is_dev">
+<span class="sig-name descname"><span class="pre">_api_is_dev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pubsub.SubscriberClient._api_is_dev" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.session">
+<span class="sig-name descname"><span class="pre">session</span></span><a class="headerlink" href="#pubsub.SubscriberClient.session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.token">
+<span class="sig-name descname"><span class="pre">token</span></span><a class="headerlink" href="#pubsub.SubscriberClient.token" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.project_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.project_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project</strong> (<em>str</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.subscription_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subscription_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.subscription_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.topic_path">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">topic_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.topic_path" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient._headers">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_headers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient._headers" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.create_subscription">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_subscription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.create_subscription" title="Link to this definition">¶</a></dt>
+<dd><p>Create subscription.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>topic</strong> (<em>str</em>)</p></li>
+<li><p><strong>body</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.patch_subscription">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch_subscription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.patch_subscription" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>body</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.delete_subscription">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete_subscription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.delete_subscription" title="Link to this definition">¶</a></dt>
+<dd><p>Delete subscription.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.pull">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_messages</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.pull" title="Link to this definition">¶</a></dt>
+<dd><p>Pull messages from subscription</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>max_messages</strong> (<em>int</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="subscriber_message/index.html#pubsub.subscriber_message.SubscriberMessage" title="pubsub.subscriber_message.SubscriberMessage">pubsub.subscriber_message.SubscriberMessage</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.acknowledge">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acknowledge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ack_ids</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.acknowledge" title="Link to this definition">¶</a></dt>
+<dd><p>Acknowledge messages by ackIds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>ack_ids</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.modify_ack_deadline">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modify_ack_deadline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ack_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ack_deadline_seconds</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.modify_ack_deadline" title="Link to this definition">¶</a></dt>
+<dd><p>Modify messages’ ack deadline.
+Set ack deadline to 0 to nack messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>ack_ids</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>ack_deadline_seconds</strong> (<em>int</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.get_subscription">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_subscription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subscription</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.get_subscription" title="Link to this definition">¶</a></dt>
+<dd><p>Get Subscription</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subscription</strong> (<em>str</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.list_subscriptions">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_subscriptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.list_subscriptions" title="Link to this definition">¶</a></dt>
+<dd><p>List subscriptions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> (<em>str</em>)</p></li>
+<li><p><strong>query_params</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.close">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.close" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.__aenter__">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.__aenter__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pubsub.SubscriberClient" title="pubsub.SubscriberClient">SubscriberClient</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberClient.__aexit__">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aexit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberClient.__aexit__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>Any</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pubsub.</span></span><span class="sig-name descname"><span class="pre">SubscriberMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ack_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publish_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delivery_attempt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberMessage" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ack_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>message_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>publish_time</strong> (<em>datetime.datetime</em>)</p></li>
+<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>bytes</em><em>]</em>)</p></li>
+<li><p><strong>attributes</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>delivery_attempt</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.ack_id">
+<span class="sig-name descname"><span class="pre">ack_id</span></span><a class="headerlink" href="#pubsub.SubscriberMessage.ack_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.message_id">
+<span class="sig-name descname"><span class="pre">message_id</span></span><a class="headerlink" href="#pubsub.SubscriberMessage.message_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.publish_time">
+<span class="sig-name descname"><span class="pre">publish_time</span></span><a class="headerlink" href="#pubsub.SubscriberMessage.publish_time" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#pubsub.SubscriberMessage.data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#pubsub.SubscriberMessage.attributes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.delivery_attempt">
+<span class="sig-name descname"><span class="pre">delivery_attempt</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pubsub.SubscriberMessage.delivery_attempt" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.from_repr">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">received_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberMessage.from_repr" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>received_message</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pubsub.SubscriberMessage" title="pubsub.SubscriberMessage">SubscriberMessage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.SubscriberMessage.to_repr">
+<span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.SubscriberMessage.to_repr" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pubsub.</span></span><span class="sig-name descname"><span class="pre">PubsubMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordering_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PubsubMessage" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>ordering_key</strong> (<em>str</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#pubsub.PubsubMessage.data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage.attributes">
+<span class="sig-name descname"><span class="pre">attributes</span></span><a class="headerlink" href="#pubsub.PubsubMessage.attributes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage.ordering_key">
+<span class="sig-name descname"><span class="pre">ordering_key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pubsub.PubsubMessage.ordering_key" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PubsubMessage.__repr__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.PubsubMessage.to_repr">
+<span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.PubsubMessage.to_repr" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pubsub.__version__">
+<span class="sig-prename descclassname"><span class="pre">pubsub.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><a class="headerlink" href="#pubsub.__version__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">gcloud-aio</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../auth/index.html">auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bigquery/index.html">bigquery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastore/index.html">datastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kms/index.html">kms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pubsub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage/index.html">storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taskqueue/index.html">taskqueue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../.github/CONTRIBUTING.html">Contributing to <code class="docutils literal notranslate"><span class="pre">gcloud-aio</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../.github/RELEASE.html">Releasing New Versions</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../kms/utils/index.html" title="previous chapter">kms.utils</a></li>
+      <li>Next: <a href="metrics/index.html" title="next chapter">pubsub.metrics</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2017, TalkIQ.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../_sources/autoapi/pubsub/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
