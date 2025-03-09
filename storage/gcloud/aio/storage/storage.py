@@ -289,7 +289,7 @@ class Storage:
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(
                 url, headers=headers, params=params,
-                timeout=timeout,
+                timeout=timeout, data=metadata_,
             )
             data = await resp.json(content_type=None)
 
