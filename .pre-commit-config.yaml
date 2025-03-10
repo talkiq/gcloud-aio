@@ -64,7 +64,7 @@ repos:
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
--   repo: https://github.com/asottile/reorder_python_imports
+-   repo: https://github.com/asottile/reorder-python-imports
     rev: v3.14.0
     hooks:
     -   id: reorder-python-imports
@@ -80,7 +80,7 @@ repos:
 #     hooks:
 #     -   id: add-trailing-comma
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
+    rev: v1.15.0
     hooks:
     -   &mypy
         id: mypy
@@ -165,8 +165,8 @@ repos:
         - flake8-builtins==2.5.0
         # renovate: datasource=pypi depName=flake8-comprehensions
         - flake8-comprehensions==3.16.0
--   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.4
+-   repo: https://github.com/hhatto/autopep8
+    rev: v2.3.2
     hooks:
     -   id: autopep8
         args: [-a, -i, -p2]
@@ -216,7 +216,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.31.0
+  rev: 0.31.3
   hooks:
     - id: check-circle-ci
     - id: check-github-workflows
