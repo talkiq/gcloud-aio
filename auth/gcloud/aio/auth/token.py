@@ -74,6 +74,7 @@ class Type(enum.Enum):
     AUTHORIZED_USER = 'authorized_user'
     GCE_METADATA = 'gce_metadata'
     SERVICE_ACCOUNT = 'service_account'
+    EXTERNAL_ACCOUNT = 'external_account'
 
 
 def get_service_data(
