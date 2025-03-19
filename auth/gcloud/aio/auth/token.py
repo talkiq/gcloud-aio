@@ -305,6 +305,7 @@ class Token(BaseToken):
                 # scope but does not write it to the file
                 self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
 
+        self.impersonation_uri: Optional[str] = None
         if target_principal:
             self.impersonation_uri = (
                 GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
@@ -400,6 +401,9 @@ class Token(BaseToken):
 
     async def _impersonate(self, token: TokenResponse,
                            *, timeout: int) -> TokenResponse:
+        if not self.impersonation_uri:
+            raise Exception('cannot impersonate without impersonation_uri set')
+
         # impersonate the target principal with optional delegates
         headers = {
             'Authorization': f'Bearer {token.value}',
