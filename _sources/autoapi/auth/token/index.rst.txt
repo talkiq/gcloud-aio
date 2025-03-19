@@ -58,19 +58,21 @@ Module Contents
 .. py:data:: _GCE_METADATA_HOST
 
 .. py:data:: GCE_METADATA_BASE
+   :value: 'http://Uninferable/computeMetadata/v1'
+
 
 .. py:data:: GCE_METADATA_HEADERS
 
 .. py:data:: GCE_ENDPOINT_PROJECT
-   :value: 'Uninferable/project/project-id'
+   :value: 'http://Uninferable/computeMetadata/v1/project/project-id'
 
 
 .. py:data:: GCE_ENDPOINT_TOKEN
-   :value: 'Uninferable/instance/service-accounts/default/token?recursive=true'
+   :value: 'http://Uninferable/computeMetadata/v1/instance/service-accounts/default/token?recursive=true'
 
 
 .. py:data:: GCE_ENDPOINT_ID_TOKEN
-   :value: 'Uninferable/instance/service-accounts/default/identity?audience={audience}&format=full'
+   :value: 'http://Uninferable/computeMetadata/v1/instance/service-accounts/default/identity?audience={audie...
 
 
 .. py:data:: GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
