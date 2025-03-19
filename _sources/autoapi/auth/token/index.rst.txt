@@ -15,6 +15,8 @@ Attributes
 .. autoapisummary::
 
    auth.token.CustomFileError
+   auth.token._GCE_METADATA_HOST
+   auth.token._GCE_METADATA_HOST
    auth.token.GCE_METADATA_BASE
    auth.token.GCE_METADATA_HEADERS
    auth.token.GCE_ENDPOINT_PROJECT
@@ -51,22 +53,24 @@ Module Contents
 .. py:data:: CustomFileError
    :type:  Any
 
-.. py:data:: GCE_METADATA_BASE
-   :value: 'http://metadata.google.internal/computeMetadata/v1'
+.. py:data:: _GCE_METADATA_HOST
 
+.. py:data:: _GCE_METADATA_HOST
+
+.. py:data:: GCE_METADATA_BASE
 
 .. py:data:: GCE_METADATA_HEADERS
 
 .. py:data:: GCE_ENDPOINT_PROJECT
-   :value: 'http://metadata.google.internal/computeMetadata/v1/project/project-id'
+   :value: 'Uninferable/project/project-id'
 
 
 .. py:data:: GCE_ENDPOINT_TOKEN
-   :value: 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token?recur...
+   :value: 'Uninferable/instance/service-accounts/default/token?recursive=true'
 
 
 .. py:data:: GCE_ENDPOINT_ID_TOKEN
-   :value: 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?au...
+   :value: 'Uninferable/instance/service-accounts/default/identity?audience={audience}&format=full'
 
 
 .. py:data:: GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN
