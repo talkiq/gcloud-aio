@@ -296,28 +296,30 @@ class Token(BaseToken):
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
-        if scopes is not None:
+        if scopes:
             self.scopes = ' '.join(scopes or [])
-        elif self.service_data is not None:
+        elif self.service_data:
             if self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
                 # If service file was provided and the type is
                 # IMPERSONATED_SERVICE_ACCOUNT, gcloud requires this default
                 # scope but does not write it to the file
                 self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
+
         if target_principal:
-            self.impersonation_uri = GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
-                service_account=target_principal
+            self.impersonation_uri = (
+                GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
+                    service_account=target_principal
+                )
             )
-        elif (
-            self.service_data
-            and 'service_account_impersonation_url' in self.service_data
-        ):
+        elif self.service_data.get('service_account_impersonation_url'):
             self.impersonation_uri = self.service_data[
                 'service_account_impersonation_url'
             ]
+
         if self.impersonation_uri and not self.scopes:
             raise Exception(
-                'scopes must be provided when token type requires impersonation',
+                'scopes must be provided when token type requires '
+                'impersonation',
             )
         self.delegates = delegates
 
@@ -337,7 +339,9 @@ class Token(BaseToken):
         return TokenResponse(value=str(content['access_token']),
                              expires_in=int(content['expires_in']))
 
-    async def _refresh_source_authorized_user(self, timeout: int) -> TokenResponse:
+    async def _refresh_source_authorized_user(
+            self, timeout: int,
+    ) -> TokenResponse:
         source_credentials = self.service_data['source_credentials']
         payload = urlencode({
             'grant_type': 'refresh_token',
@@ -593,9 +597,7 @@ class IapToken(BaseToken):
             resp = await self._refresh_service_account(
                 iap_client_id, timeout)
         elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
-            raise Exception(
-                'impersonation is not supported for IAP tokens',
-            )
+            raise Exception('impersonation is not supported for IAP tokens')
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
