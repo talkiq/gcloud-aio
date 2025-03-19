@@ -4,6 +4,7 @@ import datetime
 import enum
 import hashlib
 import io
+import os
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
     from .bucket import Bucket  # pylint: disable=cyclic-import
 
 
-HOST = 'storage.googleapis.com'
+HOST = os.environ.get('STORAGE_EMULATOR_HOST', 'storage.googleapis.com')
 
 PKCS1_MARKER = (
     '-----BEGIN RSA PRIVATE KEY-----',
