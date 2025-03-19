@@ -87,6 +87,7 @@ class Blob:
         self, bucket: 'Bucket', name: str,
         metadata: Dict[str, Any],
     ) -> None:
+        metadata['bucket_name'] = metadata.pop('bucket', '')
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -124,7 +125,9 @@ class Blob:
             session=session,
         )
 
+        metadata['bucket_name'] = metadata.pop('bucket', '')
         self.__dict__.update(metadata)
+
         return metadata
 
     async def get_signed_url(  # pylint: disable=too-many-locals
