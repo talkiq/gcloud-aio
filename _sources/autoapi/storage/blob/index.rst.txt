@@ -29,8 +29,6 @@ Module Contents
 ---------------
 
 .. py:data:: HOST
-   :value: 'storage.googleapis.com'
-
 
 .. py:data:: PKCS1_MARKER
    :value: ('-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----')
