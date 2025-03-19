@@ -353,7 +353,8 @@ class Storage:
     ) -> Dict[str, Any]:
         data = await self._download(
             bucket, object_name, headers=headers,
-            timeout=timeout, session=session,
+            timeout=timeout, params={'alt': 'json'},
+            session=session,
         )
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
@@ -807,7 +808,7 @@ class Storage:
                     if tries == retries - 1:
                         raise
 
-                    headers.update({'Content-Range': '*/*'})
+                    headers.update({'Content-Range': 'bytes */*'})
                     stream.seek(original_position)
 
                     await sleep(  # type: ignore[func-returns-value]
