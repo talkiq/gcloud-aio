@@ -273,6 +273,12 @@ Module Contents
 
 
 
+   .. py:attribute:: impersonation_uri
+      :type:  Optional[str]
+      :value: None
+
+
+
    .. py:attribute:: delegates
       :value: None
 
