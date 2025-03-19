@@ -337,7 +337,8 @@ class Token(BaseToken):
         return TokenResponse(value=str(content['access_token']),
                              expires_in=int(content['expires_in']))
 
-    async def _refresh_source_authorized_user(self, timeout: int) -> TokenResponse:
+    async def _refresh_source_authorized_user(
+            self, timeout: int) -> TokenResponse:
         source_credentials = self.service_data['source_credentials']
         payload = urlencode({
             'grant_type': 'refresh_token',
