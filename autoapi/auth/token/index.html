@@ -209,6 +209,11 @@ attributes – see the documentation for details.</p>
 <span class="sig-name descname"><span class="pre">SERVICE_ACCOUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'service_account'</span></em><a class="headerlink" href="#auth.token.Type.SERVICE_ACCOUNT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="auth.token.Type.IMPERSONATED_SERVICE_ACCOUNT">
+<span class="sig-name descname"><span class="pre">IMPERSONATED_SERVICE_ACCOUNT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'impersonated_service_account'</span></em><a class="headerlink" href="#auth.token.Type.IMPERSONATED_SERVICE_ACCOUNT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -429,16 +434,6 @@ updated to match the following commit:</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="auth.token.Token.scopes">
-<span class="sig-name descname"><span class="pre">scopes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#auth.token.Token.scopes" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="auth.token.Token.target_principal">
-<span class="sig-name descname"><span class="pre">target_principal</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#auth.token.Token.target_principal" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="auth.token.Token.delegates">
 <span class="sig-name descname"><span class="pre">delegates</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#auth.token.Token.delegates" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -446,6 +441,19 @@ updated to match the following commit:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="auth.token.Token._refresh_authorized_user">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_authorized_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.Token._refresh_authorized_user" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<em>int</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#auth.token.TokenResponse" title="auth.token.TokenResponse">TokenResponse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="auth.token.Token._refresh_source_authorized_user">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_refresh_source_authorized_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.Token._refresh_source_authorized_user" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>timeout</strong> (<em>int</em>)</p>

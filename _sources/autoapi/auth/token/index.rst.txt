@@ -137,6 +137,11 @@ Module Contents
 
 
 
+   .. py:attribute:: IMPERSONATED_SERVICE_ACCOUNT
+      :value: 'impersonated_service_account'
+
+
+
 .. py:function:: get_service_data(service)
 
    Get the service data dictionary for the current auth method.
@@ -268,22 +273,17 @@ Module Contents
 
 
 
-   .. py:attribute:: scopes
-      :value: ''
-
-
-
-   .. py:attribute:: target_principal
-      :value: None
-
-
-
    .. py:attribute:: delegates
       :value: None
 
 
 
    .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_source_authorized_user(timeout)
       :async:
 
 

@@ -291,22 +291,17 @@ Package Contents
 
 
 
-   .. py:attribute:: scopes
-      :value: ''
-
-
-
-   .. py:attribute:: target_principal
-      :value: None
-
-
-
    .. py:attribute:: delegates
       :value: None
 
 
 
    .. py:method:: _refresh_authorized_user(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_source_authorized_user(timeout)
       :async:
 
 
