@@ -159,12 +159,22 @@ Module Contents
       :type:  int
 
 
-.. py:class:: BaseToken(service_file = None, session = None)
+.. py:class:: BaseToken(service_file = None, session = None, background_refresh_after = 0.5, force_refresh_after = 0.95)
 
    GCP auth token base class.
 
 
    .. py:attribute:: __metaclass__
+
+
+   .. py:attribute:: background_refresh_after
+      :value: 0.5
+
+
+
+   .. py:attribute:: force_refresh_after
+      :value: 0.95
+
 
 
    .. py:attribute:: service_data
@@ -187,8 +197,18 @@ Module Contents
    .. py:attribute:: access_token_acquired_at
 
 
+   .. py:attribute:: access_token_preempt_after
+      :value: 0
+
+
+
+   .. py:attribute:: access_token_refresh_after
+      :value: 0
+
+
+
    .. py:attribute:: acquiring
-      :type:  Optional[asyncio.Future[Any]]
+      :type:  Optional[asyncio.Task[None]]
       :value: None
 
 
