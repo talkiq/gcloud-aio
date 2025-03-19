@@ -149,7 +149,7 @@ def get_service_data(
 @dataclass
 class TokenResponse:
     value: str
-    expires_in: int
+    expires_in: int  # Token TTL in seconds
 
 
 class BaseToken:
@@ -160,7 +160,20 @@ class BaseToken:
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
+        background_refresh_after: float = 0.5,
+        force_refresh_after: float = 0.95,
     ) -> None:
+        if background_refresh_after <= 0 or background_refresh_after > 1:
+            raise ValueError(
+                'background_refresh_after must be a value between 0 and 1')
+        if force_refresh_after <= 0 or force_refresh_after > 1:
+            raise ValueError(
+                'force_refresh_after must be a value between 0 and 1')
+        # Portion of TTL after which a background refresh would start
+        self.background_refresh_after = background_refresh_after
+        # Portion of TTL after which a cached token is considered invalid
+        self.force_refresh_after = force_refresh_after
+
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
@@ -178,8 +191,12 @@ class BaseToken:
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
+        # Timestamp after which we pre-fetch.
+        self.access_token_preempt_after = 0
+        # Timestamp after which we must re-fetch.
+        self.access_token_refresh_after = 0
 
-        self.acquiring: Optional['asyncio.Future[Any]'] = None
+        self.acquiring: Optional['asyncio.Task[None]'] = None
 
     async def get_project(self) -> Optional[str]:
         project = (
@@ -212,18 +229,27 @@ class BaseToken:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if self.acquiring and not self.acquiring.done():
-            await self.acquiring
-            return
-
         if self.access_token:
-            now = datetime.datetime.now(datetime.timezone.utc)
-            delta = (now - self.access_token_acquired_at).total_seconds()
-            if delta <= self.access_token_duration / 2:
+            # Cached token exists
+            now_ts = int(
+                datetime.datetime.now(
+                    datetime.timezone.utc).timestamp())
+            if now_ts > self.access_token_refresh_after:
+                # Cached token does not have enough duration left, fall through
+                pass
+            elif now_ts > self.access_token_preempt_after:
+                # Token is okay, but we need to fire up a preemptive refresh
+                if not self.acquiring:
+                    self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
+                        self.acquire_access_token())
+                return
+            else:
+                # Cached token is valid for use
                 return
 
-        self.acquiring = asyncio.ensure_future(  # pylint: disable=possibly-used-before-assignment
-            self.acquire_access_token())
+        if not self.acquiring:
+            self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
+                self.acquire_access_token())
         await self.acquiring
 
     @abstractmethod
@@ -238,6 +264,11 @@ class BaseToken:
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
             datetime.timezone.utc)
+        base_timestamp = self.access_token_acquired_at.timestamp()
+        self.access_token_preempt_after = int(
+            base_timestamp + (resp.expires_in * self.background_refresh_after))
+        self.access_token_refresh_after = int(
+            base_timestamp + (resp.expires_in * self.force_refresh_after))
         self.acquiring = None
 
     async def close(self) -> None:
@@ -324,8 +355,11 @@ class Token(BaseToken):
             timeout=timeout,
         )
         content = await resp.json()
-        return TokenResponse(value=str(content['access_token']),
-                             expires_in=int(content['expires_in']))
+
+        # no .get() on the second option - Raises KeyError if neither found
+        token = str(content.get('access_token') or content['id_token'])
+        expires = int(content.get('expires_in', '0')) or self.default_token_ttl
+        return TokenResponse(value=token, expires_in=expires)
 
     async def _impersonate(self, token: TokenResponse,
                            *, timeout: int) -> TokenResponse:
