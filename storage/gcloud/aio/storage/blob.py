@@ -216,9 +216,10 @@ class Blob:
                 and isinstance(private_key, str)):
             signed_blob = self.get_pem_signature(str_to_sign, private_key)
         else:
+            provided_session = session or (iam_client and iam_client.session)
             try:
                 iam_client = iam_client or IamClient(
-                    token=token, session=session)
+                    token=token, session=provided_session)
             except TypeError as e:
                 raise TypeError('Blob signing is not yet supported'
                                 ' for AUTHORIZED_USER tokens') from e
@@ -226,8 +227,10 @@ class Blob:
                 str_to_sign,
                 iam_client,
                 service_account_email,
-                session,
+                provided_session,
             )
+            if provided_session is None:
+                await iam_client.close()
 
         signature = binascii.hexlify(signed_blob).decode()
 
