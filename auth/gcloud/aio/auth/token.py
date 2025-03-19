@@ -47,17 +47,17 @@ else:
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
     import asyncio
 
-# Environment variable GCE_METADATA_HOST is originally named
-# GCE_METADATA_ROOT. For compatibility reasons, here it checks
-# the new variable first; if not set, the system falls back
-# to the old variable.
-_GCE_METADATA_HOST = os.getenv('GCE_METADATA_HOST', None)
+
+# Environment variable GCE_METADATA_HOST is originally named GCE_METADATA_ROOT.
+# For compatibility reasons, here it checks the new variable first; if not set,
+# the system falls back to the old variable.
+_GCE_METADATA_HOST = os.environ.get('GCE_METADATA_HOST')
 if not _GCE_METADATA_HOST:
-    _GCE_METADATA_HOST = os.getenv(
+    _GCE_METADATA_HOST = os.environ.get(
         'GCE_METADATA_ROOT', 'metadata.google.internal'
     )
 
-GCE_METADATA_BASE = 'http://{}/computeMetadata/v1'.format(_GCE_METADATA_HOST)
+GCE_METADATA_BASE = f'http://{_GCE_METADATA_HOST}/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
 GCE_ENDPOINT_PROJECT = f'{GCE_METADATA_BASE}/project/project-id'
 GCE_ENDPOINT_TOKEN = (
