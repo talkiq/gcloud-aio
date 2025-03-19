@@ -62,7 +62,7 @@ for folder in ${PROJECTS}; do
     else
         echo "$folder/pyproject.toml changed, rebuilding rest lockfile..."
         cp pyproject.toml ../../$folder/pyproject.rest.toml
-        poetry18 lock
+        poetry lock
         cp poetry.lock ../../$folder/poetry.rest.lock
     fi
 
