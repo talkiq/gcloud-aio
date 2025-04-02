@@ -307,12 +307,13 @@ class Token(BaseToken):
 
         if scopes:
             self.scopes = ' '.join(scopes or [])
-        elif self.service_data:
-            if self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
-                # If service file was provided and the type is
-                # IMPERSONATED_SERVICE_ACCOUNT, gcloud requires this default
-                # scope but does not write it to the file
-                self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
+        elif self.service_data and self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
+            # If service file was provided and the type is
+            # IMPERSONATED_SERVICE_ACCOUNT, gcloud requires this default
+            # scope but does not write it to the file
+            self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
+        else:
+            self.scopes = ''
 
         self.impersonation_uri: Optional[str] = None
         if target_principal:
