@@ -305,6 +305,7 @@ class Token(BaseToken):
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
+        self.scopes = ''
         if scopes:
             self.scopes = ' '.join(scopes or [])
         elif self.service_data:
