@@ -291,6 +291,11 @@ Package Contents
 
 
 
+   .. py:attribute:: scopes
+      :value: ''
+
+
+
    .. py:attribute:: impersonation_uri
       :type:  Optional[str]
       :value: None
