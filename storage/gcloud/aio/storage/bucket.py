@@ -63,9 +63,14 @@ class Bucket:
 
     async def list_blobs(
         self, prefix: str = '', match_glob: str = '',
-        session: Optional[Session] = None,
+        delimiter: str = '', session: Optional[Session] = None,
     ) -> List[str]:
-        params = {'prefix': prefix, 'matchGlob': match_glob, 'pageToken': ''}
+        params = {
+            'delimiter': delimiter,
+            'matchGlob': match_glob,
+            'pageToken': '',
+            'prefix': prefix,
+        }
         items = []
         while True:
             content = await self.storage.list_objects(
@@ -74,7 +79,8 @@ class Bucket:
                 session=session,
             )
             items.extend([x['name'] for x in content.get('items', [])])
-
+            if delimiter:
+                items.extend(content.get('prefixes', []))
             params['pageToken'] = content.get('nextPageToken', '')
             if not params['pageToken']:
                 break
