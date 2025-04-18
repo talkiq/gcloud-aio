@@ -1,5 +1,7 @@
+import asyncio
 import io
 import json
+from unittest import mock
 
 import pytest
 from gcloud.aio.auth import token
@@ -27,3 +29,18 @@ async def test_service_as_io():
     assert t.token_type == token.Type.SERVICE_ACCOUNT
     assert t.token_uri == 'https://oauth2.googleapis.com/token'
     assert await t.get_project() == 'random-project-123'
+
+@pytest.mark.asyncio
+@mock.patch("gcloud.aio.auth.token.BaseToken.acquire_access_token", new_callable=mock.AsyncMock)
+async def test_acquiring_cancellation(acquire_access_token_mock):
+    t = token.BaseToken()
+
+    # If we hit a timeout the first time, an error should return
+    acquire_access_token_mock.side_effect = asyncio.TimeoutError()
+    with pytest.raises(asyncio.TimeoutError):
+        await t.get()
+
+    # If the token timed out last time, it should retry instead of trying the timed out coroutine again
+    acquire_access_token_mock.side_effect = None
+    acquire_access_token_mock.return_value = None
+    await t.get()
