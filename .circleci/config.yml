@@ -12,22 +12,22 @@ executors:
 
   python310:
     docker:
-      - image: python:3.10.14
+      - image: python:3.9.22-slim-bullseye
     resource_class: small
 
   python311:
     docker:
-      - image: python:3.11.9
+      - image: python:3.10.17-slim-bullseye
     resource_class: small
 
   python312:
     docker:
-      - image: python:3.12.5
+      - image: python:3.11.12-slim-bullseye
     resource_class: small
 
   python-integration:
     docker:
-      - image: python:3.12.5
+      - image: python:3.11.12-slim-bullseye
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
