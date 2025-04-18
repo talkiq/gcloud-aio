@@ -32,6 +32,36 @@ async def test_service_as_io():
 
 
 @pytest.mark.asyncio
+@mock.patch("gcloud.aio.auth.token.BaseToken.refresh",
+            new_callable=mock.AsyncMock)
+async def test_acquiring_refresh_called_once(refresh_mock: mock.AsyncMock):
+    t = token.BaseToken()
+
+    # Use a future so we can control when refresh returns
+    future = asyncio.Future()
+    async def refresh(timeout):
+        return await future
+    refresh_mock.side_effect = refresh
+
+    # Both tasks should try to acquire a token and block for the same refresh function
+    task1 = asyncio.create_task(t.get())
+    await asyncio.sleep(0)  # Let the task run
+
+    task2 = asyncio.create_task(t.get())
+    await asyncio.sleep(0)  # Let the task run
+
+    # Now set the result of the future, which should unblock both tasks
+    future.set_result(
+        token.TokenResponse(
+            value="fake_token",
+            expires_in=3600,
+        )
+    )
+    assert await task1 == await task2, "Token should be cached and reused"
+    refresh_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 @mock.patch('gcloud.aio.auth.token.BaseToken.acquire_access_token',
             new_callable=mock.AsyncMock)
 async def test_acquiring_cancellation(acquire_access_token_mock):
