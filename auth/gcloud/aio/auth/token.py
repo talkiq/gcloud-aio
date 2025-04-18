@@ -260,7 +260,7 @@ class BaseToken:
         if not self.acquiring or self.acquiring.done():
             self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
                 self.acquire_access_token())
-        await self.acquire_access_token()
+        await self.acquiring
 
     @abstractmethod
     async def refresh(self, *, timeout: int) -> TokenResponse:
