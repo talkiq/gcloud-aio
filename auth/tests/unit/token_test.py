@@ -40,7 +40,7 @@ async def test_acquiring_refresh_called_once(refresh_mock: mock.AsyncMock):
     # Use a future so we can control when refresh returns
     future = asyncio.Future()
 
-    async def refresh(timeout): # pylint: disable=unused-argument
+    async def refresh(timeout):  # pylint: disable=unused-argument
         return await future
     refresh_mock.side_effect = refresh
 
