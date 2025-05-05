@@ -74,8 +74,8 @@ async def test_acquiring_cancellation(acquire_access_token_mock):
     with pytest.raises(asyncio.TimeoutError):
         await t.get()
 
-    assert t.acquiring.done(), "Acquiring should be done after timeout"
-    assert not t.access_token, "Token should not be set after timeout"
+    assert t.acquiring.done(), 'Acquiring should be done after timeout'
+    assert not t.access_token, 'Token should not be set after timeout'
 
     # If the token timed out last time, it should retry instead of trying the
     # timed out coroutine again
