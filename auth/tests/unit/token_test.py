@@ -32,17 +32,16 @@ async def test_service_as_io():
 
 
 @pytest.mark.asyncio
-@mock.patch('gcloud.aio.auth.token.BaseToken.refresh',
-            new_callable=mock.AsyncMock)
-async def test_acquiring_refresh_called_once(refresh_mock: mock.AsyncMock):
+async def test_acquiring_refresh_called_once():
     t = token.BaseToken()
+    t.refresh = mock.AsyncMock()
 
     # Use a future so we can control when refresh returns
     future = asyncio.Future()
 
     async def refresh(timeout):  # pylint: disable=unused-argument
         return await future
-    refresh_mock.side_effect = refresh
+    t.refresh.side_effect = refresh
 
     # Both tasks should try to acquire a token and block for the same refresh
     # function
@@ -60,17 +59,16 @@ async def test_acquiring_refresh_called_once(refresh_mock: mock.AsyncMock):
         )
     )
     assert await task1 == await task2, 'Token should be cached and reused'
-    refresh_mock.assert_awaited_once()
+    t.refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
-@mock.patch('gcloud.aio.auth.token.BaseToken.acquire_access_token',
-            new_callable=mock.AsyncMock)
-async def test_acquiring_cancellation(acquire_access_token_mock):
+async def test_acquiring_cancellation():
     t = token.BaseToken()
+    t.acquire_access_token = mock.AsyncMock()
 
     # If we hit a timeout the first time, an error should return
-    acquire_access_token_mock.side_effect = asyncio.TimeoutError()
+    t.acquire_access_token.side_effect = asyncio.TimeoutError()
     with pytest.raises(asyncio.TimeoutError):
         await t.get()
 
@@ -79,6 +77,6 @@ async def test_acquiring_cancellation(acquire_access_token_mock):
 
     # If the token timed out last time, it should retry instead of trying the
     # timed out coroutine again
-    acquire_access_token_mock.side_effect = None
-    acquire_access_token_mock.return_value = None
+    t.acquire_access_token.side_effect = None
+    t.acquire_access_token.return_value = None
     await t.get()
