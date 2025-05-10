@@ -4,7 +4,8 @@ import json
 from unittest import mock
 
 import pytest
-from gcloud.aio.auth import token, BUILD_GCLOUD_REST
+from gcloud.aio.auth import BUILD_GCLOUD_REST
+from gcloud.aio.auth import token
 
 
 @pytest.mark.asyncio
@@ -63,7 +64,6 @@ else:
         )
         assert await task1 == await task2, 'Token should be cached and reused'
         t.refresh.assert_awaited_once()
-
 
     @pytest.mark.asyncio
     async def test_acquiring_cancellation():
