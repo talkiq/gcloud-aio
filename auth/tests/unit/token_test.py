@@ -4,7 +4,12 @@ import json
 from unittest import mock
 
 import pytest
-from gcloud.aio.auth import token
+from gcloud.aio.auth.build_constants import BUILD_GCLOUD_REST
+
+if BUILD_GCLOUD_REST:
+    from gcloud.rest.auth import token
+else:
+    from gcloud.aio.auth import token
 
 
 @pytest.mark.asyncio
