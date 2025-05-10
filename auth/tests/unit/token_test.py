@@ -30,6 +30,7 @@ async def test_service_as_io():
     assert t.token_uri == 'https://oauth2.googleapis.com/token'
     assert await t.get_project() == 'random-project-123'
 
+
 @pytest.mark.asyncio
 async def test_acquiring_refresh_called_once():
     t = token.BaseToken()
@@ -46,6 +47,7 @@ async def test_acquiring_refresh_called_once():
     task2 = await t.get()
     assert task1 == task2, 'Token should be cached and reused'
     t.refresh.assert_awaited_once()
+
 
 @pytest.mark.asyncio
 async def test_acquiring_cancellation():
