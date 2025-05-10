@@ -47,8 +47,8 @@ else:
             return await future
         t.refresh.side_effect = refresh
 
-        # Both tasks should try to acquire a token and block for the same refresh
-        # function
+        # Both tasks should try to acquire a token and block for the same
+        # refresh function
         task1 = asyncio.create_task(t.get())
         await asyncio.sleep(0)  # Let the task run
 
@@ -78,8 +78,8 @@ else:
         assert t.acquiring.done(), 'Acquiring should be done after timeout'
         assert not t.access_token, 'Token should not be set after timeout'
 
-        # If the token timed out last time, it should retry instead of trying the
-        # timed out coroutine again
+        # If the token timed out last time, it should retry instead of
+        # trying the timed out coroutine again
         t.acquire_access_token.side_effect = None
         t.acquire_access_token.return_value = None
         await t.get()
