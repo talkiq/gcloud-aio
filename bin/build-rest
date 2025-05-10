@@ -81,6 +81,10 @@ find . -type f -path '*py' \
 find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei 's/mock.AsyncMock/mock.Mock/g'
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei 's/assert_awaited_once()/assert_called_once()/g'
+find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/Session\(.*\)\sas/Session() as/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
