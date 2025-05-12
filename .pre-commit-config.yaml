@@ -223,4 +223,4 @@ repos:
     - id: check-renovate
       additional_dependencies:
       # renovate: datasource=pypi depName=pyjson5
-      - pyjson5==1.6.8
+      - pyjson5==1.6.9
