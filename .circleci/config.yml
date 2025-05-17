@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  linter: talkiq/linter@4
-  poetry: talkiq/poetry@4
+  linter: talkiq/linter@4.0.0
+  poetry: talkiq/poetry@4.1.0
 
 executors:
   python39:
