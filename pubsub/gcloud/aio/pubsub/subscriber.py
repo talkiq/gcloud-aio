@@ -41,12 +41,13 @@ else:
         def __init__(
             self, subscriber_client: SubscriberClient,
             subscription: str, cache_timeout: float,
+            ack_deadline: Optional[float] = None,
         ):
             self.subscriber_client = subscriber_client
             self.subscription = subscription
             self.cache_timeout = cache_timeout
-            self.ack_deadline: float = float('inf')
             self.last_refresh: float = float('-inf')
+            self.ack_deadline = ack_deadline or float('inf')
 
         async def get(self) -> float:
             if self.cache_outdated():
@@ -469,6 +470,7 @@ else:
         num_producers: int = 1,
         max_messages_per_producer: int = 100,
         ack_window: float = 0.3,
+        ack_deadline: Optional[float] = None,
         ack_deadline_cache_timeout: float = float('inf'),
         num_tasks_per_consumer: int = 1,
         enable_nack: bool = True,
@@ -484,6 +486,7 @@ else:
             subscriber_client,
             subscription,
             ack_deadline_cache_timeout,
+            ack_deadline,
         )
 
         if metrics_client is not None:
