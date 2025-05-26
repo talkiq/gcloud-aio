@@ -28,7 +28,7 @@ aiohttp = "3.9.1"
 gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-storage = { path = "../storage" }
 pytest = "8.3.5"
-pytest-asyncio = "0.26.0"
+pytest-asyncio = "1.0.0"
 pytest-mock = "3.14.1"
 
 [[tool.poetry.source]]
