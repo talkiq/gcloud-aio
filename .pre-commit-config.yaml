@@ -171,7 +171,7 @@ repos:
     -   id: autopep8
         args: [-a, -i, -p2]
 -   repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
+    rev: 7.2.0
     hooks:
     -   id: flake8
         additional_dependencies: *flake8deps
