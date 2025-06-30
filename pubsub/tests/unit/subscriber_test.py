@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+# pylint: disable=too-many-lines
 from gcloud.aio.auth import BUILD_GCLOUD_REST
 
 # pylint: disable=too-complex
@@ -147,6 +148,16 @@ else:
         )
         assert await cache.get() == 42
         assert cache.last_refresh
+
+    @pytest.mark.asyncio
+    async def test_ack_deadline_cache_no_refresh_if_specified(
+        subscriber_client,
+    ):
+        cache = AckDeadlineCache(
+            subscriber_client, 'fake_subscription', float('inf'), 100
+        )
+        assert await cache.get() == 100
+        subscriber_client.get_subscription.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_ack_deadline_cache_get_no_call_if_not_outdated(
