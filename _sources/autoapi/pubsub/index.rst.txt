@@ -58,6 +58,7 @@ pubsub
            'projects/<my_project>/subscriptions/<my_subscription>',
            handler,
            subscriber_client,
+           ack_deadline=10,
            num_producers=1,
            max_messages_per_producer=100,
            ack_window=0.3,
@@ -75,6 +76,11 @@ pubsub
      return ``None`` if the message should be acked. An exception raised within
      the handler will result in the message being left to expire, and thus it will
      be redelivered according to your subscription's ack deadline.
+   - ``ack_deadline``: An optional parameter which should match the ack deadline
+     (in seconds) of your subscription. If omitted, the library will fetch the
+     current value from the subscription. Hard-coding it here is a way to avoid an
+     extra call to the Pub/Sub REST API which counts as an Administrator
+     Operation.
    - ``num_producers``: Number of workers that will be making ``pull`` requests to
      pubsub. Please note that a worker will only fetch new batch once the
      ``handler`` was called for each message from the previous batch. This means

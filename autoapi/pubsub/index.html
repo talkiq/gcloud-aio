@@ -80,6 +80,7 @@ available in the <code class="docutils literal notranslate"><span class="pre">gc
     <span class="s1">&#39;projects/&lt;my_project&gt;/subscriptions/&lt;my_subscription&gt;&#39;</span><span class="p">,</span>
     <span class="n">handler</span><span class="p">,</span>
     <span class="n">subscriber_client</span><span class="p">,</span>
+    <span class="n">ack_deadline</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">num_producers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">max_messages_per_producer</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">ack_window</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
@@ -98,6 +99,11 @@ should accept an instance of <code class="docutils literal notranslate"><span cl
 return <code class="docutils literal notranslate"><span class="pre">None</span></code> if the message should be acked. An exception raised within
 the handler will result in the message being left to expire, and thus it will
 be redelivered according to your subscription’s ack deadline.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ack_deadline</span></code>: An optional parameter which should match the ack deadline
+(in seconds) of your subscription. If omitted, the library will fetch the
+current value from the subscription. Hard-coding it here is a way to avoid an
+extra call to the Pub/Sub REST API which counts as an Administrator
+Operation.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_producers</span></code>: Number of workers that will be making <code class="docutils literal notranslate"><span class="pre">pull</span></code> requests to
 pubsub. Please note that a worker will only fetch new batch once the
 <code class="docutils literal notranslate"><span class="pre">handler</span></code> was called for each message from the previous batch. This means
