@@ -484,6 +484,38 @@ class Storage:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents, **kwargs)
 
+    async def compose_objects(
+        self, bucket: str, object_name: str,
+        source_object_names: list[str], *,
+        content_type: Optional[str] = None,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+    ) -> None:
+        """
+        TODO
+
+        See https://cloud.google.com/storage/docs/json_api/v1/objects/compose
+        """
+        url = f'{self._api_root_read}/{bucket}/o/{quote(object_name, safe="")}/compose'
+        headers = headers or {}
+        headers.update(await self._headers())
+        params = params or {}
+        s = AioSession(session) if session else self.session
+
+        payload = {
+            'sourceObjects': [{'name': name} for name in source_object_names],
+        }
+        if content_type:
+            payload['destination'] = {'contentType': content_type}
+
+        resp = await s.post(
+            url, headers=headers, params=params, timeout=timeout,
+            data=json.dumps(payload),
+        )
+        # TODO
+
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
         current = stream.tell()
