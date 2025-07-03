@@ -485,7 +485,7 @@ class Storage:
             return await self.upload(bucket, object_name, contents, **kwargs)
 
     # https://cloud.google.com/storage/docs/json_api/v1/objects/compose
-    async def compose_objects(
+    async def compose(
         self, bucket: str, object_name: str,
         source_object_names: list[str], *,
         content_type: Optional[str] = None,
