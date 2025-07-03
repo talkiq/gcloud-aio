@@ -21,7 +21,9 @@ async def test_compose(
     bucket_name, creds, shard_data,
     expected_data, content_type, file_extension,
 ):
-    random_name = lambda: f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
+    def random_name():
+        return f'{uuid.uuid4().hex}/{uuid.uuid4().hex}.{file_extension}'
+
     shard_names = [random_name() for _ in shard_data]
     object_name = random_name()
 

@@ -494,12 +494,15 @@ class Storage:
         session: Optional[Session] = None,
         timeout: int = DEFAULT_TIMEOUT,
     ) -> Dict[str, Any]:
-        url = f'{self._api_root_read}/{bucket}/o/{quote(object_name, safe="")}/compose'
+        url = (
+            f'{self._api_root_read}/{bucket}/o/'
+            f'{quote(object_name, safe="")}/compose'
+        )
         headers = headers or {}
         headers.update(await self._headers())
         params = params or {}
 
-        payload = {
+        payload: Dict[str, Any] = {
             'sourceObjects': [{'name': name} for name in source_object_names],
         }
         if content_type:
