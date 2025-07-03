@@ -487,7 +487,7 @@ class Storage:
     # https://cloud.google.com/storage/docs/json_api/v1/objects/compose
     async def compose(
         self, bucket: str, object_name: str,
-        source_object_names: list[str], *,
+        source_object_names: List[str], *,
         content_type: Optional[str] = None,
         params: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, Any]] = None,
