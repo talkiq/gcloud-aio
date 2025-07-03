@@ -504,11 +504,16 @@ class Storage:
         }
         if content_type:
             payload['destination'] = {'contentType': content_type}
+        body = json.dumps(payload).encode('utf-8')
+        headers.update({
+            'Content-Length': str(len(body)),
+            'Content-Type': 'application/json; charset=UTF-8',
+        })
 
         s = AioSession(session) if session else self.session
         resp = await s.post(
             url, headers=headers, params=params, timeout=timeout,
-            data=json.dumps(payload),
+            data=body,
         )
         data: Dict[str, Any] = await resp.json(content_type=None)
         return data
