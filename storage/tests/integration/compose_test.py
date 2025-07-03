@@ -14,7 +14,9 @@ else:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     'shard_data,expected_data,content_type,file_extension', [
-        (['foo ', 'bar ', 'baz'], b'foo bar baz', 'text/plain', 'txt'),
+        (['foo ', 'bar'], b'foo bar', 'text/plain', 'txt'),
+        (['{"foo":', '1,', '"bar":2}'],
+         b'{"foo":1,"bar":2}', 'application/json', 'json'),
     ],
 )
 async def test_compose(
