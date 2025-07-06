@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -557,3 +558,24 @@ async def test_datastore_export(
         )
         for file in files['items']:
             await storage.delete(export_bucket_name, file['name'])
+
+
+@pytest.mark.asyncio
+async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> None:
+    key = Key(project, [PathElement(kind, name='test_read_time')])
+    
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        
+        # insert some example data
+        await ds.insert(key, {'value': 'test'}, session=s)
+        
+        # test that readTime parameter is accepted (use recent time)
+        read_time = (datetime.utcnow() - timedelta(minutes=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        
+        # should not raise error, even if no results due to timing
+        result = await ds.lookup([key], read_time=read_time, session=s)
+        assert 'found' in result or 'missing' in result
+        
+        # cleanup
+        await ds.delete(key, session=s)

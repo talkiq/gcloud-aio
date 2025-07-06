@@ -5,6 +5,7 @@ from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import PropertyOrder
 from gcloud.aio.datastore import Query
+from gcloud.aio.datastore import QueryResultBatch
 from gcloud.aio.datastore import Value
 
 
@@ -127,3 +128,38 @@ class TestQuery:
             value=Value(123),
         )
         return Filter(inner_filter)
+
+
+class TestQueryResultBatch:
+    @staticmethod
+    def test_query_result_batch_with_read_time():
+        data = {
+            'endCursor': 'cursor123',
+            'entityResultType': 'RESULT_TYPE_UNSPECIFIED',
+            'entityResults': [],
+            'moreResults': 'NO_MORE_RESULTS',
+            'skippedResults': 0,
+            'readTime': '2025-07-01T12:00:00.000Z'
+        }
+        
+        batch = QueryResultBatch.from_repr(data)
+        assert batch.read_time == '2025-07-01T12:00:00.000Z'
+        
+        result = batch.to_repr()
+        assert result['readTime'] == '2025-07-01T12:00:00.000Z'
+
+    @staticmethod
+    def test_query_result_batch_without_read_time():
+        data = {
+            'endCursor': 'cursor123',
+            'entityResultType': 'RESULT_TYPE_UNSPECIFIED',
+            'entityResults': [],
+            'moreResults': 'NO_MORE_RESULTS',
+            'skippedResults': 0,
+        }
+        
+        batch = QueryResultBatch.from_repr(data)
+        assert batch.read_time == ''
+        
+        result = batch.to_repr()
+        assert 'readTime' not in result
