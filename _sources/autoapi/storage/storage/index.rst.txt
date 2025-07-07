@@ -270,6 +270,11 @@ Module Contents
 
 
 
+   .. py:method:: compose(bucket, object_name, source_object_names, *, content_type = None, params = None, headers = None, session = None, timeout = DEFAULT_TIMEOUT)
+      :async:
+
+
+
    .. py:method:: _get_stream_len(stream)
       :staticmethod:
 
