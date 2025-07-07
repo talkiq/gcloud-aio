@@ -484,6 +484,43 @@ class Storage:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents, **kwargs)
 
+    # https://cloud.google.com/storage/docs/json_api/v1/objects/compose
+    async def compose(
+        self, bucket: str, object_name: str,
+        source_object_names: List[str], *,
+        content_type: Optional[str] = None,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+    ) -> Dict[str, Any]:
+        url = (
+            f'{self._api_root_read}/{bucket}/o/'
+            f'{quote(object_name, safe="")}/compose'
+        )
+        headers = headers or {}
+        headers.update(await self._headers())
+        params = params or {}
+
+        payload: Dict[str, Any] = {
+            'sourceObjects': [{'name': name} for name in source_object_names],
+        }
+        if content_type:
+            payload['destination'] = {'contentType': content_type}
+        body = json.dumps(payload).encode('utf-8')
+        headers.update({
+            'Content-Length': str(len(body)),
+            'Content-Type': 'application/json; charset=UTF-8',
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(
+            url, headers=headers, params=params, timeout=timeout,
+            data=body,
+        )
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
+
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
         current = stream.tell()
