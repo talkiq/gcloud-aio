@@ -48,12 +48,8 @@ async def test_compose(
             content_type=content_type,
         )
 
-        try:
-            assert res['name'] == object_name
-            assert res['contentType'] == content_type
+        assert res['name'] == object_name
+        assert res['contentType'] == content_type
 
-            downloaded_data = await storage.download(bucket_name, res['name'])
-            assert downloaded_data == expected_data
-
-        finally:
-            pass
+        downloaded_data = await storage.download(bucket_name, res['name'])
+        assert downloaded_data == expected_data
