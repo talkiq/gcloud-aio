@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
