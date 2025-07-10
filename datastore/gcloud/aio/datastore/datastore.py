@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -300,13 +301,14 @@ class Datastore:
             transaction: Optional[str] = None,
             newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
+            read_time: Optional[datetime.datetime] = None,
             session: Optional[Session] = None, timeout: int = 10,
     ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
 
         read_options = self._build_read_options(
-            consistency, newTransaction, transaction)
+            consistency, newTransaction, transaction, read_time)
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -347,12 +349,16 @@ class Datastore:
         if 'transaction' in data:
             new_transaction: str = data['transaction']
             result['transaction'] = new_transaction
+        if 'readTime' in data:
+            read_time: str = data['readTime']
+            result['readTime'] = read_time
         return result
 
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
-                            transaction: Optional[str]) -> Dict[str, Any]:
+                            transaction: Optional[str],
+                            read_time: Optional[datetime.datetime] = None) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         # See
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
@@ -361,6 +367,17 @@ class Datastore:
 
         if newTransaction:
             return {'newTransaction': newTransaction.to_repr()}
+
+        if read_time:
+            if not isinstance(read_time, datetime.datetime):
+                raise TypeError(
+                    f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
+            if read_time.tzinfo is None:
+                read_time = read_time.replace(tzinfo=datetime.timezone.utc)
+            else:
+                read_time = read_time.astimezone(datetime.timezone.utc)
+            read_time_str = read_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            return {'readTime': read_time_str}
 
         return {'readConsistency': consistency.value}
 
@@ -413,24 +430,25 @@ class Datastore:
     async def runQuery(
         self, query: BaseQuery,
         transaction: Optional[str] = None,
+        newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
+        read_time: Optional[datetime.datetime] = None,
         session: Optional[Session] = None,
         timeout: int = 10,
     ) -> QueryResultBatch:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
-        if transaction:
-            options = {'transaction': transaction}
-        else:
-            options = {'readConsistency': consistency.value}
+        read_options = self._build_read_options(
+            consistency, newTransaction, transaction, read_time)
+
         payload = json.dumps({
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
-            'readOptions': options,
+            'readOptions': read_options,
         }).encode('utf-8')
 
         headers = await self.headers()
