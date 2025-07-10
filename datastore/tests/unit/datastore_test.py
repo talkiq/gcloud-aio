@@ -20,24 +20,25 @@ class TestDatastore:
     @staticmethod
     def test_build_read_options_priority():
         ds = Datastore()
+        dt = datetime.datetime(2025, 1, 1, 12, 0, 0, 0)
 
-        # transaction take precedence over readTime/consistency
+        # transaction > readTime > consistency
         result = ds._build_read_options(
-            Consistency.STRONG, None, 'txn123', '2025-01-01T12:00:00.000Z'
+            Consistency.STRONG, None, 'txn123', dt
         )
         assert result == {'transaction': 'txn123'}
 
-        # readTime takes precedence over consistency
+        # readTime > consistency
         result = ds._build_read_options(
-            Consistency.STRONG, None, None, '2025-01-01T12:00:00.000Z'
+            Consistency.STRONG, None, None, dt
         )
-        assert result == {'readTime': '2025-01-01T12:00:00.000Z'}
+        assert result == {'readTime': '2025-01-01T12:00:00.000000Z'}
 
-        # we fall back to consistency if nothing else is provided
+        # fall back to consistency if nothing else is provided
         result = ds._build_read_options(
-            Consistency.EVENTUAL, None, None, None
+            Consistency.STRONG, None, None, None
         )
-        assert result == {'readConsistency': 'EVENTUAL'}
+        assert result == {'readConsistency': 'STRONG'}
 
     @staticmethod
     @pytest.fixture(scope='session')

@@ -1,7 +1,7 @@
-import uuid
-from datetime import datetime, timedelta
-
+import datetime
 import pytest
+import uuid
+
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Array
 from gcloud.aio.datastore import Datastore
@@ -562,20 +562,80 @@ async def test_datastore_export(
 
 @pytest.mark.asyncio
 async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> None:
-    key = Key(project, [PathElement(kind, name='test_read_time')])
-    
+    key = Key(project, [PathElement(kind, name=f'test_read_time_{uuid.uuid4()}')])
+
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
-        
-        # insert some example data
-        await ds.insert(key, {'value': 'test'}, session=s)
-        
-        # test that readTime parameter is accepted (use recent time)
-        read_time = (datetime.utcnow() - timedelta(minutes=5)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        
-        # should not raise error, even if no results due to timing
-        result = await ds.lookup([key], read_time=read_time, session=s)
-        assert 'found' in result or 'missing' in result
-        
+
+        # Test 1: Insert and read entity without readTime
+        time_before_insert = datetime.datetime.utcnow()
+        await ds.insert(key, {'value': 'test_data', 'timestamp': 'after'}, session=s)
+
+        result = await ds.lookup([key], session=s)
+        assert len(result['found']) == 1
+        assert result['found'][0].entity.properties['value'] == 'test_data'
+
+        if 'readTime' in result:
+            assert result['readTime'] is not None
+
+        # Test 2: Look up entity ver closest before current time
+        current_time = datetime.datetime.utcnow()
+        result_with_datetime = await ds.lookup([key], read_time=current_time, session=s)
+        assert len(result_with_datetime.get('found', [])) == 1
+        assert 'readTime' in result_with_datetime
+
+        # Test 3: Look up entity before insertion timestamp; should not find anything
+        past_time = time_before_insert - datetime.timedelta(seconds=10)
+        result_past = await ds.lookup([key], read_time=past_time, session=s)
+        assert len(result_past.get('found', [])) == 0
+        assert len(result_past.get('missing', [])) == 1
+
         # cleanup
         await ds.delete(key, session=s)
+
+
+@pytest.mark.asyncio
+async def test_run_query_with_read_time(creds: str, kind: str, project: str) -> None:
+    test_value = f'read_time_test_{uuid.uuid4()}'
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        time_before_insert = datetime.datetime.utcnow()
+
+        # Insert test data
+        key = Key(project, [PathElement(kind)])
+        await ds.insert(key, {'test_field': test_value}, session=s)
+
+        # Test 1: insert and query for entity
+        query = Query(
+            kind=kind,
+            query_filter=Filter(PropertyFilter(
+                prop='test_field',
+                operator=PropertyFilterOperator.EQUAL,
+                value=Value(test_value)
+            ))
+        )
+
+        result_current = await ds.runQuery(query, session=s)
+        assert len(result_current.entity_results) == 1
+        assert result_current.entity_results[0].entity.properties['test_field'] == test_value
+
+        # Test 2: query w/ readTime
+        current_time = datetime.datetime.utcnow()
+        result_with_datetime = await ds.runQuery(query, read_time=current_time, session=s)
+        assert len(result_with_datetime.entity_results) == 1
+        # verify readTime is not empty and is between insertion and current time
+        assert result_with_datetime.read_time != ''
+        read_time_dt = datetime.datetime.strptime(
+            result_with_datetime.read_time[:-1], '%Y-%m-%dT%H:%M:%S.%f'
+        )
+        assert time_before_insert <= read_time_dt <= current_time
+
+        # Test 3: query w/ readTime past insert time
+        past_time = time_before_insert - datetime.timedelta(seconds=10)
+        result_past = await ds.runQuery(query, read_time=past_time, session=s)
+        assert len(result_past.entity_results) == 0
+
+        # cleanup - delete the inserted data
+        found_key = result_current.entity_results[0].entity.key
+        await ds.delete(found_key, session=s)
