@@ -141,10 +141,10 @@ class TestQueryResultBatch:
             'skippedResults': 0,
             'readTime': '2025-07-01T12:00:00.000Z'
         }
-        
+
         batch = QueryResultBatch.from_repr(data)
         assert batch.read_time == '2025-07-01T12:00:00.000Z'
-        
+
         result = batch.to_repr()
         assert result['readTime'] == '2025-07-01T12:00:00.000Z'
 
@@ -157,9 +157,9 @@ class TestQueryResultBatch:
             'moreResults': 'NO_MORE_RESULTS',
             'skippedResults': 0,
         }
-        
+
         batch = QueryResultBatch.from_repr(data)
         assert batch.read_time == ''
-        
+
         result = batch.to_repr()
         assert 'readTime' not in result

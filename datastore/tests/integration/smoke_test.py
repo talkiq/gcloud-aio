@@ -1,7 +1,7 @@
 import datetime
-import pytest
 import uuid
 
+import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Array
 from gcloud.aio.datastore import Datastore
@@ -561,8 +561,12 @@ async def test_datastore_export(
 
 
 @pytest.mark.asyncio
-async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> None:
-    key = Key(project, [PathElement(kind, name=f'test_read_time_{uuid.uuid4()}')])
+async def test_lookup_with_read_time(
+        creds: str, kind: str, project: str) -> None:
+    key = Key(
+        project, [
+            PathElement(
+            kind, name=f'test_read_time_{uuid.uuid4()}')])
 
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
@@ -584,7 +588,8 @@ async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> Non
         assert len(result_with_datetime.get('found', [])) == 1
         assert 'readTime' in result_with_datetime
 
-        # Test 3: Look up entity before insertion timestamp; should not find anything
+        # Test 3: Look up entity before insertion timestamp; should not find
+        # anything
         past_time = time_before_insert - datetime.timedelta(seconds=10)
         result_past = await ds.lookup([key], read_time=past_time, session=s)
         assert len(result_past.get('found', [])) == 0
@@ -595,7 +600,8 @@ async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> Non
 
 
 @pytest.mark.asyncio
-async def test_run_query_with_read_time(creds: str, kind: str, project: str) -> None:
+async def test_run_query_with_read_time(
+        creds: str, kind: str, project: str) -> None:
     test_value = f'read_time_test_{uuid.uuid4()}'
 
     async with Session() as s:
@@ -624,7 +630,8 @@ async def test_run_query_with_read_time(creds: str, kind: str, project: str) -> 
         current_time = datetime.datetime.utcnow()
         result_with_datetime = await ds.runQuery(query, read_time=current_time, session=s)
         assert len(result_with_datetime.entity_results) == 1
-        # verify readTime is not empty and is between insertion and current time
+        # verify readTime is not empty and is between insertion and current
+        # time
         assert result_with_datetime.read_time != ''
         read_time_dt = datetime.datetime.strptime(
             result_with_datetime.read_time[:-1], '%Y-%m-%dT%H:%M:%S.%f'
