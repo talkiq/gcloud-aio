@@ -42,7 +42,8 @@ SCOPES = [
 
 log = logging.getLogger(__name__)
 
-LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
+LookUpResult = Dict[str, Union[str, datetime.datetime,
+                               List[Union[EntityResult, Key]]]]
 
 
 def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
@@ -296,6 +297,7 @@ class Datastore:
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
+    # pylint: disable=too-many-locals
     async def lookup(
             self, keys: List[Key],
             transaction: Optional[str] = None,
@@ -361,7 +363,8 @@ class Datastore:
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
                             transaction: Optional[str],
-                            read_time: Optional[datetime.datetime] = None) -> Dict[str, Any]:
+                            read_time: Optional[datetime.datetime] = None,
+                            ) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         # See
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
@@ -373,8 +376,8 @@ class Datastore:
 
         if read_time:
             if not isinstance(read_time, datetime.datetime):
-                raise TypeError(
-                    f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
+                raise TypeError(f'read_time must be of type datetime, '
+                                f'got {read_time.__class__.__name__}.')
 
             if read_time.tzinfo is None:
                 read_time_utc = read_time.replace(tzinfo=datetime.timezone.utc)
@@ -432,6 +435,7 @@ class Datastore:
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
+    # pylint: disable=too-many-locals
     async def runQuery(
         self, query: BaseQuery,
         transaction: Optional[str] = None,

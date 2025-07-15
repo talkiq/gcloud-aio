@@ -191,16 +191,19 @@ class GQLCursor:
         return isinstance(other, GQLCursor) and self.value == other.value
 
 
+# pylint: disable=too-many-instance-attributes
 class QueryResultBatch:
     entity_result_kind = EntityResult
 
+    # pylint:
     def __init__(
         self, end_cursor: str,
         entity_result_type: ResultType = ResultType.UNSPECIFIED,
         entity_results: Optional[List[EntityResult]] = None,
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
-        snapshot_version: str = '', read_time: datetime.datetime = None,
+        snapshot_version: str = '',
+        read_time: Optional[datetime.datetime] = None,
     ) -> None:
         self.end_cursor = end_cursor
 
