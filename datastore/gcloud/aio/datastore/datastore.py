@@ -296,8 +296,8 @@ class Datastore:
 
         return self.datastore_operation_kind.from_repr(data)
 
-    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     # pylint: disable=too-many-locals
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(
             self, keys: List[Key],
             transaction: Optional[str] = None,
@@ -434,8 +434,8 @@ class Datastore:
         s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     # pylint: disable=too-many-locals
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
         self, query: BaseQuery,
         transaction: Optional[str] = None,

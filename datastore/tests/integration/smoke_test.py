@@ -605,8 +605,8 @@ async def test_lookup_with_read_time(
         await ds.delete(key, session=s)
 
 
-@pytest.mark.asyncio
 # pylint: disable=too-many-locals
+@pytest.mark.asyncio
 async def test_run_query_with_read_time(
         creds: str, kind: str, project: str) -> None:
     test_value = f'read_time_test_{uuid.uuid4()}'
@@ -635,18 +635,24 @@ async def test_run_query_with_read_time(
         result_current = await ds.runQuery(query, session=s)
         assert len(result_current.entity_results) == 1
         assert result_current.entity_results[0].entity.properties[
-            'test_field'] == test_value  # pylint: disable=line-too-long
+            'test_field'] == test_value
 
         # Test 2: query w/ readTime
         current_time = datetime.datetime.utcnow()
-        result_with_datetime = await ds.runQuery(query, read_time=current_time, session=s)  # pylint: disable=line-too-long
+        result_with_datetime = await ds.runQuery(query,
+                                                 read_time=current_time,
+                                                 session=s)
         assert len(result_with_datetime.entity_results) == 1
         # verify readTime != empty and is between insertion and current time
         assert isinstance(result_with_datetime.read_time, datetime.datetime)
         time_before_insert_utc = time_before_insert.replace(
             tzinfo=datetime.timezone.utc)
         current_time_utc = current_time.replace(tzinfo=datetime.timezone.utc)
-        assert time_before_insert_utc <= result_with_datetime.read_time <= current_time_utc  # pylint: disable=line-too-long
+        assert (
+            time_before_insert_utc
+            <= result_with_datetime.read_time
+            <= current_time_utc
+        )
 
         # Test 3: query w/ readTime past insert time
         past_time = time_before_insert - datetime.timedelta(seconds=10)

@@ -19,6 +19,7 @@ class TestDatastore:
 
         assert results['insert']['properties']['value'] == value.to_repr()
 
+    # pylint: disable=protected-access
     @staticmethod
     def test_build_read_options_priority():
         ds = Datastore()
