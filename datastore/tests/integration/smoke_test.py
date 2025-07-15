@@ -566,7 +566,7 @@ async def test_lookup_with_read_time(
     key = Key(
         project, [
             PathElement(
-            kind, name=f'test_read_time_{uuid.uuid4()}')])
+                kind, name=f'test_read_time_{uuid.uuid4()}')])
 
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
