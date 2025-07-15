@@ -628,9 +628,11 @@ async def test_run_query_with_read_time(
         current_time = datetime.datetime.utcnow()
         result_with_datetime = await ds.runQuery(query, read_time=current_time, session=s)
         assert len(result_with_datetime.entity_results) == 1
-        # verify readTime is not empty and is between insertion and current time
+        # verify readTime is not empty and is between insertion and current
+        # time
         assert isinstance(result_with_datetime.read_time, datetime.datetime)
-        time_before_insert_utc = time_before_insert.replace(tzinfo=datetime.timezone.utc)
+        time_before_insert_utc = time_before_insert.replace(
+            tzinfo=datetime.timezone.utc)
         current_time_utc = current_time.replace(tzinfo=datetime.timezone.utc)
         assert time_before_insert_utc <= result_with_datetime.read_time <= current_time_utc
 
