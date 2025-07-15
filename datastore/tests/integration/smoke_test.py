@@ -574,9 +574,7 @@ async def test_lookup_with_read_time(creds: str, kind: str, project: str) -> Non
         result = await ds.lookup([key], session=s)
         assert len(result['found']) == 1
         assert result['found'][0].entity.properties['value'] == 'test_data'
-
-        if 'readTime' in result:
-            assert result['readTime'] is not None
+        assert result['readTime'] is not None
 
         # Test 2: Look up entity ver closest before current time
         current_time = datetime.datetime.utcnow()
