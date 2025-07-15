@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from gcloud.aio.datastore import Direction
 from gcloud.aio.datastore import Filter
@@ -139,14 +140,16 @@ class TestQueryResultBatch:
             'entityResults': [],
             'moreResults': 'NO_MORE_RESULTS',
             'skippedResults': 0,
-            'readTime': '2025-07-01T12:00:00.000Z'
+            'readTime': '2025-07-01T12:00:00Z'
         }
 
         batch = QueryResultBatch.from_repr(data)
-        assert batch.read_time == '2025-07-01T12:00:00.000Z'
+
+        expected_dt = datetime.datetime(2025, 7, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
+        assert batch.read_time == expected_dt
 
         result = batch.to_repr()
-        assert result['readTime'] == '2025-07-01T12:00:00.000Z'
+        assert result['readTime'] == '2025-07-01T12:00:00Z'
 
     @staticmethod
     def test_query_result_batch_without_read_time():
@@ -159,7 +162,7 @@ class TestQueryResultBatch:
         }
 
         batch = QueryResultBatch.from_repr(data)
-        assert batch.read_time == ''
+        assert batch.read_time is None
 
         result = batch.to_repr()
         assert 'readTime' not in result

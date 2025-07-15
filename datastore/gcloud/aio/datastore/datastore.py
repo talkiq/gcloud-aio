@@ -350,8 +350,11 @@ class Datastore:
             new_transaction: str = data['transaction']
             result['transaction'] = new_transaction
         if 'readTime' in data:
-            read_time: str = data['readTime']
-            result['readTime'] = read_time
+            # convert str timestamp to UTC datetime object
+            read_time_str = data['readTime']
+            if read_time_str.endswith('Z'):
+                read_time_str = read_time_str[:-1] + '+00:00'
+            result['readTime'] = datetime.datetime.fromisoformat(read_time_str)
         return result
 
     def _build_read_options(self,
@@ -370,13 +373,14 @@ class Datastore:
 
         if read_time:
             if not isinstance(read_time, datetime.datetime):
-                raise TypeError(
-                    f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
+                raise TypeError(f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
+
             if read_time.tzinfo is None:
-                read_time = read_time.replace(tzinfo=datetime.timezone.utc)
+                read_time_utc = read_time.replace(tzinfo=datetime.timezone.utc)
             else:
-                read_time = read_time.astimezone(datetime.timezone.utc)
-            read_time_str = read_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                read_time_utc = read_time.astimezone(datetime.timezone.utc)
+
+            read_time_str = read_time_utc.isoformat().replace('+00:00', 'Z')
             return {'readTime': read_time_str}
 
         return {'readConsistency': consistency.value}

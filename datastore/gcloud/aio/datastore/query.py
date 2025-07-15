@@ -1,3 +1,5 @@
+import datetime
+
 from typing import Any
 from typing import Dict
 from typing import List
@@ -199,7 +201,7 @@ class QueryResultBatch:
         entity_results: Optional[List[EntityResult]] = None,
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
-        snapshot_version: str = '', read_time: str = '',
+        snapshot_version: str = '', read_time: datetime.datetime = None,
     ) -> None:
         self.end_cursor = end_cursor
 
@@ -241,7 +243,14 @@ class QueryResultBatch:
         skipped_cursor = data.get('skippedCursor', '')
         skipped_results = data.get('skippedResults', 0)
         snapshot_version = data.get('snapshotVersion', '')
-        read_time = data.get('readTime', '')
+        read_time = data.get('readTime')
+        if read_time is not None:
+            if read_time.endswith('Z'):
+                read_time = read_time[:-1] + '+00:00'
+            read_time = datetime.datetime.fromisoformat(read_time)
+        else:
+            read_time = None
+
         return cls(
             end_cursor, entity_result_type=entity_result_type,
             entity_results=entity_results, more_results=more_results,
@@ -264,6 +273,6 @@ class QueryResultBatch:
         if self.snapshot_version:
             data['snapshotVersion'] = self.snapshot_version
         if self.read_time:
-            data['readTime'] = self.read_time
-
+            read_time_utc = self.read_time.astimezone(datetime.timezone.utc)
+            data['readTime'] = read_time_utc.isoformat().replace('+00:00', 'Z')
         return data

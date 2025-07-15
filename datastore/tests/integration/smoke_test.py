@@ -578,7 +578,7 @@ async def test_lookup_with_read_time(
         result = await ds.lookup([key], session=s)
         assert len(result['found']) == 1
         assert result['found'][0].entity.properties['value'] == 'test_data'
-        assert result['readTime'] is not None
+        assert isinstance(result['readTime'], datetime.datetime)
 
         # Test 2: Look up entity ver closest before current time
         current_time = datetime.datetime.utcnow()
@@ -628,13 +628,11 @@ async def test_run_query_with_read_time(
         current_time = datetime.datetime.utcnow()
         result_with_datetime = await ds.runQuery(query, read_time=current_time, session=s)
         assert len(result_with_datetime.entity_results) == 1
-        # verify readTime is not empty and is between insertion and current
-        # time
-        assert result_with_datetime.read_time != ''
-        read_time_dt = datetime.datetime.strptime(
-            result_with_datetime.read_time[:-1], '%Y-%m-%dT%H:%M:%S.%f'
-        )
-        assert time_before_insert <= read_time_dt <= current_time
+        # verify readTime is not empty and is between insertion and current time
+        assert isinstance(result_with_datetime.read_time, datetime.datetime)
+        time_before_insert_utc = time_before_insert.replace(tzinfo=datetime.timezone.utc)
+        current_time_utc = current_time.replace(tzinfo=datetime.timezone.utc)
+        assert time_before_insert_utc <= result_with_datetime.read_time <= current_time_utc
 
         # Test 3: query w/ readTime past insert time
         past_time = time_before_insert - datetime.timedelta(seconds=10)
