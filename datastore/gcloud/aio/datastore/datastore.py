@@ -370,7 +370,8 @@ class Datastore:
 
         if read_time:
             if not isinstance(read_time, datetime.datetime):
-                raise TypeError(f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
+                raise TypeError(
+                    f'read_time must be of type datetime, got {read_time.__class__.__name__}.')
             if read_time.tzinfo is None:
                 read_time = read_time.replace(tzinfo=datetime.timezone.utc)
             else:
