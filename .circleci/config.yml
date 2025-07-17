@@ -135,7 +135,7 @@ jobs:
 
   github:
     docker:
-      - image: debian:buster-slim
+      - image: debian:bullseye-slim
     steps:
       - run: apt update -qy
       - run: apt install -qy hub git
