@@ -399,6 +399,11 @@ Package Contents
 
 
 
+   .. py:method:: snapshot_path(project, snapshot)
+      :classmethod:
+
+
+
    .. py:method:: _headers()
       :async:
 
@@ -463,6 +468,46 @@ Package Contents
 
 
       List subscriptions
+
+
+
+   .. py:method:: seek(subscription, body, *, session = None, timeout = 10)
+      :async:
+
+
+      Seeks a subscription to a point in time or to a given snapshot.
+
+
+
+   .. py:method:: create_snapshot(snapshot, subscription, body = None, *, session = None, timeout = 10)
+      :async:
+
+
+      Create snapshot.
+
+
+
+   .. py:method:: delete_snapshot(snapshot, *, session = None, timeout = 10)
+      :async:
+
+
+      Delete snapshot.
+
+
+
+   .. py:method:: list_snapshots(project, query_params = None, *, session = None, timeout = 10)
+      :async:
+
+
+      List snapshots
+
+
+
+   .. py:method:: get_snapshot(snapshot, *, session = None, timeout = 10)
+      :async:
+
+
+      Get snapshot
 
 
 
