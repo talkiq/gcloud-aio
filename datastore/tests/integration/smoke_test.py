@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 import pytest
@@ -557,3 +558,107 @@ async def test_datastore_export(
         )
         for file in files['items']:
             await storage.delete(export_bucket_name, file['name'])
+
+
+@pytest.mark.asyncio
+async def test_lookup_with_read_time(
+        creds: str, kind: str, project: str) -> None:
+    key = Key(
+        project, [
+            PathElement(
+                kind, name=f'test_read_time_{uuid.uuid4()}')])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # Test 1: Insert and read entity without readTime
+        time_before_insert = datetime.datetime.utcnow()
+        await ds.insert(key,
+                        {'value': 'test_data', 'timestamp': 'after'},
+                        session=s
+                        )
+
+        result = await ds.lookup([key], session=s)
+        assert len(result['found']) == 1
+        assert result['found'][0].entity.properties['value'] == 'test_data'
+        assert isinstance(result['readTime'], datetime.datetime)
+
+        # Test 2: Look up entity ver closest before current time
+        current_time = datetime.datetime.utcnow()
+        result_with_datetime = await ds.lookup([key],
+                                               read_time=current_time,
+                                               session=s)
+        assert len(result_with_datetime.get('found', [])) == 1
+        assert 'readTime' in result_with_datetime
+
+        # Test 3: Look up entity before insertion timestamp; should not find
+        # anything
+        past_time = time_before_insert - datetime.timedelta(seconds=10)
+        result_past = await ds.lookup([key],
+                                      read_time=past_time,
+                                      session=s
+                                      )
+        assert len(result_past.get('found', [])) == 0
+        assert len(result_past.get('missing', [])) == 1
+
+        # cleanup
+        await ds.delete(key, session=s)
+
+
+# pylint: disable=too-many-locals
+@pytest.mark.asyncio
+async def test_run_query_with_read_time(
+        creds: str, kind: str, project: str) -> None:
+    test_value = f'read_time_test_{uuid.uuid4()}'
+
+    async with Session() as s:
+        ds = Datastore(
+            project=project,
+            service_file=creds,
+            session=s)
+        time_before_insert = datetime.datetime.utcnow()
+
+        # Insert test data
+        key = Key(project, [PathElement(kind)])
+        await ds.insert(key, {'test_field': test_value}, session=s)
+
+        # Test 1: insert and query for entity
+        query = Query(
+            kind=kind,
+            query_filter=Filter(PropertyFilter(
+                prop='test_field',
+                operator=PropertyFilterOperator.EQUAL,
+                value=Value(test_value)
+            ))
+        )
+
+        result_current = await ds.runQuery(query, session=s)
+        assert len(result_current.entity_results) == 1
+        assert result_current.entity_results[0].entity.properties[
+            'test_field'] == test_value
+
+        # Test 2: query w/ readTime
+        current_time = datetime.datetime.utcnow()
+        result_with_datetime = await ds.runQuery(query,
+                                                 read_time=current_time,
+                                                 session=s)
+        assert len(result_with_datetime.entity_results) == 1
+        # verify readTime != empty and is between insertion and current time
+        assert isinstance(result_with_datetime.read_time, datetime.datetime)
+        time_before_insert_utc = time_before_insert.replace(
+            tzinfo=datetime.timezone.utc)
+        current_time_utc = current_time.replace(tzinfo=datetime.timezone.utc)
+        assert (
+            time_before_insert_utc
+            <= result_with_datetime.read_time
+            <= current_time_utc
+        )
+
+        # Test 3: query w/ readTime past insert time
+        past_time = time_before_insert - datetime.timedelta(seconds=10)
+        result_past = await ds.runQuery(query, read_time=past_time, session=s)
+        assert len(result_past.entity_results) == 0
+
+        # cleanup - delete the inserted data
+        found_key = result_current.entity_results[0].entity.key
+        await ds.delete(found_key, session=s)

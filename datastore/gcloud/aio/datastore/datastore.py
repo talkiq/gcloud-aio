@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -41,7 +42,8 @@ SCOPES = [
 
 log = logging.getLogger(__name__)
 
-LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
+LookUpResult = Dict[str, Union[str, datetime.datetime,
+                               List[Union[EntityResult, Key]]]]
 
 
 def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
@@ -294,19 +296,21 @@ class Datastore:
 
         return self.datastore_operation_kind.from_repr(data)
 
+    # pylint: disable=too-many-locals
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(
             self, keys: List[Key],
             transaction: Optional[str] = None,
             newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
+            read_time: Optional[datetime.datetime] = None,
             session: Optional[Session] = None, timeout: int = 10,
     ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
 
         read_options = self._build_read_options(
-            consistency, newTransaction, transaction)
+            consistency, newTransaction, transaction, read_time)
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -347,12 +351,20 @@ class Datastore:
         if 'transaction' in data:
             new_transaction: str = data['transaction']
             result['transaction'] = new_transaction
+        if 'readTime' in data:
+            # convert str timestamp to UTC datetime object
+            read_time_str = data['readTime']
+            if read_time_str.endswith('Z'):
+                read_time_str = read_time_str[:-1] + '+00:00'
+            result['readTime'] = datetime.datetime.fromisoformat(read_time_str)
         return result
 
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
-                            transaction: Optional[str]) -> Dict[str, Any]:
+                            transaction: Optional[str],
+                            read_time: Optional[datetime.datetime] = None,
+                            ) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         # See
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
@@ -361,6 +373,19 @@ class Datastore:
 
         if newTransaction:
             return {'newTransaction': newTransaction.to_repr()}
+
+        if read_time:
+            if not isinstance(read_time, datetime.datetime):
+                raise TypeError(f'read_time must be of type datetime, '
+                                f'got {read_time.__class__.__name__}.')
+
+            if read_time.tzinfo is None:
+                read_time_utc = read_time.replace(tzinfo=datetime.timezone.utc)
+            else:
+                read_time_utc = read_time.astimezone(datetime.timezone.utc)
+
+            read_time_str = read_time_utc.isoformat().replace('+00:00', 'Z')
+            return {'readTime': read_time_str}
 
         return {'readConsistency': consistency.value}
 
@@ -409,28 +434,30 @@ class Datastore:
         s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
+    # pylint: disable=too-many-locals
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
         self, query: BaseQuery,
         transaction: Optional[str] = None,
+        newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
+        read_time: Optional[datetime.datetime] = None,
         session: Optional[Session] = None,
         timeout: int = 10,
     ) -> QueryResultBatch:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
-        if transaction:
-            options = {'transaction': transaction}
-        else:
-            options = {'readConsistency': consistency.value}
+        read_options = self._build_read_options(
+            consistency, newTransaction, transaction, read_time)
+
         payload = json.dumps({
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
-            'readOptions': options,
+            'readOptions': read_options,
         }).encode('utf-8')
 
         headers = await self.headers()

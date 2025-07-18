@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 from typing import Dict
 from typing import List
@@ -191,6 +192,7 @@ class GQLCursor:
 
 
 class QueryResultBatch:
+    # pylint: disable=too-many-instance-attributes
     entity_result_kind = EntityResult
 
     def __init__(
@@ -200,6 +202,7 @@ class QueryResultBatch:
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
         snapshot_version: str = '',
+        read_time: Optional[datetime.datetime] = None,
     ) -> None:
         self.end_cursor = end_cursor
 
@@ -209,6 +212,7 @@ class QueryResultBatch:
         self.skipped_cursor = skipped_cursor
         self.skipped_results = skipped_results
         self.snapshot_version = snapshot_version
+        self.read_time = read_time
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryResultBatch):
@@ -221,7 +225,8 @@ class QueryResultBatch:
             and self.more_results == other.more_results
             and self.skipped_cursor == other.skipped_cursor
             and self.skipped_results == other.skipped_results
-            and self.snapshot_version == other.snapshot_version,
+            and self.snapshot_version == other.snapshot_version
+            and self.read_time == other.read_time,
         )
 
     def __repr__(self) -> str:
@@ -239,12 +244,21 @@ class QueryResultBatch:
         skipped_cursor = data.get('skippedCursor', '')
         skipped_results = data.get('skippedResults', 0)
         snapshot_version = data.get('snapshotVersion', '')
+        read_time = data.get('readTime')
+        if read_time is not None:
+            if read_time.endswith('Z'):
+                read_time = read_time[:-1] + '+00:00'
+            read_time = datetime.datetime.fromisoformat(read_time)
+        else:
+            read_time = None
+
         return cls(
             end_cursor, entity_result_type=entity_result_type,
             entity_results=entity_results, more_results=more_results,
             skipped_cursor=skipped_cursor,
             skipped_results=skipped_results,
             snapshot_version=snapshot_version,
+            read_time=read_time,
         )
 
     def to_repr(self) -> Dict[str, Any]:
@@ -259,5 +273,7 @@ class QueryResultBatch:
             data['skippedCursor'] = self.skipped_cursor
         if self.snapshot_version:
             data['snapshotVersion'] = self.snapshot_version
-
+        if self.read_time:
+            read_time_utc = self.read_time.astimezone(datetime.timezone.utc)
+            data['readTime'] = read_time_utc.isoformat().replace('+00:00', 'Z')
         return data
