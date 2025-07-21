@@ -315,7 +315,8 @@ if BUILD_GCLOUD_REST:
             if not self._session:
                 self._session = Session()
                 self._session.verify = self._ssl
-                # Disable unnecessary call to get_netrc_auth() and stat() within it.
+                # Disable unnecessary call to get_netrc_auth() and stat()
+                # within it.
                 self._session.trust_env = False
             return self._session
 
