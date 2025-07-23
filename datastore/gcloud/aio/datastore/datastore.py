@@ -23,6 +23,9 @@ from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
 from .query import QueryResultBatch
+from .query_explain import ExplainMetrics
+from .query_explain import ExplainOptions
+from .query_explain import QueryExplainResult
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -61,6 +64,8 @@ class Datastore:
     key_kind = Key
     mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
+    explain_metrics_kind = ExplainMetrics
+    query_explain_result_kind = QueryExplainResult
     value_kind = Value
 
     _project: Optional[str]
@@ -409,29 +414,37 @@ class Datastore:
         s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
-    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    async def runQuery(
+    # pylint: disable=too-many-locals
+    async def _build_and_send_query(
         self, query: BaseQuery,
+        explain_options: Optional[ExplainOptions] = None,
         transaction: Optional[str] = None,
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
         timeout: int = 10,
-    ) -> QueryResultBatch:
+    ) -> Dict[str, Any]:
+        # get request endpoint
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
+        # build request payload
         if transaction:
             options = {'transaction': transaction}
         else:
             options = {'readConsistency': consistency.value}
-        payload = json.dumps({
+        payload_dict = {
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
             'readOptions': options,
-        }).encode('utf-8')
+        }
+
+        if explain_options:
+            payload_dict['explainOptions'] = explain_options.to_repr()
+
+        payload = json.dumps(payload_dict).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -446,7 +459,51 @@ class Datastore:
         )
 
         data: Dict[str, Any] = await resp.json()
+
+        return data
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
+    async def runQuery(
+        self, query: BaseQuery,
+        transaction: Optional[str] = None,
+        consistency: Consistency = Consistency.EVENTUAL,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> QueryResultBatch:
+
+        data = await self._build_and_send_query(
+            query=query,
+            transaction=transaction,
+            consistency=consistency,
+            session=session,
+            timeout=timeout
+        )
+
+        # return QueryResultBatch for regular queries
         return self.query_result_batch_kind.from_repr(data['batch'])
+
+    # TODO: unify with runQuery once return type has been
+    #  standardized to QueryResult
+    async def runExplainQuery(
+        self, query: BaseQuery,
+        explain_options: ExplainOptions,
+        transaction: Optional[str] = None,
+        consistency: Consistency = Consistency.EVENTUAL,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> QueryExplainResult:
+
+        data = await self._build_and_send_query(
+            query=query,
+            explain_options=explain_options,
+            transaction=transaction,
+            consistency=consistency,
+            session=session,
+            timeout=timeout
+        )
+
+        # return QueryExplainResult for query explains
+        return self.query_explain_result_kind.from_repr(data)
 
     async def delete(
         self, key: Key,
