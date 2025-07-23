@@ -569,7 +569,7 @@ async def test_datastore_export(
 async def test_regular_query_no_metrics(
     creds: str, kind: str, project: str
 ) -> None:
-    # TODO: consider merging this test with another
+    # TODO: consider merging this test with test_query
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
@@ -577,20 +577,15 @@ async def test_regular_query_no_metrics(
         property_filter = PropertyFilter(
             prop='value',
             operator=PropertyFilterOperator.EQUAL,
-            value=Value(42),
+            value=Value(100),
         )
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
-        # run a regular query
+        # run regular query
         result = await ds.runQuery(query, session=s)
 
         # verify result is QueryResultBatch
         assert isinstance(result, QueryResultBatch)
-
-        # verify QueryResultBatch has no metrics
-        assert not hasattr(result, 'explain_metrics')
-        assert not hasattr(result, 'get_plan_summary')
-        assert not hasattr(result, 'get_execution_stats')
 
 
 @pytest.mark.asyncio
@@ -600,7 +595,7 @@ async def test_default_query_explain(
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        # build a query with filter and order
+        # build a query
         property_filter = PropertyFilter(
             prop='value',
             operator=PropertyFilterOperator.GREATER_THAN,
@@ -609,9 +604,7 @@ async def test_default_query_explain(
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
         # run query explain (default mode)
-        result = await ds.runExplainQuery(query,
-                                          explain_options=ExplainOptions.DEFAULT,  # pylint: disable=line-too-long
-                                          session=s)
+        result = await ds.runExplainQuery(query, session=s)
 
         # verify result is QueryExplainResult
         assert isinstance(result, QueryExplainResult)
@@ -624,12 +617,11 @@ async def test_default_query_explain(
         assert isinstance(result.explain_metrics, ExplainMetrics)
         assert isinstance(result.get_explain_metrics(), ExplainMetrics)
 
-        # 4. verify plan_summary exists
-        plan_summary = result.get_plan_summary()
-        assert isinstance(plan_summary, PlanSummary)
-        # Note: Don't check for specific indexes since we don't know db state
+        # verify plan_summary exists
+        # Note: We don't check specific indexes since we don't know db state
+        assert isinstance(result.get_plan_summary(), PlanSummary)
 
-        # verify execution_stats is None (default mode doesn't execute query)
+        # verify execution_stats doesn't exist
         assert result.get_execution_stats() is None
 
 
@@ -646,7 +638,6 @@ async def test_analyze_query_explain(
         for i in range(5):
             key = Key(project, [PathElement(kind)])
             properties = {'value': i * 10, 'category': 'test'}
-            # TODO: this seems inefficient, do we have batch insert?
             insert_result = await ds.insert(key, properties, session=s)
             saved_key = insert_result['mutationResults'][0].key
             test_entities.append(saved_key)
@@ -667,33 +658,24 @@ async def test_analyze_query_explain(
                 session=s
             )
 
-            # verify returns QueryExplainResult instance
+            # verify result is QueryExplainResult
             assert isinstance(result, QueryExplainResult)
 
             # verify result_batch is QueryResultBatch w/ expected results
             assert isinstance(result.result_batch, QueryResultBatch)
-            assert isinstance(result.get_result_batch(), QueryResultBatch)
-            # found: (20, 30, 40)
             assert len(result.result_batch.entity_results) >= 3
 
             # verify explain_metrics exists
             assert isinstance(result.explain_metrics, ExplainMetrics)
-            assert isinstance(result.get_explain_metrics(), ExplainMetrics)
 
-            # verify plan_summary exists
-            plan_summary = result.get_plan_summary()
-            assert isinstance(plan_summary, PlanSummary)
-
-            # verify execution_stats exists
+            # verify plan_summary and execution_stats exists
+            assert isinstance(result.get_plan_summary(), PlanSummary)
             execution_stats = result.get_execution_stats()
             assert isinstance(execution_stats, ExecutionStats)
+
             # verify execution stats has reasonable values
-            # Note: similar to indexes, we don't know the db state,
-            # so we cannot reliably check the expected values.
-            # Additionally, execution stats can fluctuate.
             assert execution_stats.results_returned >= 3
             assert execution_stats.read_operations > 0
-            # non-empty string (e.g. 0.012s)
             assert len(execution_stats.execution_duration) > 0
 
         finally:

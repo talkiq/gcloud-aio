@@ -432,6 +432,7 @@ class Datastore:
             options = {'transaction': transaction}
         else:
             options = {'readConsistency': consistency.value}
+
         payload_dict = {
             'partitionId': {
                 'projectId': project,
@@ -452,6 +453,7 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
+        # send the request
         s = AioSession(session) if session else self.session
         resp = await s.post(
             url, data=payload, headers=headers,
@@ -479,14 +481,13 @@ class Datastore:
             timeout=timeout
         )
 
-        # return QueryResultBatch for regular queries
         return self.query_result_batch_kind.from_repr(data['batch'])
 
     # TODO: unify with runQuery once return type has been
     #  standardized to QueryResult
     async def runExplainQuery(
         self, query: BaseQuery,
-        explain_options: ExplainOptions,
+        explain_options: ExplainOptions = ExplainOptions.DEFAULT,
         transaction: Optional[str] = None,
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
@@ -502,7 +503,6 @@ class Datastore:
             timeout=timeout
         )
 
-        # return QueryExplainResult for query explains
         return self.query_explain_result_kind.from_repr(data)
 
     async def delete(

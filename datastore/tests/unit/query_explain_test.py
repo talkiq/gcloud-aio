@@ -4,9 +4,8 @@ from gcloud.aio.datastore import PlanSummary
 from gcloud.aio.datastore import QueryExplainResult
 from gcloud.aio.datastore import QueryResultBatch
 
+
 # pylint: disable=line-too-long
-
-
 class TestPlanSummary:
     @staticmethod
     def test_from_to_repr():
@@ -31,9 +30,8 @@ class TestPlanSummary:
         assert plan_summary.to_repr() == data
         assert repr(plan_summary) == str(plan_summary.to_repr())
 
+
 # pylint: disable=line-too-long
-
-
 class TestExecutionStats:
     @staticmethod
     def test_from_to_repr():
@@ -56,9 +54,7 @@ class TestExecutionStats:
         assert execution_stats.results_returned == 45
         assert execution_stats.execution_duration == '0.021478s'
         assert execution_stats.read_operations == 50
-        # TODO: maybe check for existence instead since debug_stats
-        #  are subject to change
-        assert execution_stats.debug_stats['billingDetails']['documentsScanned'] == 100
+        assert isinstance(execution_stats.debug_stats, dict)
 
         assert execution_stats.to_repr() == data
         assert repr(execution_stats) == str(execution_stats.to_repr())
@@ -71,7 +67,7 @@ class TestExplainMetrics:
             'planSummary': {
                 'indexesUsed': [
                     {'query_scope': 'Collection',
-                        'properties': '(__name__ ASC)'}
+                        'properties': '(chocolate, __name__ ASC)'}
                 ]
             }
         }
@@ -92,7 +88,7 @@ class TestExplainMetrics:
             'planSummary': {
                 'indexesUsed': [
                     {'query_scope': 'Collection',
-                     'properties': '(value ASC, __name__ ASC)'}
+                     'properties': '(croissant ASC, __name__ ASC)'}
                 ]
             },
             'executionStats': {
@@ -108,9 +104,11 @@ class TestExplainMetrics:
 
         assert isinstance(explain_metrics.plan_summary, PlanSummary)
         assert isinstance(explain_metrics.execution_stats, ExecutionStats)
+        assert len(explain_metrics.plan_summary.indexes_used) == 1
         assert explain_metrics.execution_stats.results_returned == 10
 
         assert explain_metrics.to_repr() == data
+        assert repr(explain_metrics) == str(explain_metrics.to_repr())
 
 
 class TestQueryExplainResult:
@@ -122,7 +120,7 @@ class TestQueryExplainResult:
                     'indexesUsed': [
                         {
                             'query_scope': 'Collection',
-                            'properties': '(value DESC, __name__ ASC)'
+                            'properties': '(strawberry DESC, __name__ ASC)'
                         }
                     ]
                 }
@@ -154,7 +152,7 @@ class TestQueryExplainResult:
                 'planSummary': {
                     'indexesUsed': [
                         {'query_scope': 'Collection',
-                         'properties': '(value ASC, __name__ ASC)'}
+                         'properties': '(pineapple ASC, __name__ ASC)'}
                     ]
                 },
                 'executionStats': {

@@ -113,7 +113,6 @@ class ExplainMetrics:
 
         if 'planSummary' in data:
             plan_summary = PlanSummary.from_repr(data['planSummary'])
-
         if 'executionStats' in data:
             execution_stats = ExecutionStats.from_repr(data['executionStats'])
 
@@ -121,9 +120,10 @@ class ExplainMetrics:
 
     def to_repr(self) -> Dict[str, Any]:
         explain_metrics = {}
-        if self.plan_summary:
+        if self.plan_summary and isinstance(self.plan_summary, PlanSummary):
             explain_metrics['planSummary'] = self.plan_summary.to_repr()
-        if self.execution_stats:
+        if self.execution_stats and isinstance(
+                self.execution_stats, ExecutionStats):
             explain_metrics['executionStats'] = self.execution_stats.to_repr()
 
         return explain_metrics
@@ -131,7 +131,7 @@ class ExplainMetrics:
 
 class QueryExplainResult:
     """
-    Container class for result returned by a query explain operation.
+    Container class for results returned by a query explain operation.
     In the future, we can unify runQuery and runExplainQuery to return
     an instance of this class (rename to QueryResult).
     TODO: Consider how to handle returning entity results.
@@ -152,24 +152,6 @@ class QueryExplainResult:
         return (self.result_batch == other.result_batch
                 and self.explain_metrics == other.explain_metrics)
 
-    def get_result_batch(self) -> Optional[QueryResultBatch]:
-        # Currently returns QueryResultBatch, which contains list of entities
-        return self.result_batch
-
-    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
-        return self.explain_metrics
-
-    def get_plan_summary(self) -> Optional[PlanSummary]:
-        # TODO: explain_metrics should always exist for QueryExplainResult
-        if self.explain_metrics is not None:
-            return self.explain_metrics.plan_summary
-        return None
-
-    def get_execution_stats(self) -> Optional[ExecutionStats]:
-        if self.explain_metrics is not None:
-            return self.explain_metrics.execution_stats
-        return None
-
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'QueryExplainResult':
         result_batch = None
@@ -184,8 +166,26 @@ class QueryExplainResult:
 
     def to_repr(self) -> Dict[str, Any]:
         result = {}
-        if self.result_batch is not None:
+        if self.result_batch and isinstance(
+                self.result_batch, QueryResultBatch):
             result['batch'] = self.result_batch.to_repr()
-        if self.explain_metrics is not None:
+        if self.explain_metrics and isinstance(
+                self.explain_metrics, ExplainMetrics):
             result['explainMetrics'] = self.explain_metrics.to_repr()
         return result
+
+    def get_result_batch(self) -> Optional[QueryResultBatch]:
+        return self.result_batch
+
+    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
+        return self.explain_metrics
+
+    def get_plan_summary(self) -> Optional[PlanSummary]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.plan_summary
+        return None
+
+    def get_execution_stats(self) -> Optional[ExecutionStats]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.execution_stats
+        return None
