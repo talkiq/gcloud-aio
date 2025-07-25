@@ -152,9 +152,9 @@ class ExecutionStats:
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'ExecutionStats':
         # TODO: temp fix for test
-        exec_stats = data.get('executionStats')
-        execution_duration = exec_stats if isinstance(
-            exec_stats, float) else cls._parse_execution_duration(exec_stats)
+        exec_dur = data.get('executionDuration')
+        execution_duration = exec_dur if isinstance(
+            exec_dur, float) else cls._parse_execution_duration(exec_dur)
         return cls(
             results_returned=int(data.get('resultsReturned', 0)),
             execution_duration=execution_duration,
