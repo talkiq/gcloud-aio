@@ -4,16 +4,22 @@ import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Array
 from gcloud.aio.datastore import Datastore
+from gcloud.aio.datastore import ExecutionStats
+from gcloud.aio.datastore import ExplainMetrics
+from gcloud.aio.datastore import ExplainOptions
 from gcloud.aio.datastore import Filter
 from gcloud.aio.datastore import GQLCursor
 from gcloud.aio.datastore import GQLQuery
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import Operation
 from gcloud.aio.datastore import PathElement
+from gcloud.aio.datastore import PlanSummary
 from gcloud.aio.datastore import Projection
 from gcloud.aio.datastore import PropertyFilter
 from gcloud.aio.datastore import PropertyFilterOperator
 from gcloud.aio.datastore import Query
+from gcloud.aio.datastore import QueryExplainResult
+from gcloud.aio.datastore import QueryResultBatch
 from gcloud.aio.datastore import Value
 from gcloud.aio.datastore.transaction_options import ReadWrite
 from gcloud.aio.datastore.transaction_options import TransactionOptions
@@ -557,3 +563,121 @@ async def test_datastore_export(
         )
         for file in files['items']:
             await storage.delete(export_bucket_name, file['name'])
+
+
+@pytest.mark.asyncio
+async def test_regular_query_no_metrics(
+    creds: str, kind: str, project: str
+) -> None:
+    # TODO: consider merging this test with test_query
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # create a simple query
+        property_filter = PropertyFilter(
+            prop='value',
+            operator=PropertyFilterOperator.EQUAL,
+            value=Value(100),
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        # run regular query
+        result = await ds.runQuery(query, session=s)
+
+        # verify result is QueryResultBatch
+        assert isinstance(result, QueryResultBatch)
+
+
+@pytest.mark.asyncio
+async def test_default_query_explain(
+    creds: str, kind: str, project: str
+) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # build a query
+        property_filter = PropertyFilter(
+            prop='value',
+            operator=PropertyFilterOperator.GREATER_THAN,
+            value=Value(10),
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        # run query explain (default mode)
+        result = await ds.runExplainQuery(query, session=s)
+
+        # verify result is QueryExplainResult
+        assert isinstance(result, QueryExplainResult)
+
+        # verify no entity results returned
+        assert result.result_batch is None
+        assert result.get_result_batch() is None
+
+        # verify explain_metrics exists
+        assert isinstance(result.explain_metrics, ExplainMetrics)
+        assert isinstance(result.get_explain_metrics(), ExplainMetrics)
+
+        # verify plan_summary exists
+        # Note: We don't check specific indexes since we don't know db state
+        assert isinstance(result.get_plan_summary(), PlanSummary)
+
+        # verify execution_stats doesn't exist
+        assert result.get_execution_stats() is None
+
+
+# pylint: disable=too-many-locals
+@pytest.mark.asyncio
+async def test_analyze_query_explain(
+    creds: str, kind: str, project: str
+) -> None:
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # insert some test entities
+        test_entities = []
+        for i in range(5):
+            key = Key(project, [PathElement(kind)])
+            properties = {'value': i * 10, 'category': 'test'}
+            insert_result = await ds.insert(key, properties, session=s)
+            saved_key = insert_result['mutationResults'][0].key
+            test_entities.append(saved_key)
+
+        try:
+            # build query for value >= 20
+            property_filter = PropertyFilter(
+                prop='value',
+                operator=PropertyFilterOperator.GREATER_THAN_OR_EQUAL,
+                value=Value(20),
+            )
+            query = Query(kind=kind, query_filter=Filter(property_filter))
+
+            # run query explain (analyze mode)
+            result = await ds.runExplainQuery(
+                query,
+                explain_options=ExplainOptions.ANALYZE,
+                session=s
+            )
+
+            # verify result is QueryExplainResult
+            assert isinstance(result, QueryExplainResult)
+
+            # verify result_batch is QueryResultBatch w/ expected results
+            assert isinstance(result.result_batch, QueryResultBatch)
+            assert len(result.result_batch.entity_results) >= 3
+
+            # verify explain_metrics exists
+            assert isinstance(result.explain_metrics, ExplainMetrics)
+
+            # verify plan_summary and execution_stats exists
+            assert isinstance(result.get_plan_summary(), PlanSummary)
+            execution_stats = result.get_execution_stats()
+            assert isinstance(execution_stats, ExecutionStats)
+
+            # verify execution stats has reasonable values
+            assert execution_stats.results_returned >= 3
+            assert execution_stats.read_operations > 0
+            assert len(execution_stats.execution_duration) > 0
+
+        finally:
+            for key in test_entities:
+                await ds.delete(key, session=s)
