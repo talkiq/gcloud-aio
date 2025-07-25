@@ -23,7 +23,6 @@ from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
 from .query import QueryResultBatch
-from .query_explain import ExplainMetrics
 from .query_explain import ExplainOptions
 from .query_explain import QueryExplainResult
 from .transaction_options import TransactionOptions
@@ -64,7 +63,6 @@ class Datastore:
     key_kind = Key
     mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
-    explain_metrics_kind = ExplainMetrics
     query_explain_result_kind = QueryExplainResult
     value_kind = Value
 

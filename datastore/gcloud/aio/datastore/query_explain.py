@@ -1,8 +1,10 @@
 import enum
+import re
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 
 from .query import QueryResultBatch
 
@@ -21,10 +23,61 @@ class ExplainOptions(enum.Enum):
         return cls.ANALYZE if analyze_value else cls.DEFAULT
 
 
+class IndexDefinition:
+    """
+    Represents an index returned by PlanSummary.
+
+    Raw:
+        [
+          {
+            "query_scope": "Collection group",
+            "properties": "(done ASC, priority ASC, __name__ ASC)"
+          }
+        ]
+
+    query_scope: "Collection group"
+    properties: [("done", "ASC"), ("priority", "ASC"), ("__name__", "ASC")]
+    """
+
+    def __init__(self, query_scope: Optional[str] = '',
+                 properties: Optional[List[Tuple[str, str]]] = None):
+        self.query_scope = query_scope
+        self.properties = properties or []
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, IndexDefinition):
+            return False
+        return (self.query_scope == other.query_scope
+                and self.properties == other.properties)
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'IndexDefinition':
+        query_scope = None
+        properties = []
+
+        if 'query_scope' in data:
+            query_scope = data['query_scope']
+        if 'properties' in data:
+            properties_str = data['properties']
+            properties = re.findall(r'\s*([^\s,()]+)\s+(ASC|DESC)\s*',
+                                    properties_str,
+                                    flags=re.IGNORECASE)
+
+        return cls(query_scope=query_scope, properties=properties)
+
+    def to_repr(self) -> Dict[str, Any]:
+        value = ', '.join(f'{name} {order}' for name, order in self.properties)
+        properties = f'({value})'
+        return {'query_scope': self.query_scope, 'properties': properties}
+
+
 class PlanSummary:
     """Container class for planSummary returned by query explain."""
 
-    def __init__(self, indexes_used: Optional[List[Dict[str, Any]]] = None):
+    def __init__(self, indexes_used: Optional[List[IndexDefinition]] = None):
         self.indexes_used = indexes_used or []
 
     def __repr__(self) -> str:
@@ -38,19 +91,21 @@ class PlanSummary:
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'PlanSummary':
         indexes_used = data.get('indexesUsed', [])
-        # TODO: Consider level of abstraction for indexesUsed
-        #  (keep as raw dict?)
-        return cls(indexes_used=indexes_used)
+        index_definitions = []
+        for index in indexes_used:
+            index_definitions.append(IndexDefinition.from_repr(index))
+        return cls(indexes_used=index_definitions)
 
     def to_repr(self) -> Dict[str, Any]:
-        return {'indexesUsed': self.indexes_used}
+        indexes_used = [index.to_repr() for index in self.indexes_used]
+        return {'indexesUsed': indexes_used}
 
 
 class ExecutionStats:
     """Container class for executionStats returned by analyze mode."""
 
     def __init__(self, results_returned: int = 0,
-                 execution_duration: str = '',
+                 execution_duration: float = 0.0,
                  read_operations: int = 0,
                  debug_stats: Optional[Dict[str, Any]] = None):
         self.results_returned = results_returned
@@ -69,15 +124,42 @@ class ExecutionStats:
                 and self.read_operations == other.read_operations
                 and self.debug_stats == other.debug_stats)
 
+    @staticmethod
+    def _parse_execution_duration(execution_duration: Optional[str]) -> float:
+        """Convert execution_duration from str (e.g. 0.01785s) to float."""
+        if not isinstance(execution_duration,
+                          str) or not execution_duration.endswith('s'):
+            raise RuntimeError(f'executionDuration must be a str ending in '
+                               f'"s", got: {execution_duration}.')
+        return float(execution_duration.rstrip('s'))
+
+    @staticmethod
+    def _parse_debug_stats(debug_stats: Dict[str, Any]) -> Dict[str, Any]:
+        """Returns debug_stats with values converted to int."""
+        # TODO: This is somewhat hardcoded and would need to be updated if
+        #  debug_stats changes in the future (non-int strs or nested dicts).
+        for key, value in debug_stats.items():
+            if isinstance(value, str) and value.isdigit():
+                debug_stats[key] = int(value)
+            # for billing_details
+            elif isinstance(value, dict):
+                for nested_key, nested_val in value.items():
+                    if isinstance(nested_val, str) and nested_val.isdigit():
+                        value[nested_key] = int(nested_val)
+
+        return debug_stats
+
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'ExecutionStats':
-        # TODO: Consider whether to store values as str (raw API values)
-        #  or store as int/floats. ExplainMetrics may be aggregated upstream
+        # TODO: temp fix for test
+        exec_stats = data.get('executionStats')
+        execution_duration = exec_stats if isinstance(
+            exec_stats, float) else cls._parse_execution_duration(exec_stats)
         return cls(
             results_returned=int(data.get('resultsReturned', 0)),
-            execution_duration=data.get('executionDuration', ''),
+            execution_duration=execution_duration,
             read_operations=int(data.get('readOperations', 0)),
-            debug_stats=data.get('debugStats', {})
+            debug_stats=cls._parse_debug_stats(data.get('debugStats', {}))
         )
 
     def to_repr(self) -> Dict[str, Any]:

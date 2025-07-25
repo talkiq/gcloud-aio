@@ -211,6 +211,7 @@ from .query import QueryResultBatch
 from .query_explain import ExecutionStats
 from .query_explain import ExplainMetrics
 from .query_explain import ExplainOptions
+from .query_explain import IndexDefinition
 from .query_explain import PlanSummary
 from .query_explain import QueryExplainResult
 from .transaction_options import ReadOnly
@@ -236,6 +237,7 @@ __all__ = [
     'Filter',
     'GQLCursor',
     'GQLQuery',
+    'IndexDefinition',
     'Key',
     'LatLng',
     'Mode',

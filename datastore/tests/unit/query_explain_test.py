@@ -1,5 +1,6 @@
 from gcloud.aio.datastore import ExecutionStats
 from gcloud.aio.datastore import ExplainMetrics
+from gcloud.aio.datastore import IndexDefinition
 from gcloud.aio.datastore import PlanSummary
 from gcloud.aio.datastore import QueryExplainResult
 from gcloud.aio.datastore import QueryResultBatch
@@ -22,10 +23,10 @@ class TestPlanSummary:
         assert isinstance(plan_summary, PlanSummary)
 
         assert len(plan_summary.indexes_used) == 2
-        assert plan_summary.indexes_used[0]['query_scope'] == 'Collection'
-        assert plan_summary.indexes_used[0]['properties'] == '(prop1 ASC, __name__ ASC)'
-        assert plan_summary.indexes_used[1]['query_scope'] == 'Collection group'
-        assert plan_summary.indexes_used[1]['properties'] == '(prop2 DESC, __name__ ASC)'
+        for index in plan_summary.indexes_used:
+            assert isinstance(index, IndexDefinition)
+        assert plan_summary.indexes_used[0].to_repr() == data['indexesUsed'][0]
+        assert plan_summary.indexes_used[1].to_repr() == data['indexesUsed'][1]
 
         assert plan_summary.to_repr() == data
         assert repr(plan_summary) == str(plan_summary.to_repr())
@@ -37,7 +38,7 @@ class TestExecutionStats:
     def test_from_to_repr():
         data = {
             'resultsReturned': 45,
-            'executionDuration': '0.021478s',
+            'executionDuration': 0.021478,
             'readOperations': 50,
             'debugStats': {
                 'billingDetails': {
@@ -52,7 +53,7 @@ class TestExecutionStats:
         assert isinstance(execution_stats, ExecutionStats)
 
         assert execution_stats.results_returned == 45
-        assert execution_stats.execution_duration == '0.021478s'
+        assert execution_stats.execution_duration == 0.021478
         assert execution_stats.read_operations == 50
         assert isinstance(execution_stats.debug_stats, dict)
 
@@ -67,7 +68,7 @@ class TestExplainMetrics:
             'planSummary': {
                 'indexesUsed': [
                     {'query_scope': 'Collection',
-                        'properties': '(chocolate, __name__ ASC)'}
+                        'properties': '(chocolate DESC, __name__ ASC)'}
                 ]
             }
         }
@@ -93,7 +94,7 @@ class TestExplainMetrics:
             },
             'executionStats': {
                 'resultsReturned': 10,
-                'executionDuration': '0.005s',
+                'executionDuration': 0.005,
                 'readOperations': 10,
                 'debugStats': {}
             }
@@ -157,7 +158,7 @@ class TestQueryExplainResult:
                 },
                 'executionStats': {
                     'resultsReturned': 0,
-                    'executionDuration': '0.001s',
+                    'executionDuration': 0.001,
                     'readOperations': 1,
                     'debugStats': {}
                 }
