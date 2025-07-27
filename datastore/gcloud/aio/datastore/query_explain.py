@@ -138,20 +138,19 @@ class ExecutionStats:
         """Returns debug_stats with values converted to int."""
         # TODO: This is somewhat hardcoded and would need to be updated if
         #  debug_stats changes in the future (non-int strs or nested dicts).
-        for key, value in debug_stats.items():
-            if isinstance(value, str) and value.isdigit():
-                debug_stats[key] = int(value)
+        for key, val in debug_stats.items():
+            if isinstance(val, str) and val.isdigit():
+                debug_stats[key] = int(val)
             # for billing_details
-            elif isinstance(value, dict):
-                for nested_key, nested_val in value.items():
+            elif isinstance(val, dict):
+                for nested_key, nested_val in val.items():
                     if isinstance(nested_val, str) and nested_val.isdigit():
-                        value[nested_key] = int(nested_val)
+                        val[nested_key] = int(nested_val)
 
         return debug_stats
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'ExecutionStats':
-        # TODO: temp fix for test
         exec_dur = data.get('executionDuration')
         execution_duration = exec_dur if isinstance(
             exec_dur, float) else cls._parse_execution_duration(exec_dur)
@@ -202,10 +201,9 @@ class ExplainMetrics:
 
     def to_repr(self) -> Dict[str, Any]:
         explain_metrics = {}
-        if self.plan_summary and isinstance(self.plan_summary, PlanSummary):
+        if self.plan_summary:
             explain_metrics['planSummary'] = self.plan_summary.to_repr()
-        if self.execution_stats and isinstance(
-                self.execution_stats, ExecutionStats):
+        if self.execution_stats:
             explain_metrics['executionStats'] = self.execution_stats.to_repr()
 
         return explain_metrics
@@ -215,7 +213,7 @@ class QueryExplainResult:
     """
     Container class for results returned by a query explain operation.
     In the future, we can unify runQuery and runExplainQuery to return
-    an instance of this class (rename to QueryResult).
+    an instance of this class and rename it to QueryResult.
     TODO: Consider how to handle returning entity results.
       Maybe implement this as an iterator, similar to google-cloud-datastore?
     """
@@ -248,19 +246,11 @@ class QueryExplainResult:
 
     def to_repr(self) -> Dict[str, Any]:
         result = {}
-        if self.result_batch and isinstance(
-                self.result_batch, QueryResultBatch):
+        if self.result_batch:
             result['batch'] = self.result_batch.to_repr()
-        if self.explain_metrics and isinstance(
-                self.explain_metrics, ExplainMetrics):
+        if self.explain_metrics:
             result['explainMetrics'] = self.explain_metrics.to_repr()
         return result
-
-    def get_result_batch(self) -> Optional[QueryResultBatch]:
-        return self.result_batch
-
-    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
-        return self.explain_metrics
 
     def get_plan_summary(self) -> Optional[PlanSummary]:
         if self.explain_metrics is not None:
