@@ -635,7 +635,7 @@ async def test_run_query_with_read_time(
         result_current = await ds.runQuery(query, session=s)
         assert len(result_current.entity_results) == 1
         assert result_current.entity_results[0].entity.properties[
-            'test_field'] == test_value
+            'test_field'] == test_value  # pylint: disable=line-too-long
 
         # Test 2: query w/ readTime
         current_time = datetime.datetime.utcnow()

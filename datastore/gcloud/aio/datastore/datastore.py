@@ -69,6 +69,8 @@ class Datastore:
     _api_root: str
     _api_is_dev: bool
 
+    Timeout = Union[int, float]
+
     def __init__(
             self, project: Optional[str] = None,
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
@@ -158,7 +160,7 @@ class Datastore:
     async def allocateIds(
         self, keys: List[Key],
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> List[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
@@ -186,7 +188,7 @@ class Datastore:
     # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(
         self, session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
@@ -209,7 +211,7 @@ class Datastore:
         transaction: Optional[str] = None,
         mode: Mode = Mode.TRANSACTIONAL,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> Dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
@@ -248,7 +250,7 @@ class Datastore:
         namespaces: Optional[List[str]] = None,
         labels: Optional[Dict[str, str]] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
@@ -281,7 +283,7 @@ class Datastore:
     async def get_datastore_operation(
         self, name: str,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> DatastoreOperation:
         url = f'{self._api_root}/{name}'
 
@@ -304,7 +306,7 @@ class Datastore:
             newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
             read_time: Optional[datetime.datetime] = None,
-            session: Optional[Session] = None, timeout: int = 10,
+            session: Optional[Session] = None, timeout: Timeout = 10,
     ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
@@ -393,7 +395,7 @@ class Datastore:
     async def reserveIds(
         self, keys: List[Key], database_id: str = '',
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
@@ -416,7 +418,7 @@ class Datastore:
     async def rollback(
         self, transaction: str,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
@@ -443,7 +445,7 @@ class Datastore:
         consistency: Consistency = Consistency.EVENTUAL,
         read_time: Optional[datetime.datetime] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> QueryResultBatch:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
