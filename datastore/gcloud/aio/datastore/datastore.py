@@ -481,8 +481,6 @@ class Datastore:
 
         return self.query_result_batch_kind.from_repr(data['batch'])
 
-    # TODO: unify with runQuery once return type has been
-    #  standardized to QueryResult
     async def runExplainQuery(
         self, query: BaseQuery,
         explain_options: ExplainOptions = ExplainOptions.DEFAULT,

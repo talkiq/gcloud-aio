@@ -259,6 +259,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 
         before = await ds.runQuery(query, session=s)
         num_results = len(before.entity_results)
+        assert isinstance(before, QueryResultBatch)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -277,6 +278,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
 
         after = await ds.runQuery(query, session=s)
         assert len(after.entity_results) == num_results + 2
+        assert isinstance(after, QueryResultBatch)
 
 
 @pytest.mark.asyncio
@@ -566,29 +568,6 @@ async def test_datastore_export(
 
 
 @pytest.mark.asyncio
-async def test_regular_query_no_metrics(
-    creds: str, kind: str, project: str
-) -> None:
-    # TODO: consider merging this test with test_query
-    async with Session() as s:
-        ds = Datastore(project=project, service_file=creds, session=s)
-
-        # create a simple query
-        property_filter = PropertyFilter(
-            prop='value',
-            operator=PropertyFilterOperator.EQUAL,
-            value=Value(100),
-        )
-        query = Query(kind=kind, query_filter=Filter(property_filter))
-
-        # run regular query
-        result = await ds.runQuery(query, session=s)
-
-        # verify result is QueryResultBatch
-        assert isinstance(result, QueryResultBatch)
-
-
-@pytest.mark.asyncio
 async def test_default_query_explain(
     creds: str, kind: str, project: str
 ) -> None:
@@ -605,23 +584,16 @@ async def test_default_query_explain(
 
         # run query explain (default mode)
         result = await ds.runExplainQuery(query, session=s)
-
-        # verify result is QueryExplainResult
         assert isinstance(result, QueryExplainResult)
 
         # verify no entity results returned
         assert result.result_batch is None
-        assert result.get_result_batch() is None
 
         # verify explain_metrics exists
-        assert isinstance(result.explain_metrics, ExplainMetrics)
         assert isinstance(result.get_explain_metrics(), ExplainMetrics)
 
-        # verify plan_summary exists
-        # Note: We don't check specific indexes since we don't know db state
+        # verify plan_summary exists and execution_stats is None
         assert isinstance(result.get_plan_summary(), PlanSummary)
-
-        # verify execution_stats doesn't exist
         assert result.get_execution_stats() is None
 
 
@@ -657,8 +629,6 @@ async def test_analyze_query_explain(
                 explain_options=ExplainOptions.ANALYZE,
                 session=s
             )
-
-            # verify result is QueryExplainResult
             assert isinstance(result, QueryExplainResult)
 
             # verify result_batch is QueryResultBatch w/ expected results
@@ -675,8 +645,8 @@ async def test_analyze_query_explain(
 
             # verify execution stats has reasonable values
             assert execution_stats.results_returned >= 3
-            assert execution_stats.read_operations > 0
-            assert len(execution_stats.execution_duration) > 0
+            assert execution_stats.read_operations >= 3
+            assert execution_stats.execution_duration > 0.0
 
         finally:
             for key in test_entities:

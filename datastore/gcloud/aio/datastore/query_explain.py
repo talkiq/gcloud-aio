@@ -5,6 +5,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 from .query import QueryResultBatch
 
@@ -25,21 +26,21 @@ class ExplainOptions(enum.Enum):
 
 class IndexDefinition:
     """
-    Represents an index returned by PlanSummary.
+    Represents an index that would be used in PlanSummary.
 
     Raw:
         [
           {
             "query_scope": "Collection group",
-            "properties": "(done ASC, priority ASC, __name__ ASC)"
+            "properties": "(done ASC, priority DESC, __name__ ASC)"
           }
         ]
 
     query_scope: "Collection group"
-    properties: [("done", "ASC"), ("priority", "ASC"), ("__name__", "ASC")]
+    properties: [("done", "ASC"), ("priority", "DESC"), ("__name__", "ASC")]
     """
 
-    def __init__(self, query_scope: Optional[str] = '',
+    def __init__(self, query_scope: str = '',
                  properties: Optional[List[Tuple[str, str]]] = None):
         self.query_scope = query_scope
         self.properties = properties or []
@@ -55,7 +56,7 @@ class IndexDefinition:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'IndexDefinition':
-        query_scope = None
+        query_scope = ''
         properties = []
 
         if 'query_scope' in data:
@@ -94,6 +95,7 @@ class PlanSummary:
         index_definitions = []
         for index in indexes_used:
             index_definitions.append(IndexDefinition.from_repr(index))
+
         return cls(indexes_used=index_definitions)
 
     def to_repr(self) -> Dict[str, Any]:
@@ -125,23 +127,24 @@ class ExecutionStats:
                 and self.debug_stats == other.debug_stats)
 
     @staticmethod
-    def _parse_execution_duration(execution_duration: Optional[str]) -> float:
-        """Convert execution_duration from str (e.g. 0.01785s) to float."""
+    def _parse_execution_duration(
+            execution_duration: Optional[Union[str, float]]) -> float:
+        """Convert execution_duration from str (e.g. "0.01785s") to float."""
+        if isinstance(execution_duration, float):
+            # avoid parsing if already a float
+            return execution_duration
         if not isinstance(execution_duration,
                           str) or not execution_duration.endswith('s'):
-            raise RuntimeError(f'executionDuration must be a str ending in '
-                               f'"s", got: {execution_duration}.')
+            raise ValueError(f'executionDuration must be a str ending with '
+                             f'"s", got: {execution_duration}.')
         return float(execution_duration.rstrip('s'))
 
     @staticmethod
     def _parse_debug_stats(debug_stats: Dict[str, Any]) -> Dict[str, Any]:
-        """Returns debug_stats with values converted to int."""
-        # TODO: This is somewhat hardcoded and would need to be updated if
-        #  debug_stats changes in the future (non-int strs or nested dicts).
+        """Convert debug_stats values from str to int."""
         for key, val in debug_stats.items():
             if isinstance(val, str) and val.isdigit():
                 debug_stats[key] = int(val)
-            # for billing_details
             elif isinstance(val, dict):
                 for nested_key, nested_val in val.items():
                     if isinstance(nested_val, str) and nested_val.isdigit():
@@ -151,12 +154,10 @@ class ExecutionStats:
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'ExecutionStats':
-        exec_dur = data.get('executionDuration')
-        execution_duration = exec_dur if isinstance(
-            exec_dur, float) else cls._parse_execution_duration(exec_dur)
         return cls(
             results_returned=int(data.get('resultsReturned', 0)),
-            execution_duration=execution_duration,
+            execution_duration=cls._parse_execution_duration(
+                data.get('executionDuration')),
             read_operations=int(data.get('readOperations', 0)),
             debug_stats=cls._parse_debug_stats(data.get('debugStats', {}))
         )
@@ -171,7 +172,7 @@ class ExecutionStats:
 
 
 class ExplainMetrics:
-    """Container class for explain metrics returned by query explain."""
+    """Container class for explainMetrics returned by query explain."""
 
     def __init__(self, plan_summary: Optional[PlanSummary] = None,
                  execution_stats: Optional[ExecutionStats] = None):
@@ -214,8 +215,6 @@ class QueryExplainResult:
     Container class for results returned by a query explain operation.
     In the future, we can unify runQuery and runExplainQuery to return
     an instance of this class and rename it to QueryResult.
-    TODO: Consider how to handle returning entity results.
-      Maybe implement this as an iterator, similar to google-cloud-datastore?
     """
 
     def __init__(self, result_batch: Optional[QueryResultBatch] = None,
@@ -250,7 +249,11 @@ class QueryExplainResult:
             result['batch'] = self.result_batch.to_repr()
         if self.explain_metrics:
             result['explainMetrics'] = self.explain_metrics.to_repr()
+
         return result
+
+    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
+        return self.explain_metrics
 
     def get_plan_summary(self) -> Optional[PlanSummary]:
         if self.explain_metrics is not None:

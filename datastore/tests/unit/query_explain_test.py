@@ -1,9 +1,43 @@
 from gcloud.aio.datastore import ExecutionStats
 from gcloud.aio.datastore import ExplainMetrics
+from gcloud.aio.datastore import ExplainOptions
 from gcloud.aio.datastore import IndexDefinition
 from gcloud.aio.datastore import PlanSummary
 from gcloud.aio.datastore import QueryExplainResult
 from gcloud.aio.datastore import QueryResultBatch
+
+
+class TestExplainOptions:
+    @staticmethod
+    def test_enum_values():
+        assert ExplainOptions.DEFAULT.value is False
+        assert ExplainOptions.ANALYZE.value is True
+
+        assert ExplainOptions.DEFAULT.to_repr() == {'analyze': False}
+        assert ExplainOptions.ANALYZE.to_repr() == {'analyze': True}
+
+        assert ExplainOptions.from_repr(
+            {'analyze': False}) == ExplainOptions.DEFAULT
+        assert ExplainOptions.from_repr(
+            {'analyze': True}) == ExplainOptions.ANALYZE
+        assert ExplainOptions.from_repr({}) == ExplainOptions.DEFAULT
+
+
+class TestIndexDefinition:
+    @staticmethod
+    def test_from_repr_parsing():
+        data = {
+            'query_scope': 'Collection group',
+            'properties': '(done ASC, priority DESC, __name__ ASC)'
+        }
+
+        index_def = IndexDefinition.from_repr(data)
+        assert isinstance(index_def, IndexDefinition)
+        assert index_def.query_scope == 'Collection group'
+        assert index_def.properties == [
+            ('done', 'ASC'), ('priority', 'DESC'), ('__name__', 'ASC')]
+
+        assert index_def.to_repr() == data
 
 
 # pylint: disable=line-too-long
