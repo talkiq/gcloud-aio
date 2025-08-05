@@ -37,7 +37,7 @@ class TestDatastore:
         )
         assert result == {'readTime': '2025-01-01T12:00:00Z'}
 
-        # fall back to consistency if nothing else is provided
+        # fall back to consistency
         result = ds._build_read_options(
             Consistency.STRONG, None, None, None
         )

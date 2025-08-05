@@ -365,7 +365,7 @@ class Datastore:
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
                             transaction: Optional[str],
-                            read_time: Optional[datetime.datetime] = None,
+                            read_time: Optional[datetime.datetime],
                             ) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         # See

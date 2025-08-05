@@ -249,8 +249,6 @@ class QueryResultBatch:
             if read_time.endswith('Z'):
                 read_time = read_time[:-1] + '+00:00'
             read_time = datetime.datetime.fromisoformat(read_time)
-        else:
-            read_time = None
 
         return cls(
             end_cursor, entity_result_type=entity_result_type,
