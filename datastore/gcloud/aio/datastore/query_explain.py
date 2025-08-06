@@ -216,6 +216,7 @@ class QueryExplainResult:
     In the future, we can unify runQuery and runExplainQuery to return
     an instance of this class and rename it to QueryResult.
     """
+    query_result_batch_kind = QueryResultBatch
 
     def __init__(self, result_batch: Optional[QueryResultBatch] = None,
                  explain_metrics: Optional[ExplainMetrics] = None):
@@ -237,7 +238,7 @@ class QueryExplainResult:
         explain_metrics = None
 
         if 'batch' in data:
-            result_batch = QueryResultBatch.from_repr(data['batch'])
+            result_batch = cls.query_result_batch_kind.from_repr(data['batch'])
         if 'explainMetrics' in data:
             explain_metrics = ExplainMetrics.from_repr(data['explainMetrics'])
 
