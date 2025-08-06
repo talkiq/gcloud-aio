@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -42,8 +41,7 @@ SCOPES = [
 
 log = logging.getLogger(__name__)
 
-LookUpResult = Dict[str, Union[str, datetime.datetime,
-                               List[Union[EntityResult, Key]]]]
+LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
 
 
 def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
@@ -305,7 +303,7 @@ class Datastore:
             transaction: Optional[str] = None,
             newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
-            read_time: Optional[datetime.datetime] = None,
+            read_time: Optional[str] = None,
             session: Optional[Session] = None, timeout: Timeout = 10,
     ) -> LookUpResult:
         project = await self.project()
@@ -354,18 +352,15 @@ class Datastore:
             new_transaction: str = data['transaction']
             result['transaction'] = new_transaction
         if 'readTime' in data:
-            # convert str timestamp to UTC datetime object
-            read_time_str = data['readTime']
-            if read_time_str.endswith('Z'):
-                read_time_str = read_time_str[:-1] + '+00:00'
-            result['readTime'] = datetime.datetime.fromisoformat(read_time_str)
+            read_time: str = data['readTime']
+            result['readTime'] = read_time
         return result
 
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
                             transaction: Optional[str],
-                            read_time: Optional[datetime.datetime],
+                            read_time: Optional[str],
                             ) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         # See
@@ -377,17 +372,7 @@ class Datastore:
             return {'newTransaction': newTransaction.to_repr()}
 
         if read_time:
-            if not isinstance(read_time, datetime.datetime):
-                raise TypeError(f'read_time must be of type datetime, '
-                                f'got {read_time.__class__.__name__}.')
-
-            if read_time.tzinfo is None:
-                read_time_utc = read_time.replace(tzinfo=datetime.timezone.utc)
-            else:
-                read_time_utc = read_time.astimezone(datetime.timezone.utc)
-
-            read_time_str = read_time_utc.isoformat().replace('+00:00', 'Z')
-            return {'readTime': read_time_str}
+            return {'readTime': read_time}
 
         return {'readConsistency': consistency.value}
 
@@ -443,7 +428,7 @@ class Datastore:
         transaction: Optional[str] = None,
         newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
-        read_time: Optional[datetime.datetime] = None,
+        read_time: Optional[str] = None,
         session: Optional[Session] = None,
         timeout: Timeout = 10,
     ) -> QueryResultBatch:

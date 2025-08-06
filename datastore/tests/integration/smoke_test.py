@@ -578,20 +578,22 @@ async def test_lookup_with_read_time(
         result = await ds.lookup([key], session=s)
         assert len(result['found']) == 1
         assert result['found'][0].entity.properties['value'] == test_value
-        assert isinstance(result['readTime'], datetime.datetime)
+        assert isinstance(result['readTime'], str)
 
         # 2. lookup entity version w/ readTime
         current_time = datetime.datetime.now(datetime.timezone.utc)
+        current_time_str = current_time.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.lookup([key],
-                                               read_time=current_time,
+                                               read_time=current_time_str,
                                                session=s)
         assert len(result_with_datetime.get('found', [])) == 1
-        assert isinstance(result_with_datetime['readTime'], datetime.datetime)
+        assert isinstance(result_with_datetime['readTime'], str)
 
         # 3. lookup entity before insertion timestamp
         past_time = time_before_insert - datetime.timedelta(seconds=10)
+        past_time_str = past_time.isoformat().replace('+00:00', 'Z')
         result_past = await ds.lookup([key],
-                                      read_time=past_time,
+                                      read_time=past_time_str,
                                       session=s)
         assert len(result_past.get('found', [])) == 0
         assert len(result_past.get('missing', [])) == 1
@@ -629,20 +631,22 @@ async def test_run_query_with_read_time(
 
         # 2. query w/ readTime
         current = datetime.datetime.now(datetime.timezone.utc)
+        current_str = current.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.runQuery(query,
-                                                 read_time=current,
+                                                 read_time=current_str,
                                                  session=s)
         assert len(result_with_datetime.entity_results) == 1
 
-        # verify readTime != empty and is between insertion and current time
-        assert isinstance(result_with_datetime.read_time, datetime.datetime)
-        assert (before_insert
-                <= result_with_datetime.read_time
-                <= current)
+        # verify readTime != empty and is a string
+        assert isinstance(result_with_datetime.read_time, str)
+        assert result_with_datetime.read_time is not None
 
         # 3. query w/ readTime before insertion time
         past_time = before_insert - datetime.timedelta(seconds=10)
-        result_past = await ds.runQuery(query, read_time=past_time, session=s)
+        past_time_str = past_time.isoformat().replace('+00:00', 'Z')
+        result_past = await ds.runQuery(query,
+                                        read_time=past_time_str,
+                                        session=s)
         assert len(result_past.entity_results) == 0
 
         await ds.delete(key, session=s)

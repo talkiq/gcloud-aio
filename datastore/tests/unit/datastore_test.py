@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
@@ -23,17 +21,17 @@ class TestDatastore:
     @staticmethod
     def test_build_read_options_priority():
         ds = Datastore()
-        dt = datetime.datetime(2025, 1, 1, 12, 0, 0, 0)
+        dt_str = '2025-01-01T12:00:00Z'
 
         # transaction > readTime > consistency
         result = ds._build_read_options(
-            Consistency.STRONG, None, 'txn123', dt
+            Consistency.STRONG, None, 'txn123', dt_str
         )
         assert result == {'transaction': 'txn123'}
 
         # readTime > consistency
         result = ds._build_read_options(
-            Consistency.STRONG, None, None, dt
+            Consistency.STRONG, None, None, dt_str
         )
         assert result == {'readTime': '2025-01-01T12:00:00Z'}
 

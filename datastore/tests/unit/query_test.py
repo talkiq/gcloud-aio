@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from gcloud.aio.datastore import Direction
 from gcloud.aio.datastore import Filter
@@ -145,10 +143,7 @@ class TestQueryResultBatch:
         }
 
         batch = QueryResultBatch.from_repr(data)
-
-        expected_dt = datetime.datetime(
-            2025, 7, 1, 12, 0, 0, tzinfo=datetime.timezone.utc)
-        assert batch.read_time == expected_dt
+        assert batch.read_time == '2025-07-01T12:00:00Z'
 
         result = batch.to_repr()
         assert result['readTime'] == '2025-07-01T12:00:00Z'
