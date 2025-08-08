@@ -24,7 +24,7 @@ from .mutation import MutationResult
 from .query import BaseQuery
 from .query import QueryResultBatch
 from .query_explain import ExplainOptions
-from .query_explain import QueryExplainResult
+from .query_explain import QueryResult
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -63,7 +63,7 @@ class Datastore:
     key_kind = Key
     mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
-    query_explain_result_kind = QueryExplainResult
+    query_result_kind = QueryResult
     value_kind = Value
 
     _project: Optional[str]
@@ -412,15 +412,17 @@ class Datastore:
         s = AioSession(session) if session else self.session
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     # pylint: disable=too-many-locals
-    async def _build_and_send_query(
+    async def runQuery(
         self, query: BaseQuery,
         explain_options: Optional[ExplainOptions] = None,
         transaction: Optional[str] = None,
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> QueryResult:
+
         # get request endpoint
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
@@ -460,46 +462,7 @@ class Datastore:
 
         data: Dict[str, Any] = await resp.json()
 
-        return data
-
-    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
-    async def runQuery(
-        self, query: BaseQuery,
-        transaction: Optional[str] = None,
-        consistency: Consistency = Consistency.EVENTUAL,
-        session: Optional[Session] = None,
-        timeout: int = 10,
-    ) -> QueryResultBatch:
-
-        data = await self._build_and_send_query(
-            query=query,
-            transaction=transaction,
-            consistency=consistency,
-            session=session,
-            timeout=timeout
-        )
-
-        return self.query_result_batch_kind.from_repr(data['batch'])
-
-    async def runExplainQuery(
-        self, query: BaseQuery,
-        explain_options: ExplainOptions = ExplainOptions.DEFAULT,
-        transaction: Optional[str] = None,
-        consistency: Consistency = Consistency.EVENTUAL,
-        session: Optional[Session] = None,
-        timeout: int = 10,
-    ) -> QueryExplainResult:
-
-        data = await self._build_and_send_query(
-            query=query,
-            explain_options=explain_options,
-            transaction=transaction,
-            consistency=consistency,
-            session=session,
-            timeout=timeout
-        )
-
-        return self.query_explain_result_kind.from_repr(data)
+        return self.query_result_kind.from_repr(data)
 
     async def delete(
         self, key: Key,

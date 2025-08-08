@@ -210,11 +210,10 @@ class ExplainMetrics:
         return explain_metrics
 
 
-class QueryExplainResult:
+class QueryResult:
     """
-    Container class for results returned by a query explain operation.
-    In the future, we can unify runQuery and runExplainQuery to return
-    an instance of this class and rename it to QueryResult.
+    Container class for results returned by a query operation (with or without
+    explain metrics).
     """
     query_result_batch_kind = QueryResultBatch
 
@@ -227,13 +226,13 @@ class QueryExplainResult:
         return str(self.to_repr())
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, QueryExplainResult):
+        if not isinstance(other, QueryResult):
             return False
         return (self.result_batch == other.result_batch
                 and self.explain_metrics == other.explain_metrics)
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'QueryExplainResult':
+    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
         result_batch = None
         explain_metrics = None
 

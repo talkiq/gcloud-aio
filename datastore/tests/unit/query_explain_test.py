@@ -3,7 +3,7 @@ from gcloud.aio.datastore import ExplainMetrics
 from gcloud.aio.datastore import ExplainOptions
 from gcloud.aio.datastore import IndexDefinition
 from gcloud.aio.datastore import PlanSummary
-from gcloud.aio.datastore import QueryExplainResult
+from gcloud.aio.datastore import QueryResult
 from gcloud.aio.datastore import QueryResultBatch
 
 
@@ -146,7 +146,7 @@ class TestExplainMetrics:
         assert repr(explain_metrics) == str(explain_metrics.to_repr())
 
 
-class TestQueryExplainResult:
+class TestQueryResult:
     @staticmethod
     def test_from_to_repr_default_mode():
         data = {
@@ -162,8 +162,8 @@ class TestQueryExplainResult:
             }
         }
 
-        result = QueryExplainResult.from_repr(data)
-        assert isinstance(result, QueryExplainResult)
+        result = QueryResult.from_repr(data)
+        assert isinstance(result, QueryResult)
 
         assert result.result_batch is None
         assert isinstance(result.explain_metrics, ExplainMetrics)
@@ -199,8 +199,8 @@ class TestQueryExplainResult:
             }
         }
 
-        result = QueryExplainResult.from_repr(data)
-        assert isinstance(result, QueryExplainResult)
+        result = QueryResult.from_repr(data)
+        assert isinstance(result, QueryResult)
         assert isinstance(result.result_batch, QueryResultBatch)
         assert isinstance(result.explain_metrics, ExplainMetrics)
         assert isinstance(result.get_plan_summary(), PlanSummary)

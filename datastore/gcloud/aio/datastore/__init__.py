@@ -72,13 +72,17 @@ started:
     query = Query(kind='the_meaning_of_life',
                   query_filter=Filter(property_filter),
                   order=property_order)
-    results = await ds.runQuery(query, session=s)
+    results = await ds.runQuery(query, session=s)  # QueryResult
+    batch = results.result_batch  # QueryResultBatch
+    metrics = results.explain_metrics  # ExplainMetrics
 
     # alternatively, query support using GQL
     gql_query = GQLQuery(
         'SELECT * FROM meaning_of_life WHERE answer = @answer',
         named_bindings={'answer': 42})
-    results = await ds.runQuery(gql_query, session=s)
+    results = await ds.runQuery(gql_query, session=s)  # QueryResult
+    batch = results.result_batch  # QueryResultBatch
+    metrics = results.explain_metrics  # ExplainMetrics
 
     # close the HTTP session
     # Note that other options include:
@@ -213,7 +217,7 @@ from .query_explain import ExplainMetrics
 from .query_explain import ExplainOptions
 from .query_explain import IndexDefinition
 from .query_explain import PlanSummary
-from .query_explain import QueryExplainResult
+from .query_explain import QueryResult
 from .transaction_options import ReadOnly
 from .transaction_options import ReadWrite
 from .transaction_options import TransactionOptions
@@ -251,7 +255,7 @@ __all__ = [
     'PropertyFilterOperator',
     'PropertyOrder',
     'Query',
-    'QueryExplainResult',
+    'QueryResult',
     'QueryResultBatch',
     'ReadOnly',
     'ReadWrite',
