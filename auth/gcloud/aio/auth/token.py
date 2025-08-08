@@ -54,15 +54,13 @@ else:
 _GCE_METADATA_HOST = os.environ.get('GCE_METADATA_HOST')
 if not _GCE_METADATA_HOST:
     _GCE_METADATA_HOST = os.environ.get(
-        'GCE_METADATA_ROOT', 'metadata.google.internal'
-    )
+        'GCE_METADATA_ROOT', 'metadata.google.internal')
 
 GCE_METADATA_BASE = f'http://{_GCE_METADATA_HOST}/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
 GCE_ENDPOINT_PROJECT = f'{GCE_METADATA_BASE}/project/project-id'
 GCE_ENDPOINT_TOKEN = (
-    f'{GCE_METADATA_BASE}/instance/service-accounts'
-    '/default/token?recursive=true'
+    f'{GCE_METADATA_BASE}/instance/service-accounts/default/token?recursive=true'
 )
 GCE_ENDPOINT_ID_TOKEN = (
     f'{GCE_METADATA_BASE}/instance/service-accounts'
@@ -84,10 +82,11 @@ class Type(enum.Enum):
     GCE_METADATA = 'gce_metadata'
     SERVICE_ACCOUNT = 'service_account'
     IMPERSONATED_SERVICE_ACCOUNT = 'impersonated_service_account'
+    EXTERNAL_ACCOUNT = 'external_account'
 
 
 def get_service_data(
-        service: Optional[Union[str, IO[AnyStr]]],
+    service: Optional[Union[str, IO[AnyStr]]],
 ) -> Dict[str, Any]:
     """
     Get the service data dictionary for the current auth method.
@@ -110,7 +109,8 @@ def get_service_data(
             sdkpath = cloudsdk_config
         elif os.name != 'nt':
             sdkpath = os.path.join(
-                os.path.expanduser('~'), '.config',
+                os.path.expanduser('~'),
+                '.config',
                 'gcloud',
             )
         else:
@@ -119,7 +119,8 @@ def get_service_data(
             except KeyError:
                 sdkpath = os.path.join(
                     os.environ.get('SystemDrive', 'C:'),
-                    '\\', 'gcloud',
+                    '\\',
+                    'gcloud',
                 )
 
         service = os.path.join(sdkpath, 'application_default_credentials.json')
@@ -139,9 +140,37 @@ def get_service_data(
                 encoding='utf-8',
             ) as f:
                 data: Dict[str, Any] = json.loads(f.read())
+                # Handle external account credentials
+                if data.get('type') == 'external_account':
+                    # Ensure required fields are present
+                    required_fields = [
+                        'audience',
+                        'subject_token_type',
+                        'token_url',
+                        'credential_source',
+                    ]
+                    if not all(field in data for field in required_fields):
+                        raise ValueError(
+                            'External account credentials missing required fields: '
+                            f"{', '.join(required_fields)}"
+                        )
                 return data
         except TypeError:
             data = json.loads(service.read())  # type: ignore[union-attr]
+            # Handle external account credentials
+            if data.get('type') == 'external_account':
+                # Ensure required fields are present
+                required_fields = [
+                    'audience',
+                    'subject_token_type',
+                    'token_url',
+                    'credential_source',
+                ]
+                if not all(field in data for field in required_fields):
+                    raise ValueError(
+                        'External account credentials missing required fields: '
+                        f"{', '.join(required_fields)}"
+                    )
             return data
     except CustomFileError:
         if set_explicitly:
@@ -164,11 +193,13 @@ class TokenResponse:
 
 class BaseToken:
     """GCP auth token base class."""
+
     # pylint: disable=too-many-instance-attributes
     __metaclass__ = ABCMeta
 
     def __init__(
-        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+        self,
+        service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
         background_refresh_after: float = 0.5,
         force_refresh_after: float = 0.95,
@@ -187,9 +218,25 @@ class BaseToken:
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
-            self.token_uri = self.service_data.get(
-                'token_uri', 'https://oauth2.googleapis.com/token',
-            )
+            if self.token_type == Type.EXTERNAL_ACCOUNT:
+                required_fields = [
+                    'audience',
+                    'subject_token_type',
+                    'token_url',
+                    'credential_source',
+                ]
+                if not all(
+                        field in self.service_data for field in required_fields):
+                    raise ValueError(
+                        'External account credentials missing required fields: '
+                        f"{', '.join(required_fields)}"
+                    )
+                self.token_uri = self.service_data['token_url']
+            else:
+                self.token_uri = self.service_data.get(
+                    'token_uri',
+                    'https://oauth2.googleapis.com/token',
+                )
         else:
             # At this point, all we can do is assume we're running somewhere
             # with default credentials, eg. GCE.
@@ -220,7 +267,8 @@ class BaseToken:
         if self.token_type == Type.GCE_METADATA:
             await self.ensure_token()
             resp = await self.session.get(
-                GCE_ENDPOINT_PROJECT, timeout=10,
+                GCE_ENDPOINT_PROJECT,
+                timeout=10,
                 headers=GCE_METADATA_HEADERS,
             )
 
@@ -251,7 +299,8 @@ class BaseToken:
                 # Token is okay, but we need to fire up a preemptive refresh
                 if not self.acquiring or self.acquiring.done():
                     self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
-                        self.acquire_access_token())
+                        self.acquire_access_token()
+                    )
                 return
             else:
                 # Cached token is valid for use
@@ -259,7 +308,8 @@ class BaseToken:
 
         if not self.acquiring or self.acquiring.done():
             self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
-                self.acquire_access_token())
+                self.acquire_access_token()
+            )
         await self.acquiring
 
     @abstractmethod
@@ -276,9 +326,11 @@ class BaseToken:
             datetime.timezone.utc)
         base_timestamp = self.access_token_acquired_at.timestamp()
         self.access_token_preempt_after = int(
-            base_timestamp + (resp.expires_in * self.background_refresh_after))
+            base_timestamp + (resp.expires_in * self.background_refresh_after)
+        )
         self.access_token_refresh_after = int(
-            base_timestamp + (resp.expires_in * self.force_refresh_after))
+            base_timestamp + (resp.expires_in * self.force_refresh_after)
+        )
         self.acquiring = None
 
     async def close(self) -> None:
@@ -293,11 +345,13 @@ class BaseToken:
 
 class Token(BaseToken):
     """GCP OAuth 2.0 access token."""
+
     # pylint: disable=too-many-instance-attributes
     default_token_ttl = 3600
 
     def __init__(
-        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
+        self,
+        service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
         scopes: Optional[List[str]] = None,
         target_principal: Optional[str] = None,
@@ -317,10 +371,8 @@ class Token(BaseToken):
 
         self.impersonation_uri: Optional[str] = None
         if target_principal:
-            self.impersonation_uri = (
-                GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
-                    service_account=target_principal
-                )
+            self.impersonation_uri = GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
+                service_account=target_principal
             )
         elif self.service_data.get('service_account_impersonation_url'):
             self.impersonation_uri = self.service_data[
@@ -329,53 +381,66 @@ class Token(BaseToken):
 
         if self.impersonation_uri and not self.scopes:
             raise Exception(
-                'scopes must be provided when token type requires '
-                'impersonation',
+                'scopes must be provided when token type requires impersonation',
             )
         self.delegates = delegates
 
     async def _refresh_authorized_user(self, timeout: int) -> TokenResponse:
-        payload = urlencode({
-            'grant_type': 'refresh_token',
-            'client_id': self.service_data['client_id'],
-            'client_secret': self.service_data['client_secret'],
-            'refresh_token': self.service_data['refresh_token'],
-        })
+        payload = urlencode(
+            {
+                'grant_type': 'refresh_token',
+                'client_id': self.service_data['client_id'],
+                'client_secret': self.service_data['client_secret'],
+                'refresh_token': self.service_data['refresh_token'],
+            }
+        )
 
         resp = await self.session.post(
-            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            url=self.token_uri,
+            data=payload,
+            headers=REFRESH_HEADERS,
             timeout=timeout,
         )
         content = await resp.json()
-        return TokenResponse(value=str(content['access_token']),
-                             expires_in=int(content['expires_in']))
+        return TokenResponse(
+            value=str(content['access_token']), expires_in=int(content['expires_in'])
+        )
 
     async def _refresh_source_authorized_user(
-            self, timeout: int,
+        self,
+        timeout: int,
     ) -> TokenResponse:
         source_credentials = self.service_data['source_credentials']
-        payload = urlencode({
-            'grant_type': 'refresh_token',
-            'client_id': source_credentials['client_id'],
-            'client_secret': source_credentials['client_secret'],
-            'refresh_token': source_credentials['refresh_token'],
-        })
+        payload = urlencode(
+            {
+                'grant_type': 'refresh_token',
+                'client_id': source_credentials['client_id'],
+                'client_secret': source_credentials['client_secret'],
+                'refresh_token': source_credentials['refresh_token'],
+            }
+        )
 
         resp = await self.session.post(
-            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            url=self.token_uri,
+            data=payload,
+            headers=REFRESH_HEADERS,
             timeout=timeout,
         )
         content = await resp.json()
-        return TokenResponse(value=str(content['access_token']),
-                             expires_in=int(content['expires_in']))
+        return TokenResponse(
+            value=str(content['access_token']), expires_in=int(content['expires_in'])
+        )
 
     async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
         resp = await self.session.get(
-            url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout,
+            url=self.token_uri,
+            headers=GCE_METADATA_HEADERS,
+            timeout=timeout,
         )
         content = await resp.json()
-        return TokenResponse(value=str(content['access_token']),
-                             expires_in=int(content['expires_in']))
+        return TokenResponse(
+            value=str(content['access_token']), expires_in=int(content['expires_in'])
+        )
 
     async def _refresh_service_account(self, timeout: int) -> TokenResponse:
         now = int(time.time())
@@ -393,13 +458,17 @@ class Token(BaseToken):
             self.service_data['private_key'],
             algorithm='RS256',
         )
-        payload = urlencode({
-            'assertion': assertion,
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        })
+        payload = urlencode(
+            {
+                'assertion': assertion,
+                'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            }
+        )
 
         resp = await self.session.post(
-            self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            self.token_uri,
+            data=payload,
+            headers=REFRESH_HEADERS,
             timeout=timeout,
         )
         content = await resp.json()
@@ -409,8 +478,9 @@ class Token(BaseToken):
         expires = int(content.get('expires_in', '0')) or self.default_token_ttl
         return TokenResponse(value=token, expires_in=expires)
 
-    async def _impersonate(self, token: TokenResponse,
-                           *, timeout: int) -> TokenResponse:
+    async def _impersonate(
+        self, token: TokenResponse, *, timeout: int
+    ) -> TokenResponse:
         if not self.impersonation_uri:
             raise Exception('cannot impersonate without impersonation_uri set')
 
@@ -418,14 +488,18 @@ class Token(BaseToken):
         headers = {
             'Authorization': f'Bearer {token.value}',
         }
-        payload = json.dumps({
-            'lifetime': f'{self.default_token_ttl}s',
-            'scope': self.scopes.split(' '),
-            'delegates': self.delegates,
-        })
+        payload = json.dumps(
+            {
+                'lifetime': f'{self.default_token_ttl}s',
+                'scope': self.scopes.split(' '),
+                'delegates': self.delegates,
+            }
+        )
 
         resp = await self.session.post(
-            self.impersonation_uri, data=payload, headers=headers,
+            self.impersonation_uri,
+            data=payload,
+            headers=headers,
             timeout=timeout,
         )
 
@@ -433,23 +507,149 @@ class Token(BaseToken):
         token.value = str(data['accessToken'])
         return token
 
-    async def refresh(self, *, timeout: int) -> TokenResponse:
-        if self.token_type == Type.AUTHORIZED_USER:
-            resp = await self._refresh_authorized_user(timeout=timeout)
-        elif self.token_type == Type.GCE_METADATA:
-            resp = await self._refresh_gce_metadata(timeout=timeout)
-        elif self.token_type == Type.SERVICE_ACCOUNT:
-            resp = await self._refresh_service_account(timeout=timeout)
-        elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
-            # impersonation requires a source authorized user
-            resp = await self._refresh_source_authorized_user(timeout=timeout)
+    async def _refresh_external_account(self, timeout: int) -> TokenResponse:
+        """Refresh token for external account credentials."""
+        if not self.service_data:
+            raise ValueError(
+                'No service data available for external account credentials'
+            )
+
+        # Ensure required fields are present
+        required_fields = [
+            'audience',
+            'subject_token_type',
+            'token_url',
+            'credential_source',
+        ]
+        if not all(field in self.service_data for field in required_fields):
+            raise ValueError(
+                'External account credentials missing required fields: '
+                f"{', '.join(required_fields)}"
+            )
+
+        # Get the subject token from the credential source
+        credential_source = self.service_data['credential_source']
+        subject_token = await self._get_subject_token(credential_source, timeout)
+
+        # Exchange the subject token for a Google access token
+        data = {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:token-exchange',
+            'audience': self.service_data['audience'],
+            'subject_token_type': self.service_data['subject_token_type'],
+            'subject_token': subject_token,
+            'requested_token_type': 'urn:ietf:params:oauth:token-type:access_token',
+        }
+
+        # Add optional service account impersonation if configured
+        if 'service_account_impersonation_url' in self.service_data:
+            data['service_account_impersonation_url'] = self.service_data[
+                'service_account_impersonation_url'
+            ]
+
+        # Add optional client ID and secret if configured
+        if 'client_id' in self.service_data:
+            data['client_id'] = self.service_data['client_id']
+        if 'client_secret' in self.service_data:
+            data['client_secret'] = self.service_data['client_secret']
+
+        # Add scopes if configured
+        if hasattr(self, 'scopes') and self.scopes:
+            data['scope'] = ' '.join(self.scopes)
+
+        resp = await self.session.post(
+            self.service_data['token_url'],
+            data=urlencode(data),
+            headers=REFRESH_HEADERS,
+            timeout=timeout,
+        )
+
+        if resp.status != 200:
+            raise ValueError(
+                f'Failed to refresh external account token: {resp.status} {resp.reason}'
+            )
+
+        try:
+            data = await resp.json()
+        except (AttributeError, TypeError):
+            data = json.loads(resp.text)
+
+        return TokenResponse(
+            value=data['access_token'],
+            expires_in=data.get('expires_in', self.default_token_ttl),
+        )
+
+    async def _get_subject_token(
+        self, credential_source: Dict[str, Any], timeout: int
+    ) -> str:
+        """Get the subject token from the credential source."""
+        source_type = credential_source.get('type')
+        if not source_type:
+            raise ValueError('Credential source missing type')
+
+        if source_type == 'url':
+            # Get token from URL
+            url = credential_source['url']
+            headers = credential_source.get('headers', {})
+            format_type = credential_source.get(
+                'format', {}).get('type', 'text')
+
+            resp = await self.session.get(url, headers=headers, timeout=timeout)
+            if resp.status != 200:
+                raise ValueError(
+                    f'Failed to get subject token from URL: {resp.status} {resp.reason}'
+                )
+
+            if format_type == 'json':
+                try:
+                    data = await resp.json()
+                except (AttributeError, TypeError):
+                    data = json.loads(resp.text)
+                return data[credential_source['format']
+                            ['subject_token_field_name']]
+            else:
+                try:
+                    return await resp.text()
+                except (AttributeError, TypeError):
+                    return str(resp.text)
+
+        elif source_type == 'file':
+            # Get token from file
+            file_path = credential_source['file']
+            try:
+                with open(file_path, encoding='utf-8') as f:
+                    return f.read().strip()
+            except Exception as e:
+                raise ValueError(
+                    f'Failed to read subject token from file: {e}')
+
+        elif source_type == 'environment':
+            # Get token from environment variable
+            env_var = credential_source['environment_id']
+            token = os.environ.get(env_var)
+            if not token:
+                raise ValueError(f'Environment variable {env_var} not set')
+            return token
+
         else:
-            raise Exception(f'unsupported token type {self.token_type}')
+            raise ValueError(
+                f'Unsupported credential source type: {source_type}')
 
-        if self.impersonation_uri:
-            resp = await self._impersonate(resp, timeout=timeout)
-
-        return resp
+    async def refresh(self, *, timeout: int) -> TokenResponse:
+        """Refresh the token."""
+        if self.token_type == Type.AUTHORIZED_USER:
+            return await self._refresh_authorized_user(timeout)
+        if self.token_type == Type.GCE_METADATA:
+            return await self._refresh_gce_metadata(timeout)
+        if self.token_type == Type.SERVICE_ACCOUNT:
+            return await self._refresh_service_account(timeout)
+        if self.token_type == Type.EXTERNAL_ACCOUNT:
+            return await self._refresh_external_account(timeout)
+        if self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
+            # First get a token from the source credentials
+            source_token = await self._refresh_source_authorized_user(timeout)
+            # Then impersonate the target service account
+            return await self._impersonate(source_token, timeout=timeout)
+        raise ValueError(f'Unsupported token type: {self.token_type}')
 
 
 class IapToken(BaseToken):
@@ -458,7 +658,8 @@ class IapToken(BaseToken):
     default_token_ttl = 3600
 
     def __init__(
-        self, app_uri: str,
+        self,
+        app_uri: str,
         service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
         impersonating_service_account: Optional[str] = None,
@@ -468,8 +669,7 @@ class IapToken(BaseToken):
         self.app_uri = app_uri
         self.service_account = impersonating_service_account
 
-        if (self.token_type == Type.AUTHORIZED_USER
-                and not self.service_account):
+        if self.token_type == Type.AUTHORIZED_USER and not self.service_account:
             raise Exception(
                 'service account name must be provided when token type is '
                 'authorized user',
@@ -487,24 +687,30 @@ class IapToken(BaseToken):
         For more details, see the GCP docs for programmatic IAP access:
         https://cloud.google.com/iap/docs/authentication-howto
         """
-        resp = await self.session.head(self.app_uri, timeout=timeout,
-                                       allow_redirects=False)
+        resp = await self.session.head(
+            self.app_uri, timeout=timeout, allow_redirects=False
+        )
 
         redirect_location = resp.headers.get('location')
         if not redirect_location:
-            raise Exception(f'No redirect location for service {self.app_uri},'
-                            ' is it secured with IAP?')
+            raise Exception(
+                f'No redirect location for service {self.app_uri},'
+                ' is it secured with IAP?'
+            )
 
         parsed_uri = urlparse(redirect_location)
         query = parse_qs(parsed_uri.query)
         client_id: str = query.get('client_id', [''])[0]
         if not client_id:
-            raise Exception(f'No client ID found for service {self.app_uri},'
-                            ' is it secured with IAP?')
+            raise Exception(
+                f'No client ID found for service {self.app_uri},'
+                ' is it secured with IAP?'
+            )
         return client_id
 
     async def _refresh_authorized_user(
-        self, iap_client_id: str,
+        self,
+        iap_client_id: str,
         timeout: int,
     ) -> TokenResponse:
         """
@@ -513,37 +719,48 @@ class IapToken(BaseToken):
         https://cloud.google.com/iap/docs/authentication-howto#obtaining_an_oidc_token_in_all_other_cases
         """
         # Fetch the OAuth access token to use in generating an ID token.
-        refresh_payload = urlencode({
-            'grant_type': 'refresh_token',
-            'client_id': self.service_data['client_id'],
-            'client_secret': self.service_data['client_secret'],
-            'refresh_token': self.service_data['refresh_token'],
-        })
+        refresh_payload = urlencode(
+            {
+                'grant_type': 'refresh_token',
+                'client_id': self.service_data['client_id'],
+                'client_secret': self.service_data['client_secret'],
+                'refresh_token': self.service_data['refresh_token'],
+            }
+        )
         refresh_resp = await self.session.post(
-            url=self.token_uri, data=refresh_payload, headers=REFRESH_HEADERS,
+            url=self.token_uri,
+            data=refresh_payload,
+            headers=REFRESH_HEADERS,
             timeout=timeout,
         )
         refresh_content = await refresh_resp.json()
 
         headers = {
-            'Authorization': f'Bearer {refresh_content["access_token"]}',
+            'Authorization': f"Bearer {refresh_content['access_token']}",
         }
-        payload = json.dumps({
-            'includeEmail': True,
-            'audience': iap_client_id,
-        })
+        payload = json.dumps(
+            {
+                'includeEmail': True,
+                'audience': iap_client_id,
+            }
+        )
         resp = await self.session.post(
             GCLOUD_ENDPOINT_GENERATE_ID_TOKEN.format(
-                service_account=self.service_account),
-            data=payload, headers=headers, timeout=timeout)
+                service_account=self.service_account
+            ),
+            data=payload,
+            headers=headers,
+            timeout=timeout,
+        )
 
         content = await resp.json()
-        return TokenResponse(value=content['token'],
-                             expires_in=self.default_token_ttl)
+        return TokenResponse(
+            value=content['token'], expires_in=self.default_token_ttl)
 
     async def _refresh_gce_metadata(
-            self, iap_client_id: str,
-            timeout: int,
+        self,
+        iap_client_id: str,
+        timeout: int,
     ) -> TokenResponse:
         """
         Fetch IAP ID token from the GCE metadata servers.
@@ -556,16 +773,18 @@ class IapToken(BaseToken):
         """
         resp = await self.session.get(
             GCE_ENDPOINT_ID_TOKEN.format(audience=iap_client_id),
-            headers=GCE_METADATA_HEADERS, timeout=timeout)
+            headers=GCE_METADATA_HEADERS,
+            timeout=timeout,
+        )
         try:
             token = await resp.text()  # aiohttp lib
         except (AttributeError, TypeError):
             token = str(resp.text)  # requests lib
-        return TokenResponse(value=token,
-                             expires_in=self.default_token_ttl)
+        return TokenResponse(value=token, expires_in=self.default_token_ttl)
 
     async def _refresh_service_account(
-        self, iap_client_id: str,
+        self,
+        iap_client_id: str,
         timeout: int,
     ) -> TokenResponse:
         now = int(time.time())
@@ -586,30 +805,30 @@ class IapToken(BaseToken):
             algorithm='RS256',
         )
 
-        payload = urlencode({
-            'assertion': assertion,
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        })
+        payload = urlencode(
+            {
+                'assertion': assertion,
+                'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            }
+        )
 
-        resp = await self.session.post(self.token_uri, data=payload,
-                                       headers=REFRESH_HEADERS,
-                                       timeout=timeout)
+        resp = await self.session.post(
+            self.token_uri, data=payload, headers=REFRESH_HEADERS, timeout=timeout
+        )
 
         content = await resp.json()
-        return TokenResponse(value=content['id_token'],
-                             expires_in=expiry - int(time.time()))
+        return TokenResponse(
+            value=content['id_token'], expires_in=expiry - int(time.time())
+        )
 
     async def refresh(self, *, timeout: int) -> TokenResponse:
         iap_client_id = await self._get_iap_client_id(timeout=timeout)
         if self.token_type == Type.AUTHORIZED_USER:
-            resp = await self._refresh_authorized_user(
-                iap_client_id, timeout)
+            resp = await self._refresh_authorized_user(iap_client_id, timeout)
         elif self.token_type == Type.GCE_METADATA:
-            resp = await self._refresh_gce_metadata(
-                iap_client_id, timeout)
+            resp = await self._refresh_gce_metadata(iap_client_id, timeout)
         elif self.token_type == Type.SERVICE_ACCOUNT:
-            resp = await self._refresh_service_account(
-                iap_client_id, timeout)
+            resp = await self._refresh_service_account(iap_client_id, timeout)
         elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
             raise Exception('impersonation is not supported for IAP tokens')
         else:

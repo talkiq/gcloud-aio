@@ -86,6 +86,38 @@ find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aexit__/__exit__/g'
+
+## aiohttp vs requests - response method conversions
+# Convert resp.text() to resp.text (requests uses property, aiohttp uses method)
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/resp\.text\(\)/resp.text/g'
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/response\.text\(\)/response.text/g'
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/refresh_resp\.text\(\)/refresh_resp.text/g'
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/refresh_content\.text\(\)/refresh_content.text/g'
+
+# Convert resp.json() to resp.json() (both libraries use method)
+# But we need to handle the case where it was await resp.json()
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/await resp\.json\(\)/resp.json()/g'
+find . -type f -path '*py' \
+    | xargs -L1 $SED -Ei 's/await response\.json\(\)/response.json()/g'
+
+## Test file conversions - mock types
+# Convert AsyncMock to Mock in test files
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei 's/mock\.AsyncMock/mock.Mock/g'
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei 's/AsyncMock/Mock/g'
+
+# Remove asyncio imports that are no longer needed
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei '/^import asyncio$/d'
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei '/^from asyncio import/d'
+
 ## aiohttp vs requests
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/content_type=None//g'
