@@ -128,6 +128,53 @@ async def test_start_transaction_on_lookup(creds: str,
         actual = await ds.lookup([key], session=s)
         assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
 
+        # Clean up test data
+        await ds.delete(key, s)
+
+
+@pytest.mark.asyncio
+async def test_start_transaction_on_query(
+        creds: str, kind: str, project: str,
+) -> None:
+    key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # Test query with newTransaction parameter
+        property_filter = PropertyFilter(
+            prop='animal',
+            operator=PropertyFilterOperator.EQUAL,
+            value=Value('three-toed sloth'),
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        # Use newTransaction parameter
+        options = TransactionOptions(ReadWrite())
+        result = await ds.runQuery(query, newTransaction=options, session=s)
+        assert result.transaction is not None and result.transaction
+
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT, key,
+                properties={'animal': 'three-toed sloth'},
+            ),
+            ds.make_mutation(
+                Operation.UPDATE, key,
+                properties={'animal': 'aardvark'},
+            ),
+        ]
+        await ds.commit(
+            mutations,
+            transaction=result.transaction,
+            session=s)
+
+        actual = await ds.lookup([key], session=s)
+        assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
+
+        # Clean up test data
+        await ds.delete(key, s)
+
 
 @pytest.mark.asyncio
 async def test_transaction(creds: str, kind: str, project: str) -> None:
@@ -185,10 +232,10 @@ async def test_query_with_key_projection(
             projection=projection,
         )
         result = await ds.runQuery(query, session=s)
-        assert result.entity_results[0].entity.properties == {}
-        assert result.entity_result_type.value == 'KEY_ONLY'
+        assert result.batch.entity_results[0].entity.properties == {}
+        assert result.batch.entity_result_type.value == 'KEY_ONLY'
         # clean up test data
-        await ds.delete(result.entity_results[0].entity.key, s)
+        await ds.delete(result.batch.entity_results[0].entity.key, s)
 
 
 @pytest.mark.asyncio
@@ -207,9 +254,9 @@ async def test_query_with_value_projection(
             projection=projection,
         )
         result = await ds.runQuery(query, session=s)
-        assert result.entity_result_type.value == 'PROJECTION'
+        assert result.batch.entity_result_type.value == 'PROJECTION'
         # clean up test data
-        await ds.delete(result.entity_results[0].entity.key, s)
+        await ds.delete(result.batch.entity_results[0].entity.key, s)
 
 
 @pytest.mark.asyncio
@@ -231,7 +278,7 @@ async def test_query_with_distinct_on(
             await ds.insert(key2, {'dist_value': 22}, s)
         query = Query(kind=kind, limit=10, distinct_on=['dist_value'])
         result = await ds.runQuery(query, session=s)
-        assert len(result.entity_results) == 2
+        assert len(result.batch.entity_results) == 2
         # clean up test data
         for key1 in allocatedKeys1:
             await ds.delete(key1, s)
@@ -252,7 +299,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -270,7 +317,7 @@ async def test_query(creds: str, kind: str, project: str) -> None:
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 2
+        assert len(after.batch.entity_results) == num_results + 2
 
 
 @pytest.mark.asyncio
@@ -287,7 +334,7 @@ async def test_query_with_in_filter(
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -310,7 +357,7 @@ async def test_query_with_in_filter(
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 2
+        assert len(after.batch.entity_results) == num_results + 2
 
 
 @pytest.mark.asyncio
@@ -327,7 +374,7 @@ async def test_query_with_not_in_filter(
         query = Query(kind=kind, query_filter=Filter(property_filter))
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -350,7 +397,7 @@ async def test_query_with_not_in_filter(
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 1
+        assert len(after.batch.entity_results) == num_results + 1
 
 
 @pytest.mark.asyncio
@@ -365,7 +412,7 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         )
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -388,7 +435,7 @@ async def test_gql_query(creds: str, kind: str, project: str) -> None:
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 3
+        assert len(after.batch.entity_results) == num_results + 3
 
 
 @pytest.mark.asyncio
@@ -404,7 +451,7 @@ async def test_gql_query_with_in_filter(
         )
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -427,7 +474,7 @@ async def test_gql_query_with_in_filter(
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 2
+        assert len(after.batch.entity_results) == num_results + 2
 
 
 @pytest.mark.asyncio
@@ -444,7 +491,7 @@ async def test_gql_query_with_not_in_filter(
         )
 
         before = await ds.runQuery(query, session=s)
-        num_results = len(before.entity_results)
+        num_results = len(before.batch.entity_results)
 
         transaction = await ds.beginTransaction(session=s)
         mutations = [
@@ -467,7 +514,7 @@ async def test_gql_query_with_not_in_filter(
         await ds.commit(mutations, transaction=transaction, session=s)
 
         after = await ds.runQuery(query, session=s)
-        assert len(after.entity_results) == num_results + 1
+        assert len(after.batch.entity_results) == num_results + 1
 
 
 @pytest.mark.asyncio
@@ -501,17 +548,18 @@ async def test_gql_query_pagination(
 
         page_size = 5
         named_bindings['limit'] = page_size
-        named_bindings['offset'] = GQLCursor(before.end_cursor)
+        named_bindings['offset'] = GQLCursor(before.batch.end_cursor)
         first_page = await ds.runQuery(
             GQLQuery(query_string, named_bindings=named_bindings), session=s,
         )
-        assert (len(first_page.entity_results)) == page_size
+        assert (len(first_page.batch.entity_results)) == page_size
 
-        named_bindings['offset'] = GQLCursor(first_page.end_cursor)
+        named_bindings['offset'] = GQLCursor(first_page.batch.end_cursor)
         second_page = await ds.runQuery(
             GQLQuery(query_string, named_bindings=named_bindings), session=s,
         )
-        assert len(second_page.entity_results) == insertion_count - page_size
+        assert len(
+            second_page.batch.entity_results) == insertion_count - page_size
 
 
 @pytest.mark.asyncio

@@ -23,6 +23,7 @@ from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
 from .query import QueryResultBatch
+from .query import RunQueryResult
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -413,24 +414,25 @@ class Datastore:
     async def runQuery(
         self, query: BaseQuery,
         transaction: Optional[str] = None,
+        newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
         timeout: int = 10,
-    ) -> QueryResultBatch:
+    ) -> RunQueryResult:
+        # pylint: disable=too-many-locals
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
-        if transaction:
-            options = {'transaction': transaction}
-        else:
-            options = {'readConsistency': consistency.value}
+        read_options = self._build_read_options(
+            consistency, newTransaction, transaction)
+
         payload = json.dumps({
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
-            'readOptions': options,
+            'readOptions': read_options,
         }).encode('utf-8')
 
         headers = await self.headers()
@@ -446,7 +448,11 @@ class Datastore:
         )
 
         data: Dict[str, Any] = await resp.json()
-        return self.query_result_batch_kind.from_repr(data['batch'])
+
+        batch = self.query_result_batch_kind.from_repr(data['batch'])
+        transaction_id = data.get('transaction')
+
+        return RunQueryResult(batch, transaction_id)
 
     async def delete(
         self, key: Key,
