@@ -191,6 +191,7 @@ class GQLCursor:
 
 
 class QueryResultBatch:
+    # pylint: disable=too-many-instance-attributes
     entity_result_kind = EntityResult
 
     def __init__(
@@ -200,6 +201,7 @@ class QueryResultBatch:
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
         snapshot_version: str = '',
+        read_time: Optional[str] = None,
     ) -> None:
         self.end_cursor = end_cursor
 
@@ -209,6 +211,7 @@ class QueryResultBatch:
         self.skipped_cursor = skipped_cursor
         self.skipped_results = skipped_results
         self.snapshot_version = snapshot_version
+        self.read_time = read_time
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryResultBatch):
@@ -221,7 +224,8 @@ class QueryResultBatch:
             and self.more_results == other.more_results
             and self.skipped_cursor == other.skipped_cursor
             and self.skipped_results == other.skipped_results
-            and self.snapshot_version == other.snapshot_version,
+            and self.snapshot_version == other.snapshot_version
+            and self.read_time == other.read_time,
         )
 
     def __repr__(self) -> str:
@@ -239,12 +243,15 @@ class QueryResultBatch:
         skipped_cursor = data.get('skippedCursor', '')
         skipped_results = data.get('skippedResults', 0)
         snapshot_version = data.get('snapshotVersion', '')
+        read_time = data.get('readTime')
+
         return cls(
             end_cursor, entity_result_type=entity_result_type,
             entity_results=entity_results, more_results=more_results,
             skipped_cursor=skipped_cursor,
             skipped_results=skipped_results,
             snapshot_version=snapshot_version,
+            read_time=read_time,
         )
 
     def to_repr(self) -> Dict[str, Any]:
@@ -259,5 +266,6 @@ class QueryResultBatch:
             data['skippedCursor'] = self.skipped_cursor
         if self.snapshot_version:
             data['snapshotVersion'] = self.snapshot_version
-
+        if self.read_time:
+            data['readTime'] = self.read_time
         return data
