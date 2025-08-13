@@ -10,7 +10,6 @@ from typing import AnyStr
 from typing import IO
 from typing import Mapping
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
@@ -29,11 +28,10 @@ log = logging.getLogger(__name__)
 
 class BaseSession:
     __metaclass__ = ABCMeta
-    Timeout = Union[int, float]
 
     def __init__(
         self, session: Optional[Session] = None,
-        timeout: Timeout = 10,
+        timeout: float = 10,
         verify_ssl: bool = True,
     ) -> None:
         self._shared_session = bool(session)
@@ -48,7 +46,7 @@ class BaseSession:
     @abstractmethod
     async def post(
         self, url: str, headers: Mapping[str, str],
-        data: Optional[Union[bytes, str, IO[AnyStr]]], timeout: Timeout,
+        data: Optional[Union[bytes, str, IO[AnyStr]]], timeout: float,
         params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
@@ -56,7 +54,7 @@ class BaseSession:
     @abstractmethod
     async def get(
         self, url: str, headers: Optional[Mapping[str, str]],
-        timeout: Timeout, params: Optional[Mapping[str, Union[int, str]]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         stream: bool,
         auto_decompress: bool,
     ) -> Response:
@@ -65,7 +63,7 @@ class BaseSession:
     @abstractmethod
     async def patch(
         self, url: str, headers: Mapping[str, str],
-        data: Optional[Union[bytes, str]], timeout: Timeout,
+        data: Optional[Union[bytes, str]], timeout: float,
         params: Optional[Mapping[str, Union[int, str]]],
     ) -> Response:
         pass
@@ -73,7 +71,7 @@ class BaseSession:
     @abstractmethod
     async def put(
         self, url: str, headers: Mapping[str, str],
-        data: Union[bytes, str, IO[Any]], timeout: Timeout,
+        data: Union[bytes, str, IO[Any]], timeout: float,
     ) -> Response:
         pass
 
@@ -81,14 +79,14 @@ class BaseSession:
     async def delete(
         self, url: str, headers: Mapping[str, str],
         params: Optional[Mapping[str, Union[int, str]]],
-        timeout: Timeout,
+        timeout: float,
     ) -> Response:
         pass
 
     @abstractmethod
     async def head(
         self, url: str, headers: Optional[Mapping[str, str]],
-        timeout: Timeout, params: Optional[Mapping[str, Union[int, str]]],
+        timeout: float, params: Optional[Mapping[str, Union[int, str]]],
         allow_redirects: bool,
     ) -> Response:
         pass
@@ -108,6 +106,8 @@ class BaseSession:
 # pylint: disable=too-complex
 if not BUILD_GCLOUD_REST:
     import aiohttp
+
+    Timeout = Union[aiohttp.ClientTimeout, float]
 
     async def _raise_for_status(resp: aiohttp.ClientResponse) -> None:
         """Check resp for status and if error log additional info."""
@@ -141,7 +141,6 @@ if not BUILD_GCLOUD_REST:
 
     class AioSession(BaseSession):
         _session: aiohttp.ClientSession  # type: ignore[assignment]
-        Timeout = Union[aiohttp.ClientTimeout, int, float]
         _timeout: Timeout  # type: ignore[assignment]
 
         # N.B. `aiohttp.TCPConnector` SSL config is not true / false / CA
@@ -307,7 +306,6 @@ if not BUILD_GCLOUD_REST:
 if BUILD_GCLOUD_REST:
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
-        Timeout = Union[Tuple[float, float], int, float]
 
         @property
         def google_api_lock(self) -> threading.RLock:
@@ -326,7 +324,7 @@ if BUILD_GCLOUD_REST:
         async def post(
             self, url: str, headers: Mapping[str, str],
             data: Optional[Union[bytes, str, IO[AnyStr]]] = None,
-            timeout: Timeout = 10,
+            timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
             with self.google_api_lock:
@@ -339,7 +337,7 @@ if BUILD_GCLOUD_REST:
 
         async def get(
             self, url: str, headers: Optional[Mapping[str, str]] = None,
-            timeout: Timeout = 10,
+            timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             stream: bool = False,
             auto_decompress: bool = True,
@@ -363,7 +361,7 @@ if BUILD_GCLOUD_REST:
 
         async def patch(
             self, url: str, headers: Mapping[str, str],
-            data: Optional[Union[bytes, str]] = None, timeout: Timeout = 10,
+            data: Optional[Union[bytes, str]] = None, timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
         ) -> Response:
             with self.google_api_lock:
@@ -376,7 +374,7 @@ if BUILD_GCLOUD_REST:
 
         async def put(
             self, url: str, headers: Mapping[str, str],
-            data: Union[bytes, str, IO[Any]], timeout: Timeout = 10,
+            data: Union[bytes, str, IO[Any]], timeout: float = 10,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.put(
@@ -389,7 +387,7 @@ if BUILD_GCLOUD_REST:
         async def delete(
             self, url: str, headers: Mapping[str, str],
             params: Optional[Mapping[str, Union[int, str]]] = None,
-            timeout: Timeout = 10,
+            timeout: float = 10,
         ) -> Response:
             with self.google_api_lock:
                 resp = self.session.delete(
@@ -401,7 +399,7 @@ if BUILD_GCLOUD_REST:
 
         async def head(
             self, url: str, headers: Optional[Mapping[str, str]] = None,
-            timeout: Timeout = 10,
+            timeout: float = 10,
             params: Optional[Mapping[str, Union[int, str]]] = None,
             allow_redirects: bool = False,
         ) -> Response:
