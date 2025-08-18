@@ -211,13 +211,13 @@ from .property_order import PropertyOrder
 from .query import GQLCursor
 from .query import GQLQuery
 from .query import Query
+from .query import QueryResult
 from .query import QueryResultBatch
 from .query_explain import ExecutionStats
 from .query_explain import ExplainMetrics
 from .query_explain import ExplainOptions
 from .query_explain import IndexDefinition
 from .query_explain import PlanSummary
-from .query_explain import QueryResult
 from .transaction_options import ReadOnly
 from .transaction_options import ReadWrite
 from .transaction_options import TransactionOptions

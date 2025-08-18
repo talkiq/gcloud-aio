@@ -22,9 +22,9 @@ from .entity import EntityResult
 from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
+from .query import QueryResult
 from .query import QueryResultBatch
 from .query_explain import ExplainOptions
-from .query_explain import QueryResult
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -352,13 +352,12 @@ class Datastore:
             result['transaction'] = new_transaction
         return result
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
                             transaction: Optional[str]) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
-        # See
-        # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
         if transaction:
             return {'transaction': transaction}
 
@@ -423,11 +422,9 @@ class Datastore:
         timeout: int = 10,
     ) -> QueryResult:
 
-        # get request endpoint
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
-        # build request payload
         if transaction:
             options = {'transaction': transaction}
         else:
@@ -453,7 +450,6 @@ class Datastore:
             'Content-Type': 'application/json',
         })
 
-        # send the request
         s = AioSession(session) if session else self.session
         resp = await s.post(
             url, data=payload, headers=headers,
