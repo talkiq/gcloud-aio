@@ -725,8 +725,8 @@ async def test_run_query_with_read_time(
         )
         result_current = await ds.runQuery(query, session=s)
 
-        assert len(result_current.entity_results) == 1
-        assert result_current.entity_results[0].entity.properties[
+        assert len(result_current.result_batch.entity_results) == 1
+        assert result_current.result_batch.entity_results[0].entity.properties[
             'test_field'] == test_value
 
         # query w/ readTime
@@ -735,11 +735,11 @@ async def test_run_query_with_read_time(
         result_with_datetime = await ds.runQuery(query,
                                                  read_time=current_str,
                                                  session=s)
-        assert len(result_with_datetime.entity_results) == 1
+        assert len(result_with_datetime.result_batch.entity_results) == 1
 
         # verify readTime != empty and is a string
-        assert isinstance(result_with_datetime.read_time, str)
-        assert result_with_datetime.read_time is not None
+        assert isinstance(result_with_datetime.result_batch.read_time, str)
+        assert result_with_datetime.result_batch.read_time is not None
 
         # query w/ readTime before insertion time
         past_time = before_insert - datetime.timedelta(seconds=10)
@@ -747,6 +747,6 @@ async def test_run_query_with_read_time(
         result_past = await ds.runQuery(query,
                                         read_time=past_time_str,
                                         session=s)
-        assert len(result_past.entity_results) == 0
+        assert len(result_past.result_batch.entity_results) == 0
 
         await ds.delete(key, session=s)
