@@ -60,6 +60,9 @@ Module Contents
    .. py:attribute:: query_result_batch_kind
 
 
+   .. py:attribute:: query_result_kind
+
+
    .. py:attribute:: value_kind
 
 
@@ -152,7 +155,7 @@ Module Contents
 
 
 
-   .. py:method:: runQuery(query, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
+   .. py:method:: runQuery(query, explain_options = None, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
       :async:
 
 

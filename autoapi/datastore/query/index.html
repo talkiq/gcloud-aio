@@ -15,7 +15,7 @@
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datastore.transaction_options" href="../transaction_options/index.html" />
+    <link rel="next" title="datastore.query_explain" href="../query_explain/index.html" />
     <link rel="prev" title="datastore.property_order" href="../property_order/index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -54,6 +54,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datastore.query.QueryResultBatch" title="datastore.query.QueryResultBatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QueryResultBatch</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datastore.query.QueryResult" title="datastore.query.QueryResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QueryResult</span></code></a></p></td>
+<td><p>Container class for results returned by a query operation (with or without</p></td>
 </tr>
 </tbody>
 </table>
@@ -452,6 +455,112 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="datastore.query.QueryResult">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query.</span></span><span class="sig-name descname"><span class="pre">QueryResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult" title="Link to this definition">¶</a></dt>
+<dd><p>Container class for results returned by a query operation (with or without
+explain metrics).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_batch</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#datastore.query.QueryResultBatch" title="datastore.query.QueryResultBatch"><em>QueryResultBatch</em></a><em>]</em>)</p></li>
+<li><p><strong>explain_metrics</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics"><em>datastore.query_explain.ExplainMetrics</em></a><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.query_result_batch_kind">
+<span class="sig-name descname"><span class="pre">query_result_batch_kind</span></span><a class="headerlink" href="#datastore.query.QueryResult.query_result_batch_kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.result_batch">
+<span class="sig-name descname"><span class="pre">result_batch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.query.QueryResult.result_batch" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.explain_metrics">
+<span class="sig-name descname"><span class="pre">explain_metrics</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.query.QueryResult.explain_metrics" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.__repr__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.__eq__" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<em>object</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.from_repr">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.from_repr" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#datastore.query.QueryResult" title="datastore.query.QueryResult">QueryResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.to_repr">
+<span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.to_repr" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.get_explain_metrics">
+<span class="sig-name descname"><span class="pre">get_explain_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_explain_metrics" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics">datastore.query_explain.ExplainMetrics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.get_plan_summary">
+<span class="sig-name descname"><span class="pre">get_plan_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_plan_summary" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary">datastore.query_explain.PlanSummary</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datastore.query.QueryResult.get_execution_stats">
+<span class="sig-name descname"><span class="pre">get_execution_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_execution_stats" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats">datastore.query_explain.ExecutionStats</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -499,7 +608,7 @@
   <li><a href="../../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">datastore</a><ul>
       <li>Previous: <a href="../property_order/index.html" title="previous chapter">datastore.property_order</a></li>
-      <li>Next: <a href="../transaction_options/index.html" title="next chapter">datastore.transaction_options</a></li>
+      <li>Next: <a href="../query_explain/index.html" title="next chapter">datastore.query_explain</a></li>
   </ul></li>
   </ul></li>
 </ul>

@@ -1,0 +1,196 @@
+datastore.query_explain
+=======================
+
+.. py:module:: datastore.query_explain
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   datastore.query_explain.ExplainOptions
+   datastore.query_explain.IndexDefinition
+   datastore.query_explain.PlanSummary
+   datastore.query_explain.ExecutionStats
+   datastore.query_explain.ExplainMetrics
+
+
+Module Contents
+---------------
+
+.. py:class:: ExplainOptions(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Options for query explain operations.
+
+
+   .. py:attribute:: DEFAULT
+      :value: False
+
+
+
+   .. py:attribute:: ANALYZE
+      :value: True
+
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+.. py:class:: IndexDefinition(query_scope = '', properties = None)
+
+   Represents an index that would be used in PlanSummary.
+
+   Raw:
+       [
+         {
+           "query_scope": "Collection group",
+           "properties": "(done ASC, priority DESC, __name__ ASC)"
+         }
+       ]
+
+   query_scope: "Collection group"
+   properties: [("done", "ASC"), ("priority", "DESC"), ("__name__", "ASC")]
+
+
+   .. py:attribute:: _PROPERTIES_PATTERN
+
+
+   .. py:attribute:: query_scope
+      :value: ''
+
+
+
+   .. py:attribute:: properties
+      :value: []
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: PlanSummary(indexes_used = None)
+
+   Container class for planSummary returned by query explain.
+
+
+   .. py:attribute:: indexes_used
+      :value: []
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: ExecutionStats(results_returned = 0, execution_duration = 0.0, read_operations = 0, debug_stats = None)
+
+   Container class for executionStats returned by analyze mode.
+
+
+   .. py:attribute:: results_returned
+      :value: 0
+
+
+
+   .. py:attribute:: execution_duration
+      :value: 0.0
+
+
+
+   .. py:attribute:: read_operations
+      :value: 0
+
+
+
+   .. py:attribute:: debug_stats
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: _parse_execution_duration(execution_duration)
+      :staticmethod:
+
+
+      Convert execution_duration from str (e.g. "0.01785s") to float.
+
+
+
+   .. py:method:: _parse_debug_stats(debug_stats)
+      :staticmethod:
+
+
+      Convert debug_stats values from str to int.
+
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: ExplainMetrics(plan_summary = None, execution_stats = None)
+
+   Container class for explainMetrics returned by query explain.
+
+
+   .. py:attribute:: plan_summary
+      :value: None
+
+
+
+   .. py:attribute:: execution_stats
+      :value: None
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+

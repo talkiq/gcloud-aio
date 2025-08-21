@@ -14,6 +14,7 @@ Classes
    datastore.query.GQLQuery
    datastore.query.GQLCursor
    datastore.query.QueryResultBatch
+   datastore.query.QueryResult
 
 
 Module Contents
@@ -208,5 +209,47 @@ Module Contents
 
 
    .. py:method:: to_repr()
+
+
+.. py:class:: QueryResult(result_batch = None, explain_metrics = None)
+
+   Container class for results returned by a query operation (with or without
+   explain metrics).
+
+
+   .. py:attribute:: query_result_batch_kind
+
+
+   .. py:attribute:: result_batch
+      :value: None
+
+
+
+   .. py:attribute:: explain_metrics
+      :value: None
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: get_explain_metrics()
+
+
+   .. py:method:: get_plan_summary()
+
+
+   .. py:method:: get_execution_stats()
 
 

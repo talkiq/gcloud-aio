@@ -78,13 +78,17 @@ datastore
        query = Query(kind='the_meaning_of_life',
                      query_filter=Filter(property_filter),
                      order=property_order)
-       results = await ds.runQuery(query, session=s)
+       results = await ds.runQuery(query, session=s)  # QueryResult
+       batch = results.result_batch  # QueryResultBatch
+       metrics = results.explain_metrics  # ExplainMetrics
 
        # alternatively, query support using GQL
        gql_query = GQLQuery(
            'SELECT * FROM meaning_of_life WHERE answer = @answer',
            named_bindings={'answer': 42})
-       results = await ds.runQuery(gql_query, session=s)
+       results = await ds.runQuery(gql_query, session=s)  # QueryResult
+       batch = results.result_batch  # QueryResultBatch
+       metrics = results.explain_metrics  # ExplainMetrics
 
        # close the HTTP session
        # Note that other options include:
@@ -205,6 +209,7 @@ Submodules
    /autoapi/datastore/projection/index
    /autoapi/datastore/property_order/index
    /autoapi/datastore/query/index
+   /autoapi/datastore/query_explain/index
    /autoapi/datastore/transaction_options/index
    /autoapi/datastore/value/index
 
@@ -248,7 +253,13 @@ Classes
    datastore.GQLCursor
    datastore.GQLQuery
    datastore.Query
+   datastore.QueryResult
    datastore.QueryResultBatch
+   datastore.ExecutionStats
+   datastore.ExplainMetrics
+   datastore.ExplainOptions
+   datastore.IndexDefinition
+   datastore.PlanSummary
    datastore.ReadOnly
    datastore.ReadWrite
    datastore.TransactionOptions
@@ -828,6 +839,9 @@ Package Contents
    .. py:attribute:: query_result_batch_kind
 
 
+   .. py:attribute:: query_result_kind
+
+
    .. py:attribute:: value_kind
 
 
@@ -920,7 +934,7 @@ Package Contents
 
 
 
-   .. py:method:: runQuery(query, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
+   .. py:method:: runQuery(query, explain_options = None, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
       :async:
 
 
@@ -1408,6 +1422,48 @@ Package Contents
    .. py:method:: to_repr()
 
 
+.. py:class:: QueryResult(result_batch = None, explain_metrics = None)
+
+   Container class for results returned by a query operation (with or without
+   explain metrics).
+
+
+   .. py:attribute:: query_result_batch_kind
+
+
+   .. py:attribute:: result_batch
+      :value: None
+
+
+
+   .. py:attribute:: explain_metrics
+      :value: None
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: get_explain_metrics()
+
+
+   .. py:method:: get_plan_summary()
+
+
+   .. py:method:: get_execution_stats()
+
+
 .. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
 
    .. py:attribute:: entity_result_kind
@@ -1446,6 +1502,181 @@ Package Contents
 
 
    .. py:method:: __repr__()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: ExecutionStats(results_returned = 0, execution_duration = 0.0, read_operations = 0, debug_stats = None)
+
+   Container class for executionStats returned by analyze mode.
+
+
+   .. py:attribute:: results_returned
+      :value: 0
+
+
+
+   .. py:attribute:: execution_duration
+      :value: 0.0
+
+
+
+   .. py:attribute:: read_operations
+      :value: 0
+
+
+
+   .. py:attribute:: debug_stats
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: _parse_execution_duration(execution_duration)
+      :staticmethod:
+
+
+      Convert execution_duration from str (e.g. "0.01785s") to float.
+
+
+
+   .. py:method:: _parse_debug_stats(debug_stats)
+      :staticmethod:
+
+
+      Convert debug_stats values from str to int.
+
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: ExplainMetrics(plan_summary = None, execution_stats = None)
+
+   Container class for explainMetrics returned by query explain.
+
+
+   .. py:attribute:: plan_summary
+      :value: None
+
+
+
+   .. py:attribute:: execution_stats
+      :value: None
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: ExplainOptions(*args, **kwds)
+
+   Bases: :py:obj:`enum.Enum`
+
+
+   Options for query explain operations.
+
+
+   .. py:attribute:: DEFAULT
+      :value: False
+
+
+
+   .. py:attribute:: ANALYZE
+      :value: True
+
+
+
+   .. py:method:: to_repr()
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+.. py:class:: IndexDefinition(query_scope = '', properties = None)
+
+   Represents an index that would be used in PlanSummary.
+
+   Raw:
+       [
+         {
+           "query_scope": "Collection group",
+           "properties": "(done ASC, priority DESC, __name__ ASC)"
+         }
+       ]
+
+   query_scope: "Collection group"
+   properties: [("done", "ASC"), ("priority", "DESC"), ("__name__", "ASC")]
+
+
+   .. py:attribute:: _PROPERTIES_PATTERN
+
+
+   .. py:attribute:: query_scope
+      :value: ''
+
+
+
+   .. py:attribute:: properties
+      :value: []
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
+
+
+   .. py:method:: from_repr(data)
+      :classmethod:
+
+
+
+   .. py:method:: to_repr()
+
+
+.. py:class:: PlanSummary(indexes_used = None)
+
+   Container class for planSummary returned by query explain.
+
+
+   .. py:attribute:: indexes_used
+      :value: []
+
+
+
+   .. py:method:: __repr__()
+
+
+   .. py:method:: __eq__(other)
 
 
    .. py:method:: from_repr(data)
