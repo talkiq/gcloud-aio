@@ -9,6 +9,9 @@ from .entity import EntityResult
 from .filter import Filter
 from .projection import Projection
 from .property_order import PropertyOrder
+from .query_explain import ExecutionStats
+from .query_explain import ExplainMetrics
+from .query_explain import PlanSummary
 from .value import Value
 
 
@@ -269,3 +272,59 @@ class QueryResultBatch:
         if self.read_time:
             data['readTime'] = self.read_time
         return data
+
+
+class QueryResult:
+    """
+    Container class for results returned by a query operation (with or without
+    explain metrics).
+    """
+    query_result_batch_kind = QueryResultBatch
+
+    def __init__(self, result_batch: Optional[QueryResultBatch] = None,
+                 explain_metrics: Optional[ExplainMetrics] = None):
+        self.result_batch = result_batch
+        self.explain_metrics = explain_metrics
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, QueryResult):
+            return False
+        return (self.result_batch == other.result_batch
+                and self.explain_metrics == other.explain_metrics)
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
+        result_batch = None
+        explain_metrics = None
+
+        if 'batch' in data:
+            result_batch = cls.query_result_batch_kind.from_repr(data['batch'])
+        if 'explainMetrics' in data:
+            explain_metrics = ExplainMetrics.from_repr(data['explainMetrics'])
+
+        return cls(result_batch=result_batch, explain_metrics=explain_metrics)
+
+    def to_repr(self) -> Dict[str, Any]:
+        result = {}
+        if self.result_batch:
+            result['batch'] = self.result_batch.to_repr()
+        if self.explain_metrics:
+            result['explainMetrics'] = self.explain_metrics.to_repr()
+
+        return result
+
+    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
+        return self.explain_metrics
+
+    def get_plan_summary(self) -> Optional[PlanSummary]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.plan_summary
+        return None
+
+    def get_execution_stats(self) -> Optional[ExecutionStats]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.execution_stats
+        return None
