@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 import pytest
@@ -657,3 +658,95 @@ async def test_analyze_query_explain(
         finally:
             for key in test_entities:
                 await ds.delete(key, session=s)
+
+
+@pytest.mark.asyncio
+async def test_lookup_with_read_time(
+        creds: str, kind: str, project: str) -> None:
+    test_value = f'test_read_time_{uuid.uuid4()}'
+    key = Key(project, [PathElement(kind, name=test_value)])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # insert and read without readTime
+        time_before_insert = datetime.datetime.now(datetime.timezone.utc)
+        await ds.insert(key,
+                        {'value': test_value, 'timestamp': 'after'},
+                        session=s)
+
+        result = await ds.lookup([key], session=s)
+        assert len(result['found']) == 1
+        assert result['found'][0].entity.properties['value'] == test_value
+        assert isinstance(result['readTime'], str)
+
+        # lookup entity version w/ readTime
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+        current_time_str = current_time.isoformat().replace('+00:00', 'Z')
+        result_with_datetime = await ds.lookup([key],
+                                               read_time=current_time_str,
+                                               session=s)
+        assert len(result_with_datetime.get('found', [])) == 1
+        assert isinstance(result_with_datetime['readTime'], str)
+
+        # lookup entity before insertion timestamp
+        past_time = time_before_insert - datetime.timedelta(seconds=10)
+        past_time_str = past_time.isoformat().replace('+00:00', 'Z')
+        result_past = await ds.lookup([key],
+                                      read_time=past_time_str,
+                                      session=s)
+        assert len(result_past.get('found', [])) == 0
+        assert len(result_past.get('missing', [])) == 1
+
+        await ds.delete(key, session=s)
+
+
+# pylint: disable=too-many-locals
+@pytest.mark.asyncio
+async def test_run_query_with_read_time(
+        creds: str, kind: str, project: str) -> None:
+    test_value = f'read_time_test_{uuid.uuid4()}'
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        before_insert = datetime.datetime.now(datetime.timezone.utc)
+        key = Key(project, [PathElement(kind, name=test_value)])
+        await ds.insert(key, {'test_field': test_value}, session=s)
+
+        # insert and query for entity
+        query = Query(
+            kind=kind,
+            query_filter=Filter(PropertyFilter(
+                prop='test_field',
+                operator=PropertyFilterOperator.EQUAL,
+                value=Value(test_value)
+            ))
+        )
+        result_current = await ds.runQuery(query, session=s)
+
+        assert len(result_current.result_batch.entity_results) == 1
+        assert result_current.result_batch.entity_results[0].entity.properties[
+            'test_field'] == test_value
+
+        # query w/ readTime
+        current = datetime.datetime.now(datetime.timezone.utc)
+        current_str = current.isoformat().replace('+00:00', 'Z')
+        result_with_datetime = await ds.runQuery(query,
+                                                 read_time=current_str,
+                                                 session=s)
+        assert len(result_with_datetime.result_batch.entity_results) == 1
+
+        # verify readTime != empty and is a string
+        assert isinstance(result_with_datetime.result_batch.read_time, str)
+        assert result_with_datetime.result_batch.read_time is not None
+
+        # query w/ readTime before insertion time
+        past_time = before_insert - datetime.timedelta(seconds=10)
+        past_time_str = past_time.isoformat().replace('+00:00', 'Z')
+        result_past = await ds.runQuery(query,
+                                        read_time=past_time_str,
+                                        session=s)
+        assert len(result_past.result_batch.entity_results) == 0
+
+        await ds.delete(key, session=s)

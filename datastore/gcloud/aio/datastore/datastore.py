@@ -70,6 +70,8 @@ class Datastore:
     _api_root: str
     _api_is_dev: bool
 
+    Timeout = Union[int, float]
+
     def __init__(
             self, project: Optional[str] = None,
             service_file: Optional[Union[str, IO[AnyStr]]] = None,
@@ -159,7 +161,7 @@ class Datastore:
     async def allocateIds(
         self, keys: List[Key],
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> List[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
@@ -187,7 +189,7 @@ class Datastore:
     # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(
         self, session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
@@ -210,7 +212,7 @@ class Datastore:
         transaction: Optional[str] = None,
         mode: Mode = Mode.TRANSACTIONAL,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> Dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
@@ -249,7 +251,7 @@ class Datastore:
         namespaces: Optional[List[str]] = None,
         labels: Optional[Dict[str, str]] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
@@ -282,7 +284,7 @@ class Datastore:
     async def get_datastore_operation(
         self, name: str,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> DatastoreOperation:
         url = f'{self._api_root}/{name}'
 
@@ -297,19 +299,21 @@ class Datastore:
 
         return self.datastore_operation_kind.from_repr(data)
 
+    # pylint: disable=too-many-locals
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(
             self, keys: List[Key],
             transaction: Optional[str] = None,
             newTransaction: Optional[TransactionOptions] = None,
             consistency: Consistency = Consistency.STRONG,
-            session: Optional[Session] = None, timeout: int = 10,
+            read_time: Optional[str] = None,
+            session: Optional[Session] = None, timeout: Timeout = 10,
     ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
 
         read_options = self._build_read_options(
-            consistency, newTransaction, transaction)
+            consistency, newTransaction, transaction, read_time)
 
         payload = json.dumps({
             'keys': [k.to_repr() for k in keys],
@@ -350,13 +354,18 @@ class Datastore:
         if 'transaction' in data:
             new_transaction: str = data['transaction']
             result['transaction'] = new_transaction
+        if 'readTime' in data:
+            read_time: str = data['readTime']
+            result['readTime'] = read_time
         return result
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
-                            transaction: Optional[str]) -> Dict[str, Any]:
+                            transaction: Optional[str],
+                            read_time: Optional[str],
+                            ) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         if transaction:
             return {'transaction': transaction}
@@ -364,13 +373,16 @@ class Datastore:
         if newTransaction:
             return {'newTransaction': newTransaction.to_repr()}
 
+        if read_time:
+            return {'readTime': read_time}
+
         return {'readConsistency': consistency.value}
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(
         self, keys: List[Key], database_id: str = '',
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
@@ -393,7 +405,7 @@ class Datastore:
     async def rollback(
         self, transaction: str,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
@@ -417,18 +429,18 @@ class Datastore:
         self, query: BaseQuery,
         explain_options: Optional[ExplainOptions] = None,
         transaction: Optional[str] = None,
+        newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
+        read_time: Optional[str] = None,
         session: Optional[Session] = None,
-        timeout: int = 10,
+        timeout: Timeout = 10,
     ) -> QueryResult:
 
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
-        if transaction:
-            options = {'transaction': transaction}
-        else:
-            options = {'readConsistency': consistency.value}
+        read_options = self._build_read_options(
+            consistency, newTransaction, transaction, read_time)
 
         payload_dict = {
             'partitionId': {
@@ -436,7 +448,7 @@ class Datastore:
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
-            'readOptions': options,
+            'readOptions': read_options,
         }
 
         if explain_options:
