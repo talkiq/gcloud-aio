@@ -24,6 +24,7 @@ from .mutation import MutationResult
 from .query import BaseQuery
 from .query import QueryResult
 from .query import QueryResultBatch
+from .query_explain import ExplainOptions
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -62,6 +63,7 @@ class Datastore:
     key_kind = Key
     mutation_result_kind = MutationResult
     query_result_batch_kind = QueryResultBatch
+    query_result_kind = QueryResult
     value_kind = Value
 
     _project: Optional[str]
@@ -350,13 +352,12 @@ class Datastore:
             result['transaction'] = new_transaction
         return result
 
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
     def _build_read_options(self,
                             consistency: Consistency,
                             newTransaction: Optional[TransactionOptions],
                             transaction: Optional[str]) -> Dict[str, Any]:
         # TODO: expose ReadOptions directly to users
-        # See
-        # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
         if transaction:
             return {'transaction': transaction}
 
@@ -411,29 +412,36 @@ class Datastore:
         await s.post(url, data=payload, headers=headers, timeout=timeout)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
+    # pylint: disable=too-many-locals
     async def runQuery(
         self, query: BaseQuery,
+        explain_options: Optional[ExplainOptions] = None,
         transaction: Optional[str] = None,
         newTransaction: Optional[TransactionOptions] = None,
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
         timeout: int = 10,
     ) -> QueryResult:
-        # pylint: disable=too-many-locals
+
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
 
         read_options = self._build_read_options(
             consistency, newTransaction, transaction)
 
-        payload = json.dumps({
+        payload_dict = {
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
             },
             query.json_key: query.to_repr(),
             'readOptions': read_options,
-        }).encode('utf-8')
+        }
+
+        if explain_options:
+            payload_dict['explainOptions'] = explain_options.to_repr()
+
+        payload = json.dumps(payload_dict).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -448,11 +456,7 @@ class Datastore:
         )
 
         data: Dict[str, Any] = await resp.json()
-
-        batch = self.query_result_batch_kind.from_repr(data['batch'])
-        transaction_id = data.get('transaction')
-
-        return QueryResult(batch, transaction_id)
+        return self.query_result_kind.from_repr(data)
 
     async def delete(
         self, key: Key,

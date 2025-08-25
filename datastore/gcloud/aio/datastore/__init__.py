@@ -72,13 +72,17 @@ started:
     query = Query(kind='the_meaning_of_life',
                   query_filter=Filter(property_filter),
                   order=property_order)
-    results = await ds.runQuery(query, session=s)
+    results = await ds.runQuery(query, session=s)  # QueryResult
+    batch = results.result_batch  # QueryResultBatch
+    metrics = results.explain_metrics  # ExplainMetrics
 
     # alternatively, query support using GQL
     gql_query = GQLQuery(
         'SELECT * FROM meaning_of_life WHERE answer = @answer',
         named_bindings={'answer': 42})
-    results = await ds.runQuery(gql_query, session=s)
+    results = await ds.runQuery(gql_query, session=s)  # QueryResult
+    batch = results.result_batch  # QueryResultBatch
+    metrics = results.explain_metrics  # ExplainMetrics
 
     # close the HTTP session
     # Note that other options include:
@@ -209,6 +213,11 @@ from .query import GQLQuery
 from .query import Query
 from .query import QueryResult
 from .query import QueryResultBatch
+from .query_explain import ExecutionStats
+from .query_explain import ExplainMetrics
+from .query_explain import ExplainOptions
+from .query_explain import IndexDefinition
+from .query_explain import PlanSummary
 from .transaction_options import ReadOnly
 from .transaction_options import ReadWrite
 from .transaction_options import TransactionOptions
@@ -226,9 +235,13 @@ __all__ = [
     'Direction',
     'Entity',
     'EntityResult',
+    'ExecutionStats',
+    'ExplainMetrics',
+    'ExplainOptions',
     'Filter',
     'GQLCursor',
     'GQLQuery',
+    'IndexDefinition',
     'Key',
     'LatLng',
     'Mode',
@@ -236,15 +249,16 @@ __all__ = [
     'MutationResult',
     'Operation',
     'PathElement',
+    'PlanSummary',
     'Projection',
     'PropertyFilter',
     'PropertyFilterOperator',
     'PropertyOrder',
     'Query',
+    'QueryResult',
     'QueryResultBatch',
     'ReadOnly',
     'ReadWrite',
-    'QueryResult',
     'ResultType',
     'SCOPES',
     'TransactionOptions',
