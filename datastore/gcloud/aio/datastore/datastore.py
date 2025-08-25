@@ -469,6 +469,7 @@ class Datastore:
         )
 
         data: Dict[str, Any] = await resp.json()
+
         return self.query_result_kind.from_repr(data)
 
     async def delete(
