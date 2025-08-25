@@ -30,8 +30,7 @@ class BaseSession:
     __metaclass__ = ABCMeta
 
     def __init__(
-        self, session: Optional[Session] = None,
-        timeout: float = 10,
+        self, session: Optional[Session] = None, timeout: float = 10,
         verify_ssl: bool = True,
     ) -> None:
         self._shared_session = bool(session)
