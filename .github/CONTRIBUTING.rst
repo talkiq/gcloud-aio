@@ -24,15 +24,6 @@ And run tests with:
     poetry run pytest tests/unit  # unit tests only
     poetry run pytest tests/integration  # integration tests only
 
-To run the tests that require authentication with Google, you should set the
-GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your credentials
-JSON file. If you are using the ``gcloud auth application-default login`` command,
-they can be found in ``~/.config/gcloud/application_default_credentials.json``.
-
-.. code-block:: console
-
-    export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.config/gcloud/application_default_credentials.json"
-
 ``aio`` and ``rest``
 ~~~~~~~~~~~~~~~~~~~~
 
