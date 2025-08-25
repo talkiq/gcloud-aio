@@ -22,8 +22,8 @@ from .entity import EntityResult
 from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
+from .query import QueryResult
 from .query import QueryResultBatch
-from .query import RunQueryResult
 from .transaction_options import TransactionOptions
 from .value import Value
 
@@ -418,7 +418,7 @@ class Datastore:
         consistency: Consistency = Consistency.EVENTUAL,
         session: Optional[Session] = None,
         timeout: int = 10,
-    ) -> RunQueryResult:
+    ) -> QueryResult:
         # pylint: disable=too-many-locals
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
@@ -452,7 +452,7 @@ class Datastore:
         batch = self.query_result_batch_kind.from_repr(data['batch'])
         transaction_id = data.get('transaction')
 
-        return RunQueryResult(batch, transaction_id)
+        return QueryResult(batch, transaction_id)
 
     async def delete(
         self, key: Key,

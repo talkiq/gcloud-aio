@@ -207,8 +207,8 @@ from .property_order import PropertyOrder
 from .query import GQLCursor
 from .query import GQLQuery
 from .query import Query
+from .query import QueryResult
 from .query import QueryResultBatch
-from .query import RunQueryResult
 from .transaction_options import ReadOnly
 from .transaction_options import ReadWrite
 from .transaction_options import TransactionOptions
@@ -244,7 +244,7 @@ __all__ = [
     'QueryResultBatch',
     'ReadOnly',
     'ReadWrite',
-    'RunQueryResult',
+    'QueryResult',
     'ResultType',
     'SCOPES',
     'TransactionOptions',

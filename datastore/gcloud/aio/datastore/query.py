@@ -263,14 +263,14 @@ class QueryResultBatch:
         return data
 
 
-class RunQueryResult:
+class QueryResult:
     def __init__(self, batch: QueryResultBatch,
                  transaction: Optional[str] = None):
         self.batch = batch
         self.transaction = transaction
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, RunQueryResult):
+        if not isinstance(other, QueryResult):
             return False
 
         return bool(
@@ -282,7 +282,7 @@ class RunQueryResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'RunQueryResult':
+    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
         batch = QueryResultBatch.from_repr(data['batch'])
         transaction = data.get('transaction')
         return cls(batch, transaction)
