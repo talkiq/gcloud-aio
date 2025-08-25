@@ -78,6 +78,9 @@ Module Contents
       :type:  bool
 
 
+   .. py:attribute:: Timeout
+
+
    .. py:attribute:: namespace
       :value: ''
 
@@ -134,7 +137,7 @@ Module Contents
 
 
 
-   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, session = None, timeout = 10)
+   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, read_time = None, session = None, timeout = 10)
       :async:
 
 
@@ -142,7 +145,7 @@ Module Contents
    .. py:method:: _build_lookup_result(data)
 
 
-   .. py:method:: _build_read_options(consistency, newTransaction, transaction)
+   .. py:method:: _build_read_options(consistency, newTransaction, transaction, read_time)
 
 
    .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10)
@@ -155,7 +158,7 @@ Module Contents
 
 
 
-   .. py:method:: runQuery(query, explain_options = None, transaction = None, consistency = Consistency.EVENTUAL, session = None, timeout = 10)
+   .. py:method:: runQuery(query, explain_options = None, transaction = None, newTransaction = None, consistency = Consistency.EVENTUAL, read_time = None, session = None, timeout = 10)
       :async:
 
 

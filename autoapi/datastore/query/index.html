@@ -353,7 +353,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query.QueryResultBatch">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query.</span></span><span class="sig-name descname"><span class="pre">QueryResultBatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ResultType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">more_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">MoreResultsType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_cursor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResultBatch" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query.</span></span><span class="sig-name descname"><span class="pre">QueryResultBatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ResultType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">more_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">MoreResultsType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_cursor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResultBatch" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -364,6 +364,7 @@
 <li><p><strong>skipped_cursor</strong> (<em>str</em>)</p></li>
 <li><p><strong>skipped_results</strong> (<em>int</em>)</p></li>
 <li><p><strong>snapshot_version</strong> (<em>str</em>)</p></li>
+<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -405,6 +406,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query.QueryResultBatch.snapshot_version">
 <span class="sig-name descname"><span class="pre">snapshot_version</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#datastore.query.QueryResultBatch.snapshot_version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.query.QueryResultBatch.read_time">
+<span class="sig-name descname"><span class="pre">read_time</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.query.QueryResultBatch.read_time" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

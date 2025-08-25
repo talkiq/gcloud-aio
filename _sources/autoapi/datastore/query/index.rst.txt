@@ -163,7 +163,7 @@ Module Contents
    .. py:method:: __eq__(other)
 
 
-.. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '')
+.. py:class:: QueryResultBatch(end_cursor, entity_result_type = ResultType.UNSPECIFIED, entity_results = None, more_results = MoreResultsType.UNSPECIFIED, skipped_cursor = '', skipped_results = 0, snapshot_version = '', read_time = None)
 
    .. py:attribute:: entity_result_kind
 
@@ -194,6 +194,11 @@ Module Contents
 
    .. py:attribute:: snapshot_version
       :value: ''
+
+
+
+   .. py:attribute:: read_time
+      :value: None
 
 
 

@@ -1055,6 +1055,11 @@ attributes – see the documentation for details.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.Datastore.Timeout">
+<span class="sig-name descname"><span class="pre">Timeout</span></span><a class="headerlink" href="#datastore.Datastore.Timeout" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.Datastore.namespace">
 <span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#datastore.Datastore.namespace" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1131,7 +1136,7 @@ attributes – see the documentation for details.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>keys</strong> (<em>List</em><em>[</em><a class="reference internal" href="key/index.html#datastore.key.Key" title="datastore.key.Key"><em>datastore.key.Key</em></a><em>]</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1147,7 +1152,7 @@ attributes – see the documentation for details.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1166,7 +1171,7 @@ attributes – see the documentation for details.</p>
 <li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>mode</strong> (<a class="reference internal" href="constants/index.html#datastore.constants.Mode" title="datastore.constants.Mode"><em>datastore.constants.Mode</em></a>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1186,7 +1191,7 @@ attributes – see the documentation for details.</p>
 <li><p><strong>namespaces</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>labels</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1203,7 +1208,7 @@ attributes – see the documentation for details.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1214,7 +1219,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.Datastore.lookup">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newTransaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consistency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Consistency.STRONG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore.lookup" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newTransaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consistency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Consistency.STRONG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore.lookup" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1222,8 +1227,9 @@ attributes – see the documentation for details.</p>
 <li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>newTransaction</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="transaction_options/index.html#datastore.transaction_options.TransactionOptions" title="datastore.transaction_options.TransactionOptions"><em>datastore.transaction_options.TransactionOptions</em></a><em>]</em>)</p></li>
 <li><p><strong>consistency</strong> (<a class="reference internal" href="constants/index.html#datastore.constants.Consistency" title="datastore.constants.Consistency"><em>datastore.constants.Consistency</em></a>)</p></li>
+<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1247,13 +1253,14 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.Datastore._build_read_options">
-<span class="sig-name descname"><span class="pre">_build_read_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consistency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newTransaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore._build_read_options" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_build_read_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consistency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newTransaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore._build_read_options" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>consistency</strong> (<a class="reference internal" href="constants/index.html#datastore.constants.Consistency" title="datastore.constants.Consistency"><em>datastore.constants.Consistency</em></a>)</p></li>
 <li><p><strong>newTransaction</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="transaction_options/index.html#datastore.transaction_options.TransactionOptions" title="datastore.transaction_options.TransactionOptions"><em>datastore.transaction_options.TransactionOptions</em></a><em>]</em>)</p></li>
 <li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1271,7 +1278,7 @@ attributes – see the documentation for details.</p>
 <li><p><strong>keys</strong> (<em>List</em><em>[</em><a class="reference internal" href="key/index.html#datastore.key.Key" title="datastore.key.Key"><em>datastore.key.Key</em></a><em>]</em>)</p></li>
 <li><p><strong>database_id</strong> (<em>str</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1288,7 +1295,7 @@ attributes – see the documentation for details.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>transaction</strong> (<em>str</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1299,16 +1306,18 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.Datastore.runQuery">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consistency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Consistency.EVENTUAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore.runQuery" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newTransaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consistency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Consistency.EVENTUAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.Datastore.runQuery" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query</strong> (<a class="reference internal" href="query/index.html#datastore.query.BaseQuery" title="datastore.query.BaseQuery"><em>datastore.query.BaseQuery</em></a>)</p></li>
 <li><p><strong>explain_options</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="query_explain/index.html#datastore.query_explain.ExplainOptions" title="datastore.query_explain.ExplainOptions"><em>datastore.query_explain.ExplainOptions</em></a><em>]</em>)</p></li>
 <li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>newTransaction</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="transaction_options/index.html#datastore.transaction_options.TransactionOptions" title="datastore.transaction_options.TransactionOptions"><em>datastore.transaction_options.TransactionOptions</em></a><em>]</em>)</p></li>
 <li><p><strong>consistency</strong> (<a class="reference internal" href="constants/index.html#datastore.constants.Consistency" title="datastore.constants.Consistency"><em>datastore.constants.Consistency</em></a>)</p></li>
+<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>)</p></li>
+<li><p><strong>timeout</strong> (<em>Timeout</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2652,7 +2661,7 @@ explain metrics).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.QueryResultBatch">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.</span></span><span class="sig-name descname"><span class="pre">QueryResultBatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ResultType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">more_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">MoreResultsType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_cursor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.QueryResultBatch" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.</span></span><span class="sig-name descname"><span class="pre">QueryResultBatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_result_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ResultType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">more_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">MoreResultsType.UNSPECIFIED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_cursor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipped_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.QueryResultBatch" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2663,6 +2672,7 @@ explain metrics).</p>
 <li><p><strong>skipped_cursor</strong> (<em>str</em>)</p></li>
 <li><p><strong>skipped_results</strong> (<em>int</em>)</p></li>
 <li><p><strong>snapshot_version</strong> (<em>str</em>)</p></li>
+<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -2704,6 +2714,11 @@ explain metrics).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.QueryResultBatch.snapshot_version">
 <span class="sig-name descname"><span class="pre">snapshot_version</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#datastore.QueryResultBatch.snapshot_version" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.QueryResultBatch.read_time">
+<span class="sig-name descname"><span class="pre">read_time</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.QueryResultBatch.read_time" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
