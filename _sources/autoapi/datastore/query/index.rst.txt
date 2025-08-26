@@ -216,7 +216,7 @@ Module Contents
    .. py:method:: to_repr()
 
 
-.. py:class:: QueryResult(result_batch = None, explain_metrics = None)
+.. py:class:: QueryResult(result_batch = None, explain_metrics = None, transaction = None)
 
    Container class for results returned by a query operation (with or without
    explain metrics).
@@ -231,6 +231,11 @@ Module Contents
 
 
    .. py:attribute:: explain_metrics
+      :value: None
+
+
+
+   .. py:attribute:: transaction
       :value: None
 
 

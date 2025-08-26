@@ -2555,7 +2555,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.QueryResult">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.</span></span><span class="sig-name descname"><span class="pre">QueryResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.QueryResult" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.</span></span><span class="sig-name descname"><span class="pre">QueryResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explain_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.QueryResult" title="Link to this definition">¶</a></dt>
 <dd><p>Container class for results returned by a query operation (with or without
 explain metrics).</p>
 <dl class="field-list simple">
@@ -2563,6 +2563,7 @@ explain metrics).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>result_batch</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#datastore.QueryResultBatch" title="datastore.QueryResultBatch"><em>QueryResultBatch</em></a><em>]</em>)</p></li>
 <li><p><strong>explain_metrics</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics"><em>datastore.query_explain.ExplainMetrics</em></a><em>]</em>)</p></li>
+<li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -2579,6 +2580,11 @@ explain metrics).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.QueryResult.explain_metrics">
 <span class="sig-name descname"><span class="pre">explain_metrics</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.QueryResult.explain_metrics" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datastore.QueryResult.transaction">
+<span class="sig-name descname"><span class="pre">transaction</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.QueryResult.transaction" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
