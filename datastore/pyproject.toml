@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-datastore"
-version = "9.0.0"
+version = "9.1.0"
 description = "Python Client for Google Cloud Datastore"
 readme = "README.rst"
 
