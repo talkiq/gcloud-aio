@@ -135,6 +135,53 @@ async def test_start_transaction_on_lookup(creds: str,
         actual = await ds.lookup([key], session=s)
         assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
 
+        # Clean up test data
+        await ds.delete(key, s)
+
+
+@pytest.mark.asyncio
+async def test_start_transaction_on_query(
+        creds: str, kind: str, project: str,
+) -> None:
+    key = Key(project, [PathElement(kind, name=f'test_record_{uuid.uuid4()}')])
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+
+        # Test query with newTransaction parameter
+        property_filter = PropertyFilter(
+            prop='animal',
+            operator=PropertyFilterOperator.EQUAL,
+            value=Value('three-toed sloth'),
+        )
+        query = Query(kind=kind, query_filter=Filter(property_filter))
+
+        # Use newTransaction parameter
+        options = TransactionOptions(ReadWrite())
+        result = await ds.runQuery(query, newTransaction=options, session=s)
+        assert result.transaction is not None and result.transaction
+
+        mutations = [
+            ds.make_mutation(
+                Operation.INSERT, key,
+                properties={'animal': 'three-toed sloth'},
+            ),
+            ds.make_mutation(
+                Operation.UPDATE, key,
+                properties={'animal': 'aardvark'},
+            ),
+        ]
+        await ds.commit(
+            mutations,
+            transaction=result.transaction,
+            session=s)
+
+        actual = await ds.lookup([key], session=s)
+        assert actual['found'][0].entity.properties == {'animal': 'aardvark'}
+
+        # Clean up test data
+        await ds.delete(key, s)
+
 
 @pytest.mark.asyncio
 async def test_transaction(creds: str, kind: str, project: str) -> None:

@@ -282,9 +282,11 @@ class QueryResult:
     query_result_batch_kind = QueryResultBatch
 
     def __init__(self, result_batch: Optional[QueryResultBatch] = None,
-                 explain_metrics: Optional[ExplainMetrics] = None):
+                 explain_metrics: Optional[ExplainMetrics] = None,
+                 transaction: Optional[str] = None):
         self.result_batch = result_batch
         self.explain_metrics = explain_metrics
+        self.transaction = transaction
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -293,27 +295,33 @@ class QueryResult:
         if not isinstance(other, QueryResult):
             return False
         return (self.result_batch == other.result_batch
-                and self.explain_metrics == other.explain_metrics)
+                and self.explain_metrics == other.explain_metrics
+                and self.transaction == other.transaction)
 
     @classmethod
     def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
         result_batch = None
         explain_metrics = None
+        transaction = None
 
         if 'batch' in data:
             result_batch = cls.query_result_batch_kind.from_repr(data['batch'])
         if 'explainMetrics' in data:
             explain_metrics = ExplainMetrics.from_repr(data['explainMetrics'])
+        if 'transaction' in data:
+            transaction = data['transaction']
 
-        return cls(result_batch=result_batch, explain_metrics=explain_metrics)
+        return cls(result_batch=result_batch,
+                   explain_metrics=explain_metrics, transaction=transaction)
 
     def to_repr(self) -> Dict[str, Any]:
-        result = {}
+        result: Dict[str, Any] = {}
         if self.result_batch:
             result['batch'] = self.result_batch.to_repr()
         if self.explain_metrics:
             result['explainMetrics'] = self.explain_metrics.to_repr()
-
+        if self.transaction:
+            result['transaction'] = self.transaction
         return result
 
     def get_explain_metrics(self) -> Optional[ExplainMetrics]:
