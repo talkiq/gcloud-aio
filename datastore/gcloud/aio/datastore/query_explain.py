@@ -40,10 +40,13 @@ class IndexDefinition:
 
     _PROPERTIES_PATTERN = re.compile(
         r'\s*([^\s,()]+)\s+(ASC|DESC)\s*',
-        flags=re.IGNORECASE)
+        flags=re.IGNORECASE,
+    )
 
-    def __init__(self, query_scope: str = '',
-                 properties: Optional[List[Tuple[str, str]]] = None):
+    def __init__(
+            self, query_scope: str = '',
+            properties: Optional[List[Tuple[str, str]]] = None,
+    ):
         self.query_scope = query_scope
         self.properties = properties or []
 
@@ -106,10 +109,11 @@ class PlanSummary:
 class ExecutionStats:
     """Container class for executionStats returned by analyze mode."""
 
-    def __init__(self, results_returned: int = 0,
-                 execution_duration: float = 0.0,
-                 read_operations: int = 0,
-                 debug_stats: Optional[Dict[str, Any]] = None):
+    def __init__(
+            self, results_returned: int = 0, execution_duration: float = 0.0,
+            read_operations: int = 0,
+            debug_stats: Optional[Dict[str, Any]] = None,
+    ):
         self.results_returned = results_returned
         self.execution_duration = execution_duration
         self.read_operations = read_operations
@@ -128,13 +132,17 @@ class ExecutionStats:
 
     @staticmethod
     def _parse_execution_duration(
-            execution_duration: Optional[Union[str, float]]) -> float:
+            execution_duration: Optional[Union[str, float]],
+    ) -> float:
         """Convert execution_duration from str (e.g. "0.01785s") to float."""
         if isinstance(execution_duration, float):
             # avoid parsing if already a float
             return execution_duration
-        if not isinstance(execution_duration,
-                          str) or not execution_duration.endswith('s'):
+
+        if (
+                not isinstance(execution_duration, str)
+                or not execution_duration.endswith('s')
+        ):
             raise ValueError(f'executionDuration must be a str ending with '
                              f'"s", got: {execution_duration}.')
         return float(execution_duration.rstrip('s'))
@@ -174,8 +182,10 @@ class ExecutionStats:
 class ExplainMetrics:
     """Container class for explainMetrics returned by query explain."""
 
-    def __init__(self, plan_summary: Optional[PlanSummary] = None,
-                 execution_stats: Optional[ExecutionStats] = None):
+    def __init__(
+            self, plan_summary: Optional[PlanSummary] = None,
+            execution_stats: Optional[ExecutionStats] = None,
+    ):
         self.plan_summary = plan_summary
         self.execution_stats = execution_stats
 

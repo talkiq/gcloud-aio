@@ -281,9 +281,11 @@ class QueryResult:
     """
     query_result_batch_kind = QueryResultBatch
 
-    def __init__(self, result_batch: Optional[QueryResultBatch] = None,
-                 explain_metrics: Optional[ExplainMetrics] = None,
-                 transaction: Optional[str] = None):
+    def __init__(
+            self, result_batch: Optional[QueryResultBatch] = None,
+            explain_metrics: Optional[ExplainMetrics] = None,
+            transaction: Optional[str] = None,
+    ):
         self.result_batch = result_batch
         self.explain_metrics = explain_metrics
         self.transaction = transaction
