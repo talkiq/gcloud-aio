@@ -857,9 +857,6 @@ Package Contents
       :type:  bool
 
 
-   .. py:attribute:: Timeout
-
-
    .. py:attribute:: namespace
       :value: ''
 
@@ -891,32 +888,32 @@ Package Contents
 
 
 
-   .. py:method:: allocateIds(keys, session = None, timeout = 10)
+   .. py:method:: allocateIds(keys, session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: beginTransaction(session = None, timeout = 10)
+   .. py:method:: beginTransaction(session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10)
+   .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10)
+   .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: get_datastore_operation(name, session = None, timeout = 10)
+   .. py:method:: get_datastore_operation(name, session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, read_time = None, session = None, timeout = 10)
+   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, read_time = None, session = None, timeout = 10.0)
       :async:
 
 
@@ -927,17 +924,17 @@ Package Contents
    .. py:method:: _build_read_options(consistency, newTransaction, transaction, read_time)
 
 
-   .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10)
+   .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: rollback(transaction, session = None, timeout = 10)
+   .. py:method:: rollback(transaction, session = None, timeout = 10.0)
       :async:
 
 
 
-   .. py:method:: runQuery(query, explain_options = None, transaction = None, newTransaction = None, consistency = Consistency.EVENTUAL, read_time = None, session = None, timeout = 10)
+   .. py:method:: runQuery(query, explain_options = None, transaction = None, newTransaction = None, consistency = Consistency.EVENTUAL, read_time = None, session = None, timeout = 10.0)
       :async:
 
 
