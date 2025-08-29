@@ -29,6 +29,8 @@ class SubscriberMessage:
         self.attributes = attributes
         self.delivery_attempt = delivery_attempt
 
+        self.force_ack_nack: bool | None = None
+
     @staticmethod
     def from_repr(
         received_message: dict[str, Any],
@@ -66,3 +68,24 @@ class SubscriberMessage:
         if self.delivery_attempt is not None:
             r['deliveryAttempt'] = self.delivery_attempt
         return r
+
+    def ack(self) -> None:
+        """
+        Forcibly mark a message as acked.
+
+        By default, we only ack a message if the callback returns without
+        raising an exception. If this method has been called on the Message, we
+        will instead ack it regardless of exception status.
+        """
+        self.force_ack_nack = True
+
+    def nack(self) -> None:
+        """
+        Forcibly mark a message as nacked.
+
+        By default, we only nack a message if the callback raises an exception.
+        If this method has been called on the Message, we will instead nack it
+        regardless of exception status, ie. including if it completes
+        successfully.
+        """
+        self.force_ack_nack = False
