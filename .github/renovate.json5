@@ -1,32 +1,19 @@
 {
-  "assignees": ["TheKevJames"],
-  "extends": [
-    "github>thekevjames/tools",
-    "github>thekevjames/tools:trustedpackages"
-  ],
-  "packageRules": [
-    {
-      // only autoupdate python patches, we'll handle minors more explicitly
-      "matchPackageNames": ["python"],
-      "matchUpdateTypes": ["major", "minor"],
-      "enabled": false,
+    "extends": [
+        "github>thekevjames/tools",
+        "github>thekevjames/tools//renovate/version-as-lib.json5"
+    ],
+    "assignees": ["TheKevJames"],
+    "packageRules": [
+        {
+            // only autoupdate python patches, we'll handle minors more explicitly
+            "matchPackageNames": ["python"],
+            "matchUpdateTypes": ["major", "minor"],
+            "enabled": false,
+        },
+    ],
+    "lockFileMaintenance": {
+        "enabled": true,
+        "schedule": "before 1pm on monday"
     },
-    {
-      "matchDepTypes": ["dependencies"],
-      "rangeStrategy": "widen",
-    },
-    {
-      "matchDepTypes": ["dev", "devDependencies"],
-      "rangeStrategy": "pin",
-      "automerge": true,
-    },
-    {
-      "matchUpdateTypes": ["patch"],
-      "automerge": true
-    },
-  ],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": "before 1pm on monday"
-  },
 }
