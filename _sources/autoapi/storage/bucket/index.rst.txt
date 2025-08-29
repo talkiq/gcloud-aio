@@ -43,7 +43,7 @@ Module Contents
 
 
 
-   .. py:method:: list_blobs(prefix = '', match_glob = '', session = None)
+   .. py:method:: list_blobs(prefix = '', match_glob = '', delimiter = '', session = None)
       :async:
 
 
