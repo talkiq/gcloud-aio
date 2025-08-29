@@ -233,7 +233,7 @@ class SubscriberClient:
         s = AioSession(session) if session else self.session
 
         all_results: Dict[str, Any] = {'subscriptions': []}
-        nextPageToken = None
+        next_page_token = None
         next_query_params = query_params if query_params else {}
         while True:
             resp = await s.get(
@@ -242,10 +242,10 @@ class SubscriberClient:
             )
             page: Dict[str, Any] = await resp.json()
             all_results['subscriptions'] += page['subscriptions']
-            nextPageToken = page.get('nextPageToken', None)
-            if not nextPageToken:
+            next_page_token = page.get('nextPageToken', None)
+            if not next_page_token:
                 break
-            next_query_params.update({'pageToken': nextPageToken})
+            next_query_params.update({'pageToken': next_page_token})
 
         return all_results
 
