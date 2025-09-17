@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  linter: talkiq/linter@4
-  poetry: talkiq/poetry@4
+  linter: talkiq/linter@4.0.0
+  poetry: talkiq/poetry@4.1.0
 
 executors:
   python39:
@@ -117,7 +117,7 @@ jobs:
 
   pages:
     docker:
-      - image: node:22.13.1
+      - image: node:24.7.0
     steps:
       - checkout
       - attach_workspace:
@@ -135,7 +135,7 @@ jobs:
 
   github:
     docker:
-      - image: debian:buster-slim
+      - image: debian:bullseye-slim
     steps:
       - run: apt update -qy
       - run: apt install -qy hub git

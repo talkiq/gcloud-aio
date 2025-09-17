@@ -4,6 +4,7 @@ import datetime
 import enum
 import hashlib
 import io
+import os
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
     from .bucket import Bucket  # pylint: disable=cyclic-import
 
 
-HOST = 'storage.googleapis.com'
+HOST = os.environ.get('STORAGE_EMULATOR_HOST', 'storage.googleapis.com')
 
 PKCS1_MARKER = (
     '-----BEGIN RSA PRIVATE KEY-----',
@@ -86,6 +87,7 @@ class Blob:
         self, bucket: 'Bucket', name: str,
         metadata: Dict[str, Any],
     ) -> None:
+        metadata['bucket_name'] = metadata.pop('bucket', '')
         self.__dict__.update(**metadata)
 
         self.bucket = bucket
@@ -123,7 +125,9 @@ class Blob:
             session=session,
         )
 
+        metadata['bucket_name'] = metadata.pop('bucket', '')
         self.__dict__.update(metadata)
+
         return metadata
 
     async def get_signed_url(  # pylint: disable=too-many-locals
@@ -212,6 +216,7 @@ class Blob:
                 and isinstance(private_key, str)):
             signed_blob = self.get_pem_signature(str_to_sign, private_key)
         else:
+            provided_session: bool = bool(iam_client or session)
             try:
                 iam_client = iam_client or IamClient(
                     token=token, session=session)
@@ -222,8 +227,10 @@ class Blob:
                 str_to_sign,
                 iam_client,
                 service_account_email,
-                session,
+                session or iam_client.session,  # type: ignore[arg-type]
             )
+            if not provided_session:
+                await iam_client.close()
 
         signature = binascii.hexlify(signed_blob).decode()
 

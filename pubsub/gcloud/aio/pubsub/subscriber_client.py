@@ -66,6 +66,10 @@ class SubscriberClient:
     def topic_path(cls, project: str, topic: str) -> str:
         return f'{cls.project_path(project)}/topics/{topic}'
 
+    @classmethod
+    def snapshot_path(cls, project: str, snapshot: str) -> str:
+        return f'{cls.project_path(project)}/snapshots/{snapshot}'
+
     async def _headers(self) -> Dict[str, str]:
         headers = {
             'Content-Type': 'application/json',
@@ -229,7 +233,7 @@ class SubscriberClient:
         s = AioSession(session) if session else self.session
 
         all_results: Dict[str, Any] = {'subscriptions': []}
-        nextPageToken = None
+        next_page_token = None
         next_query_params = query_params if query_params else {}
         while True:
             resp = await s.get(
@@ -238,12 +242,113 @@ class SubscriberClient:
             )
             page: Dict[str, Any] = await resp.json()
             all_results['subscriptions'] += page['subscriptions']
+            next_page_token = page.get('nextPageToken', None)
+            if not next_page_token:
+                break
+            next_query_params.update({'pageToken': next_page_token})
+
+        return all_results
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/seek
+    async def seek(
+        self, subscription: str,
+        body: Dict[str, Any],
+        *, session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> None:
+        """
+        Seeks a subscription to a point in time or to a given snapshot.
+        """
+        url = f'{self._api_root}/{subscription}:seek'
+        headers = await self._headers()
+        encoded = json.dumps(body).encode()
+        s = AioSession(session) if session else self.session
+        await s.post(url, data=encoded, headers=headers, timeout=timeout)
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/create
+    async def create_snapshot(
+        self,
+        snapshot: str,
+        subscription: str,
+        body: Optional[Dict[str, Any]] = None,
+        *,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> Dict[str, Any]:
+        """
+        Create snapshot.
+        """
+        body = {} if not body else body
+        url = f'{self._api_root}/{snapshot}'
+        headers = await self._headers()
+        payload: Dict[str, Any] = deepcopy(body)
+        payload.update({'subscription': subscription})
+        encoded = json.dumps(payload).encode()
+        s = AioSession(session) if session else self.session
+        resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
+        result: Dict[str, Any] = await resp.json()
+        return result
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/delete
+    async def delete_snapshot(
+        self, snapshot: str, *,
+        session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> None:
+        """
+        Delete snapshot.
+        """
+        url = f'{self._api_root}/{snapshot}'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        await s.delete(url, headers=headers, timeout=timeout)
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/list
+    async def list_snapshots(
+        self, project: str,
+        query_params: Optional[Dict[str, str]] = None,
+        *, session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> Dict[str, Any]:
+        """
+        List snapshots
+        """
+        url = f'{self._api_root}/{project}/snapshots'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+
+        all_results: Dict[str, Any] = {'snapshots': []}
+        nextPageToken = None
+        next_query_params = query_params if query_params else {}
+        while True:
+            resp = await s.get(
+                url, headers=headers, params=next_query_params,
+                timeout=timeout,
+            )
+            page: Dict[str, Any] = await resp.json()
+            all_results['snapshots'] += page['snapshots']
             nextPageToken = page.get('nextPageToken', None)
             if not nextPageToken:
                 break
             next_query_params.update({'pageToken': nextPageToken})
 
         return all_results
+
+    # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/get
+    async def get_snapshot(
+        self, snapshot: str,
+        *, session: Optional[Session] = None,
+        timeout: int = 10,
+    ) -> Dict[str, Any]:
+        """
+        Get snapshot
+        """
+        url = f'{self._api_root}/{snapshot}'
+        headers = await self._headers()
+        s = AioSession(session) if session else self.session
+        resp = await s.get(url, headers=headers, timeout=timeout)
+        result: Dict[str, Any] = await resp.json()
+        return result
 
     async def close(self) -> None:
         await self.session.close()

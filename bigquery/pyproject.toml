@@ -27,9 +27,9 @@ gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-datastore = { path = "../datastore" }
 gcloud-aio-storage = { path = "../storage" }
-pytest = "8.3.3"
-pytest-asyncio = "0.25.3"
-pytest-mock = "3.14.0"
+pytest = "8.4.2"
+pytest-asyncio = "1.1.0"
+pytest-mock = "3.14.1"
 
 [[tool.poetry.source]]
 name = "pypi"

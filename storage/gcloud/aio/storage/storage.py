@@ -289,7 +289,7 @@ class Storage:
             params['rewriteToken'] = data['rewriteToken']
             resp = await s.post(
                 url, headers=headers, params=params,
-                timeout=timeout,
+                timeout=timeout, data=metadata_,
             )
             data = await resp.json(content_type=None)
 
@@ -353,7 +353,8 @@ class Storage:
     ) -> Dict[str, Any]:
         data = await self._download(
             bucket, object_name, headers=headers,
-            timeout=timeout, session=session,
+            timeout=timeout, params={'alt': 'json'},
+            session=session,
         )
         metadata: Dict[str, Any] = json.loads(data.decode())
         return metadata
@@ -482,6 +483,43 @@ class Storage:
         ) as file_object:
             contents = await file_object.read()
             return await self.upload(bucket, object_name, contents, **kwargs)
+
+    # https://cloud.google.com/storage/docs/json_api/v1/objects/compose
+    async def compose(
+        self, bucket: str, object_name: str,
+        source_object_names: List[str], *,
+        content_type: Optional[str] = None,
+        params: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        session: Optional[Session] = None,
+        timeout: int = DEFAULT_TIMEOUT,
+    ) -> Dict[str, Any]:
+        url = (
+            f'{self._api_root_read}/{bucket}/o/'
+            f'{quote(object_name, safe="")}/compose'
+        )
+        headers = headers or {}
+        headers.update(await self._headers())
+        params = params or {}
+
+        payload: Dict[str, Any] = {
+            'sourceObjects': [{'name': name} for name in source_object_names],
+        }
+        if content_type:
+            payload['destination'] = {'contentType': content_type}
+        body = json.dumps(payload).encode('utf-8')
+        headers.update({
+            'Content-Length': str(len(body)),
+            'Content-Type': 'application/json; charset=UTF-8',
+        })
+
+        s = AioSession(session) if session else self.session
+        resp = await s.post(
+            url, headers=headers, params=params, timeout=timeout,
+            data=body,
+        )
+        data: Dict[str, Any] = await resp.json(content_type=None)
+        return data
 
     @staticmethod
     def _get_stream_len(stream: IO[AnyStr]) -> int:
@@ -807,7 +845,7 @@ class Storage:
                     if tries == retries - 1:
                         raise
 
-                    headers.update({'Content-Range': '*/*'})
+                    headers.update({'Content-Range': 'bytes */*'})
                     stream.seek(original_position)
 
                     await sleep(  # type: ignore[func-returns-value]

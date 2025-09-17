@@ -9,6 +9,9 @@ from .entity import EntityResult
 from .filter import Filter
 from .projection import Projection
 from .property_order import PropertyOrder
+from .query_explain import ExecutionStats
+from .query_explain import ExplainMetrics
+from .query_explain import PlanSummary
 from .value import Value
 
 
@@ -191,6 +194,7 @@ class GQLCursor:
 
 
 class QueryResultBatch:
+    # pylint: disable=too-many-instance-attributes
     entity_result_kind = EntityResult
 
     def __init__(
@@ -200,6 +204,7 @@ class QueryResultBatch:
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
         snapshot_version: str = '',
+        read_time: Optional[str] = None,
     ) -> None:
         self.end_cursor = end_cursor
 
@@ -209,6 +214,7 @@ class QueryResultBatch:
         self.skipped_cursor = skipped_cursor
         self.skipped_results = skipped_results
         self.snapshot_version = snapshot_version
+        self.read_time = read_time
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, QueryResultBatch):
@@ -221,7 +227,8 @@ class QueryResultBatch:
             and self.more_results == other.more_results
             and self.skipped_cursor == other.skipped_cursor
             and self.skipped_results == other.skipped_results
-            and self.snapshot_version == other.snapshot_version,
+            and self.snapshot_version == other.snapshot_version
+            and self.read_time == other.read_time,
         )
 
     def __repr__(self) -> str:
@@ -239,12 +246,15 @@ class QueryResultBatch:
         skipped_cursor = data.get('skippedCursor', '')
         skipped_results = data.get('skippedResults', 0)
         snapshot_version = data.get('snapshotVersion', '')
+        read_time = data.get('readTime')
+
         return cls(
             end_cursor, entity_result_type=entity_result_type,
             entity_results=entity_results, more_results=more_results,
             skipped_cursor=skipped_cursor,
             skipped_results=skipped_results,
             snapshot_version=snapshot_version,
+            read_time=read_time,
         )
 
     def to_repr(self) -> Dict[str, Any]:
@@ -259,5 +269,72 @@ class QueryResultBatch:
             data['skippedCursor'] = self.skipped_cursor
         if self.snapshot_version:
             data['snapshotVersion'] = self.snapshot_version
-
+        if self.read_time:
+            data['readTime'] = self.read_time
         return data
+
+
+class QueryResult:
+    """
+    Container class for results returned by a query operation (with or without
+    explain metrics).
+    """
+    query_result_batch_kind = QueryResultBatch
+
+    def __init__(
+            self, result_batch: Optional[QueryResultBatch] = None,
+            explain_metrics: Optional[ExplainMetrics] = None,
+            transaction: Optional[str] = None,
+    ):
+        self.result_batch = result_batch
+        self.explain_metrics = explain_metrics
+        self.transaction = transaction
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, QueryResult):
+            return False
+        return (self.result_batch == other.result_batch
+                and self.explain_metrics == other.explain_metrics
+                and self.transaction == other.transaction)
+
+    @classmethod
+    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
+        result_batch = None
+        explain_metrics = None
+        transaction = None
+
+        if 'batch' in data:
+            result_batch = cls.query_result_batch_kind.from_repr(data['batch'])
+        if 'explainMetrics' in data:
+            explain_metrics = ExplainMetrics.from_repr(data['explainMetrics'])
+        if 'transaction' in data:
+            transaction = data['transaction']
+
+        return cls(result_batch=result_batch,
+                   explain_metrics=explain_metrics, transaction=transaction)
+
+    def to_repr(self) -> Dict[str, Any]:
+        result: Dict[str, Any] = {}
+        if self.result_batch:
+            result['batch'] = self.result_batch.to_repr()
+        if self.explain_metrics:
+            result['explainMetrics'] = self.explain_metrics.to_repr()
+        if self.transaction:
+            result['transaction'] = self.transaction
+        return result
+
+    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
+        return self.explain_metrics
+
+    def get_plan_summary(self) -> Optional[PlanSummary]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.plan_summary
+        return None
+
+    def get_execution_stats(self) -> Optional[ExecutionStats]:
+        if self.explain_metrics is not None:
+            return self.explain_metrics.execution_stats
+        return None

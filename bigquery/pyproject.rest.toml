@@ -27,9 +27,9 @@ gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 gcloud-rest-auth = { path = "../auth" }
 gcloud-rest-datastore = { path = "../datastore" }
 gcloud-rest-storage = { path = "../storage" }
-pytest = "8.3.3"
-# pytest-asyncio = "0.23.8"
-pytest-mock = "3.14.0"
+pytest = "8.3.5"
+# pytest-asyncio = "1.1.0"
+pytest-mock = "3.14.1"
 
 [[tool.poetry.source]]
 name = "pypi"

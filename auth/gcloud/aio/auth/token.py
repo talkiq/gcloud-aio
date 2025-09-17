@@ -48,7 +48,16 @@ else:
     import asyncio
 
 
-GCE_METADATA_BASE = 'http://metadata.google.internal/computeMetadata/v1'
+# Environment variable GCE_METADATA_HOST is originally named GCE_METADATA_ROOT.
+# For compatibility reasons, here it checks the new variable first; if not set,
+# the system falls back to the old variable.
+_GCE_METADATA_HOST = os.environ.get('GCE_METADATA_HOST')
+if not _GCE_METADATA_HOST:
+    _GCE_METADATA_HOST = os.environ.get(
+        'GCE_METADATA_ROOT', 'metadata.google.internal'
+    )
+
+GCE_METADATA_BASE = f'http://{_GCE_METADATA_HOST}/computeMetadata/v1'
 GCE_METADATA_HEADERS = {'metadata-flavor': 'Google'}
 GCE_ENDPOINT_PROJECT = f'{GCE_METADATA_BASE}/project/project-id'
 GCE_ENDPOINT_TOKEN = (
@@ -74,6 +83,7 @@ class Type(enum.Enum):
     AUTHORIZED_USER = 'authorized_user'
     GCE_METADATA = 'gce_metadata'
     SERVICE_ACCOUNT = 'service_account'
+    IMPERSONATED_SERVICE_ACCOUNT = 'impersonated_service_account'
 
 
 def get_service_data(
@@ -149,7 +159,7 @@ def get_service_data(
 @dataclass
 class TokenResponse:
     value: str
-    expires_in: int
+    expires_in: int  # Token TTL in seconds
 
 
 class BaseToken:
@@ -160,7 +170,20 @@ class BaseToken:
     def __init__(
         self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
+        background_refresh_after: float = 0.5,
+        force_refresh_after: float = 0.95,
     ) -> None:
+        if background_refresh_after <= 0 or background_refresh_after > 1:
+            raise ValueError(
+                'background_refresh_after must be a value between 0 and 1')
+        if force_refresh_after <= 0 or force_refresh_after > 1:
+            raise ValueError(
+                'force_refresh_after must be a value between 0 and 1')
+        # Portion of TTL after which a background refresh would start
+        self.background_refresh_after = background_refresh_after
+        # Portion of TTL after which a cached token is considered invalid
+        self.force_refresh_after = force_refresh_after
+
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
@@ -178,8 +201,12 @@ class BaseToken:
         self.access_token: Optional[str] = None
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
+        # Timestamp after which we pre-fetch.
+        self.access_token_preempt_after = 0
+        # Timestamp after which we must re-fetch.
+        self.access_token_refresh_after = 0
 
-        self.acquiring: Optional['asyncio.Future[Any]'] = None
+        self.acquiring: Optional['asyncio.Task[None]'] = None
 
     async def get_project(self) -> Optional[str]:
         project = (
@@ -212,18 +239,27 @@ class BaseToken:
         return self.access_token
 
     async def ensure_token(self) -> None:
-        if self.acquiring and not self.acquiring.done():
-            await self.acquiring
-            return
-
         if self.access_token:
-            now = datetime.datetime.now(datetime.timezone.utc)
-            delta = (now - self.access_token_acquired_at).total_seconds()
-            if delta <= self.access_token_duration / 2:
+            # Cached token exists
+            now_ts = int(
+                datetime.datetime.now(
+                    datetime.timezone.utc).timestamp())
+            if now_ts > self.access_token_refresh_after:
+                # Cached token does not have enough duration left, fall through
+                pass
+            elif now_ts > self.access_token_preempt_after:
+                # Token is okay, but we need to fire up a preemptive refresh
+                if not self.acquiring or self.acquiring.done():
+                    self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
+                        self.acquire_access_token())
+                return
+            else:
+                # Cached token is valid for use
                 return
 
-        self.acquiring = asyncio.ensure_future(  # pylint: disable=possibly-used-before-assignment
-            self.acquire_access_token())
+        if not self.acquiring or self.acquiring.done():
+            self.acquiring = asyncio.create_task(  # pylint: disable=possibly-used-before-assignment
+                self.acquire_access_token())
         await self.acquiring
 
     @abstractmethod
@@ -238,6 +274,11 @@ class BaseToken:
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
             datetime.timezone.utc)
+        base_timestamp = self.access_token_acquired_at.timestamp()
+        self.access_token_preempt_after = int(
+            base_timestamp + (resp.expires_in * self.background_refresh_after))
+        self.access_token_refresh_after = int(
+            base_timestamp + (resp.expires_in * self.force_refresh_after))
         self.acquiring = None
 
     async def close(self) -> None:
@@ -264,14 +305,33 @@ class Token(BaseToken):
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
-        self.scopes = ' '.join(scopes or [])
-        if (self.token_type == Type.SERVICE_ACCOUNT
-                or target_principal) and not self.scopes:
-            raise Exception(
-                'scopes must be provided when token type is '
-                'service account or using target_principal',
+        self.scopes = ''
+        if scopes:
+            self.scopes = ' '.join(scopes or [])
+        elif self.service_data:
+            if self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
+                # If service file was provided and the type is
+                # IMPERSONATED_SERVICE_ACCOUNT, gcloud requires this default
+                # scope but does not write it to the file
+                self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
+
+        self.impersonation_uri: Optional[str] = None
+        if target_principal:
+            self.impersonation_uri = (
+                GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
+                    service_account=target_principal
+                )
             )
-        self.target_principal = target_principal
+        elif self.service_data.get('service_account_impersonation_url'):
+            self.impersonation_uri = self.service_data[
+                'service_account_impersonation_url'
+            ]
+
+        if self.impersonation_uri and not self.scopes:
+            raise Exception(
+                'scopes must be provided when token type requires '
+                'impersonation',
+            )
         self.delegates = delegates
 
     async def _refresh_authorized_user(self, timeout: int) -> TokenResponse:
@@ -280,6 +340,25 @@ class Token(BaseToken):
             'client_id': self.service_data['client_id'],
             'client_secret': self.service_data['client_secret'],
             'refresh_token': self.service_data['refresh_token'],
+        })
+
+        resp = await self.session.post(
+            url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+            timeout=timeout,
+        )
+        content = await resp.json()
+        return TokenResponse(value=str(content['access_token']),
+                             expires_in=int(content['expires_in']))
+
+    async def _refresh_source_authorized_user(
+            self, timeout: int,
+    ) -> TokenResponse:
+        source_credentials = self.service_data['source_credentials']
+        payload = urlencode({
+            'grant_type': 'refresh_token',
+            'client_id': source_credentials['client_id'],
+            'client_secret': source_credentials['client_secret'],
+            'refresh_token': source_credentials['refresh_token'],
         })
 
         resp = await self.session.post(
@@ -324,11 +403,17 @@ class Token(BaseToken):
             timeout=timeout,
         )
         content = await resp.json()
-        return TokenResponse(value=str(content['access_token']),
-                             expires_in=int(content['expires_in']))
+
+        # no .get() on the second option - Raises KeyError if neither found
+        token = str(content.get('access_token') or content['id_token'])
+        expires = int(content.get('expires_in', '0')) or self.default_token_ttl
+        return TokenResponse(value=token, expires_in=expires)
 
     async def _impersonate(self, token: TokenResponse,
                            *, timeout: int) -> TokenResponse:
+        if not self.impersonation_uri:
+            raise Exception('cannot impersonate without impersonation_uri set')
+
         # impersonate the target principal with optional delegates
         headers = {
             'Authorization': f'Bearer {token.value}',
@@ -340,9 +425,9 @@ class Token(BaseToken):
         })
 
         resp = await self.session.post(
-            GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
-                service_account=self.target_principal),
-            data=payload, headers=headers, timeout=timeout)
+            self.impersonation_uri, data=payload, headers=headers,
+            timeout=timeout,
+        )
 
         data = await resp.json()
         token.value = str(data['accessToken'])
@@ -355,10 +440,13 @@ class Token(BaseToken):
             resp = await self._refresh_gce_metadata(timeout=timeout)
         elif self.token_type == Type.SERVICE_ACCOUNT:
             resp = await self._refresh_service_account(timeout=timeout)
+        elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
+            # impersonation requires a source authorized user
+            resp = await self._refresh_source_authorized_user(timeout=timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
-        if self.target_principal:
+        if self.impersonation_uri:
             resp = await self._impersonate(resp, timeout=timeout)
 
         return resp
@@ -522,6 +610,8 @@ class IapToken(BaseToken):
         elif self.token_type == Type.SERVICE_ACCOUNT:
             resp = await self._refresh_service_account(
                 iap_client_id, timeout)
+        elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
+            raise Exception('impersonation is not supported for IAP tokens')
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 
