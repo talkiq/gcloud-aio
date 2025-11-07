@@ -28,7 +28,7 @@ prometheus-client = ">= 0.13.1, < 1.0.0"
 aiohttp = "3.9.1"
 gcloud-aio-auth = { path = "../auth" }
 pytest = "8.4.2"
-pytest-asyncio = "1.1.0"
+pytest-asyncio = "1.1.1"
 pytest-mock = "3.14.1"
 
 [[tool.poetry.source]]
