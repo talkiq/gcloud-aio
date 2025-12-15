@@ -11,8 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datastore.transaction_options" href="../transaction_options/index.html" />
@@ -62,17 +62,17 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainOptions">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExplainOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExplainOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Options for query explain operations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainOptions.DEFAULT">
-<span class="sig-name descname"><span class="pre">DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#datastore.query_explain.ExplainOptions.DEFAULT" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.DEFAULT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainOptions.ANALYZE">
-<span class="sig-name descname"><span class="pre">ANALYZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#datastore.query_explain.ExplainOptions.ANALYZE" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ANALYZE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.ANALYZE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -87,7 +87,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainOptions.from_repr">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.from_repr" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em>)</p>
@@ -102,7 +102,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query_explain.IndexDefinition">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">IndexDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_scope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">IndexDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_scope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition" title="Link to this definition">¶</a></dt>
 <dd><p>Represents an index that would be used in PlanSummary.</p>
 <dl>
 <dt>Raw:</dt><dd><dl>
@@ -134,12 +134,12 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.IndexDefinition.query_scope">
-<span class="sig-name descname"><span class="pre">query_scope</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#datastore.query_explain.IndexDefinition.query_scope" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">query_scope</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.query_scope" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.IndexDefinition.properties">
-<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#datastore.query_explain.IndexDefinition.properties" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">properties</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.properties" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -167,7 +167,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.IndexDefinition.from_repr">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.from_repr" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -192,7 +192,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query_explain.PlanSummary">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">PlanSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes_used</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">PlanSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes_used</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary" title="Link to this definition">¶</a></dt>
 <dd><p>Container class for planSummary returned by query explain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -201,7 +201,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.PlanSummary.indexes_used">
-<span class="sig-name descname"><span class="pre">indexes_used</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#datastore.query_explain.PlanSummary.indexes_used" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">indexes_used</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#datastore.query_explain.PlanSummary.indexes_used" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -229,7 +229,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.PlanSummary.from_repr">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary.from_repr" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -254,7 +254,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExecutionStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_operations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExecutionStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_operations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats" title="Link to this definition">¶</a></dt>
 <dd><p>Container class for executionStats returned by analyze mode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -268,17 +268,17 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats.results_returned">
-<span class="sig-name descname"><span class="pre">results_returned</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datastore.query_explain.ExecutionStats.results_returned" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">results_returned</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.results_returned" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats.execution_duration">
-<span class="sig-name descname"><span class="pre">execution_duration</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#datastore.query_explain.ExecutionStats.execution_duration" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">execution_duration</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.execution_duration" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats.read_operations">
-<span class="sig-name descname"><span class="pre">read_operations</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datastore.query_explain.ExecutionStats.read_operations" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">read_operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.read_operations" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -311,7 +311,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats._parse_execution_duration">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_parse_execution_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_duration</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats._parse_execution_duration" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_parse_execution_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_duration</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats._parse_execution_duration" title="Link to this definition">¶</a></dt>
 <dd><p>Convert execution_duration from str (e.g. “0.01785s”) to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -325,7 +325,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats._parse_debug_stats">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_parse_debug_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug_stats</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats._parse_debug_stats" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_parse_debug_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug_stats</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats._parse_debug_stats" title="Link to this definition">¶</a></dt>
 <dd><p>Convert debug_stats values from str to int.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -339,7 +339,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.ExecutionStats.from_repr">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.from_repr" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -364,7 +364,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainMetrics">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExplainMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.query_explain.</span></span><span class="sig-name descname"><span class="pre">ExplainMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan_summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics" title="Link to this definition">¶</a></dt>
 <dd><p>Container class for explainMetrics returned by query explain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -376,12 +376,12 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainMetrics.plan_summary">
-<span class="sig-name descname"><span class="pre">plan_summary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.plan_summary" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plan_summary</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.plan_summary" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainMetrics.execution_stats">
-<span class="sig-name descname"><span class="pre">execution_stats</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.execution_stats" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">execution_stats</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.execution_stats" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -409,7 +409,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datastore.query_explain.ExplainMetrics.from_repr">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.from_repr" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
@@ -500,7 +500,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
       &#169;2017, TalkIQ.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |

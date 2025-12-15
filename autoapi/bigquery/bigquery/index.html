@@ -11,8 +11,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="bigquery.dataset" href="../dataset/index.html" />
@@ -82,7 +82,7 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
 <dl class="py data">
 <dt class="sig sig-object py" id="bigquery.bigquery.SCOPES">
-<span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SCOPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['https://www.googleapis.com/auth/bigquery.insertdata',</span> <span class="pre">'https://www.googleapis.com/auth/bigquery']</span></em><a class="headerlink" href="#bigquery.bigquery.SCOPES" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SCOPES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['https://www.googleapis.com/auth/bigquery.insertdata',</span> <span class="pre">'https://www.googleapis.com/auth/bigquery']</span></span><a class="headerlink" href="#bigquery.bigquery.SCOPES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py data">
@@ -105,7 +105,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SourceFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.SourceFormat" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SourceFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.SourceFormat" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Create a collection of name/value pairs.</p>
 <p>Example enumeration:</p>
@@ -149,39 +149,39 @@
 attributes – see the documentation for details.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.AVRO">
-<span class="sig-name descname"><span class="pre">AVRO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AVRO'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.AVRO" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">AVRO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AVRO'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.AVRO" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.CSV">
-<span class="sig-name descname"><span class="pre">CSV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CSV'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.CSV" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CSV</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CSV'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.CSV" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.DATASTORE_BACKUP">
-<span class="sig-name descname"><span class="pre">DATASTORE_BACKUP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DATASTORE_BACKUP'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.DATASTORE_BACKUP" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">DATASTORE_BACKUP</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DATASTORE_BACKUP'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.DATASTORE_BACKUP" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.NEWLINE_DELIMITED_JSON">
-<span class="sig-name descname"><span class="pre">NEWLINE_DELIMITED_JSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NEWLINE_DELIMITED_JSON'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.NEWLINE_DELIMITED_JSON" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">NEWLINE_DELIMITED_JSON</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NEWLINE_DELIMITED_JSON'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.NEWLINE_DELIMITED_JSON" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.ORC">
-<span class="sig-name descname"><span class="pre">ORC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ORC'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.ORC" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ORC</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ORC'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.ORC" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SourceFormat.PARQUET">
-<span class="sig-name descname"><span class="pre">PARQUET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PARQUET'</span></em><a class="headerlink" href="#bigquery.bigquery.SourceFormat.PARQUET" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">PARQUET</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PARQUET'</span></span><a class="headerlink" href="#bigquery.bigquery.SourceFormat.PARQUET" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bigquery.bigquery.Disposition">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">Disposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.Disposition" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">Disposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.Disposition" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Create a collection of name/value pairs.</p>
 <p>Example enumeration:</p>
@@ -225,24 +225,24 @@ attributes – see the documentation for details.</p>
 attributes – see the documentation for details.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.Disposition.WRITE_APPEND">
-<span class="sig-name descname"><span class="pre">WRITE_APPEND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_APPEND'</span></em><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_APPEND" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">WRITE_APPEND</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_APPEND'</span></span><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_APPEND" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.Disposition.WRITE_EMPTY">
-<span class="sig-name descname"><span class="pre">WRITE_EMPTY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_EMPTY'</span></em><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_EMPTY" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">WRITE_EMPTY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_EMPTY'</span></span><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_EMPTY" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.Disposition.WRITE_TRUNCATE">
-<span class="sig-name descname"><span class="pre">WRITE_TRUNCATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_TRUNCATE'</span></em><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_TRUNCATE" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">WRITE_TRUNCATE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WRITE_TRUNCATE'</span></span><a class="headerlink" href="#bigquery.bigquery.Disposition.WRITE_TRUNCATE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bigquery.bigquery.SchemaUpdateOption">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SchemaUpdateOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">SchemaUpdateOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Create a collection of name/value pairs.</p>
 <p>Example enumeration:</p>
@@ -286,19 +286,19 @@ attributes – see the documentation for details.</p>
 attributes – see the documentation for details.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION">
-<span class="sig-name descname"><span class="pre">ALLOW_FIELD_ADDITION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ALLOW_FIELD_ADDITION'</span></em><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOW_FIELD_ADDITION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ALLOW_FIELD_ADDITION'</span></span><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION">
-<span class="sig-name descname"><span class="pre">ALLOW_FIELD_RELAXATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ALLOW_FIELD_RELAXATION'</span></em><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ALLOW_FIELD_RELAXATION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ALLOW_FIELD_RELAXATION'</span></span><a class="headerlink" href="#bigquery.bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">BigqueryBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bigquery.bigquery.</span></span><span class="sig-name descname"><span class="pre">BigqueryBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -312,17 +312,17 @@ attributes – see the documentation for details.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._project">
-<span class="sig-name descname"><span class="pre">_project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._project" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_project</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._project" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._api_root">
-<span class="sig-name descname"><span class="pre">_api_root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._api_root" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_api_root</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._api_root" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._api_is_dev">
-<span class="sig-name descname"><span class="pre">_api_is_dev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._api_is_dev" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_api_is_dev</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._api_is_dev" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -337,7 +337,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase.project">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.project" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.project" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -347,7 +347,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase.headers">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">headers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.headers" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">headers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.headers" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dict[str, str]</p>
@@ -357,7 +357,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._post_json">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_post_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._post_json" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_post_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._post_json" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -376,7 +376,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._get_url">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._get_url" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_get_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._get_url" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -394,7 +394,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase._delete">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._delete" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase._delete" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -412,7 +412,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase.close">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.close" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.close" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -422,7 +422,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase.__aenter__">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.__aenter__" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.__aenter__" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#bigquery.bigquery.BigqueryBase" title="bigquery.bigquery.BigqueryBase">BigqueryBase</a></p>
@@ -432,7 +432,7 @@ attributes – see the documentation for details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bigquery.bigquery.BigqueryBase.__aexit__">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__aexit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.__aexit__" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__aexit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.bigquery.BigqueryBase.__aexit__" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>Any</em>)</p>
@@ -513,7 +513,7 @@ attributes – see the documentation for details.</p>
       &#169;2017, TalkIQ.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
