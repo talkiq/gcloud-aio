@@ -41,7 +41,7 @@ else:
 
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 SCOPES = [
-    'https://www.googleapis.com/auth/devstorage.read_write',
+    'https://www.googleapis.com/auth/devstorage.full_control',
 ]
 
 log = logging.getLogger(__name__)
