@@ -298,6 +298,21 @@ else:
 
             ack_ids = []
 
+    async def ack_or_nack(
+        message: SubscriberMessage,
+        ack_queue: 'asyncio.Queue[str]',
+        nack_queue: 'Optional[asyncio.Queue[str]]',
+        ack: bool = False,
+    ) -> None:
+        if message.force_ack_nack is None:
+            # if we've not forced the ack status, set it here
+            message.force_ack_nack = ack
+
+        if message.force_ack_nack:
+            await ack_queue.put(message.ack_id)
+        elif nack_queue:
+            await nack_queue.put(message.ack_id)
+
     async def _execute_callback(
         message: SubscriberMessage,
         callback: ApplicationHandler,
@@ -313,24 +328,21 @@ else:
             )
             with metrics.CONSUME_LATENCY.labels(phase='runtime').time():
                 await callback(message)
-                await ack_queue.put(message.ack_id)
+                await ack_or_nack(message, ack_queue, nack_queue, ack=True)
             metrics_client.histogram(
                 'pubsub.consumer.latency.runtime',
                 time.perf_counter() - start,
             )
             metrics_client.increment('pubsub.consumer.succeeded')
             metrics.CONSUME.labels(outcome='succeeded').inc()
-
         except asyncio.CancelledError:
-            if nack_queue:
-                await nack_queue.put(message.ack_id)
+            await ack_or_nack(message, ack_queue, nack_queue, ack=False)
 
             log.warning('application callback was cancelled')
             metrics_client.increment('pubsub.consumer.cancelled')
             metrics.CONSUME.labels(outcome='cancelled').inc()
         except Exception as e:
-            if nack_queue:
-                await nack_queue.put(message.ack_id)
+            await ack_or_nack(message, ack_queue, nack_queue, ack=False)
 
             log.warning(
                 'application callback raised an exception',
