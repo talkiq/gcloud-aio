@@ -61,7 +61,9 @@ jobs:
   build-rest:
     executor: python312
     steps:
-      - poetry/install
+      - poetry/install:
+          # renovate: datasource=pypi depName=poetry
+          version: 2.2.1
       - checkout
       - run: ./bin/build-rest
       - store-rest
@@ -78,7 +80,9 @@ jobs:
       cwd:
         type: string
     steps:
-      - poetry/install
+      - poetry/install:
+          # renovate: datasource=pypi depName=poetry
+          version: 2.2.1
       - checkout
       - attach_workspace:
           at: /rest

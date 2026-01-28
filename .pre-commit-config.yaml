@@ -60,7 +60,7 @@ repos:
         - -d ungrouped-imports  # conflicts with reorder-python-imports
         - -d wrong-import-order  # conflicts with reorder-python-imports
 -   repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: 1.5.6
+    rev: v1.5.6
     hooks:
     -   id: remove-crlf
     -   id: remove-tabs
@@ -154,16 +154,13 @@ repos:
     rev: v1.5.0
     hooks:
     -   id: yesqa
+        language: python
         # N.B. keep these in sync with flake8, otherwise yesqa will remove
         # required noqa's related to these plugins
         additional_dependencies: &flake8deps
-        # renovate: datasource=pypi depName=flake8-2020
         - flake8-2020==1.8.1
-        # renovate: datasource=pypi depName=flake8-broken-line
         - flake8-broken-line==1.0.0
-        # renovate: datasource=pypi depName=flake8-builtins
         - flake8-builtins==2.5.0
-        # renovate: datasource=pypi depName=flake8-comprehensions
         - flake8-comprehensions==3.16.0
 -   repo: https://github.com/hhatto/autopep8
     rev: v2.3.2
@@ -185,7 +182,6 @@ repos:
         entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
         language: python
         additional_dependencies:
-        # renovate: datasource=pypi depName=poetry
         - poetry==2.2.1
         pass_filenames: true
         files: 'pyproject\.toml$'
@@ -221,6 +217,6 @@ repos:
     - id: check-circle-ci
     - id: check-github-workflows
     - id: check-renovate
+      language: python
       additional_dependencies:
-      # renovate: datasource=pypi depName=pyjson5
       - pyjson5==1.6.9
