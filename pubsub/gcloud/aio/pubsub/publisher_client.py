@@ -3,12 +3,7 @@ import logging
 import os
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -30,7 +25,7 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -47,9 +42,9 @@ class PublisherClient:
 
     # TODO: add project override
     def __init__(
-            self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
+            self, *, service_file: str | IO[AnyStr] | None = None,
+            session: Session | None = None, token: Token | None = None,
+            api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
 
@@ -71,7 +66,7 @@ class PublisherClient:
     def topic_path(cls, project: str, topic: str) -> str:
         return f'{cls.project_path(project)}/topics/{topic}'
 
-    async def _headers(self) -> Dict[str, str]:
+    async def _headers(self) -> dict[str, str]:
         headers = {
             'Content-Type': 'application/json',
         }
@@ -88,10 +83,10 @@ class PublisherClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/list
     async def list_topics(
         self, project: str,
-        query_params: Optional[Dict[str, str]] = None, *,
-        session: Optional[Session] = None,
+        query_params: dict[str, str] | None = None, *,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         List topics
         """
@@ -102,16 +97,16 @@ class PublisherClient:
             url, headers=headers, params=query_params,
             timeout=timeout,
         )
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/create
     async def create_topic(
         self, topic: str,
-        body: Optional[Dict[str, Any]] = None, *,
-        session: Optional[Session] = None,
+        body: dict[str, Any] | None = None, *,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create topic.
         """
@@ -120,13 +115,13 @@ class PublisherClient:
         encoded = json.dumps(body or {}).encode()
         s = AioSession(session) if session else self.session
         resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/delete
     async def delete_topic(
         self, topic: str, *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -139,10 +134,10 @@ class PublisherClient:
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics/publish
     async def publish(
-        self, topic: str, messages: List[PubsubMessage],
-        session: Optional[Session] = None,
+        self, topic: str, messages: list[PubsubMessage],
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         if not messages:
             return {}
 
@@ -159,7 +154,7 @@ class PublisherClient:
             url, data=payload, headers=headers,
             timeout=timeout,
         )
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     async def close(self) -> None:

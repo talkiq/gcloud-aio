@@ -1,8 +1,6 @@
 import base64
 import datetime
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 
 def parse_publish_time(publish_time: str) -> datetime.datetime:
@@ -20,9 +18,9 @@ class SubscriberMessage:
     def __init__(
         self, ack_id: str, message_id: str,
         publish_time: 'datetime.datetime',
-        data: Optional[bytes],
-        attributes: Optional[Dict[str, Any]],
-        delivery_attempt: Optional[int] = None,
+        data: bytes | None,
+        attributes: dict[str, Any] | None,
+        delivery_attempt: int | None = None,
     ):
         self.ack_id = ack_id
         self.message_id = message_id
@@ -33,7 +31,7 @@ class SubscriberMessage:
 
     @staticmethod
     def from_repr(
-        received_message: Dict[str, Any],
+        received_message: dict[str, Any],
     ) -> 'SubscriberMessage':
         ack_id = received_message['ackId']
         message_id = received_message['message']['messageId']
@@ -51,8 +49,8 @@ class SubscriberMessage:
             delivery_attempt=delivery_attempt,
         )
 
-    def to_repr(self) -> Dict[str, Any]:
-        r: Dict[str, Any] = {
+    def to_repr(self) -> dict[str, Any]:
+        r: dict[str, Any] = {
             'ackId': self.ack_id,
             'message': {
                 'messageId': self.message_id,

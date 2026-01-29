@@ -6,11 +6,7 @@ import logging
 import os
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -29,7 +25,7 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -47,9 +43,9 @@ class PushQueue:
 
     def __init__(
             self, project: str, taskqueue: str, location: str = 'us-central1',
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
+            service_file: str | IO[AnyStr] | None = None,
+            session: Session | None = None, token: Token | None = None,
+            api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self._queue_path = (
@@ -62,7 +58,7 @@ class PushQueue:
             session=self.session.session,  # type: ignore[arg-type]
         )
 
-    async def headers(self) -> Dict[str, str]:
+    async def headers(self) -> dict[str, str]:
         if self._api_is_dev:
             return {'Content-Type': 'application/json'}
 
@@ -77,8 +73,8 @@ class PushQueue:
 
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/create
     async def create(
-        self, task: Dict[str, Any],
-        session: Optional[Session] = None,
+        self, task: dict[str, Any],
+        session: Session | None = None,
         timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{self._queue_path}/tasks'
@@ -97,7 +93,7 @@ class PushQueue:
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/delete
     async def delete(
         self, tname: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}'
@@ -111,7 +107,7 @@ class PushQueue:
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/get
     async def get(
         self, tname: str, full: bool = False,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}'
@@ -130,11 +126,11 @@ class PushQueue:
     async def list(  # noqa: A003
         self, full: bool = False, page_size: int = 1000,
         page_token: str = '',
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{self._queue_path}/tasks'
-        params: Dict[str, Union[int, str]] = {
+        params: dict[str, int | str] = {
             'responseView': 'FULL' if full else 'BASIC',
             'pageSize': page_size,
             'pageToken': page_token,
@@ -150,7 +146,7 @@ class PushQueue:
     # https://cloud.google.com/tasks/docs/reference/rest/v2beta3/projects.locations.queues.tasks/run
     async def run(
         self, tname: str, full: bool = False,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> Any:
         url = f'{self._api_root}/{tname}:run'

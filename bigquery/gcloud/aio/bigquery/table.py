@@ -1,14 +1,10 @@
 import json
 import uuid
 import warnings
+from collections.abc import Callable
 from typing import Any
 from typing import AnyStr
-from typing import Callable
-from typing import Dict
 from typing import IO
-from typing import List
-from typing import Optional
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -30,10 +26,10 @@ else:
 class Table(BigqueryBase):
     def __init__(
             self, dataset_name: str, table_name: str,
-            project: Optional[str] = None,
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
+            project: str | None = None,
+            service_file: str | IO[AnyStr] | None = None,
+            session: Session | None = None, token: Token | None = None,
+            api_root: str | None = None,
     ) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
@@ -43,7 +39,7 @@ class Table(BigqueryBase):
         )
 
     @staticmethod
-    def _mk_unique_insert_id(row: Dict[str, Any]) -> str:
+    def _mk_unique_insert_id(row: dict[str, Any]) -> str:
         # pylint: disable=unused-argument
         return uuid.uuid4().hex
 
@@ -51,7 +47,7 @@ class Table(BigqueryBase):
             self, source_project: str, destination_project: str,
             destination_dataset: str,
             destination_table: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return {
             'configuration': {
                 'copy': {
@@ -72,10 +68,10 @@ class Table(BigqueryBase):
 
     @staticmethod
     def _make_insert_body(
-            rows: List[Dict[str, Any]], *, skip_invalid: bool,
-            ignore_unknown: bool, template_suffix: Optional[str],
-            insert_id_fn: Callable[[Dict[str, Any]], str],
-    ) -> Dict[str, Any]:
+            rows: list[dict[str, Any]], *, skip_invalid: bool,
+            ignore_unknown: bool, template_suffix: str | None,
+            insert_id_fn: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
         body = {
             'kind': 'bigquery#tableDataInsertAllRequest',
             'skipInvalidRows': skip_invalid,
@@ -94,12 +90,12 @@ class Table(BigqueryBase):
         return body
 
     def _make_load_body(
-            self, source_uris: List[str], project: str, autodetect: bool,
+            self, source_uris: list[str], project: str, autodetect: bool,
             source_format: SourceFormat,
             write_disposition: Disposition,
             ignore_unknown_values: bool,
-            schema_update_options: List[SchemaUpdateOption],
-    ) -> Dict[str, Any]:
+            schema_update_options: list[SchemaUpdateOption],
+    ) -> dict[str, Any]:
         return {
             'configuration': {
                 'load': {
@@ -125,7 +121,7 @@ class Table(BigqueryBase):
             write_disposition: Disposition,
             use_query_cache: bool,
             dry_run: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -144,10 +140,10 @@ class Table(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/insert
     async def create(
-        self, table: Dict[str, Any],
-        session: Optional[Session] = None,
+        self, table: dict[str, Any],
+        session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create the table specified by tableId from the dataset."""
         project = await self.project()
         url = (
@@ -165,10 +161,10 @@ class Table(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/patch
     async def patch(
-        self, table: Dict[str, Any],
-        session: Optional[Session] = None,
+        self, table: dict[str, Any],
+        session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Patch an existing table specified by tableId from the dataset."""
         project = await self.project()
         url = (
@@ -190,15 +186,15 @@ class Table(BigqueryBase):
             url, data=table_data, headers=headers,
             timeout=timeout,
         )
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/delete
     async def delete(
         self,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Deletes the table specified by tableId from the dataset."""
         project = await self.project()
         url = (
@@ -214,7 +210,7 @@ class Table(BigqueryBase):
             timeout=timeout,
         )
         try:
-            data: Dict[str, Any] = await resp.json()
+            data: dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
             # For some reason, `gcloud-rest` seems to have intermittent issues
             # parsing this response. In that case, fall back to returning the
@@ -228,9 +224,9 @@ class Table(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/get
     async def get(
-            self, session: Optional[Session] = None,
+            self, session: Session | None = None,
             timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Gets the specified table resource by table ID."""
         project = await self.project()
         url = (
@@ -242,12 +238,12 @@ class Table(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/insertAll
     async def insert(
-            self, rows: List[Dict[str, Any]], skip_invalid: bool = False,
-            ignore_unknown: bool = True, session: Optional[Session] = None,
-            template_suffix: Optional[str] = None,
+            self, rows: list[dict[str, Any]], skip_invalid: bool = False,
+            ignore_unknown: bool = True, session: Session | None = None,
+            template_suffix: str | None = None,
             timeout: int = 60, *,
-            insert_id_fn: Optional[Callable[[Dict[str, Any]], str]] = None,
-    ) -> Dict[str, Any]:
+            insert_id_fn: Callable[[dict[str, Any]], str] | None = None,
+    ) -> dict[str, Any]:
         """
         Streams data into BigQuery
 
@@ -280,7 +276,7 @@ class Table(BigqueryBase):
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#jobconfigurationtablecopy
     async def insert_via_copy(
             self, destination_project: str, destination_dataset: str,
-            destination_table: str, session: Optional[Session] = None,
+            destination_table: str, session: Session | None = None,
             timeout: int = 60,
     ) -> Job:
         """Copy BQ table to another table in BQ"""
@@ -301,13 +297,13 @@ class Table(BigqueryBase):
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
     async def insert_via_load(
-            self, source_uris: List[str], session: Optional[Session] = None,
+            self, source_uris: list[str], session: Session | None = None,
             autodetect: bool = False,
             source_format: SourceFormat = SourceFormat.CSV,
             write_disposition: Disposition = Disposition.WRITE_TRUNCATE,
             timeout: int = 60,
             ignore_unknown_values: bool = False,
-            schema_update_options: Optional[List[SchemaUpdateOption]] = None,
+            schema_update_options: list[SchemaUpdateOption] | None = None,
     ) -> Job:
         """Loads entities from storage to BigQuery."""
         project = await self.project()
@@ -327,7 +323,7 @@ class Table(BigqueryBase):
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     async def insert_via_query(
-            self, query: str, session: Optional[Session] = None,
+            self, query: str, session: Session | None = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False,
@@ -353,9 +349,9 @@ class Table(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
     async def list_tabledata(
-            self, session: Optional[Session] = None, timeout: int = 60,
-            params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+            self, session: Session | None = None, timeout: int = 60,
+            params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """List the content of a table in rows."""
         project = await self.project()
         url = (

@@ -1,6 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import List
 
 import pytest
 from gcloud.aio.datastore import CompositeFilter
@@ -156,7 +154,7 @@ class TestFilter:
 
     @staticmethod
     @pytest.fixture(scope='session')
-    def property_filters() -> List[PropertyFilter]:
+    def property_filters() -> list[PropertyFilter]:
         return [
             PropertyFilter(
                 prop='prop1',
@@ -193,7 +191,7 @@ class TestFilter:
 
     @staticmethod
     def _assert_is_correct_prop_dict_for_property_filter(
-            prop_dict: Dict[str, Any], property_filter: PropertyFilter,
+            prop_dict: dict[str, Any], property_filter: PropertyFilter,
     ):
         assert prop_dict['property']['name'] == property_filter.prop
         assert prop_dict['op'] == property_filter.operator.value

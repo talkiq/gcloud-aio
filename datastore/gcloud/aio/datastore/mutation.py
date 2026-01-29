@@ -1,6 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 from .key import Key
 
@@ -16,7 +14,7 @@ class MutationResult:
     key_kind = Key
 
     def __init__(
-        self, key: Optional[Key], version: str,
+        self, key: Key | None, version: str,
         conflict_detected: bool,
     ) -> None:
         self.key = key
@@ -33,16 +31,16 @@ class MutationResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'MutationResult':
+    def from_repr(cls, data: dict[str, Any]) -> 'MutationResult':
         if 'key' in data:
-            key: Optional[Key] = cls.key_kind.from_repr(data['key'])
+            key: Key | None = cls.key_kind.from_repr(data['key'])
         else:
             key = None
         version: str = data['version']
         conflict_detected: bool = data.get('conflictDetected', False)
         return cls(key, version, conflict_detected)
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         data = {
             'version': self.version,
             'conflictDetected': self.conflict_detected,

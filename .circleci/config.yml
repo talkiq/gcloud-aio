@@ -5,11 +5,6 @@ orbs:
   poetry: talkiq/poetry@4.2.0
 
 executors:
-  python39:
-    docker:
-      - image: python:3.9.19
-    resource_class: small
-
   python310:
     docker:
       - image: python:3.10.14
@@ -170,7 +165,7 @@ workflows:
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
           # support.
-          executor: python39
+          executor: python310
           filters:
             tags:
               only: /.*/
@@ -189,7 +184,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python39, python310, python311, python312]
+              executor: [python310, python311, python312]
           filters:
             tags:
               only: /.*/
@@ -228,7 +223,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python39, python310, python311, python312]
+              executor: [python310, python311, python312]
           filters:
             tags:
               only: /.*/

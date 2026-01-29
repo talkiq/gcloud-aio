@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Dict
 
 from .constants import Direction
 
@@ -26,12 +25,12 @@ class PropertyOrder:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'PropertyOrder':
+    def from_repr(cls, data: dict[str, Any]) -> 'PropertyOrder':
         prop = data['property']['name']
         direction = Direction(data['direction'])
         return cls(prop=prop, direction=direction)
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'property': {'name': self.prop},
             'direction': self.direction.value,

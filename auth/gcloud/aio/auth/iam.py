@@ -1,11 +1,7 @@
 import json
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import List
-from typing import Optional
-from typing import Union
 
 from .build_constants import BUILD_GCLOUD_REST
 from .session import AioSession
@@ -26,9 +22,9 @@ SCOPES = ['https://www.googleapis.com/auth/iam']
 
 class IamClient:
     def __init__(
-        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-        session: Optional[Session] = None,
-        token: Optional[Token] = None,
+        self, service_file: str | IO[AnyStr] | None = None,
+        session: Session | None = None,
+        token: Token | None = None,
     ) -> None:
         self.session = AioSession(session)
         self.token = token or Token(
@@ -45,25 +41,25 @@ class IamClient:
                 'with Service Accounts or GCE Metadata',
             )
 
-    async def headers(self) -> Dict[str, str]:
+    async def headers(self) -> dict[str, str]:
         token = await self.token.get()
         return {
             'Authorization': f'Bearer {token}',
         }
 
     @property
-    def service_account_email(self) -> Optional[str]:
+    def service_account_email(self) -> str | None:
         return self.token.service_data.get('client_email')
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/get
     async def get_public_key(
-        self, key_id: Optional[str] = None,
-        key: Optional[str] = None,
-        service_account_email: Optional[str] = None,
-        project: Optional[str] = None,
-        session: Optional[Session] = None,
+        self, key_id: str | None = None,
+        key: str | None = None,
+        service_account_email: str | None = None,
+        project: str | None = None,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         service_account_email = (
             service_account_email
             or self.service_account_email
@@ -86,16 +82,16 @@ class IamClient:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        data: Dict[str, str] = await resp.json()
+        data: dict[str, str] = await resp.json()
         return data
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/list
     async def list_public_keys(
-            self, service_account_email: Optional[str] = None,
-            project: Optional[str] = None,
-            session: Optional[Session] = None,
+            self, service_account_email: str | None = None,
+            project: str | None = None,
+            session: Session | None = None,
             timeout: int = 10,
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         service_account_email = (
             service_account_email
             or self.service_account_email
@@ -113,17 +109,17 @@ class IamClient:
 
         resp = await s.get(url=url, headers=headers, timeout=timeout)
 
-        data: List[Dict[str, Any]] = (await resp.json()).get('keys', [])
+        data: list[dict[str, Any]] = (await resp.json()).get('keys', [])
         return data
 
     # https://cloud.google.com/iam/credentials/reference/rest/v1/projects.serviceAccounts/signBlob
     async def sign_blob(
-        self, payload: Optional[Union[str, bytes]],
-        service_account_email: Optional[str] = None,
-        delegates: Optional[List[str]] = None,
-        session: Optional[Session] = None,
+        self, payload: str | bytes | None,
+        service_account_email: str | None = None,
+        delegates: list[str] | None = None,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         service_account_email = (
             service_account_email
             or self.service_account_email
@@ -154,7 +150,7 @@ class IamClient:
             url=url, data=json_str, headers=headers,
             timeout=timeout,
         )
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     async def close(self) -> None:

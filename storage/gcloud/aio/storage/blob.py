@@ -6,8 +6,6 @@ import hashlib
 import io
 import os
 from typing import Any
-from typing import Dict
-from typing import Optional
 from typing import TYPE_CHECKING
 from urllib.parse import quote
 
@@ -85,7 +83,7 @@ class _SignatureMethod(enum.Enum):
 class Blob:
     def __init__(
         self, bucket: 'Bucket', name: str,
-        metadata: Dict[str, Any],
+        metadata: dict[str, Any],
     ) -> None:
         metadata['bucket_name'] = metadata.pop('bucket', '')
         self.__dict__.update(**metadata)
@@ -100,7 +98,7 @@ class Blob:
 
     async def download(
         self, timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         auto_decompress: bool = True,
     ) -> Any:
         headers = None if auto_decompress else {'accept-encoding': 'gzip'}
@@ -114,9 +112,9 @@ class Blob:
 
     async def upload(
         self, data: Any,
-        content_type: Optional[str] = None,
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        content_type: str | None = None,
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         metadata = await self.bucket.storage.upload(
             self.bucket.name,
             self.name,
@@ -131,11 +129,11 @@ class Blob:
         return metadata
 
     async def get_signed_url(  # pylint: disable=too-many-locals
-            self, expiration: int, headers: Optional[Dict[str, str]] = None,
-            query_params: Optional[Dict[str, Any]] = None,
-            http_method: str = 'GET', iam_client: Optional[IamClient] = None,
-            service_account_email: Optional[str] = None,
-            token: Optional[Token] = None, session: Optional[Session] = None,
+            self, expiration: int, headers: dict[str, str] | None = None,
+            query_params: dict[str, Any] | None = None,
+            http_method: str = 'GET', iam_client: IamClient | None = None,
+            service_account_email: str | None = None,
+            token: Token | None = None, session: Session | None = None,
     ) -> str:
         """
         Create a temporary access URL for Storage Blob accessible by anyone
@@ -274,7 +272,7 @@ class Blob:
     @staticmethod
     async def get_iam_api_signature(
             str_to_sign: str, iam_client: IamClient,
-            service_account_email: Optional[str], session: Optional[Session],
+            service_account_email: str | None, session: Session | None,
     ) -> bytes:
         signed_resp = await iam_client.sign_blob(
             str_to_sign,

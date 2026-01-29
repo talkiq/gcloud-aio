@@ -9,11 +9,9 @@ else:
     import logging
     import time
     import warnings
-    from typing import Awaitable
-    from typing import Callable
-    from typing import List
+    from collections.abc import Awaitable
+    from collections.abc import Callable
     from typing import Optional
-    from typing import Tuple
     from typing import TYPE_CHECKING
     from typing import TypeVar
 
@@ -26,7 +24,7 @@ else:
 
     if TYPE_CHECKING:
         MessageQueue = asyncio.Queue[
-            Tuple[
+            tuple[
                 SubscriberMessage,  # pylint: disable=unsubscriptable-object
                 float,
             ]
@@ -41,7 +39,7 @@ else:
         def __init__(
             self, subscriber_client: SubscriberClient,
             subscription: str, cache_timeout: float,
-            ack_deadline: Optional[float] = None,
+            ack_deadline: float | None = None,
         ):
             self.subscriber_client = subscriber_client
             self.subscription = subscription
@@ -80,7 +78,7 @@ else:
     async def _budgeted_queue_get(
         queue: 'asyncio.Queue[T]',
         time_budget: float,
-    ) -> List[T]:
+    ) -> list[T]:
         result = []
         while time_budget > 0:
             start = time.perf_counter()
@@ -101,7 +99,7 @@ else:
         ack_window: float,
         metrics_client: MetricsAgent,
     ) -> None:
-        ack_ids: List[str] = []
+        ack_ids: list[str] = []
         while True:
             if not ack_ids:
                 ack_ids.append(await ack_queue.get())
@@ -203,7 +201,7 @@ else:
         nack_window: float,
         metrics_client: MetricsAgent,
     ) -> None:
-        ack_ids: List[str] = []
+        ack_ids: list[str] = []
         while True:
             if not ack_ids:
                 ack_ids.append(await nack_queue.get())
@@ -470,12 +468,12 @@ else:
         num_producers: int = 1,
         max_messages_per_producer: int = 100,
         ack_window: float = 0.3,
-        ack_deadline: Optional[float] = None,
+        ack_deadline: float | None = None,
         ack_deadline_cache_timeout: float = float('inf'),
         num_tasks_per_consumer: int = 1,
         enable_nack: bool = True,
         nack_window: float = 0.3,
-        metrics_client: Optional[MetricsAgent] = None,
+        metrics_client: MetricsAgent | None = None,
     ) -> None:
         # pylint: disable=too-many-locals
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(

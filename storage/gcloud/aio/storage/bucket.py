@@ -1,8 +1,5 @@
 import logging
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import TYPE_CHECKING
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -34,7 +31,7 @@ class Bucket:
 
     async def get_blob(
         self, blob_name: str, timeout: int = DEFAULT_TIMEOUT,
-        session: Optional[Session] = None,
+        session: Session | None = None,
     ) -> Blob:
         metadata = await self.storage.download_metadata(
             self.name, blob_name,
@@ -46,7 +43,7 @@ class Bucket:
 
     async def blob_exists(
         self, blob_name: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
     ) -> bool:
         try:
             await self.get_blob(blob_name, session=session)
@@ -63,8 +60,8 @@ class Bucket:
 
     async def list_blobs(
         self, prefix: str = '', match_glob: str = '',
-        delimiter: str = '', session: Optional[Session] = None,
-    ) -> List[str]:
+        delimiter: str = '', session: Session | None = None,
+    ) -> list[str]:
         params = {
             'delimiter': delimiter,
             'matchGlob': match_glob,
@@ -91,9 +88,9 @@ class Bucket:
         return Blob(self, blob_name, {'size': 0})
 
     async def get_metadata(
-            self, params: Optional[Dict[str, Any]] = None,
-            session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+            self, params: dict[str, Any] | None = None,
+            session: Session | None = None,
+    ) -> dict[str, Any]:
         return await self.storage.get_bucket_metadata(
             self.name, params=params,
             session=session,

@@ -1,19 +1,13 @@
-from typing import Dict
-from typing import Optional
-from typing import Union
-
-
 class ReadOnly:
-    def to_repr(self) -> Dict[str, str]:
+    def to_repr(self) -> dict[str, str]:
         return {}
 
 
 class ReadWrite:
-
-    def __init__(self, previous_transaction: Optional[str] = None):
+    def __init__(self, previous_transaction: str | None = None):
         self.previous_transaction = previous_transaction
 
-    def to_repr(self) -> Dict[str, str]:
+    def to_repr(self) -> dict[str, str]:
         if self.previous_transaction:
             return {'previousTransaction': self.previous_transaction}
 
@@ -23,10 +17,10 @@ class ReadWrite:
 class TransactionOptions:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/TransactionOptions
 
-    def __init__(self, option: Union[ReadWrite, ReadOnly]):
+    def __init__(self, option: ReadWrite | ReadOnly):
         self.option = option
 
-    def to_repr(self) -> Dict[str, Dict[str, str]]:
+    def to_repr(self) -> dict[str, dict[str, str]]:
         if isinstance(self.option, ReadOnly):
             return {'readOnly': self.option.to_repr()}
         if isinstance(self.option, ReadWrite):

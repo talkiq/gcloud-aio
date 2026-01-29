@@ -3,12 +3,7 @@ import logging
 import os
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -43,10 +38,10 @@ SCOPES = [
 
 log = logging.getLogger(__name__)
 
-LookUpResult = Dict[str, Union[str, List[Union[EntityResult, Key]]]]
+LookUpResult = dict[str, str | list[EntityResult | Key]]
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -66,15 +61,15 @@ class Datastore:
     query_result_kind = QueryResult
     value_kind = Value
 
-    _project: Optional[str]
+    _project: str | None
     _api_root: str
     _api_is_dev: bool
 
     def __init__(
-            self, project: Optional[str] = None,
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            namespace: str = '', session: Optional[Session] = None,
-            token: Optional[Token] = None, api_root: Optional[str] = None,
+            self, project: str | None = None,
+            service_file: str | IO[AnyStr] | None = None,
+            namespace: str = '', session: Session | None = None,
+            token: Token | None = None, api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self.namespace = namespace
@@ -104,10 +99,10 @@ class Datastore:
 
     @staticmethod
     def _make_commit_body(
-        mutations: List[Dict[str, Any]],
-        transaction: Optional[str] = None,
+        mutations: list[dict[str, Any]],
+        transaction: str | None = None,
         mode: Mode = Mode.TRANSACTIONAL,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         if not mutations:
             raise Exception('at least one mutation record is required')
 
@@ -125,7 +120,7 @@ class Datastore:
             data['transaction'] = transaction
         return data
 
-    async def headers(self) -> Dict[str, str]:
+    async def headers(self) -> dict[str, str]:
         if self._api_is_dev:
             return {}
 
@@ -138,8 +133,8 @@ class Datastore:
     @classmethod
     def make_mutation(
             cls, operation: Operation, key: Key,
-            properties: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+            properties: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if operation == Operation.DELETE:
             return {operation.value: key.to_repr()}
 
@@ -157,10 +152,10 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/allocateIds
     async def allocateIds(
-        self, keys: List[Key],
-        session: Optional[Session] = None,
+        self, keys: list[Key],
+        session: Session | None = None,
         timeout: float = 10.,
-    ) -> List[Key]:
+    ) -> list[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
 
@@ -186,7 +181,7 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
     # TODO: support readwrite vs readonly transaction types
     async def beginTransaction(
-        self, session: Optional[Session] = None,
+        self, session: Session | None = None,
         timeout: float = 10.,
     ) -> str:
         project = await self.project()
@@ -206,12 +201,12 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/commit
     async def commit(
-        self, mutations: List[Dict[str, Any]],
-        transaction: Optional[str] = None,
+        self, mutations: list[dict[str, Any]],
+        transaction: str | None = None,
         mode: Mode = Mode.TRANSACTIONAL,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: float = 10.,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
 
@@ -232,7 +227,7 @@ class Datastore:
             url, data=payload, headers=headers,
             timeout=timeout,
         )
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
 
         return {
             'mutationResults': [
@@ -245,10 +240,10 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/admin/rest/v1/projects/export
     async def export(
         self, output_bucket_prefix: str,
-        kinds: Optional[List[str]] = None,
-        namespaces: Optional[List[str]] = None,
-        labels: Optional[Dict[str, str]] = None,
-        session: Optional[Session] = None,
+        kinds: list[str] | None = None,
+        namespaces: list[str] | None = None,
+        labels: dict[str, str] | None = None,
+        session: Session | None = None,
         timeout: float = 10.,
     ) -> DatastoreOperation:
         project = await self.project()
@@ -274,14 +269,14 @@ class Datastore:
             url, data=payload, headers=headers,
             timeout=timeout,
         )
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
     async def get_datastore_operation(
         self, name: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: float = 10.,
     ) -> DatastoreOperation:
         url = f'{self._api_root}/{name}'
@@ -293,18 +288,18 @@ class Datastore:
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
 
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/lookup
     async def lookup(
-            self, keys: List[Key],
-            transaction: Optional[str] = None,
-            newTransaction: Optional[TransactionOptions] = None,
+            self, keys: list[Key],
+            transaction: str | None = None,
+            newTransaction: TransactionOptions | None = None,
             consistency: Consistency = Consistency.STRONG,
-            read_time: Optional[str] = None,
-            session: Optional[Session] = None, timeout: float = 10.,
+            read_time: str | None = None,
+            session: Session | None = None, timeout: float = 10.,
     ) -> LookUpResult:
         # pylint: disable=too-many-locals
         project = await self.project()
@@ -331,11 +326,11 @@ class Datastore:
             timeout=timeout,
         )
 
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
 
         return self._build_lookup_result(data)
 
-    def _build_lookup_result(self, data: Dict[str, Any]) -> LookUpResult:
+    def _build_lookup_result(self, data: dict[str, Any]) -> LookUpResult:
         result: LookUpResult = {
             'found': [
                 self.entity_result_kind.from_repr(e)
@@ -361,9 +356,9 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/ReadOptions
     def _build_read_options(
             self, consistency: Consistency,
-            newTransaction: Optional[TransactionOptions],
-            transaction: Optional[str], read_time: Optional[str],
-    ) -> Dict[str, Any]:
+            newTransaction: TransactionOptions | None,
+            transaction: str | None, read_time: str | None,
+    ) -> dict[str, Any]:
         # TODO: expose ReadOptions directly to users
         if transaction:
             return {'transaction': transaction}
@@ -378,8 +373,8 @@ class Datastore:
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/reserveIds
     async def reserveIds(
-        self, keys: List[Key], database_id: str = '',
-        session: Optional[Session] = None,
+        self, keys: list[Key], database_id: str = '',
+        session: Session | None = None,
         timeout: float = 10.,
     ) -> None:
         project = await self.project()
@@ -402,7 +397,7 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(
         self, transaction: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: float = 10.,
     ) -> None:
         project = await self.project()
@@ -424,12 +419,12 @@ class Datastore:
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
         self, query: BaseQuery,
-        explain_options: Optional[ExplainOptions] = None,
-        transaction: Optional[str] = None,
-        newTransaction: Optional[TransactionOptions] = None,
+        explain_options: ExplainOptions | None = None,
+        transaction: str | None = None,
+        newTransaction: TransactionOptions | None = None,
         consistency: Consistency = Consistency.EVENTUAL,
-        read_time: Optional[str] = None,
-        session: Optional[Session] = None,
+        read_time: str | None = None,
+        session: Session | None = None,
         timeout: float = 10.,
     ) -> QueryResult:
         # pylint: disable=too-many-locals
@@ -464,37 +459,37 @@ class Datastore:
             timeout=timeout,
         )
 
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return self.query_result_kind.from_repr(data)
 
     async def delete(
         self, key: Key,
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         return await self.operate(Operation.DELETE, key, session=session)
 
     async def insert(
-        self, key: Key, properties: Dict[str, Any],
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        self, key: Key, properties: dict[str, Any],
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         return await self.operate(
             Operation.INSERT, key, properties,
             session=session,
         )
 
     async def update(
-        self, key: Key, properties: Dict[str, Any],
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        self, key: Key, properties: dict[str, Any],
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         return await self.operate(
             Operation.UPDATE, key, properties,
             session=session,
         )
 
     async def upsert(
-        self, key: Key, properties: Dict[str, Any],
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        self, key: Key, properties: dict[str, Any],
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         return await self.operate(
             Operation.UPSERT, key, properties,
             session=session,
@@ -503,9 +498,9 @@ class Datastore:
     # TODO: accept Entity rather than key/properties?
     async def operate(
         self, operation: Operation, key: Key,
-        properties: Optional[Dict[str, Any]] = None,
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        properties: dict[str, Any] | None = None,
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         transaction = await self.beginTransaction(session=session)
         mutation = self.make_mutation(operation, key, properties=properties)
         return await self.commit(

@@ -1,14 +1,12 @@
 from collections.abc import Sequence
 from typing import Any
-from typing import Dict
-from typing import List
 
 from . import value
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
 class Array(Sequence):  # type: ignore[type-arg]
-    def __init__(self, items: List[value.Value]) -> None:
+    def __init__(self, items: list[value.Value]) -> None:
         super(Sequence, self).__init__()  # pylint: disable=bad-super-call
         self.items = items
 
@@ -27,8 +25,8 @@ class Array(Sequence):  # type: ignore[type-arg]
         return len(self.items)
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Array':
+    def from_repr(cls, data: dict[str, Any]) -> 'Array':
         return cls([value.Value.from_repr(x) for x in data.get('values', [])])
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {'values': [x.to_repr() for x in self]}

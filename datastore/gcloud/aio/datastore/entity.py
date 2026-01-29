@@ -1,6 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 from .key import Key
 from .value import Value
@@ -11,8 +9,8 @@ class Entity:
     value_kind = Value
 
     def __init__(
-            self, key: Optional[Key],
-            properties: Optional[Dict[str, Dict[str, Any]]] = None,
+            self, key: Key | None,
+            properties: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         self.key = key
         self.properties = {
@@ -33,16 +31,16 @@ class Entity:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Entity':
+    def from_repr(cls, data: dict[str, Any]) -> 'Entity':
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
         # "for example, an entity in Value.entity_value may have no key"
         if data.get('key'):
-            key: Optional[Key] = cls.key_kind.from_repr(data['key'])
+            key: Key | None = cls.key_kind.from_repr(data['key'])
         else:
             key = None
         return cls(key, data.get('properties'))
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'key': self.key.to_repr() if self.key else None,
             'properties': {
@@ -77,15 +75,15 @@ class EntityResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'EntityResult':
+    def from_repr(cls, data: dict[str, Any]) -> 'EntityResult':
         return cls(
             cls.entity_kind.from_repr(data['entity']),
             data.get('version', ''),
             data.get('cursor', ''),
         )
 
-    def to_repr(self) -> Dict[str, Any]:
-        data: Dict[str, Any] = {
+    def to_repr(self) -> dict[str, Any]:
+        data: dict[str, Any] = {
             'entity': self.entity.to_repr(),
         }
         if self.version:

@@ -1,7 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Union
 
 from .array import Array
 from .constants import CompositeFilterOperator
@@ -16,10 +13,10 @@ class BaseFilter:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'BaseFilter':
+    def from_repr(cls, data: dict[str, Any]) -> 'BaseFilter':
         raise NotImplementedError
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -38,7 +35,7 @@ class Filter:
         return self.inner_filter == other.inner_filter
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Filter':
+    def from_repr(cls, data: dict[str, Any]) -> 'Filter':
         if 'compositeFilter' in data:
             return cls(CompositeFilter.from_repr(data['compositeFilter']))
         if 'propertyFilter' in data:
@@ -46,7 +43,7 @@ class Filter:
 
         raise ValueError(f'invalid filter name: {data.keys()}')
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             self.inner_filter.json_key: self.inner_filter.to_repr(),
         }
@@ -58,7 +55,7 @@ class CompositeFilter(BaseFilter):
 
     def __init__(
         self, operator: CompositeFilterOperator,
-        filters: List[Filter],
+        filters: list[Filter],
     ) -> None:
         self.operator = operator
         self.filters = filters
@@ -73,12 +70,12 @@ class CompositeFilter(BaseFilter):
         )
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'CompositeFilter':
+    def from_repr(cls, data: dict[str, Any]) -> 'CompositeFilter':
         operator = CompositeFilterOperator(data['op'])
         filters = [Filter.from_repr(f) for f in data['filters']]
         return cls(operator=operator, filters=filters)
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'filters': [f.to_repr() for f in self.filters],
             'op': self.operator.value,
@@ -91,7 +88,7 @@ class PropertyFilter(BaseFilter):
 
     def __init__(
         self, prop: str, operator: PropertyFilterOperator,
-        value: Union[Value, Array],
+        value: Value | Array,
     ) -> None:
         self.prop = prop
         self.operator = operator
@@ -108,14 +105,14 @@ class PropertyFilter(BaseFilter):
         )
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'PropertyFilter':
+    def from_repr(cls, data: dict[str, Any]) -> 'PropertyFilter':
         prop = data['property']['name']
         operator = PropertyFilterOperator(data['op'])
         value = Value.from_repr(data['value'])
         return cls(prop=prop, operator=operator, value=value)
 
-    def to_repr(self) -> Dict[str, Any]:
-        rep: Dict[str, Any] = {
+    def to_repr(self) -> dict[str, Any]:
+        rep: dict[str, Any] = {
             'op': self.operator.value,
             'property': {'name': self.prop},
         }

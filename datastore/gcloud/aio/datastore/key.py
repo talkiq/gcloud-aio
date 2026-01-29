@@ -1,13 +1,10 @@
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 
 
 class PathElement:
     def __init__(
-        self, kind: str, *, id_: Optional[int] = None,
-        name: Optional[str] = None,
+        self, kind: str, *, id_: int | None = None,
+        name: str | None = None,
     ) -> None:
         self.kind = kind
 
@@ -29,14 +26,14 @@ class PathElement:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'PathElement':
+    def from_repr(cls, data: dict[str, Any]) -> 'PathElement':
         kind: str = data['kind']
-        id_: Optional[int] = data.get('id')
-        name: Optional[str] = data.get('name')
+        id_: int | None = data.get('id')
+        name: str | None = data.get('name')
         return cls(kind, id_=id_, name=name)
 
-    def to_repr(self) -> Dict[str, Any]:
-        data: Dict[str, Any] = {'kind': self.kind}
+    def to_repr(self) -> dict[str, Any]:
+        data: dict[str, Any] = {'kind': self.kind}
         if self.id:
             data['id'] = self.id
         elif self.name:
@@ -49,7 +46,7 @@ class Key:
     path_element_kind = PathElement
 
     def __init__(
-        self, project: str, path: List[PathElement],
+        self, project: str, path: list[PathElement],
         namespace: str = '',
     ) -> None:
         self.project = project
@@ -70,7 +67,7 @@ class Key:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Key':
+    def from_repr(cls, data: dict[str, Any]) -> 'Key':
         return cls(
             data['partitionId']['projectId'],
             path=[
@@ -80,7 +77,7 @@ class Key:
             namespace=data['partitionId'].get('namespaceId', ''),
         )
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'partitionId': {
                 'projectId': self.project,
