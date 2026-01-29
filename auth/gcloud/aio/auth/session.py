@@ -1,4 +1,3 @@
-import importlib.metadata
 import logging
 import threading
 import warnings
@@ -140,29 +139,19 @@ if not BUILD_GCLOUD_REST:
         _session: aiohttp.ClientSession  # type: ignore[assignment]
         _timeout: Timeout  # type: ignore[assignment]
 
-        # N.B. `aiohttp.TCPConnector` SSL config is not true / false / CA
-        # bundle path like `requests`, but `None` / false / object instead:
-        # * `None` for default SSL check
-        # * `False` to skip SSL certificate validation
-        # * `aiohttp.Fingerprint` for fingerprint validation
-        # * `ssl.SSLContext` for custom SSL certificate validation
-        #
-        # https://docs.aiohttp.org/en/v3.9.1/client_reference.html#aiohttp.TCPConnector
         @property
         def session(self) -> aiohttp.ClientSession:  # type: ignore[override]
             if not self._session:
-                ssl_flag: bool | None = False
-                if self._ssl:
-                    aiohttp_version = importlib.metadata.version('aiohttp')
-                    major, minor, patch = aiohttp_version.split('.')
-                    if int(major) > 3 or int(minor) > 9 or int(patch) > 1:
-                        ssl_flag = True
-                    else:
-                        # TODO: drop when min supported aiohttp is 3.9.2
-                        ssl_flag = None
-
-                connector = aiohttp.TCPConnector(
-                    ssl=ssl_flag)  # type: ignore[arg-type]
+                # N.B. `aiohttp.TCPConnector` SSL config is not true / false /
+                # CA bundle path like `requests`, but `None` / false / object
+                # instead:
+                # * `None` for default SSL check (ie. enabled)
+                # * `False` to skip SSL certificate validation
+                # * `aiohttp.Fingerprint` for fingerprint validation
+                # * `ssl.SSLContext` for custom SSL certificate validation
+                #
+                # https://docs.aiohttp.org/en/v3.9.2/client_reference.html#aiohttp.TCPConnector
+                connector = aiohttp.TCPConnector(ssl=self._ssl)
 
                 if isinstance(self._timeout, aiohttp.ClientTimeout):
                     timeout = self._timeout
