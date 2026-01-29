@@ -220,4 +220,4 @@ repos:
     - id: check-renovate
       language: python
       additional_dependencies:
-      - pyjson5==1.6.9
+      - pyjson5==2.0.0
