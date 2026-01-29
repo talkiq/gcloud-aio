@@ -70,7 +70,7 @@ repos:
     -   id: reorder-python-imports
         args: [--py310-plus]
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.0
+    rev: v3.21.2
     hooks:
     -   id: pyupgrade
         args: [--py310-plus]
