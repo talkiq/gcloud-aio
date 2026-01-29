@@ -157,7 +157,7 @@ private_key data</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>bucket</strong> (<a class="reference internal" href="../bucket/index.html#storage.bucket.Bucket" title="storage.bucket.Bucket"><em>storage.bucket.Bucket</em></a>)</p></li>
 <li><p><strong>name</strong> (<em>str</em>)</p></li>
-<li><p><strong>metadata</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -193,7 +193,7 @@ private_key data</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>timeout</strong> (<em>int</em>)</p></li>
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>auto_decompress</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -210,12 +210,12 @@ private_key data</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>Any</em>)</p></li>
-<li><p><strong>content_type</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>content_type</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict[str, Any]</p>
+<dd class="field-even"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -231,13 +231,13 @@ with the link.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>expiration</strong> (<em>int</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
-<li><p><strong>query_params</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>query_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>http_method</strong> (<em>str</em>)</p></li>
-<li><p><strong>iam_client</strong> (<em>Optional</em><em>[</em><em>gcloud.aio.auth.IamClient</em><em>]</em>)</p></li>
-<li><p><strong>service_account_email</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>token</strong> (<em>Optional</em><em>[</em><em>gcloud.aio.auth.Token</em><em>]</em>)</p></li>
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>iam_client</strong> (<em>gcloud.aio.auth.IamClient</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>service_account_email</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>token</strong> (<em>gcloud.aio.auth.Token</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -272,8 +272,8 @@ with the link.</p>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>str_to_sign</strong> (<em>str</em>)</p></li>
 <li><p><strong>iam_client</strong> (<em>gcloud.aio.auth.IamClient</em>)</p></li>
-<li><p><strong>service_account_email</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>service_account_email</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>

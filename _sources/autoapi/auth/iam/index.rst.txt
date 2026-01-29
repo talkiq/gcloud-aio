@@ -51,7 +51,7 @@ Module Contents
 
 
    .. py:property:: service_account_email
-      :type: Optional[str]
+      :type: str | None
 
 
 

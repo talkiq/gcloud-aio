@@ -82,7 +82,7 @@
 <dt class="field-odd">Abstractmethod<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-even"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#datastore.filter.BaseFilter" title="datastore.filter.BaseFilter">BaseFilter</a></p>
@@ -95,7 +95,7 @@
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.BaseFilter.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -143,7 +143,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.Filter.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.filter.Filter" title="datastore.filter.Filter">Filter</a></p>
@@ -156,7 +156,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.Filter.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -171,7 +171,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>operator</strong> (<a class="reference internal" href="../constants/index.html#datastore.constants.CompositeFilterOperator" title="datastore.constants.CompositeFilterOperator"><em>datastore.constants.CompositeFilterOperator</em></a>)</p></li>
-<li><p><strong>filters</strong> (<em>List</em><em>[</em><a class="reference internal" href="#datastore.filter.Filter" title="datastore.filter.Filter"><em>Filter</em></a><em>]</em>)</p></li>
+<li><p><strong>filters</strong> (<em>list</em><em>[</em><a class="reference internal" href="#datastore.filter.Filter" title="datastore.filter.Filter"><em>Filter</em></a><em>]</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -208,7 +208,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.CompositeFilter.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.filter.CompositeFilter" title="datastore.filter.CompositeFilter">CompositeFilter</a></p>
@@ -221,7 +221,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.CompositeFilter.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,7 +237,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prop</strong> (<em>str</em>)</p></li>
 <li><p><strong>operator</strong> (<a class="reference internal" href="../constants/index.html#datastore.constants.PropertyFilterOperator" title="datastore.constants.PropertyFilterOperator"><em>datastore.constants.PropertyFilterOperator</em></a>)</p></li>
-<li><p><strong>value</strong> (<em>Union</em><em>[</em><a class="reference internal" href="../value/index.html#datastore.value.Value" title="datastore.value.Value"><em>datastore.value.Value</em></a><em>, </em><a class="reference internal" href="../array/index.html#datastore.array.Array" title="datastore.array.Array"><em>datastore.array.Array</em></a><em>]</em>)</p></li>
+<li><p><strong>value</strong> (<a class="reference internal" href="../value/index.html#datastore.value.Value" title="datastore.value.Value"><em>datastore.value.Value</em></a><em> | </em><a class="reference internal" href="../array/index.html#datastore.array.Array" title="datastore.array.Array"><em>datastore.array.Array</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -279,7 +279,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.PropertyFilter.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.filter.PropertyFilter" title="datastore.filter.PropertyFilter">PropertyFilter</a></p>
@@ -292,7 +292,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.filter.PropertyFilter.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>

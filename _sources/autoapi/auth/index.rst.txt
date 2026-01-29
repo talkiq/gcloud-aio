@@ -173,7 +173,7 @@ Package Contents
 
 
    .. py:property:: service_account_email
-      :type: Optional[str]
+      :type: str | None
 
 
 
@@ -297,7 +297,7 @@ Package Contents
 
 
    .. py:attribute:: impersonation_uri
-      :type:  Optional[str]
+      :type:  str | None
       :value: None
 
 

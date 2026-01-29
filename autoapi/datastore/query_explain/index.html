@@ -80,7 +80,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, bool]</p>
+<dd class="field-odd"><p>dict[str, bool]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -90,7 +90,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainOptions.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query_explain.ExplainOptions" title="datastore.query_explain.ExplainOptions">ExplainOptions</a></p>
@@ -123,7 +123,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query_scope</strong> (<em>str</em>)</p></li>
-<li><p><strong>properties</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>properties</strong> (<em>list</em><em>[</em><em>tuple</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -170,7 +170,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query_explain.IndexDefinition" title="datastore.query_explain.IndexDefinition">IndexDefinition</a></p>
@@ -183,7 +183,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.IndexDefinition.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -196,7 +196,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <dd><p>Container class for planSummary returned by query explain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>indexes_used</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#datastore.query_explain.IndexDefinition" title="datastore.query_explain.IndexDefinition"><em>IndexDefinition</em></a><em>]</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>indexes_used</strong> (<em>list</em><em>[</em><a class="reference internal" href="#datastore.query_explain.IndexDefinition" title="datastore.query_explain.IndexDefinition"><em>IndexDefinition</em></a><em>] </em><em>| </em><em>None</em>)</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -232,7 +232,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary">PlanSummary</a></p>
@@ -245,7 +245,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.PlanSummary.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -262,7 +262,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <li><p><strong>results_returned</strong> (<em>int</em>)</p></li>
 <li><p><strong>execution_duration</strong> (<em>float</em>)</p></li>
 <li><p><strong>read_operations</strong> (<em>int</em>)</p></li>
-<li><p><strong>debug_stats</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>debug_stats</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -315,7 +315,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <dd><p>Convert execution_duration from str (e.g. “0.01785s”) to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>execution_duration</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>execution_duration</strong> (<em>str</em><em> | </em><em>float</em><em> | </em><em>None</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>float</p>
@@ -329,10 +329,10 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <dd><p>Convert debug_stats values from str to int.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>debug_stats</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>debug_stats</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict[str, Any]</p>
+<dd class="field-even"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -342,7 +342,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats">ExecutionStats</a></p>
@@ -355,7 +355,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExecutionStats.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,8 +369,8 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>plan_summary</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary"><em>PlanSummary</em></a><em>]</em>)</p></li>
-<li><p><strong>execution_stats</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats"><em>ExecutionStats</em></a><em>]</em>)</p></li>
+<li><p><strong>plan_summary</strong> (<a class="reference internal" href="#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary"><em>PlanSummary</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>execution_stats</strong> (<a class="reference internal" href="#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats"><em>ExecutionStats</em></a><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -412,7 +412,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics">ExplainMetrics</a></p>
@@ -425,7 +425,7 @@ properties: [(“done”, “ASC”), (“priority”, “DESC”), (“__name__
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query_explain.ExplainMetrics.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -230,7 +230,7 @@ Module Contents
 .. py:class:: BigqueryBase(project = None, service_file = None, session = None, token = None, api_root = None)
 
    .. py:attribute:: _project
-      :type:  Optional[str]
+      :type:  str | None
 
 
    .. py:attribute:: _api_root

@@ -93,7 +93,7 @@
 <dt class="field-odd">Abstractmethod<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-even"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#datastore.query.BaseQuery" title="datastore.query.BaseQuery">BaseQuery</a></p>
@@ -106,7 +106,7 @@
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.BaseQuery.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -121,14 +121,14 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kind</strong> (<em>str</em>)</p></li>
-<li><p><strong>query_filter</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../filter/index.html#datastore.filter.Filter" title="datastore.filter.Filter"><em>datastore.filter.Filter</em></a><em>]</em>)</p></li>
-<li><p><strong>order</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../property_order/index.html#datastore.property_order.PropertyOrder" title="datastore.property_order.PropertyOrder"><em>datastore.property_order.PropertyOrder</em></a><em>]</em><em>]</em>)</p></li>
+<li><p><strong>query_filter</strong> (<a class="reference internal" href="../filter/index.html#datastore.filter.Filter" title="datastore.filter.Filter"><em>datastore.filter.Filter</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>order</strong> (<em>list</em><em>[</em><a class="reference internal" href="../property_order/index.html#datastore.property_order.PropertyOrder" title="datastore.property_order.PropertyOrder"><em>datastore.property_order.PropertyOrder</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>start_cursor</strong> (<em>str</em>)</p></li>
 <li><p><strong>end_cursor</strong> (<em>str</em>)</p></li>
-<li><p><strong>offset</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>)</p></li>
-<li><p><strong>limit</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>)</p></li>
-<li><p><strong>projection</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../projection/index.html#datastore.projection.Projection" title="datastore.projection.Projection"><em>datastore.projection.Projection</em></a><em>]</em><em>]</em>)</p></li>
-<li><p><strong>distinct_on</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>offset</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>limit</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>projection</strong> (<em>list</em><em>[</em><a class="reference internal" href="../projection/index.html#datastore.projection.Projection" title="datastore.projection.Projection"><em>datastore.projection.Projection</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>distinct_on</strong> (<em>list</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -200,7 +200,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.Query.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query.Query" title="datastore.query.Query">Query</a></p>
@@ -213,7 +213,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.Query.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -229,8 +229,8 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query_string</strong> (<em>str</em>)</p></li>
 <li><p><strong>allow_literals</strong> (<em>bool</em>)</p></li>
-<li><p><strong>named_bindings</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
-<li><p><strong>positional_bindings</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>named_bindings</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>positional_bindings</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -277,7 +277,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.GQLQuery.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query.GQLQuery" title="datastore.query.GQLQuery">GQLQuery</a></p>
@@ -290,7 +290,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_param_from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_repr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.GQLQuery._param_from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>param_repr</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>param_repr</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Any</p>
@@ -303,7 +303,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.GQLQuery.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -316,7 +316,7 @@
 <dd class="field-odd"><p><strong>param</strong> (<em>Any</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict[str, Any]</p>
+<dd class="field-even"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,12 +359,12 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>end_cursor</strong> (<em>str</em>)</p></li>
 <li><p><strong>entity_result_type</strong> (<a class="reference internal" href="../constants/index.html#datastore.constants.ResultType" title="datastore.constants.ResultType"><em>datastore.constants.ResultType</em></a>)</p></li>
-<li><p><strong>entity_results</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="../entity/index.html#datastore.entity.EntityResult" title="datastore.entity.EntityResult"><em>datastore.entity.EntityResult</em></a><em>]</em><em>]</em>)</p></li>
+<li><p><strong>entity_results</strong> (<em>list</em><em>[</em><a class="reference internal" href="../entity/index.html#datastore.entity.EntityResult" title="datastore.entity.EntityResult"><em>datastore.entity.EntityResult</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>more_results</strong> (<a class="reference internal" href="../constants/index.html#datastore.constants.MoreResultsType" title="datastore.constants.MoreResultsType"><em>datastore.constants.MoreResultsType</em></a>)</p></li>
 <li><p><strong>skipped_cursor</strong> (<em>str</em>)</p></li>
 <li><p><strong>skipped_results</strong> (<em>int</em>)</p></li>
 <li><p><strong>snapshot_version</strong> (<em>str</em>)</p></li>
-<li><p><strong>read_time</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>read_time</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -441,7 +441,7 @@
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResultBatch.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query.QueryResultBatch" title="datastore.query.QueryResultBatch">QueryResultBatch</a></p>
@@ -454,7 +454,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResultBatch.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -469,9 +469,9 @@ explain metrics).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>result_batch</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#datastore.query.QueryResultBatch" title="datastore.query.QueryResultBatch"><em>QueryResultBatch</em></a><em>]</em>)</p></li>
-<li><p><strong>explain_metrics</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics"><em>datastore.query_explain.ExplainMetrics</em></a><em>]</em>)</p></li>
-<li><p><strong>transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>result_batch</strong> (<a class="reference internal" href="#datastore.query.QueryResultBatch" title="datastore.query.QueryResultBatch"><em>QueryResultBatch</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>explain_metrics</strong> (<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics"><em>datastore.query_explain.ExplainMetrics</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>transaction</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -523,7 +523,7 @@ explain metrics).</p>
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#datastore.query.QueryResult" title="datastore.query.QueryResult">QueryResult</a></p>
@@ -536,7 +536,7 @@ explain metrics).</p>
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -546,7 +546,7 @@ explain metrics).</p>
 <span class="sig-name descname"><span class="pre">get_explain_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_explain_metrics" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics">datastore.query_explain.ExplainMetrics</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExplainMetrics" title="datastore.query_explain.ExplainMetrics">datastore.query_explain.ExplainMetrics</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -556,7 +556,7 @@ explain metrics).</p>
 <span class="sig-name descname"><span class="pre">get_plan_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_plan_summary" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary">datastore.query_explain.PlanSummary</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="../query_explain/index.html#datastore.query_explain.PlanSummary" title="datastore.query_explain.PlanSummary">datastore.query_explain.PlanSummary</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -566,7 +566,7 @@ explain metrics).</p>
 <span class="sig-name descname"><span class="pre">get_execution_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.query.QueryResult.get_execution_stats" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[<a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats">datastore.query_explain.ExecutionStats</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="../query_explain/index.html#datastore.query_explain.ExecutionStats" title="datastore.query_explain.ExecutionStats">datastore.query_explain.ExecutionStats</a> | None</p>
 </dd>
 </dl>
 </dd></dl>

@@ -195,7 +195,7 @@ Module Contents
 
 
    .. py:attribute:: access_token
-      :type:  Optional[str]
+      :type:  str | None
       :value: None
 
 
@@ -285,7 +285,7 @@ Module Contents
 
 
    .. py:attribute:: impersonation_uri
-      :type:  Optional[str]
+      :type:  str | None
       :value: None
 
 

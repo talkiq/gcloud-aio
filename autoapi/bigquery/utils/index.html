@@ -110,12 +110,12 @@ accidentally convert them to the schema type.</p></li>
 <li><p>REPEATED fields are nested a biot differently than expected, so we need
 to flatten <em>first</em>, then convert.</p></li>
 </ul>
-<p><cite>Field = Dict[str, Union[str, ‘Field’]]</cite>, but wow is that difficult to
+<p><cite>Field = dict[str, str | ‘Field’]</cite>, but wow is that difficult to
 represent in a backwards-enough compatible fashion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
+<li><p><strong>field</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p></li>
 <li><p><strong>value</strong> (<em>Any</em>)</p></li>
 </ul>
 </dd>
@@ -136,10 +136,10 @@ being a dictionary of field names to the row’s value.</p>
 defined in the response (eg. into builtin python types).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>response</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>response</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>List[Dict[str, Any]]</p>
+<dd class="field-even"><p>list[dict[str, Any]]</p>
 </dd>
 </dl>
 </dd></dl>

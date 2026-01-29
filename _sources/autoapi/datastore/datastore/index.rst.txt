@@ -67,7 +67,7 @@ Module Contents
 
 
    .. py:attribute:: _project
-      :type:  Optional[str]
+      :type:  str | None
 
 
    .. py:attribute:: _api_root

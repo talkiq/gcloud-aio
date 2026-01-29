@@ -131,7 +131,7 @@ Module Contents
 
 
    .. py:attribute:: _iter
-      :type:  Optional[Iterator[bytes]]
+      :type:  collections.abc.Iterator[bytes] | None
       :value: None
 
 

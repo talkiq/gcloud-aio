@@ -80,9 +80,9 @@
 <li><p><strong>ack_id</strong> (<em>str</em>)</p></li>
 <li><p><strong>message_id</strong> (<em>str</em>)</p></li>
 <li><p><strong>publish_time</strong> (<em>datetime.datetime</em>)</p></li>
-<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>bytes</em><em>]</em>)</p></li>
-<li><p><strong>attributes</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>)</p></li>
-<li><p><strong>delivery_attempt</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>attributes</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>delivery_attempt</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -121,7 +121,7 @@
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">received_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.from_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>received_message</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>received_message</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pubsub.subscriber_message.SubscriberMessage" title="pubsub.subscriber_message.SubscriberMessage">SubscriberMessage</a></p>
@@ -134,7 +134,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Any]</p>
+<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>

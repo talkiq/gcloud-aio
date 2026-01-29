@@ -53,7 +53,7 @@ Module Contents
 
 
    .. py:property:: session
-      :type: Optional[requests.Session]
+      :type: requests.Session | None
 
       :abstractmethod:
 

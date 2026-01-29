@@ -75,7 +75,7 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 <li><p><strong>verify_ssl</strong> (<em>bool</em>)</p></li>
 </ul>
@@ -113,7 +113,7 @@
 <dt class="field-odd">Abstractmethod<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Optional[requests.Session]</p>
+<dd class="field-even"><p>requests.Session | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -127,10 +127,10 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>, </em><em>IO</em><em>[</em><em>AnyStr</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>AnyStr</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -148,9 +148,9 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>stream</strong> (<em>bool</em>)</p></li>
 <li><p><strong>auto_decompress</strong> (<em>bool</em>)</p></li>
 </ul>
@@ -170,10 +170,10 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -191,8 +191,8 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>, </em><em>IO</em><em>[</em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>Any</em><em>]</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -211,8 +211,8 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -231,9 +231,9 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>allow_redirects</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -253,7 +253,7 @@
 <dd class="field-even"><ul class="simple">
 <li><p><strong>method</strong> (<em>str</em>)</p></li>
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>auto_raise_for_status</strong> (<em>bool</em>)</p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
 </ul>
@@ -290,7 +290,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>session</strong> (<em>Optional</em><em>[</em><em>requests.Session</em><em>]</em>)</p></li>
+<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 <li><p><strong>verify_ssl</strong> (<em>bool</em>)</p></li>
 </ul>
@@ -328,10 +328,10 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>, </em><em>IO</em><em>[</em><em>AnyStr</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>AnyStr</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -347,9 +347,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>stream</strong> (<em>bool</em>)</p></li>
 <li><p><strong>auto_decompress</strong> (<em>bool</em>)</p></li>
 </ul>
@@ -367,10 +367,10 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -386,8 +386,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>bytes</em><em>, </em><em>str</em><em>, </em><em>IO</em><em>[</em><em>Any</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>Any</em><em>]</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -404,8 +404,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -422,9 +422,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>allow_redirects</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -442,7 +442,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>method</strong> (<em>str</em>)</p></li>
 <li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
+<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
 <li><p><strong>auto_raise_for_status</strong> (<em>bool</em>)</p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
 </ul>

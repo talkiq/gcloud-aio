@@ -62,7 +62,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.transaction_options.ReadOnly.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, str]</p>
+<dd class="field-odd"><p>dict[str, str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -74,7 +74,7 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.transaction_options.</span></span><span class="sig-name descname"><span class="pre">ReadWrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">previous_transaction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.transaction_options.ReadWrite" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>previous_transaction</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>)</p>
+<dd class="field-odd"><p><strong>previous_transaction</strong> (<em>str</em><em> | </em><em>None</em>)</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -87,7 +87,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.transaction_options.ReadWrite.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, str]</p>
+<dd class="field-odd"><p>dict[str, str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -99,7 +99,7 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.transaction_options.</span></span><span class="sig-name descname"><span class="pre">TransactionOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.transaction_options.TransactionOptions" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>option</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#datastore.transaction_options.ReadWrite" title="datastore.transaction_options.ReadWrite"><em>ReadWrite</em></a><em>, </em><a class="reference internal" href="#datastore.transaction_options.ReadOnly" title="datastore.transaction_options.ReadOnly"><em>ReadOnly</em></a><em>]</em>)</p>
+<dd class="field-odd"><p><strong>option</strong> (<a class="reference internal" href="#datastore.transaction_options.ReadWrite" title="datastore.transaction_options.ReadWrite"><em>ReadWrite</em></a><em> | </em><a class="reference internal" href="#datastore.transaction_options.ReadOnly" title="datastore.transaction_options.ReadOnly"><em>ReadOnly</em></a>)</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -112,7 +112,7 @@
 <span class="sig-name descname"><span class="pre">to_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.transaction_options.TransactionOptions.to_repr" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, Dict[str, str]]</p>
+<dd class="field-odd"><p>dict[str, dict[str, str]]</p>
 </dd>
 </dl>
 </dd></dl>

@@ -55,7 +55,7 @@ Module Contents
    * REPEATED fields are nested a biot differently than expected, so we need
      to flatten *first*, then convert.
 
-   `Field = Dict[str, Union[str, 'Field']]`, but wow is that difficult to
+   `Field = dict[str, str | 'Field']`, but wow is that difficult to
    represent in a backwards-enough compatible fashion.
 
 
