@@ -161,7 +161,7 @@ repos:
         - flake8-2020==1.8.1
         - flake8-broken-line==1.0.0
         - flake8-builtins==2.5.0
-        - flake8-comprehensions==3.16.0
+        - flake8-comprehensions==3.17.0
 -   repo: https://github.com/hhatto/autopep8
     rev: v2.3.2
     hooks:
