@@ -7,7 +7,10 @@
     "packageRules": [
         {
             // only autoupdate python patches, we'll handle minors more explicitly
-            "matchPackageNames": ["python"],
+            "matchDepNames": [
+                "python",
+                "python/cpython",
+            ],
             "matchUpdateTypes": ["major", "minor"],
             "enabled": false,
         },
