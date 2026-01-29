@@ -97,7 +97,7 @@ repos:
     additional_dependencies:
     - aiohttp==3.13.3
     - backoff==2.2.1
-    - cryptography==43.0.3
+    - cryptography==45.0.7
     - pyjwt==2.10.1
     - types-requests==2.32.4.20260107
     args:
