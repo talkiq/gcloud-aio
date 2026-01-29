@@ -3,12 +3,7 @@ import os
 from copy import deepcopy
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -26,7 +21,7 @@ SCOPES = [
 ]
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -42,9 +37,9 @@ class SubscriberClient:
     _api_is_dev: bool
 
     def __init__(
-            self, *, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            token: Optional[Token] = None, session: Optional[Session] = None,
-            api_root: Optional[str] = None,
+            self, *, service_file: str | IO[AnyStr] | None = None,
+            token: Token | None = None, session: Session | None = None,
+            api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
 
@@ -70,7 +65,7 @@ class SubscriberClient:
     def snapshot_path(cls, project: str, snapshot: str) -> str:
         return f'{cls.project_path(project)}/snapshots/{snapshot}'
 
-    async def _headers(self) -> Dict[str, str]:
+    async def _headers(self) -> dict[str, str]:
         headers = {
             'Content-Type': 'application/json',
         }
@@ -86,47 +81,47 @@ class SubscriberClient:
         self,
         subscription: str,
         topic: str,
-        body: Optional[Dict[str, Any]] = None,
+        body: dict[str, Any] | None = None,
         *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create subscription.
         """
         body = {} if not body else body
         url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
-        payload: Dict[str, Any] = deepcopy(body)
+        payload: dict[str, Any] = deepcopy(body)
         payload.update({'topic': topic})
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/patch
     async def patch_subscription(
         self,
         subscription: str,
-        body: Dict[str, Any],
+        body: dict[str, Any],
         *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         url = f'{self._api_root}/{subscription}'
         headers = await self._headers()
         encoded = json.dumps(body).encode()
         s = AioSession(session) if session else self.session
         resp = await s.patch(url, data=encoded, headers=headers,
                              timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/delete
     async def delete_subscription(
         self, subscription: str, *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -140,9 +135,9 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull
     async def pull(
         self, subscription: str, max_messages: int,
-        *, session: Optional[Session] = None,
+        *, session: Session | None = None,
         timeout: int = 30,
-    ) -> List[SubscriberMessage]:
+    ) -> list[SubscriberMessage]:
         """
         Pull messages from subscription
         """
@@ -165,8 +160,8 @@ class SubscriberClient:
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/acknowledge
     async def acknowledge(
-        self, subscription: str, ack_ids: List[str],
-        *, session: Optional[Session] = None,
+        self, subscription: str, ack_ids: list[str],
+        *, session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -184,9 +179,9 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/modifyAckDeadline
     async def modify_ack_deadline(
         self, subscription: str,
-        ack_ids: List[str],
+        ack_ids: list[str],
         ack_deadline_seconds: int,
-        *, session: Optional[Session] = None,
+        *, session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -205,9 +200,9 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/get
     async def get_subscription(
         self, subscription: str,
-        *, session: Optional[Session] = None,
+        *, session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get Subscription
         """
@@ -215,16 +210,16 @@ class SubscriberClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/list
     async def list_subscriptions(
         self, project: str,
-        query_params: Optional[Dict[str, str]] = None,
-        *, session: Optional[Session] = None,
+        query_params: dict[str, str] | None = None,
+        *, session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         List subscriptions
         """
@@ -232,7 +227,7 @@ class SubscriberClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
 
-        all_results: Dict[str, Any] = {'subscriptions': []}
+        all_results: dict[str, Any] = {'subscriptions': []}
         next_page_token = None
         next_query_params = query_params if query_params else {}
         while True:
@@ -240,7 +235,7 @@ class SubscriberClient:
                 url, headers=headers, params=next_query_params,
                 timeout=timeout,
             )
-            page: Dict[str, Any] = await resp.json()
+            page: dict[str, Any] = await resp.json()
             all_results['subscriptions'] += page['subscriptions']
             next_page_token = page.get('nextPageToken', None)
             if not next_page_token:
@@ -252,8 +247,8 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/seek
     async def seek(
         self, subscription: str,
-        body: Dict[str, Any],
-        *, session: Optional[Session] = None,
+        body: dict[str, Any],
+        *, session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -270,29 +265,29 @@ class SubscriberClient:
         self,
         snapshot: str,
         subscription: str,
-        body: Optional[Dict[str, Any]] = None,
+        body: dict[str, Any] | None = None,
         *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create snapshot.
         """
         body = {} if not body else body
         url = f'{self._api_root}/{snapshot}'
         headers = await self._headers()
-        payload: Dict[str, Any] = deepcopy(body)
+        payload: dict[str, Any] = deepcopy(body)
         payload.update({'subscription': subscription})
         encoded = json.dumps(payload).encode()
         s = AioSession(session) if session else self.session
         resp = await s.put(url, data=encoded, headers=headers, timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/delete
     async def delete_snapshot(
         self, snapshot: str, *,
-        session: Optional[Session] = None,
+        session: Session | None = None,
         timeout: int = 10,
     ) -> None:
         """
@@ -306,10 +301,10 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/list
     async def list_snapshots(
         self, project: str,
-        query_params: Optional[Dict[str, str]] = None,
-        *, session: Optional[Session] = None,
+        query_params: dict[str, str] | None = None,
+        *, session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         List snapshots
         """
@@ -317,7 +312,7 @@ class SubscriberClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
 
-        all_results: Dict[str, Any] = {'snapshots': []}
+        all_results: dict[str, Any] = {'snapshots': []}
         nextPageToken = None
         next_query_params = query_params if query_params else {}
         while True:
@@ -325,7 +320,7 @@ class SubscriberClient:
                 url, headers=headers, params=next_query_params,
                 timeout=timeout,
             )
-            page: Dict[str, Any] = await resp.json()
+            page: dict[str, Any] = await resp.json()
             all_results['snapshots'] += page['snapshots']
             nextPageToken = page.get('nextPageToken', None)
             if not nextPageToken:
@@ -337,9 +332,9 @@ class SubscriberClient:
     # https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.snapshots/get
     async def get_snapshot(
         self, snapshot: str,
-        *, session: Optional[Session] = None,
+        *, session: Session | None = None,
         timeout: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get snapshot
         """
@@ -347,7 +342,7 @@ class SubscriberClient:
         headers = await self._headers()
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout)
-        result: Dict[str, Any] = await resp.json()
+        result: dict[str, Any] = await resp.json()
         return result
 
     async def close(self) -> None:

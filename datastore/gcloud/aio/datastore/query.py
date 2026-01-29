@@ -1,7 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
 
 from .constants import MoreResultsType
 from .constants import ResultType
@@ -23,10 +20,10 @@ class BaseQuery:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'BaseQuery':
+    def from_repr(cls, data: dict[str, Any]) -> 'BaseQuery':
         raise NotImplementedError
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -36,12 +33,12 @@ class Query(BaseQuery):
     json_key = 'query'
 
     def __init__(
-        self, kind: str = '', query_filter: Optional[Filter] = None,
-        order: Optional[List[PropertyOrder]] = None,
+        self, kind: str = '', query_filter: Filter | None = None,
+        order: list[PropertyOrder] | None = None,
         start_cursor: str = '', end_cursor: str = '',
-        offset: Optional[int] = None, limit: Optional[int] = None,
-        projection: Optional[List[Projection]] = None,
-        distinct_on: Optional[List[str]] = None,
+        offset: int | None = None, limit: int | None = None,
+        projection: list[Projection] | None = None,
+        distinct_on: list[str] | None = None,
     ) -> None:
         self.kind = kind
         self.query_filter = query_filter
@@ -63,7 +60,7 @@ class Query(BaseQuery):
         )
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Query':
+    def from_repr(cls, data: dict[str, Any]) -> 'Query':
         kind = data['kind'] or ''  # Kind is required
         if not isinstance(kind, str):
             # If 'kind' is not a str, then the only other acceptable format
@@ -90,8 +87,8 @@ class Query(BaseQuery):
             projection=projection, distinct_on=distinct_on,
         )
 
-    def to_repr(self) -> Dict[str, Any]:
-        data: Dict[str, Any] = {
+    def to_repr(self) -> dict[str, Any]:
+        data: dict[str, Any] = {
             'kind': [{'name': self.kind}] if self.kind else [],
         }
         if self.query_filter:
@@ -119,8 +116,8 @@ class GQLQuery(BaseQuery):
 
     def __init__(
         self, query_string: str, allow_literals: bool = True,
-        named_bindings: Optional[Dict[str, Any]] = None,
-        positional_bindings: Optional[List[Any]] = None,
+        named_bindings: dict[str, Any] | None = None,
+        positional_bindings: list[Any] | None = None,
     ) -> None:
         self.query_string = query_string
         self.allow_literals = allow_literals
@@ -139,7 +136,7 @@ class GQLQuery(BaseQuery):
         )
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'GQLQuery':
+    def from_repr(cls, data: dict[str, Any]) -> 'GQLQuery':
         allow_literals = data['allowLiterals']
         query_string = data['queryString']
         named_bindings = {
@@ -157,13 +154,13 @@ class GQLQuery(BaseQuery):
         )
 
     @classmethod
-    def _param_from_repr(cls, param_repr: Dict[str, Any]) -> Any:
+    def _param_from_repr(cls, param_repr: dict[str, Any]) -> Any:
         if 'cursor' in param_repr:
             return GQLCursor(param_repr['cursor'])
 
         return cls.value_kind.from_repr(param_repr['value']).value
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'allowLiterals': self.allow_literals,
             'queryString': self.query_string,
@@ -177,7 +174,7 @@ class GQLQuery(BaseQuery):
             ],
         }
 
-    def _param_to_repr(self, param: Any) -> Dict[str, Any]:
+    def _param_to_repr(self, param: Any) -> dict[str, Any]:
         if isinstance(param, GQLCursor):
             return {'cursor': param.value}
 
@@ -200,11 +197,11 @@ class QueryResultBatch:
     def __init__(
         self, end_cursor: str,
         entity_result_type: ResultType = ResultType.UNSPECIFIED,
-        entity_results: Optional[List[EntityResult]] = None,
+        entity_results: list[EntityResult] | None = None,
         more_results: MoreResultsType = MoreResultsType.UNSPECIFIED,
         skipped_cursor: str = '', skipped_results: int = 0,
         snapshot_version: str = '',
-        read_time: Optional[str] = None,
+        read_time: str | None = None,
     ) -> None:
         self.end_cursor = end_cursor
 
@@ -235,7 +232,7 @@ class QueryResultBatch:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResultBatch':
+    def from_repr(cls, data: dict[str, Any]) -> 'QueryResultBatch':
         end_cursor = data['endCursor']
         entity_result_type = ResultType(data['entityResultType'])
         entity_results = [
@@ -257,7 +254,7 @@ class QueryResultBatch:
             read_time=read_time,
         )
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         data = {
             'endCursor': self.end_cursor,
             'entityResults': [er.to_repr() for er in self.entity_results],
@@ -282,9 +279,9 @@ class QueryResult:
     query_result_batch_kind = QueryResultBatch
 
     def __init__(
-            self, result_batch: Optional[QueryResultBatch] = None,
-            explain_metrics: Optional[ExplainMetrics] = None,
-            transaction: Optional[str] = None,
+            self, result_batch: QueryResultBatch | None = None,
+            explain_metrics: ExplainMetrics | None = None,
+            transaction: str | None = None,
     ):
         self.result_batch = result_batch
         self.explain_metrics = explain_metrics
@@ -301,7 +298,7 @@ class QueryResult:
                 and self.transaction == other.transaction)
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'QueryResult':
+    def from_repr(cls, data: dict[str, Any]) -> 'QueryResult':
         result_batch = None
         explain_metrics = None
         transaction = None
@@ -316,8 +313,8 @@ class QueryResult:
         return cls(result_batch=result_batch,
                    explain_metrics=explain_metrics, transaction=transaction)
 
-    def to_repr(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
+    def to_repr(self) -> dict[str, Any]:
+        result: dict[str, Any] = {}
         if self.result_batch:
             result['batch'] = self.result_batch.to_repr()
         if self.explain_metrics:
@@ -326,15 +323,15 @@ class QueryResult:
             result['transaction'] = self.transaction
         return result
 
-    def get_explain_metrics(self) -> Optional[ExplainMetrics]:
+    def get_explain_metrics(self) -> ExplainMetrics | None:
         return self.explain_metrics
 
-    def get_plan_summary(self) -> Optional[PlanSummary]:
+    def get_plan_summary(self) -> PlanSummary | None:
         if self.explain_metrics is not None:
             return self.explain_metrics.plan_summary
         return None
 
-    def get_execution_stats(self) -> Optional[ExecutionStats]:
+    def get_execution_stats(self) -> ExecutionStats | None:
         if self.explain_metrics is not None:
             return self.explain_metrics.execution_stats
         return None

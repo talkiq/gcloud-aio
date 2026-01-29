@@ -11,11 +11,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import List
 from typing import Optional
-from typing import Union
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 from urllib.parse import urlparse
@@ -87,8 +84,8 @@ class Type(enum.Enum):
 
 
 def get_service_data(
-        service: Optional[Union[str, IO[AnyStr]]],
-) -> Dict[str, Any]:
+        service: str | IO[AnyStr] | None,
+) -> dict[str, Any]:
     """
     Get the service data dictionary for the current auth method.
 
@@ -138,7 +135,7 @@ def get_service_data(
                 service,  # type: ignore[arg-type]
                 encoding='utf-8',
             ) as f:
-                data: Dict[str, Any] = json.loads(f.read())
+                data: dict[str, Any] = json.loads(f.read())
                 return data
         except TypeError:
             data = json.loads(service.read())  # type: ignore[union-attr]
@@ -168,8 +165,8 @@ class BaseToken:
     __metaclass__ = ABCMeta
 
     def __init__(
-        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-        session: Optional[Session] = None,
+        self, service_file: str | IO[AnyStr] | None = None,
+        session: Session | None = None,
         background_refresh_after: float = 0.5,
         force_refresh_after: float = 0.95,
     ) -> None:
@@ -198,7 +195,7 @@ class BaseToken:
 
         self.session = AioSession(session)
 
-        self.access_token: Optional[str] = None
+        self.access_token: str | None = None
         self.access_token_duration = 0
         self.access_token_acquired_at = datetime.datetime(1970, 1, 1)
         # Timestamp after which we pre-fetch.
@@ -208,7 +205,7 @@ class BaseToken:
 
         self.acquiring: Optional['asyncio.Task[None]'] = None
 
-    async def get_project(self) -> Optional[str]:
+    async def get_project(self) -> str | None:
         project = (
             os.environ.get('GOOGLE_CLOUD_PROJECT')
             or os.environ.get('GCLOUD_PROJECT')
@@ -234,7 +231,7 @@ class BaseToken:
 
         return None
 
-    async def get(self) -> Optional[str]:
+    async def get(self) -> str | None:
         await self.ensure_token()
         return self.access_token
 
@@ -297,11 +294,11 @@ class Token(BaseToken):
     default_token_ttl = 3600
 
     def __init__(
-        self, service_file: Optional[Union[str, IO[AnyStr]]] = None,
-        session: Optional[Session] = None,
-        scopes: Optional[List[str]] = None,
-        target_principal: Optional[str] = None,
-        delegates: Optional[List[str]] = None,
+        self, service_file: str | IO[AnyStr] | None = None,
+        session: Session | None = None,
+        scopes: list[str] | None = None,
+        target_principal: str | None = None,
+        delegates: list[str] | None = None,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
@@ -315,7 +312,7 @@ class Token(BaseToken):
                 # scope but does not write it to the file
                 self.scopes = 'https://www.googleapis.com/auth/cloud-platform'
 
-        self.impersonation_uri: Optional[str] = None
+        self.impersonation_uri: str | None = None
         if target_principal:
             self.impersonation_uri = (
                 GCLOUD_ENDPOINT_GENERATE_ACCESS_TOKEN.format(
@@ -459,9 +456,9 @@ class IapToken(BaseToken):
 
     def __init__(
         self, app_uri: str,
-        service_file: Optional[Union[str, IO[AnyStr]]] = None,
-        session: Optional[Session] = None,
-        impersonating_service_account: Optional[str] = None,
+        service_file: str | IO[AnyStr] | None = None,
+        session: Session | None = None,
+        impersonating_service_account: str | None = None,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 

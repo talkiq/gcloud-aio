@@ -1,9 +1,6 @@
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import Optional
-from typing import Union
 
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
@@ -20,11 +17,11 @@ else:
 
 class Job(BigqueryBase):
     def __init__(
-            self, job_id: Optional[str] = None, project: Optional[str] = None,
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
-            location: Optional[str] = None,
+            self, job_id: str | None = None, project: str | None = None,
+            service_file: str | IO[AnyStr] | None = None,
+            session: Session | None = None, token: Token | None = None,
+            api_root: str | None = None,
+            location: str | None = None,
     ) -> None:
         self.job_id = job_id
         self.location = location
@@ -39,8 +36,8 @@ class Job(BigqueryBase):
             write_disposition: Disposition,
             use_query_cache: bool,
             dry_run: bool, use_legacy_sql: bool,
-            destination_table: Optional[Any],
-    ) -> Dict[str, Any]:
+            destination_table: Any | None,
+    ) -> dict[str, Any]:
         return {
             'configuration': {
                 'query': {
@@ -59,8 +56,8 @@ class Job(BigqueryBase):
         }
 
     def _config_params(
-        self, params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         params = params.copy() if params else {}
         if self.location:
             params['location'] = params.get('location', self.location)
@@ -68,9 +65,9 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/get
     async def get_job(
-        self, session: Optional[Session] = None,
+        self, session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get the specified job resource by job ID."""
 
         project = await self.project()
@@ -81,10 +78,10 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/getQueryResults
     async def get_query_results(
-        self, session: Optional[Session] = None,
+        self, session: Session | None = None,
         timeout: int = 60,
-        params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Get the specified jobQueryResults by job ID."""
 
         project = await self.project()
@@ -95,9 +92,9 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/cancel
     async def cancel(
-        self, session: Optional[Session] = None,
+        self, session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Cancel the specified job by job ID."""
 
         project = await self.project()
@@ -111,10 +108,10 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/query
     async def query(
-        self, query_request: Dict[str, Any],
-        session: Optional[Session] = None,
+        self, query_request: dict[str, Any],
+        session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Runs a query synchronously and returns query results if completes
         within a specified timeout."""
         project = await self.project()
@@ -124,10 +121,10 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     async def insert(
-        self, job: Dict[str, Any],
-        session: Optional[Session] = None,
+        self, job: dict[str, Any],
+        session: Session | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Insert a new asynchronous job."""
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs'
@@ -140,12 +137,12 @@ class Job(BigqueryBase):
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
     async def insert_via_query(
-            self, query: str, session: Optional[Session] = None,
+            self, query: str, session: Session | None = None,
             write_disposition: Disposition = Disposition.WRITE_EMPTY,
             timeout: int = 60, use_query_cache: bool = True,
             dry_run: bool = False, use_legacy_sql: bool = True,
-            destination_table: Optional[Any] = None,
-    ) -> Dict[str, Any]:
+            destination_table: Any | None = None,
+    ) -> dict[str, Any]:
         """Create table as a result of the query"""
         project = await self.project()
         url = f'{self._api_root}/projects/{project}/jobs'
@@ -165,8 +162,8 @@ class Job(BigqueryBase):
 
     async def result(
         self,
-        session: Optional[Session] = None,
-    ) -> Dict[str, Any]:
+        session: Session | None = None,
+    ) -> dict[str, Any]:
         data = await self.get_job(session)
         status = data.get('status', {})
         if status.get('state') == 'DONE':
@@ -178,10 +175,10 @@ class Job(BigqueryBase):
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/delete
     async def delete(
-        self, session: Optional[Session] = None,
-        job_id: Optional[str] = None,
+        self, session: Session | None = None,
+        job_id: str | None = None,
         timeout: int = 60,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Delete the specified job by job ID."""
         project = await self.project()
         job_id = job_id or self.job_id

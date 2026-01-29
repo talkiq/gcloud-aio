@@ -5,11 +5,7 @@ import json
 import os
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -27,7 +23,7 @@ SCOPES = [
 ]
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -44,9 +40,9 @@ class KMS:
 
     def __init__(
             self, keyproject: str, keyring: str, keyname: str,
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            location: str = 'global', session: Optional[Session] = None,
-            token: Optional[Token] = None, api_root: Optional[str] = None,
+            service_file: str | IO[AnyStr] | None = None,
+            location: str = 'global', session: Session | None = None,
+            token: Token | None = None, api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self._api_root = (
@@ -61,7 +57,7 @@ class KMS:
             scopes=SCOPES,
         )
 
-    async def headers(self) -> Dict[str, str]:
+    async def headers(self) -> dict[str, str]:
         if self._api_is_dev:
             return {'Content-Type': 'application/json'}
 
@@ -74,7 +70,7 @@ class KMS:
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt
     async def decrypt(
         self, ciphertext: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
     ) -> str:
         url = f'{self._api_root}:decrypt'
         body = json.dumps({
@@ -90,7 +86,7 @@ class KMS:
     # https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt
     async def encrypt(
         self, plaintext: str,
-        session: Optional[Session] = None,
+        session: Session | None = None,
     ) -> str:
         url = f'{self._api_root}:encrypt'
         body = json.dumps({

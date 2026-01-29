@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Dict
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/Shared.Types/LatLng
@@ -21,12 +20,12 @@ class LatLng:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'LatLng':
+    def from_repr(cls, data: dict[str, Any]) -> 'LatLng':
         lat = data['latitude']
         lon = data['longitude']
         return cls(lat=lat, lon=lon)
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'latitude': self.lat,
             'longitude': self.lon,

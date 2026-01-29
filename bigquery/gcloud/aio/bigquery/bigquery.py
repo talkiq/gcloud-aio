@@ -4,11 +4,7 @@ import os
 from enum import Enum
 from typing import Any
 from typing import AnyStr
-from typing import Dict
 from typing import IO
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -29,7 +25,7 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-def init_api_root(api_root: Optional[str]) -> Tuple[bool, str]:
+def init_api_root(api_root: str | None) -> tuple[bool, str]:
     if api_root:
         return True, api_root
 
@@ -61,15 +57,15 @@ class SchemaUpdateOption(Enum):
 
 
 class BigqueryBase:
-    _project: Optional[str]
+    _project: str | None
     _api_root: str
     _api_is_dev: bool
 
     def __init__(
-            self, project: Optional[str] = None,
-            service_file: Optional[Union[str, IO[AnyStr]]] = None,
-            session: Optional[Session] = None, token: Optional[Token] = None,
-            api_root: Optional[str] = None,
+            self, project: str | None = None,
+            service_file: str | IO[AnyStr] | None = None,
+            session: Session | None = None, token: Token | None = None,
+            api_root: str | None = None,
     ) -> None:
         self._api_is_dev, self._api_root = init_api_root(api_root)
         self.session = AioSession(session)
@@ -96,7 +92,7 @@ class BigqueryBase:
 
         raise Exception('could not determine project, please set it manually')
 
-    async def headers(self) -> Dict[str, str]:
+    async def headers(self) -> dict[str, str]:
         if self._api_is_dev:
             return {}
 
@@ -106,9 +102,9 @@ class BigqueryBase:
         }
 
     async def _post_json(
-            self, url: str, body: Dict[str, Any], session: Optional[Session],
-            timeout: int, params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+            self, url: str, body: dict[str, Any], session: Session | None,
+            timeout: int, params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -120,31 +116,31 @@ class BigqueryBase:
         s = AioSession(session) if session else self.session
         resp = await s.post(url, data=payload, headers=headers,
                             timeout=timeout, params=params or {})
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     async def _get_url(
-            self, url: str, session: Optional[Session], timeout: int,
-            params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+            self, url: str, session: Session | None, timeout: int,
+            params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
         resp = await s.get(url, headers=headers, timeout=timeout,
                            params=params or {})
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     async def _delete(
-        self, url: str, session: Optional[Session], timeout: int,
-        params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        self, url: str, session: Session | None, timeout: int,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
         resp = await s.delete(url, headers=headers, timeout=timeout,
                               params=params or {})
-        data: Dict[str, Any] = await resp.json()
+        data: dict[str, Any] = await resp.json()
         return data
 
     async def close(self) -> None:

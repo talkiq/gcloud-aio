@@ -1,5 +1,4 @@
 import base64
-from typing import Union
 
 
 def decode(payload: str) -> bytes:
@@ -16,7 +15,7 @@ def decode(payload: str) -> bytes:
     return base64.b64decode(variant)
 
 
-def encode(payload: Union[bytes, str]) -> str:
+def encode(payload: bytes | str) -> str:
     """
     https://en.wikipedia.org/wiki/Base64#URL_applications modified Base64
     for URL variants exist, where the + and / characters of standard

@@ -1,6 +1,4 @@
 from typing import Any
-from typing import Dict
-from typing import List
 
 import pytest
 from gcloud.aio.datastore import GQLQuery
@@ -79,7 +77,7 @@ class TestGQLQuery:
 
     @staticmethod
     @pytest.fixture(scope='session')
-    def named_bindings() -> Dict[str, Any]:
+    def named_bindings() -> dict[str, Any]:
         return {
             'string_param': 'foo',
             'cursor_param': GQLCursor('startCursor'),
@@ -87,5 +85,5 @@ class TestGQLQuery:
 
     @staticmethod
     @pytest.fixture(scope='session')
-    def positional_bindings() -> List[Any]:
+    def positional_bindings() -> list[Any]:
         return [123, GQLCursor('endCursor')]

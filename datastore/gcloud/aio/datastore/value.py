@@ -1,7 +1,6 @@
 import base64
 from datetime import datetime
 from typing import Any
-from typing import Dict
 
 from .constants import TypeName
 from .constants import TYPES
@@ -29,7 +28,7 @@ class Value:  # pylint:disable=useless-object-inheritance
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'Value':
+    def from_repr(cls, data: dict[str, Any]) -> 'Value':
         supported_types = cls._get_supported_types()
         for value_type, type_name in supported_types.items():
             json_key = type_name.value
@@ -63,7 +62,7 @@ class Value:  # pylint:disable=useless-object-inheritance
 
         return cls(value=value, exclude_from_indexes=exclude_from_indexes)
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         value_type = self._infer_type(self.value)
         if value_type in {
             TypeName.ARRAY, TypeName.ENTITY, TypeName.GEOPOINT,
@@ -95,7 +94,7 @@ class Value:  # pylint:disable=useless-object-inheritance
             )
 
     @classmethod
-    def _get_supported_types(cls) -> Dict[Any, TypeName]:
+    def _get_supported_types(cls) -> dict[Any, TypeName]:
         # pylint: disable=import-outside-toplevel,cyclic-import
         from . import array
         from . import entity

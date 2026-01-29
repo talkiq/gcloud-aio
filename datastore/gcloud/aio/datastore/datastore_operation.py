@@ -1,14 +1,12 @@
 from typing import Any
-from typing import Dict
-from typing import Optional
 
 
 class DatastoreOperation:
     def __init__(
         self, name: str, done: bool,
-        metadata: Optional[Dict[str, Any]] = None,
-        error: Optional[Dict[str, str]] = None,
-        response: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
+        error: dict[str, str] | None = None,
+        response: dict[str, Any] | None = None,
     ) -> None:
         self.name = name
         self.done = done
@@ -21,13 +19,13 @@ class DatastoreOperation:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: Dict[str, Any]) -> 'DatastoreOperation':
+    def from_repr(cls, data: dict[str, Any]) -> 'DatastoreOperation':
         return cls(
             data['name'], data.get('done', False), data.get('metadata'),
             data.get('error'), data.get('response'),
         )
 
-    def to_repr(self) -> Dict[str, Any]:
+    def to_repr(self) -> dict[str, Any]:
         return {
             'done': self.done,
             'error': self.error,
