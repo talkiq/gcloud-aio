@@ -19,27 +19,27 @@ class TestDatastore:
 
     # pylint: disable=protected-access
     @staticmethod
-    def test_build_read_options_priority():
-        ds = Datastore()
-        dt_str = '2025-01-01T12:00:00Z'
+    async def test_build_read_options_priority():
+        async with Datastore() as ds:
+            dt_str = '2025-01-01T12:00:00Z'
 
-        # transaction > readTime > consistency
-        result = ds._build_read_options(
-            Consistency.STRONG, None, 'txn123', dt_str
-        )
-        assert result == {'transaction': 'txn123'}
+            # transaction > readTime > consistency
+            result = ds._build_read_options(
+                Consistency.STRONG, None, 'txn123', dt_str
+            )
+            assert result == {'transaction': 'txn123'}
 
-        # readTime > consistency
-        result = ds._build_read_options(
-            Consistency.STRONG, None, None, dt_str
-        )
-        assert result == {'readTime': '2025-01-01T12:00:00Z'}
+            # readTime > consistency
+            result = ds._build_read_options(
+                Consistency.STRONG, None, None, dt_str
+            )
+            assert result == {'readTime': '2025-01-01T12:00:00Z'}
 
-        # fall back to consistency
-        result = ds._build_read_options(
-            Consistency.STRONG, None, None, None
-        )
-        assert result == {'readConsistency': 'STRONG'}
+            # fall back to consistency
+            result = ds._build_read_options(
+                Consistency.STRONG, None, None, None
+            )
+            assert result == {'readConsistency': 'STRONG'}
 
     @staticmethod
     @pytest.fixture(scope='session')
