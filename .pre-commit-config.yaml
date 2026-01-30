@@ -98,7 +98,7 @@ repos:
     - aiohttp==3.13.3
     - backoff==2.2.1
     - cryptography==46.0.4
-    - pyjwt==2.10.1
+    - pyjwt==2.11.0
     - types-requests==2.32.4.20260107
     args:
     - --show-error-codes
