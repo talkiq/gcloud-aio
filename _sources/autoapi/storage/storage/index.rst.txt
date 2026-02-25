@@ -42,7 +42,7 @@ Module Contents
 
 
 .. py:data:: SCOPES
-   :value: ['https://www.googleapis.com/auth/devstorage.read_write']
+   :value: ['https://www.googleapis.com/auth/devstorage.full_control']
 
 
 .. py:data:: log
