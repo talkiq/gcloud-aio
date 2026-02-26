@@ -52,7 +52,7 @@ class BaseSession:
         self, url: str, headers: Mapping[str, str] | None,
         timeout: float, params: Mapping[str, int | str] | None,
         stream: bool,
-        auto_decompress: bool,
+        auto_decompress: bool | None,
     ) -> Response:
         pass
 
@@ -187,7 +187,7 @@ if not BUILD_GCLOUD_REST:
             timeout: Timeout = 10,
             params: Mapping[str, int | str] | None = None,
             stream: bool | None = None,
-            auto_decompress: bool = True,
+            auto_decompress: bool | None = True,
         ) -> aiohttp.ClientResponse:
             if not isinstance(timeout, aiohttp.ClientTimeout):
                 timeout = aiohttp.ClientTimeout(total=timeout)
@@ -326,9 +326,9 @@ if BUILD_GCLOUD_REST:
             timeout: float = 10,
             params: Mapping[str, int | str] | None = None,
             stream: bool = False,
-            auto_decompress: bool = True,
+            auto_decompress: bool | None = True,
         ) -> Response:
-            if not auto_decompress and not stream:
+            if auto_decompress is False and not stream:
                 warnings.warn(
                     'the requests library always decompresses responses when '
                     'outside of streaming mode; when auto_decompress is '
