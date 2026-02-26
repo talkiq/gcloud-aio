@@ -71,22 +71,22 @@ def parse(field: dict[str, Any], value: Any) -> Any:
     represent in a backwards-enough compatible fashion.
     """
     try:
-        convert: Callable[[Any], Any] = {  # type: ignore[assignment]
-            'BIGNUMERIC': lambda x: decimal.Decimal(
+        convert: Callable[[Any, bool], Any] = {  # type: ignore[assignment]
+            'BIGNUMERIC': lambda x, nullable: decimal.Decimal(
                 x, decimal.Context(prec=77),
-            ),
-            'BOOLEAN': lambda x: x == 'true',
-            'BYTES': bytes,
-            'FLOAT': float,
-            'INTEGER': int,
-            'NUMERIC': lambda x: decimal.Decimal(
+            ) if x is not None or not nullable else None,
+            'BOOLEAN': lambda x, nullable: x == 'true' if x is not None or not nullable else None,
+            'BYTES': lambda x, nullable: bytes(x) if x is not None or not nullable else None,
+            'FLOAT': lambda x, nullable: float(x) if x is not None or not nullable else None,
+            'INTEGER': lambda x, nullable: int(x) if x is not None or not nullable else None,
+            'NUMERIC': lambda x, nullable: decimal.Decimal(
                 x, decimal.Context(prec=38),
-            ),
-            'RECORD': dict,
-            'STRING': str,
-            'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(
+            ) if x is not None or not nullable else None,
+            'RECORD': lambda x, nullable: dict(x) if x is not None or not nullable else None,
+            'STRING': lambda x, nullable: str(x) if x is not None or not nullable else None,
+            'TIMESTAMP': lambda x, nullable: datetime.datetime.fromtimestamp(
                 float(x), tz=utc,
-            ),
+            ) if x is not None or not nullable else None,
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
@@ -101,7 +101,8 @@ def parse(field: dict[str, Any], value: Any) -> Any:
         )
         raise
 
-    if field['mode'] == 'NULLABLE' and value is None:
+    nullable = field['mode'] == 'NULLABLE'
+    if nullable and value is None:
         return value
 
     if field['mode'] == 'REPEATED':
@@ -112,15 +113,16 @@ def parse(field: dict[str, Any], value: Any) -> Any:
             }
                 for xs in flatten(value)]
 
-        return [convert(x) for x in flatten(value)]
+        return ([convert(x, False) for x in flatten(value)]
+                if value is not None or not nullable else None)
 
     if field['type'] == 'RECORD':
         return {
             f['name']: parse(f, x)
             for f, x in zip(field['fields'], flatten(value))
-        }
+        } if value is not None or not nullable else None
 
-    return convert(flatten(value))
+    return convert(flatten(value), nullable)
 
 
 def query_response_to_dict(response: dict[str, Any]) -> list[dict[str, Any]]:
