@@ -625,10 +625,9 @@ class Storage:
         # argument is not passed, unless a user has explicitly disabled that
         # option at the session level in the case of aiohttp. We follow the
         # user setting by default (by passing None) and only explicitly disable
-        # it when we know that the object is not compressed (when the
-        # Accept-Encoding header is missing).
+        # it when a caller explicitly requests a compressed payload.
         auto_decompress = None
-        if 'accept-encoding' not in {k.lower() for k in headers}:
+        if 'accept-encoding' in {k.lower() for k in headers}:
             auto_decompress = False
 
         s = AioSession(session) if session else self.session
@@ -675,10 +674,9 @@ class Storage:
         # argument is not passed, unless a user has explicitly disabled that
         # option at the session level in the case of aiohttp. We follow the
         # user setting by default (by passing None) and only explicitly disable
-        # it when we know that the object is not compressed (when the
-        # Accept-Encoding header is missing).
+        # it when a caller explicitly requests a compressed payload.
         auto_decompress = None
-        if 'accept-encoding' not in {k.lower() for k in headers}:
+        if 'accept-encoding' in {k.lower() for k in headers}:
             auto_decompress = False
 
         s = AioSession(session) if session else self.session
