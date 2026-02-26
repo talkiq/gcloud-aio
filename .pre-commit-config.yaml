@@ -111,28 +111,28 @@ repos:
     name: mypy-bigquery
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - types-requests==2.32.4.20260107
     files: bigquery/
   - <<: *mypy
     name: mypy-datastore
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - types-requests==2.32.4.20260107
     files: datastore/
   - <<: *mypy
     name: mypy-kms
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - types-requests==2.32.4.20260107
     files: kms/
   - <<: *mypy
     name: mypy-pubsub
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - prometheus-client==0.24.1
     - types-requests==2.32.4.20260107
     files: pubsub/
@@ -140,7 +140,7 @@ repos:
     name: mypy-storage
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - rsa==4.9.1
     - types-aiofiles==25.1.0.20251011
     - types-requests==2.32.4.20260107
@@ -149,7 +149,7 @@ repos:
     name: mypy-taskqueue
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.2
+    - gcloud-aio-auth==5.4.4
     - types-requests==2.32.4.20260107
     files: taskqueue/
 - repo: https://github.com/asottile/yesqa

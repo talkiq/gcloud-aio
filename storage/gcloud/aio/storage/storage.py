@@ -622,14 +622,19 @@ class Storage:
         headers.update(await self._headers())
 
         # aiohttp and requests automatically decompress the body if this
-        # argument is not passed. We assume that if the Accept-Encoding header
-        # is present, then the client will handle the decompression
-        auto_decompress = 'accept-encoding' not in {k.lower() for k in headers}
+        # argument is not passed, unless a user has explicitly disabled that
+        # option at the session level in the case of aiohttp. We follow the
+        # user setting by default (by passing None) and only explicitly disable
+        # it when we know that the object is not compressed (when the
+        # Accept-Encoding header is missing).
+        auto_decompress = None
+        if 'accept-encoding' not in {k.lower() for k in headers}:
+            auto_decompress = False
 
         s = AioSession(session) if session else self.session
 
         data: bytes
-        if not auto_decompress and BUILD_GCLOUD_REST:
+        if auto_decompress is False and BUILD_GCLOUD_REST:
             # Requests lib has a different way of reading compressed data. We
             # must pass the stream=True argument and read the response using
             # the 'raw' property.
