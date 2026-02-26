@@ -143,29 +143,6 @@ Prometheus to scrape app metrics:
 - ``subscriber_messages_received`` - [counter] the number of messages pulled
   from pubsub
 
-Metrics Agent (Deprecated)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``subscribe`` has also an optional ``metrics_client`` argument which will be
-removed in a future release. You can provide any metrics agent that implements
-the same interface as ``MetricsAgent`` (Datadog client will do ;) ) and get the
-following metrics:
-
-- ``pubsub.producer.batch`` - [histogram] actual size of a batch retrieved from
-  pubsub.
-- ``pubsub.consumer.failfast`` - [increment] a message was dropped due to its
-  lease being expired.
-- ``pubsub.consumer.latency.receive`` - [histogram] how many seconds it took
-  for a message to reach handler after it was published.
-- ``pubsub.consumer.succeeded`` - [increment] ``handler`` call was successfull.
-- ``pubsub.consumer.failed`` - [increment] ``handler`` call raised an
-  exception.
-- ``pubsub.consumer.latency.runtime`` - [histogram] ``handler`` execution time
-  in seconds.
-- ``pubsub.acker.batch.failed`` - [increment] ack request failed.
-- ``pubsub.acker.batch`` - [histogram] actual number of messages that was acked
-  in a single request.
-
 Publisher
 ---------
 

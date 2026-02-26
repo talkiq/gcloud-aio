@@ -8,7 +8,6 @@ else:
     import asyncio
     import logging
     import time
-    import warnings
     from collections.abc import Awaitable
     from collections.abc import Callable
     from typing import Optional
@@ -18,7 +17,6 @@ else:
     from . import metrics
     from .subscriber_client import SubscriberClient
     from .subscriber_message import SubscriberMessage
-    from .metrics_agent import MetricsAgent
 
     log = logging.getLogger(__name__)
 
@@ -97,7 +95,6 @@ else:
         ack_queue: 'asyncio.Queue[str]',
         subscriber_client: 'SubscriberClient',
         ack_window: float,
-        metrics_client: MetricsAgent,
     ) -> None:
         ack_ids: list[str] = []
         while True:
@@ -160,7 +157,6 @@ else:
                     exc_info=e,
                     extra={'exc_message': str(e)},
                 )
-                metrics_client.increment('pubsub.acker.batch.failed')
                 metrics.BATCH_STATUS.labels(
                     component='acker',
                     outcome='failed',
@@ -175,7 +171,6 @@ else:
                     exc_info=e,
                     extra={'exc_message': str(e)},
                 )
-                metrics_client.increment('pubsub.acker.batch.failed')
                 metrics.BATCH_STATUS.labels(
                     component='acker',
                     outcome='failed',
@@ -183,7 +178,6 @@ else:
 
                 continue
 
-            metrics_client.histogram('pubsub.acker.batch', len(ack_ids))
             metrics.BATCH_STATUS.labels(
                 component='acker',
                 outcome='succeeded',
@@ -199,7 +193,6 @@ else:
         nack_queue: 'asyncio.Queue[str]',
         subscriber_client: 'SubscriberClient',
         nack_window: float,
-        metrics_client: MetricsAgent,
     ) -> None:
         ack_ids: list[str] = []
         while True:
@@ -264,7 +257,6 @@ else:
                     exc_info=e,
                     extra={'exc_message': str(e)},
                 )
-                metrics_client.increment('pubsub.nacker.batch.failed')
                 metrics.BATCH_STATUS.labels(
                     component='nacker', outcome='failed',
                 ).inc()
@@ -278,14 +270,12 @@ else:
                     exc_info=e,
                     extra={'exc_message': str(e)},
                 )
-                metrics_client.increment('pubsub.nacker.batch.failed')
                 metrics.BATCH_STATUS.labels(
                     component='nacker', outcome='failed',
                 ).inc()
 
                 continue
 
-            metrics_client.histogram('pubsub.nacker.batch', len(ack_ids))
             metrics.BATCH_STATUS.labels(
                 component='nacker',
                 outcome='succeeded',
@@ -302,7 +292,6 @@ else:
         ack_queue: 'asyncio.Queue[str]',
         nack_queue: 'Optional[asyncio.Queue[str]]',
         insertion_time: float,
-        metrics_client: MetricsAgent,
     ) -> None:
         try:
             start = time.perf_counter()
@@ -312,11 +301,6 @@ else:
             with metrics.CONSUME_LATENCY.labels(phase='runtime').time():
                 await callback(message)
                 await ack_queue.put(message.ack_id)
-            metrics_client.histogram(
-                'pubsub.consumer.latency.runtime',
-                time.perf_counter() - start,
-            )
-            metrics_client.increment('pubsub.consumer.succeeded')
             metrics.CONSUME.labels(outcome='succeeded').inc()
 
         except asyncio.CancelledError:
@@ -324,7 +308,6 @@ else:
                 await nack_queue.put(message.ack_id)
 
             log.warning('application callback was cancelled')
-            metrics_client.increment('pubsub.consumer.cancelled')
             metrics.CONSUME.labels(outcome='cancelled').inc()
         except Exception as e:
             if nack_queue:
@@ -335,7 +318,6 @@ else:
                 exc_info=e,
                 extra={'exc_message': str(e)},
             )
-            metrics_client.increment('pubsub.consumer.failed')
             metrics.CONSUME.labels(outcome='failed').inc()
 
     async def consumer(  # pylint: disable=too-many-locals
@@ -345,7 +327,6 @@ else:
             ack_deadline_cache: AckDeadlineCache,
             max_tasks: int,
             nack_queue: 'Optional[asyncio.Queue[str]]',
-            metrics_client: MetricsAgent,
     ) -> None:
         try:
             semaphore = asyncio.Semaphore(max_tasks)
@@ -358,7 +339,6 @@ else:
 
                 ack_deadline = await ack_deadline_cache.get()
                 if (time.perf_counter() - pulled_at) >= ack_deadline:
-                    metrics_client.increment('pubsub.consumer.failfast')
                     metrics.CONSUME.labels(outcome='failfast').inc()
                     message_queue.task_done()
                     semaphore.release()
@@ -367,9 +347,6 @@ else:
                 # publish_time is in UTC Zulu
                 # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 recv_latency = time.time() - message.publish_time.timestamp()
-                metrics_client.histogram(
-                    'pubsub.consumer.latency.receive', recv_latency,
-                )
                 metrics.CONSUME_LATENCY.labels(phase='receive').observe(
                     recv_latency,
                 )
@@ -381,7 +358,6 @@ else:
                         ack_queue,
                         nack_queue,
                         time.perf_counter(),
-                        metrics_client,
                     ),
                 )
                 task.add_done_callback(lambda _f: semaphore.release())
@@ -407,7 +383,6 @@ else:
             message_queue: MessageQueue,
             subscriber_client: 'SubscriberClient',
             max_messages: int,
-            metrics_client: MetricsAgent,
     ) -> None:
         try:
             while True:
@@ -429,9 +404,6 @@ else:
                 except (asyncio.TimeoutError, KeyError):
                     continue
 
-                metrics_client.histogram(
-                    'pubsub.producer.batch', len(new_messages),
-                )
                 metrics.MESSAGES_RECEIVED.inc(len(new_messages))
                 metrics.BATCH_SIZE.observe(len(new_messages))
 
@@ -473,7 +445,6 @@ else:
         num_tasks_per_consumer: int = 1,
         enable_nack: bool = True,
         nack_window: float = 0.3,
-        metrics_client: MetricsAgent | None = None,
     ) -> None:
         # pylint: disable=too-many-locals
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
@@ -487,13 +458,6 @@ else:
             ack_deadline,
         )
 
-        if metrics_client is not None:
-            warnings.warn(
-                'Using MetricsAgent in subscribe() is deprecated. '
-                'Refer to Prometheus metrics instead.',
-                DeprecationWarning,
-            )
-        metrics_client = metrics_client or MetricsAgent()
         acker_tasks = []
         consumer_tasks = []
         producer_tasks = []
@@ -502,7 +466,7 @@ else:
                 asyncio.ensure_future(
                     acker(
                         subscription, ack_queue, subscriber_client,
-                        ack_window=ack_window, metrics_client=metrics_client,
+                        ack_window=ack_window,
                     ),
                 ),
             )
@@ -515,7 +479,6 @@ else:
                         nacker(
                             subscription, nack_queue, subscriber_client,
                             nack_window=nack_window,
-                            metrics_client=metrics_client,
                         ),
                     ),
                 )
@@ -532,7 +495,6 @@ else:
                             ack_deadline_cache,
                             num_tasks_per_consumer,
                             nack_queue,
-                            metrics_client=metrics_client,
                         ),
                     ),
                 )
@@ -543,7 +505,6 @@ else:
                             q,
                             subscriber_client,
                             max_messages=max_messages_per_producer,
-                            metrics_client=metrics_client,
                         ),
                     ),
                 )

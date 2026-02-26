@@ -221,7 +221,6 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=MagicMock(),
             ),
         )
         message, pulled_at = await asyncio.wait_for(queue.get(), 0.1)
@@ -246,7 +245,6 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=MagicMock(),
             ),
         )
         await asyncio.sleep(0)
@@ -274,7 +272,6 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=MagicMock(),
             ),
         )
         await asyncio.sleep(0)
@@ -302,7 +299,6 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=MagicMock(),
             ),
         )
         await asyncio.sleep(0)
@@ -328,7 +324,6 @@ else:
                     queue,
                     subscriber_client,
                     max_messages=1,
-                    metrics_client=MagicMock(),
                 ),
             )
             await asyncio.sleep(0)
@@ -353,7 +348,6 @@ else:
                 queue,
                 subscriber_client,
                 max_messages=1,
-                metrics_client=MagicMock(),
             ),
         )
         await asyncio.sleep(0)
@@ -380,7 +374,7 @@ else:
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue, application_callback, ack_queue,
-                ack_deadline_cache, 1, nack_queue, MagicMock(),
+                ack_deadline_cache, 1, nack_queue,
             ),
         )
 
@@ -418,7 +412,6 @@ else:
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue, callback, ack_queue, ack_deadline_cache, 2, None,
-                MagicMock(),
             ),
         )
 
@@ -461,7 +454,7 @@ else:
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue, application_callback, ack_queue,
-                ack_deadline_cache, 1, nack_queue, MagicMock(),
+                ack_deadline_cache, 1, nack_queue,
             ),
         )
 
@@ -489,7 +482,6 @@ else:
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue, f, ack_queue, ack_deadline_cache, 1, None,
-                MagicMock(),
             ),
         )
         await queue.put((message, 0.0))
@@ -516,7 +508,6 @@ else:
         consumer_task = asyncio.ensure_future(
             consumer(
                 queue, f, ack_queue, ack_deadline_cache, 1, nack_queue,
-                MagicMock(),
             ),
         )
 
@@ -558,7 +549,6 @@ else:
                 ack_deadline_cache,
                 1,
                 nack_queue,
-                MagicMock(),
             ),
         )
         await queue.put((message, 0.0))
@@ -591,7 +581,6 @@ else:
                 ack_deadline_cache,
                 1,
                 nack_queue,
-                MagicMock(),
             ),
         )
         await asyncio.sleep(0.1)
@@ -612,7 +601,6 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id')
@@ -640,7 +628,6 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id')
@@ -660,7 +647,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
@@ -689,7 +675,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
@@ -730,7 +715,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
@@ -766,7 +750,6 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id')
@@ -794,7 +777,6 @@ else:
                 queue,
                 subscriber_client,
                 0.0,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id')
@@ -814,7 +796,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
@@ -845,7 +826,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
@@ -893,7 +873,6 @@ else:
                 queue,
                 subscriber_client,
                 0.1,
-                MagicMock(),
             ),
         )
         await queue.put('ack_id_1')
