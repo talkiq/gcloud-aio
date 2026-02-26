@@ -1,3 +1,4 @@
+# pylint: disable=no-name-in-module
 # pylint: disable=redefined-outer-name
 # pylint: disable=too-many-lines
 from gcloud.aio.auth import BUILD_GCLOUD_REST
@@ -10,6 +11,7 @@ else:
     import asyncio
     import time
     import logging
+    from unittest.mock import AsyncMock
     from unittest.mock import call
     from unittest.mock import MagicMock
     from unittest.mock import patch
@@ -37,39 +39,24 @@ else:
     def subscriber_client(message):
         mock = MagicMock()
 
-        f = asyncio.Future()
-        f.set_result({'ackDeadlineSeconds': 42})
-        mock.get_subscription = MagicMock(return_value=f)
-
-        async def g(*_args, **_kwargs):
-            return [message]
-        mock.pull = g
-
-        f = asyncio.Future()
-        f.set_result(None)
-        mock.acknowledge = MagicMock(return_value=f)
-
-        f = asyncio.Future()
-        f.set_result(None)
-        mock.modify_ack_deadline = MagicMock(return_value=f)
+        mock.get_subscription = AsyncMock(
+            return_value={'ackDeadlineSeconds': 42},
+        )
+        mock.pull = AsyncMock(return_value=[message])
+        mock.acknowledge = AsyncMock(return_value=None)
+        mock.modify_ack_deadline = AsyncMock(return_value=None)
 
         return mock
 
     @pytest.fixture(scope='function')
     def ack_deadline_cache():
-        f = asyncio.Future()
-        f.set_result(float('inf'))
-
         mock = MagicMock()
-        mock.get = MagicMock(return_value=f)
+        mock.get = AsyncMock(return_value=float('inf'))
         return mock
 
     @pytest.fixture(scope='function')
     def application_callback():
-        f = asyncio.Future()
-        f.set_result(None)
-
-        return MagicMock(return_value=f)
+        return AsyncMock(return_value=None)
 
     # ================
     # AckDeadlineCache
@@ -126,10 +113,8 @@ else:
     async def test_ack_deadline_cache_refresh_is_cool_about_failures(
         subscriber_client,
     ):
-        f = asyncio.Future()
-        f.set_exception(RuntimeError)
-        subscriber_client.get_subscription = MagicMock(
-            return_value=f,
+        subscriber_client.get_subscription = AsyncMock(
+            side_effect=RuntimeError,
         )
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 1,
@@ -196,10 +181,8 @@ else:
 
     @pytest.mark.asyncio
     async def test_ack_deadline_cache_first_get_failed(subscriber_client):
-        f = asyncio.Future()
-        f.set_exception(RuntimeError)
-        subscriber_client.get_subscription = MagicMock(
-            return_value=f,
+        subscriber_client.get_subscription = AsyncMock(
+            side_effect=RuntimeError,
         )
         cache = AckDeadlineCache(
             subscriber_client, 'fake_subscription', 10,
@@ -444,9 +427,7 @@ else:
         message,
         application_callback,
     ):
-        f = asyncio.Future()
-        f.set_result(0.0)
-        ack_deadline_cache.get = MagicMock(return_value=f)
+        ack_deadline_cache.get = AsyncMock(return_value=0.0)
 
         queue = asyncio.Queue()
         ack_queue = asyncio.Queue()
@@ -946,7 +927,7 @@ else:
         # Ensure the test fails on unhandled exceptions
         asyncio.get_running_loop().set_exception_handler(exception_handler)
 
-        pull_ret = asyncio.Future()
+        pull_ret = asyncio.get_running_loop().create_future()
         pull_called = asyncio.Event()
 
         async def pull(*_args, **_kwargs):
