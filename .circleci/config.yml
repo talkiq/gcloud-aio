@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   linter: talkiq/linter@4.0.1
-  poetry: talkiq/poetry@4.2.0
+  poetry: talkiq/poetry@4.2.1
 
 executors:
   python310:
