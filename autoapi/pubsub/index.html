@@ -169,29 +169,6 @@ by being acked or nacked</p></li>
 from pubsub</p></li>
 </ul>
 </section>
-<section id="metrics-agent-deprecated">
-<h3>Metrics Agent (Deprecated)<a class="headerlink" href="#metrics-agent-deprecated" title="Link to this heading">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">subscribe</span></code> has also an optional <code class="docutils literal notranslate"><span class="pre">metrics_client</span></code> argument which will be
-removed in a future release. You can provide any metrics agent that implements
-the same interface as <code class="docutils literal notranslate"><span class="pre">MetricsAgent</span></code> (Datadog client will do ;) ) and get the
-following metrics:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.producer.batch</span></code> - [histogram] actual size of a batch retrieved from
-pubsub.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.failfast</span></code> - [increment] a message was dropped due to its
-lease being expired.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.latency.receive</span></code> - [histogram] how many seconds it took
-for a message to reach handler after it was published.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.succeeded</span></code> - [increment] <code class="docutils literal notranslate"><span class="pre">handler</span></code> call was successfull.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.failed</span></code> - [increment] <code class="docutils literal notranslate"><span class="pre">handler</span></code> call raised an
-exception.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.consumer.latency.runtime</span></code> - [histogram] <code class="docutils literal notranslate"><span class="pre">handler</span></code> execution time
-in seconds.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.acker.batch.failed</span></code> - [increment] ack request failed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pubsub.acker.batch</span></code> - [histogram] actual number of messages that was acked
-in a single request.</p></li>
-</ul>
-</section>
 </section>
 <section id="publisher">
 <h2>Publisher<a class="headerlink" href="#publisher" title="Link to this heading">¶</a></h2>
@@ -261,7 +238,6 @@ find it useful to configure something like:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="metrics/index.html">pubsub.metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics_agent/index.html">pubsub.metrics_agent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="publisher_client/index.html">pubsub.publisher_client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subscriber/index.html">pubsub.subscriber</a></li>
 <li class="toctree-l1"><a class="reference internal" href="subscriber_client/index.html">pubsub.subscriber_client</a></li>
