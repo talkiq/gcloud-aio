@@ -129,24 +129,38 @@ do not implement any sort of retrying or other policies under the assumption
 that we wouldn't get things right for every user's situation.
 
 As such, we recommend configuring your own policies on an as-needed basis. The
-`backoff`_ library can make this quite straightforward! For example, you may
+`tenacity`_ library can make this quite straightforward! For example, you may
 find it useful to configure something like:
 
 .. code-block:: python
 
-    class StorageWithBackoff(gcloud.aio.storage.Storage):
-        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
-                              max_tries=5, jitter=backoff.full_jitter)
+    from tenacity import retry
+    from tenacity import retry_if_exception_type
+    from tenacity import stop_after_attempt
+    from tenacity import wait_random_exponential
+
+
+    class StorageWithRetry(gcloud.aio.storage.Storage):
+        @retry(
+            retry=retry_if_exception_type(aiohttp.ClientResponseError),
+            stop=stop_after_attempt(5),
+            wait=wait_random_exponential(multiplier=1, max=60),
+            reraise=True,
+        )
         async def copy(self, *args: Any, **kwargs: Any):
             return await super().copy(*args, **kwargs)
 
-        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
-                              max_tries=10, jitter=backoff.full_jitter)
+        @retry(
+            retry=retry_if_exception_type(aiohttp.ClientResponseError),
+            stop=stop_after_attempt(10),
+            wait=wait_random_exponential(multiplier=1, max=60),
+            reraise=True,
+        )
         async def download(self, *args: Any, **kwargs: Any):
             return await super().download(*args, **kwargs)
 
 .. _Issue #172: https://github.com/talkiq/gcloud-aio/issues/172
-.. _backoff: https://pypi.org/project/backoff/
+.. _tenacity: https://pypi.org/project/tenacity/
 .. _chardet: https://pypi.org/project/chardet/
 .. _fsouza/fake-gcs-server: https://github.com/fsouza/fake-gcs-server
 .. _smoke test: https://github.com/talkiq/gcloud-aio/blob/master/storage/tests/integration/smoke_test.py

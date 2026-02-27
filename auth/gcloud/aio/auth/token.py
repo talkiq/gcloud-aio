@@ -17,9 +17,12 @@ from urllib.parse import parse_qs
 from urllib.parse import urlencode
 from urllib.parse import urlparse
 
-import backoff
 import cryptography  # pylint: disable=unused-import
 import jwt
+from tenacity import retry
+from tenacity import retry_if_exception_type
+from tenacity import stop_after_attempt
+from tenacity import wait_random_exponential
 
 from .build_constants import BUILD_GCLOUD_REST
 from .session import AioSession
@@ -263,7 +266,12 @@ class BaseToken:
     async def refresh(self, *, timeout: int) -> TokenResponse:
         pass
 
-    @backoff.on_exception(backoff.expo, Exception, max_tries=5)
+    @retry(
+        retry=retry_if_exception_type(Exception),
+        stop=stop_after_attempt(5),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        reraise=True,
+    )
     async def acquire_access_token(self, timeout: int = 10) -> None:
         resp = await self.refresh(timeout=timeout)
 

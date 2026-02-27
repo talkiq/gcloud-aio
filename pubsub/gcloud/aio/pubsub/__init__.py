@@ -206,18 +206,28 @@ do not implement any sort of retrying or other policies under the assumption
 that we wouldn't get things right for every user's situation.
 
 As such, we recommend configuring your own policies on an as-needed basis. The
-`backoff`_ library can make this quite straightforward! For example, you may
+`tenacity`_ library can make this quite straightforward! For example, you may
 find it useful to configure something like:
 
 .. code-block:: python
 
-    class SubscriberClientWithBackoff(SubscriberClient):
-        @backoff.on_exception(backoff.expo, aiohttp.ClientResponseError,
-                              max_tries=5, jitter=backoff.full_jitter)
+    from tenacity import retry
+    from tenacity import retry_if_exception_type
+    from tenacity import stop_after_attempt
+    from tenacity import wait_random_exponential
+
+
+    class SubscriberClientWithRetry(SubscriberClient):
+        @retry(
+            retry=retry_if_exception_type(aiohttp.ClientResponseError),
+            stop=stop_after_attempt(5),
+            wait=wait_random_exponential(multiplier=1, max=60),
+            reraise=True,
+        )
         async def pull(self, *args: Any, **kwargs: Any):
             return await super().pull(*args, **kwargs)
 
-.. _backoff: https://pypi.org/project/backoff/
+.. _tenacity: https://pypi.org/project/tenacity/
 .. _thekevjames/gcloud-pubsub-emulator: https://github.com/TheKevJames/tools/tree/master/docker-gcloud-pubsub-emulator
 .. _endpoint: https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/pull#request-body
 """
