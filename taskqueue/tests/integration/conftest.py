@@ -2,14 +2,6 @@
 import os
 
 import pytest
-from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
-from gcloud.aio.taskqueue import PushQueue
-
-# Selectively load libraries based on the package
-if BUILD_GCLOUD_REST:
-    from requests import Session
-else:
-    from aiohttp import ClientSession as Session
 
 
 def pytest_configure(config):
@@ -37,20 +29,3 @@ def push_queue_name() -> str:
 @pytest.fixture(scope='module')
 def push_queue_location() -> str:
     return 'us-west2'
-
-
-@pytest.fixture(scope='function')
-async def session() -> str:
-    async with Session() as session:
-        yield session
-
-
-@pytest.fixture(scope='function')
-async def push_queue(
-    project, creds, push_queue_name, push_queue_location,
-    session,
-):
-    return PushQueue(
-        project, push_queue_name, service_file=creds,
-        location=push_queue_location, session=session,
-    )
