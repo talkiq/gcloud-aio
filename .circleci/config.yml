@@ -20,9 +20,19 @@ executors:
       - image: python:3.12.12
     resource_class: small
 
+  python313:
+    docker:
+      - image: python:3.13.12
+    resource_class: small
+
+  python314:
+    docker:
+      - image: python:3.14.3
+    resource_class: small
+
   python-integration:
     docker:
-      - image: python:3.12.12
+      - image: python:3.14.3
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
@@ -54,7 +64,7 @@ commands:
 
 jobs:
   build-rest:
-    executor: python312
+    executor: python314
     steps:
       - poetry/install:
           # renovate: datasource=pypi depName=poetry
@@ -67,7 +77,7 @@ jobs:
   # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
   # path which breaks the tag filter).
   poetry-publish-workspace:
-    executor: python312
+    executor: python314
     parameters:
       basedir:
         enum: [/rest, /root/project]
@@ -95,7 +105,7 @@ jobs:
           working_directory: <<parameters.basedir>>/<<parameters.cwd>>
 
   docs:
-    executor: python312
+    executor: python314
     steps:
       - run: pip install sphinx sphinx-autoapi
       - checkout
@@ -184,7 +194,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python310, python311, python312]
+              executor: [python310, python311, python312, python313, python314]
           filters:
             tags:
               only: /.*/
@@ -223,7 +233,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python310, python311, python312]
+              executor: [python310, python311, python312, python313, python314]
           filters:
             tags:
               only: /.*/
