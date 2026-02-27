@@ -10,8 +10,8 @@ else:
     import time
     from collections.abc import Awaitable
     from collections.abc import Callable
-    from typing import Optional
     from typing import TYPE_CHECKING
+    from typing import Optional
     from typing import TypeVar
 
     from . import metrics
@@ -286,11 +286,26 @@ else:
 
             ack_ids = []
 
+    async def ack_or_nack(
+        message: SubscriberMessage,
+        ack_queue: 'asyncio.Queue[str]',
+        nack_queue: Optional['asyncio.Queue[str]'],
+        ack: bool = False,
+    ) -> None:
+        if message.force_ack_nack is None:
+            # if we've not forced the ack status, set it here
+            message.force_ack_nack = ack
+
+        if message.force_ack_nack:
+            await ack_queue.put(message.ack_id)
+        elif nack_queue:
+            await nack_queue.put(message.ack_id)
+
     async def _execute_callback(
         message: SubscriberMessage,
         callback: ApplicationHandler,
         ack_queue: 'asyncio.Queue[str]',
-        nack_queue: 'Optional[asyncio.Queue[str]]',
+        nack_queue: Optional['asyncio.Queue[str]'],
         insertion_time: float,
     ) -> None:
         try:
@@ -300,18 +315,15 @@ else:
             )
             with metrics.CONSUME_LATENCY.labels(phase='runtime').time():
                 await callback(message)
-                await ack_queue.put(message.ack_id)
+                await ack_or_nack(message, ack_queue, nack_queue, ack=True)
             metrics.CONSUME.labels(outcome='succeeded').inc()
-
         except asyncio.CancelledError:
-            if nack_queue:
-                await nack_queue.put(message.ack_id)
+            await ack_or_nack(message, ack_queue, nack_queue, ack=False)
 
             log.warning('application callback was cancelled')
             metrics.CONSUME.labels(outcome='cancelled').inc()
         except Exception as e:
-            if nack_queue:
-                await nack_queue.put(message.ack_id)
+            await ack_or_nack(message, ack_queue, nack_queue, ack=False)
 
             log.warning(
                 'application callback raised an exception',
@@ -326,7 +338,7 @@ else:
             ack_queue: 'asyncio.Queue[str]',
             ack_deadline_cache: AckDeadlineCache,
             max_tasks: int,
-            nack_queue: 'Optional[asyncio.Queue[str]]',
+            nack_queue: Optional['asyncio.Queue[str]'],
     ) -> None:
         try:
             semaphore = asyncio.Semaphore(max_tasks)
@@ -450,7 +462,7 @@ else:
         ack_queue: 'asyncio.Queue[str]' = asyncio.Queue(
             maxsize=(max_messages_per_producer * num_producers),
         )
-        nack_queue: 'Optional[asyncio.Queue[str]]' = None
+        nack_queue: Optional['asyncio.Queue[str]'] = None
         ack_deadline_cache = AckDeadlineCache(
             subscriber_client,
             subscription,

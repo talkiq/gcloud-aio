@@ -29,6 +29,7 @@ else:
         mock = MagicMock()
         mock.ack_id = 'ack_id'
         mock.publish_time.timestamp = MagicMock(return_value=time.time())
+        mock.force_ack_nack = None
         return mock
 
     @pytest.fixture(scope='function')
