@@ -67,16 +67,12 @@ async def test_table_load_copy(
                 and operation.metadata['common']['state'] == 'PROCESSING'
             )
 
-        @retry(
+        operation = await retry(
             retry=retry_if_result(is_processing),
             wait=wait_fixed(10),
             stop=stop_after_attempt(10),
             reraise=True,
-        )
-        async def get_operation_with_retry(name: str):
-            return await ds.get_datastore_operation(name)
-
-        operation = await get_operation_with_retry(operation.name)
+        )(ds.get_datastore_operation)(operation.name)
 
         assert operation.metadata['common']['state'] == 'SUCCESSFUL'
         # END: copy from `test_datastore_export`
@@ -99,16 +95,12 @@ async def test_table_load_copy(
             source_format=SourceFormat.DATASTORE_BACKUP,
         )
 
-        @retry(
+        source_table = await retry(
             retry=retry_if_exception_type(Exception),
             wait=wait_fixed(10),
             stop=stop_after_delay(60),
             reraise=True,
-        )
-        async def get_source_table_with_retry():
-            return await t.get()
-
-        source_table = await get_source_table_with_retry()
+        )(t.get)()
         assert int(source_table['numRows']) > 0
 
         await t.insert_via_copy(project, dataset, copy_entity_table)
@@ -117,16 +109,12 @@ async def test_table_load_copy(
             service_file=creds, session=s,
         )
 
-        @retry(
+        copy_table = await retry(
             retry=retry_if_exception_type(Exception),
             wait=wait_fixed(10),
             stop=stop_after_delay(60),
             reraise=True,
-        )
-        async def get_copy_table_with_retry():
-            return await t1.get()
-
-        copy_table = await get_copy_table_with_retry()
+        )(t1.get)()
         assert copy_table['numRows'] == source_table['numRows']
 
         # delete the backup and copy table
