@@ -96,7 +96,7 @@ repos:
     # `types-$lib` or `$lib-stubs`.
     additional_dependencies:
     - aiohttp==3.13.3
-    - backoff==2.2.1
+    - tenacity==9.1.2
     - cryptography==46.0.5
     - pyjwt==2.11.0
     - types-requests==2.32.4.20260107
