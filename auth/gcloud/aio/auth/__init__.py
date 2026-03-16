@@ -48,6 +48,10 @@ The ``IapToken`` constructor accepts the following optional arguments:
   account which takes the form of an email address. Only valid (and required!)
   for authentication with a project's authorized users. `Impersonating a
   service account`_ is required when generating an ID token in this case.
+* ``client_id``: an optional string for the OAuth client ID of the IAP-secured
+  resource. When provided, skips the automatic client ID discovery via
+  redirect. This is required when using Google-managed IAP OAuth client IDs,
+  since those are not exposed via the redirect ``Location`` header.
 
 The ``Token`` constructor accepts the following optional arguments:
 

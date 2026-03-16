@@ -462,11 +462,13 @@ class IapToken(BaseToken):
         service_file: Optional[Union[str, IO[AnyStr]]] = None,
         session: Optional[Session] = None,
         impersonating_service_account: Optional[str] = None,
+        client_id: Optional[str] = None,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
         self.app_uri = app_uri
         self.service_account = impersonating_service_account
+        self.client_id = client_id
 
         if (self.token_type == Type.AUTHORIZED_USER
                 and not self.service_account):
@@ -600,7 +602,10 @@ class IapToken(BaseToken):
                              expires_in=expiry - int(time.time()))
 
     async def refresh(self, *, timeout: int) -> TokenResponse:
-        iap_client_id = await self._get_iap_client_id(timeout=timeout)
+        iap_client_id = (
+            self.client_id
+            or await self._get_iap_client_id(timeout=timeout)
+        )
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(
                 iap_client_id, timeout)
