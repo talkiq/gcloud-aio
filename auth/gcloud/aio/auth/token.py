@@ -76,6 +76,10 @@ GCLOUD_ENDPOINT_GENERATE_ID_TOKEN = (
     'https://iamcredentials.googleapis.com'
     '/v1/projects/-/serviceAccounts/{service_account}:generateIdToken'
 )
+GCLOUD_ENDPOINT_SIGN_JWT = (
+    'https://iamcredentials.googleapis.com'
+    '/v1/projects/-/serviceAccounts/{service_account}:signJwt'
+)
 REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 
@@ -479,6 +483,15 @@ class IapToken(BaseToken):
                 'authorized user',
             )
 
+        if (self.use_self_signed_jwt
+                and self.token_type != Type.SERVICE_ACCOUNT
+                and not self.service_account):
+            raise Exception(
+                'impersonating_service_account must be provided when '
+                'use_self_signed_jwt is True and token type is not '
+                'service account',
+            )
+
     async def _get_iap_client_id(self, *, timeout: int) -> str:
         """
         Fetch the IAP client ID from the service URI.
@@ -624,10 +637,72 @@ class IapToken(BaseToken):
         return TokenResponse(value=token,
                              expires_in=expiry - int(time.time()))
 
+    async def _get_access_token(
+            self, *, timeout: int,
+    ) -> str:
+        if self.token_type == Type.AUTHORIZED_USER:
+            payload = urlencode({
+                'grant_type': 'refresh_token',
+                'client_id': self.service_data['client_id'],
+                'client_secret': self.service_data['client_secret'],
+                'refresh_token': self.service_data['refresh_token'],
+            })
+            resp = await self.session.post(
+                url=self.token_uri, data=payload, headers=REFRESH_HEADERS,
+                timeout=timeout,
+            )
+            content = await resp.json()
+            return str(content['access_token'])
+
+        if self.token_type == Type.GCE_METADATA:
+            resp = await self.session.get(
+                url=GCE_ENDPOINT_TOKEN, headers=GCE_METADATA_HEADERS,
+                timeout=timeout,
+            )
+            content = await resp.json()
+            return str(content['access_token'])
+
+        raise Exception(
+            f'cannot get access token for token type {self.token_type}',
+        )
+
+    async def _sign_jwt_via_iam(
+            self, *, timeout: int,
+    ) -> TokenResponse:
+        access_token = await self._get_access_token(timeout=timeout)
+
+        now = int(time.time())
+        expiry = now + self.default_token_ttl
+
+        jwt_payload = json.dumps({
+            'iss': self.service_account,
+            'sub': self.service_account,
+            'aud': self.app_uri,
+            'iat': now,
+            'exp': expiry,
+        })
+
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+        body = json.dumps({
+            'payload': jwt_payload,
+        })
+
+        resp = await self.session.post(
+            GCLOUD_ENDPOINT_SIGN_JWT.format(
+                service_account=self.service_account),
+            data=body, headers=headers, timeout=timeout,
+        )
+        content = await resp.json()
+        return TokenResponse(value=content['signedJwt'],
+                             expires_in=expiry - int(time.time()))
+
     async def refresh(self, *, timeout: int) -> TokenResponse:
-        if (self.token_type == Type.SERVICE_ACCOUNT
-                and self.use_self_signed_jwt):
-            return self._refresh_service_account_jwt()
+        if self.use_self_signed_jwt:
+            if self.token_type == Type.SERVICE_ACCOUNT:
+                return self._refresh_service_account_jwt()
+            return await self._sign_jwt_via_iam(timeout=timeout)
 
         iap_client_id = (
             self.client_id
