@@ -463,12 +463,14 @@ class IapToken(BaseToken):
         session: Optional[Session] = None,
         impersonating_service_account: Optional[str] = None,
         client_id: Optional[str] = None,
+        use_self_signed_jwt: bool = False,
     ) -> None:
         super().__init__(service_file=service_file, session=session)
 
         self.app_uri = app_uri
         self.service_account = impersonating_service_account
         self.client_id = client_id
+        self.use_self_signed_jwt = use_self_signed_jwt
 
         if (self.token_type == Type.AUTHORIZED_USER
                 and not self.service_account):
@@ -601,7 +603,32 @@ class IapToken(BaseToken):
         return TokenResponse(value=content['id_token'],
                              expires_in=expiry - int(time.time()))
 
+    def _refresh_service_account_jwt(self) -> TokenResponse:
+        now = int(time.time())
+        expiry = now + self.default_token_ttl
+
+        payload = {
+            'iss': self.service_data['client_email'],
+            'sub': self.service_data['client_email'],
+            'aud': self.app_uri,
+            'iat': now,
+            'exp': expiry,
+        }
+
+        token = jwt.encode(
+            payload,
+            self.service_data['private_key'],
+            algorithm='RS256',
+        )
+
+        return TokenResponse(value=token,
+                             expires_in=expiry - int(time.time()))
+
     async def refresh(self, *, timeout: int) -> TokenResponse:
+        if (self.token_type == Type.SERVICE_ACCOUNT
+                and self.use_self_signed_jwt):
+            return self._refresh_service_account_jwt()
+
         iap_client_id = (
             self.client_id
             or await self._get_iap_client_id(timeout=timeout)

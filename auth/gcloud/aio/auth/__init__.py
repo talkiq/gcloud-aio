@@ -52,6 +52,11 @@ The ``IapToken`` constructor accepts the following optional arguments:
   resource. When provided, skips the automatic client ID discovery via
   redirect. This is required when using Google-managed IAP OAuth client IDs,
   since those are not exposed via the redirect ``Location`` header.
+* ``use_self_signed_jwt``: if ``True`` and using service account credentials,
+  authenticates by signing a JWT directly with the service account's private
+  key (using the target URL as the ``aud`` claim) instead of exchanging for an
+  OIDC token. This avoids the need for IAP client ID discovery and the token
+  exchange round-trip. Defaults to ``False``.
 
 The ``Token`` constructor accepts the following optional arguments:
 
