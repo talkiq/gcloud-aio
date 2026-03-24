@@ -99,7 +99,7 @@ repos:
     - backoff==2.2.1
     - cryptography==46.0.5
     - pyjwt==2.12.1
-    - types-requests==2.32.4.20260107
+    - types-requests==2.32.4.20260324
     args:
     - --show-error-codes
     - --strict
