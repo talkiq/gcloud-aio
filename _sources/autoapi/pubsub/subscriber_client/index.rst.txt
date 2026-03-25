@@ -35,9 +35,9 @@ Module Contents
    :value: ['https://www.googleapis.com/auth/pubsub']
 
 
-.. py:function:: init_api_root(api_root)
+.. py:function:: init_api_root(api_root, api_is_dev)
 
-.. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None)
+.. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None, api_is_dev = None)
 
    .. py:attribute:: _api_root
       :type:  str

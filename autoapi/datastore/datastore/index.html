@@ -66,7 +66,7 @@
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datastore.datastore.init_api_root" title="datastore.datastore.init_api_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_api_root</span></code></a>(api_root)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datastore.datastore.init_api_root" title="datastore.datastore.init_api_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_api_root</span></code></a>(api_root, api_is_dev)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -91,10 +91,13 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datastore.datastore.init_api_root">
-<span class="sig-prename descclassname"><span class="pre">datastore.datastore.</span></span><span class="sig-name descname"><span class="pre">init_api_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.datastore.init_api_root" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">datastore.datastore.</span></span><span class="sig-name descname"><span class="pre">init_api_root</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_is_dev</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.datastore.init_api_root" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>api_root</strong> (<em>str</em><em> | </em><em>None</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_root</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>api_is_dev</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tuple[bool, str]</p>
@@ -104,7 +107,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datastore.datastore.Datastore">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.datastore.</span></span><span class="sig-name descname"><span class="pre">Datastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.datastore.Datastore" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">datastore.datastore.</span></span><span class="sig-name descname"><span class="pre">Datastore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_is_dev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.datastore.Datastore" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -114,6 +117,7 @@
 <li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>token</strong> (<em>gcloud.aio.auth.Token</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>api_root</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>api_is_dev</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 </dl>

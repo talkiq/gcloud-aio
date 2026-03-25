@@ -41,9 +41,9 @@ Module Contents
 
 .. py:data:: LookUpResult
 
-.. py:function:: init_api_root(api_root)
+.. py:function:: init_api_root(api_root, api_is_dev)
 
-.. py:class:: Datastore(project = None, service_file = None, namespace = '', session = None, token = None, api_root = None)
+.. py:class:: Datastore(project = None, service_file = None, namespace = '', session = None, token = None, api_root = None, api_is_dev = None)
 
    .. py:attribute:: datastore_operation_kind
 

@@ -264,7 +264,7 @@ Classes
 Package Contents
 ----------------
 
-.. py:class:: PublisherClient(*, service_file = None, session = None, token = None, api_root = None)
+.. py:class:: PublisherClient(*, service_file = None, session = None, token = None, api_root = None, api_is_dev = None)
 
    .. py:attribute:: _api_root
       :type:  str
@@ -344,7 +344,7 @@ Package Contents
 
 
 
-.. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None)
+.. py:class:: SubscriberClient(*, service_file = None, token = None, session = None, api_root = None, api_is_dev = None)
 
    .. py:attribute:: _api_root
       :type:  str
