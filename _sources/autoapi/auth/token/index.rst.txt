@@ -125,18 +125,23 @@ Module Contents
 
 
 
+   .. py:attribute:: EXTERNAL_ACCOUNT
+      :value: 'external_account'
+
+
+
    .. py:attribute:: GCE_METADATA
       :value: 'gce_metadata'
 
 
 
-   .. py:attribute:: SERVICE_ACCOUNT
-      :value: 'service_account'
-
-
-
    .. py:attribute:: IMPERSONATED_SERVICE_ACCOUNT
       :value: 'impersonated_service_account'
+
+
+
+   .. py:attribute:: SERVICE_ACCOUNT
+      :value: 'service_account'
 
 
 
@@ -293,6 +298,16 @@ Module Contents
 
 
    .. py:method:: _refresh_source_authorized_user(timeout)
+      :async:
+
+
+
+   .. py:method:: _refresh_external_account(timeout)
+      :async:
+
+
+
+   .. py:method:: _get_subject_token(credential_source, timeout)
       :async:
 
 
