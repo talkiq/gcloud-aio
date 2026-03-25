@@ -77,6 +77,7 @@ def parse(field: dict[str, Any], value: Any) -> Any:
             ),
             'BOOLEAN': lambda x: x == 'true',
             'BYTES': bytes,
+            'DATE': datetime.date.fromisoformat,
             'FLOAT': float,
             'INTEGER': int,
             'NUMERIC': lambda x: decimal.Decimal(
@@ -90,7 +91,6 @@ def parse(field: dict[str, Any], value: Any) -> Any:
         }[field['type']]
     except KeyError:
         # TODO: determine the proper methods for converting the following:
-        # DATE -> datetime?
         # DATETIME -> datetime?
         # GEOGRAPHY -> ??
         # TIME -> datetime?
