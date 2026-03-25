@@ -116,6 +116,11 @@
 <span class="sig-name descname"><span class="pre">delivery_attempt</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.delivery_attempt" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pubsub.subscriber_message.SubscriberMessage.force_ack_nack">
+<span class="sig-name descname"><span class="pre">force_ack_nack</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.force_ack_nack" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pubsub.subscriber_message.SubscriberMessage.from_repr">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">received_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.from_repr" title="Link to this definition">¶</a></dt>
@@ -135,6 +140,35 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.subscriber_message.SubscriberMessage.ack">
+<span class="sig-name descname"><span class="pre">ack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.ack" title="Link to this definition">¶</a></dt>
+<dd><p>Forcibly mark a message as acked.</p>
+<p>By default, we only ack a message if the callback returns without
+raising an exception. If this method has been called on the Message, we
+will instead ack it regardless of exception status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pubsub.subscriber_message.SubscriberMessage.nack">
+<span class="sig-name descname"><span class="pre">nack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pubsub.subscriber_message.SubscriberMessage.nack" title="Link to this definition">¶</a></dt>
+<dd><p>Forcibly mark a message as nacked.</p>
+<p>By default, we only nack a message if the callback raises an exception.
+If this method has been called on the Message, we will instead nack it
+regardless of exception status, ie. including if it completes
+successfully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>

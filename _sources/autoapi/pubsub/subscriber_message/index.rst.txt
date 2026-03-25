@@ -47,11 +47,38 @@ Module Contents
 
 
 
+   .. py:attribute:: force_ack_nack
+      :type:  bool | None
+      :value: None
+
+
+
    .. py:method:: from_repr(received_message)
       :staticmethod:
 
 
 
    .. py:method:: to_repr()
+
+
+   .. py:method:: ack()
+
+      Forcibly mark a message as acked.
+
+      By default, we only ack a message if the callback returns without
+      raising an exception. If this method has been called on the Message, we
+      will instead ack it regardless of exception status.
+
+
+
+   .. py:method:: nack()
+
+      Forcibly mark a message as nacked.
+
+      By default, we only nack a message if the callback raises an exception.
+      If this method has been called on the Message, we will instead nack it
+      regardless of exception status, ie. including if it completes
+      successfully.
+
 
 
