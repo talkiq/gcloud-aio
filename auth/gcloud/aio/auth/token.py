@@ -94,7 +94,7 @@ def get_service_data(
     precedence order of various approaches MUST be maintained. It was last
     updated to match the following commit:
 
-    https://github.com/googleapis/google-auth-library-python/blob/6c1297c4d69ba40a8b9392775c17411253fcd73b/google/auth/_default.py#L504
+    https://github.com/googleapis/google-auth-library-python/blob/v2.48.0/google/auth/_default.py#L597
     """
     # pylint: disable=too-complex
     # _get_explicit_environ_credentials()

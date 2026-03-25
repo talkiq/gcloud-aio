@@ -25,9 +25,11 @@ SCOPES = [
 log = logging.getLogger(__name__)
 
 
-def init_api_root(api_root: str | None) -> tuple[bool, str]:
+def init_api_root(
+        api_root: str | None, api_is_dev: bool | None,
+) -> tuple[bool, str]:
     if api_root:
-        return True, api_root
+        return api_is_dev is None or api_is_dev, api_root
 
     host = os.environ.get('BIGQUERY_EMULATOR_HOST')
     if host:
@@ -66,8 +68,9 @@ class BigqueryBase:
             service_file: str | IO[AnyStr] | None = None,
             session: Session | None = None, token: Token | None = None,
             api_root: str | None = None,
+            api_is_dev: bool | None = None
     ) -> None:
-        self._api_is_dev, self._api_root = init_api_root(api_root)
+        self._api_is_dev, self._api_root = init_api_root(api_root, api_is_dev)
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,

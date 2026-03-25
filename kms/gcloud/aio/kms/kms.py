@@ -23,9 +23,11 @@ SCOPES = [
 ]
 
 
-def init_api_root(api_root: str | None) -> tuple[bool, str]:
+def init_api_root(
+        api_root: str | None, api_is_dev: bool | None,
+) -> tuple[bool, str]:
     if api_root:
-        return True, api_root
+        return api_is_dev is None or api_is_dev, api_root
 
     host = os.environ.get('KMS_EMULATOR_HOST')
     if host:
@@ -39,12 +41,18 @@ class KMS:
     _api_is_dev: bool
 
     def __init__(
-            self, keyproject: str, keyring: str, keyname: str,
+            self,
+            keyproject: str,
+            keyring: str,
+            keyname: str,
             service_file: str | IO[AnyStr] | None = None,
-            location: str = 'global', session: Session | None = None,
-            token: Token | None = None, api_root: str | None = None,
+            location: str = 'global',
+            session: Session | None = None,
+            token: Token | None = None,
+            api_root: str | None = None,
+            api_is_dev: bool | None = None,
     ) -> None:
-        self._api_is_dev, self._api_root = init_api_root(api_root)
+        self._api_is_dev, self._api_root = init_api_root(api_root, api_is_dev)
         self._api_root = (
             f'{self._api_root}/projects/{keyproject}/locations/{location}/'
             f'keyRings/{keyring}/cryptoKeys/{keyname}'
