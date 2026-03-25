@@ -78,9 +78,10 @@ REFRESH_HEADERS = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 class Type(enum.Enum):
     AUTHORIZED_USER = 'authorized_user'
+    EXTERNAL_ACCOUNT = 'external_account'
     GCE_METADATA = 'gce_metadata'
-    SERVICE_ACCOUNT = 'service_account'
     IMPERSONATED_SERVICE_ACCOUNT = 'impersonated_service_account'
+    SERVICE_ACCOUNT = 'service_account'
 
 
 def get_service_data(
@@ -184,6 +185,18 @@ class BaseToken:
         self.service_data = get_service_data(service_file)
         if self.service_data:
             self.token_type = Type(self.service_data['type'])
+            if self.token_type == Type.EXTERNAL_ACCOUNT:
+                required_fields = {
+                    'audience',
+                    'credential_source',
+                    'subject_token_type',
+                    'token_url',
+                }
+                if required_fields - self.service_data.keys():
+                    raise ValueError(
+                        'external_account credentials missing required '
+                        f"fields: {', '.join(required_fields)}"
+                    )
             self.token_uri = self.service_data.get(
                 'token_uri', 'https://oauth2.googleapis.com/token',
             )
@@ -366,6 +379,103 @@ class Token(BaseToken):
         return TokenResponse(value=str(content['access_token']),
                              expires_in=int(content['expires_in']))
 
+    async def _refresh_external_account(self, timeout: int) -> TokenResponse:
+        if not self.service_data:
+            raise ValueError('external_account auth requires service_data')
+
+        credential_source = self.service_data['credential_source']
+        subject_token = await self._get_subject_token(
+            credential_source, timeout,
+        )
+
+        # exchange the subject token for a Google access token
+        data = {
+            'audience': self.service_data['audience'],
+            'grant_type': 'urn:ietf:params:oauth:grant-type:token-exchange',
+            'requested_token_type': (
+                'urn:ietf:params:oauth:token-type:access_token'
+            ),
+            'subject_token': subject_token,
+            'subject_token_type': self.service_data['subject_token_type'],
+        }
+        # add optional service account impersonation if configured
+        if self.service_data.get('service_account_impersonation_url'):
+            data['service_account_impersonation_url'] = self.service_data[
+                'service_account_impersonation_url'
+            ]
+        # add optional client ID and secret if configured
+        if self.service_data.get('client_id'):
+            data['client_id'] = self.service_data['client_id']
+        if self.service_data.get('client_secret'):
+            data['client_secret'] = self.service_data['client_secret']
+        # add scopes if configured
+        if self.scopes:
+            data['scope'] = ' '.join(self.scopes)
+
+        resp = await self.session.post(
+            self.service_data['token_url'],
+            data=urlencode(data),
+            headers=REFRESH_HEADERS,
+            timeout=timeout,
+        )
+        try:
+            data = await resp.json()
+        except (AttributeError, TypeError):
+            data = json.loads(await resp.text())
+
+        return TokenResponse(
+            value=data['access_token'],
+            expires_in=data.get('expires_in', self.default_token_ttl),
+        )
+
+    async def _get_subject_token(
+        self, credential_source: dict[str, Any], timeout: int
+    ) -> str:
+        # pylint: disable=too-complex
+        source_type = credential_source.get('type')
+        if not source_type:
+            # TODO: looks like sometimes the type can be found elsewhere or
+            # needs to be infered.
+            # https://github.com/talkiq/gcloud-aio/pull/906/changes#r2206959538
+            raise ValueError('credential_source is missing type field')
+
+        if source_type == 'url':
+            url = credential_source['url']
+            format_ = credential_source.get('format', {})
+            format_type = format_.get('type', 'text')
+
+            resp = await self.session.get(
+                url,
+                headers=credential_source.get('headers', {}),
+                timeout=timeout,
+            )
+
+            if format_type == 'json':
+                try:
+                    data = await resp.json()
+                except (AttributeError, TypeError):
+                    data = json.loads(await resp.text())
+
+                token: str = data[format_['subject_token_field_name']]
+                return token
+
+            try:
+                return await resp.text()
+            except (AttributeError, TypeError):
+                return str(resp.text)
+
+        if source_type == 'file':
+            try:
+                with open(credential_source['file'], encoding='utf-8') as f:
+                    return f.read().strip()
+            except Exception as e:
+                raise ValueError('failed to read subject token file') from e
+
+        if source_type == 'environment':
+            return os.environ[credential_source['environment_id']]
+
+        raise ValueError(f'unsupported credential_source type: {source_type}')
+
     async def _refresh_gce_metadata(self, timeout: int) -> TokenResponse:
         resp = await self.session.get(
             url=self.token_uri, headers=GCE_METADATA_HEADERS, timeout=timeout,
@@ -433,13 +543,15 @@ class Token(BaseToken):
     async def refresh(self, *, timeout: int) -> TokenResponse:
         if self.token_type == Type.AUTHORIZED_USER:
             resp = await self._refresh_authorized_user(timeout=timeout)
+        elif self.token_type == Type.EXTERNAL_ACCOUNT:
+            resp = await self._refresh_external_account(timeout=timeout)
         elif self.token_type == Type.GCE_METADATA:
             resp = await self._refresh_gce_metadata(timeout=timeout)
-        elif self.token_type == Type.SERVICE_ACCOUNT:
-            resp = await self._refresh_service_account(timeout=timeout)
         elif self.token_type == Type.IMPERSONATED_SERVICE_ACCOUNT:
             # impersonation requires a source authorized user
             resp = await self._refresh_source_authorized_user(timeout=timeout)
+        elif self.token_type == Type.SERVICE_ACCOUNT:
+            resp = await self._refresh_service_account(timeout=timeout)
         else:
             raise Exception(f'unsupported token type {self.token_type}')
 

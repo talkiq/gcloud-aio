@@ -19,6 +19,13 @@ against Google Cloud. The other ``gcloud-aio-*`` package components accept a
 these components or define one for each. Each component corresponds to a given
 Google Cloud service and each service requires various "`scopes`_".
 
+The library supports multiple authentication methods:
+- Service account credentials
+- Authorized user credentials
+- GCE metadata credentials
+- Impersonated service account credentials
+- External account credentials (for workload identity federation)
+
 |pypi| |pythons|
 
 Installation
