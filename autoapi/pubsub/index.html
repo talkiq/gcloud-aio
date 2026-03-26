@@ -223,11 +223,21 @@ variable set will query the emulator instead of the official GCS APIs.</p>
 do not implement any sort of retrying or other policies under the assumption
 that we wouldn’t get things right for every user’s situation.</p>
 <p>As such, we recommend configuring your own policies on an as-needed basis. The
-<a class="reference external" href="https://pypi.org/project/backoff/">backoff</a> library can make this quite straightforward! For example, you may
+<a class="reference external" href="https://pypi.org/project/tenacity/">tenacity</a> library can make this quite straightforward! For example, you may
 find it useful to configure something like:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SubscriberClientWithBackoff</span><span class="p">(</span><span class="n">SubscriberClient</span><span class="p">):</span>
-    <span class="nd">@backoff</span><span class="o">.</span><span class="n">on_exception</span><span class="p">(</span><span class="n">backoff</span><span class="o">.</span><span class="n">expo</span><span class="p">,</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponseError</span><span class="p">,</span>
-                          <span class="n">max_tries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="n">backoff</span><span class="o">.</span><span class="n">full_jitter</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry_if_exception_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">stop_after_attempt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">wait_random_exponential</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SubscriberClientWithRetry</span><span class="p">(</span><span class="n">SubscriberClient</span><span class="p">):</span>
+    <span class="nd">@retry</span><span class="p">(</span>
+        <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_exception_type</span><span class="p">(</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientResponseError</span><span class="p">),</span>
+        <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">wait</span><span class="o">=</span><span class="n">wait_random_exponential</span><span class="p">(</span><span class="n">multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">60</span><span class="p">),</span>
+        <span class="n">reraise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
