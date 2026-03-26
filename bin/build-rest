@@ -57,13 +57,18 @@ find . -type f -path '*pyproject.toml' \
 for folder in ${PROJECTS}; do
     pushd $folder >/dev/null
 
-    if diff ../../$folder/pyproject.rest.toml pyproject.toml; then
-        cp poetry.rest.lock poetry.lock
+    if diff "../../${folder}/pyproject.rest.toml" pyproject.toml; then
+        if [ ! -e poetry.rest.lock ]; then
+            poetry lock
+            cp poetry.lock "../../${folder}/poetry.rest.lock"
+        else
+            cp poetry.rest.lock poetry.lock
+        fi
     else
-        echo "$folder/pyproject.toml changed, rebuilding rest lockfile..."
-        cp pyproject.toml ../../$folder/pyproject.rest.toml
+        echo "${folder}/pyproject.toml changed, rebuilding rest lockfile..."
+        cp pyproject.toml "../../${folder}/pyproject.rest.toml"
         poetry lock
-        cp poetry.lock ../../$folder/poetry.rest.lock
+        cp poetry.lock "../../${folder}/poetry.rest.lock"
     fi
 
     popd >/dev/null
