@@ -303,7 +303,7 @@ Package Contents
    .. py:method:: to_repr()
 
 
-.. py:class:: CompositeFilterOperator(*args, **kwds)
+.. py:class:: CompositeFilterOperator
 
    Bases: :py:obj:`enum.Enum`
 
@@ -361,7 +361,7 @@ Package Contents
 
 
 
-.. py:class:: Consistency(*args, **kwds)
+.. py:class:: Consistency
 
    Bases: :py:obj:`enum.Enum`
 
@@ -419,7 +419,7 @@ Package Contents
 
 
 
-.. py:class:: Direction(*args, **kwds)
+.. py:class:: Direction
 
    Bases: :py:obj:`enum.Enum`
 
@@ -477,7 +477,7 @@ Package Contents
 
 
 
-.. py:class:: Mode(*args, **kwds)
+.. py:class:: Mode
 
    Bases: :py:obj:`enum.Enum`
 
@@ -535,7 +535,7 @@ Package Contents
 
 
 
-.. py:class:: MoreResultsType(*args, **kwds)
+.. py:class:: MoreResultsType
 
    Bases: :py:obj:`enum.Enum`
 
@@ -603,7 +603,7 @@ Package Contents
 
 
 
-.. py:class:: Operation(*args, **kwds)
+.. py:class:: Operation
 
    Bases: :py:obj:`enum.Enum`
 
@@ -666,7 +666,7 @@ Package Contents
 
 
 
-.. py:class:: PropertyFilterOperator(*args, **kwds)
+.. py:class:: PropertyFilterOperator
 
    Bases: :py:obj:`enum.Enum`
 
@@ -759,7 +759,7 @@ Package Contents
 
 
 
-.. py:class:: ResultType(*args, **kwds)
+.. py:class:: ResultType
 
    Bases: :py:obj:`enum.Enum`
 
@@ -1604,7 +1604,7 @@ Package Contents
    .. py:method:: to_repr()
 
 
-.. py:class:: ExplainOptions(*args, **kwds)
+.. py:class:: ExplainOptions
 
    Bases: :py:obj:`enum.Enum`
 

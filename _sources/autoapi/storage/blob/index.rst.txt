@@ -40,7 +40,7 @@ Module Contents
 
 .. py:data:: PKCS8_SPEC
 
-.. py:class:: PemKind(*args, **kwds)
+.. py:class:: PemKind
 
    Bases: :py:obj:`enum.Enum`
 
@@ -78,7 +78,7 @@ Module Contents
 
 
 
-.. py:class:: _SignatureMethod(*args, **kwds)
+.. py:class:: _SignatureMethod
 
    Bases: :py:obj:`enum.Enum`
 

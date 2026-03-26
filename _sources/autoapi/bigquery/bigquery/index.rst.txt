@@ -43,7 +43,7 @@ Module Contents
 
 .. py:function:: init_api_root(api_root, api_is_dev)
 
-.. py:class:: SourceFormat(*args, **kwds)
+.. py:class:: SourceFormat
 
    Bases: :py:obj:`enum.Enum`
 
@@ -116,7 +116,7 @@ Module Contents
 
 
 
-.. py:class:: Disposition(*args, **kwds)
+.. py:class:: Disposition
 
    Bases: :py:obj:`enum.Enum`
 
@@ -174,7 +174,7 @@ Module Contents
 
 
 
-.. py:class:: SchemaUpdateOption(*args, **kwds)
+.. py:class:: SchemaUpdateOption
 
    Bases: :py:obj:`enum.Enum`
 

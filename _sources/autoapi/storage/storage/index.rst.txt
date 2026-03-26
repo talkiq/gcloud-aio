@@ -63,7 +63,7 @@ Module Contents
    requests, not aiohttp).
 
 
-.. py:class:: UploadType(*args, **kwds)
+.. py:class:: UploadType
 
    Bases: :py:obj:`enum.Enum`
 

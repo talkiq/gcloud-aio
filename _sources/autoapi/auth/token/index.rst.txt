@@ -77,7 +77,7 @@ Module Contents
 
 .. py:data:: REFRESH_HEADERS
 
-.. py:class:: Type(*args, **kwds)
+.. py:class:: Type
 
    Bases: :py:obj:`enum.Enum`
 

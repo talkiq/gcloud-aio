@@ -78,7 +78,7 @@ Functions
 Package Contents
 ----------------
 
-.. py:class:: Disposition(*args, **kwds)
+.. py:class:: Disposition
 
    Bases: :py:obj:`enum.Enum`
 
@@ -136,7 +136,7 @@ Package Contents
 
 
 
-.. py:class:: SchemaUpdateOption(*args, **kwds)
+.. py:class:: SchemaUpdateOption
 
    Bases: :py:obj:`enum.Enum`
 
@@ -193,7 +193,7 @@ Package Contents
    :value: ['https://www.googleapis.com/auth/bigquery.insertdata', 'https://www.googleapis.com/auth/bigquery']
 
 
-.. py:class:: SourceFormat(*args, **kwds)
+.. py:class:: SourceFormat
 
    Bases: :py:obj:`enum.Enum`
 

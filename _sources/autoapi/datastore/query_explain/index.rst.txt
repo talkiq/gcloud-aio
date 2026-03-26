@@ -19,7 +19,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: ExplainOptions(*args, **kwds)
+.. py:class:: ExplainOptions
 
    Bases: :py:obj:`enum.Enum`
 
