@@ -861,7 +861,7 @@ class Storage:
                     headers.update({'Content-Range': 'bytes */*'})
                     stream.seek(original_position)
 
-                    await sleep(  # type: ignore[func-returns-value]
+                    await sleep(  # type: ignore[func-returns-value,misc]
                         2. ** tries,
                     )
                 else:
