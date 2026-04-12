@@ -68,7 +68,7 @@ jobs:
     steps:
       - poetry/install:
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
       - checkout
       - run: ./bin/build-rest
       - store-rest
@@ -87,7 +87,7 @@ jobs:
     steps:
       - poetry/install:
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
       - checkout
       - attach_workspace:
           at: /rest
@@ -189,7 +189,7 @@ workflows:
                 working_directory: <<matrix.cwd>>
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
           matrix:
             alias: test-unit-aio
             parameters:
@@ -207,7 +207,7 @@ workflows:
           executor: python-integration
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
           pre-steps:
             - run: echo "${GOOGLE_SERVICE_PUBLIC}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
           matrix:
@@ -225,7 +225,7 @@ workflows:
                 working_directory: <<matrix.cwd>>
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -248,7 +248,7 @@ workflows:
           executor: python-integration
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.3.3
+          version: 2.3.4
           pre-steps:
             - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
             - attach_workspace:
