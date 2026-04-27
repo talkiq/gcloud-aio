@@ -101,8 +101,8 @@ def parse(field: dict[str, Any], value: Any) -> Any:
         )
         raise
 
-    if field['mode'] == 'NULLABLE' and value is None:
-        return value
+    if field['mode'] == 'NULLABLE' and flatten(value) is None:
+        return None
 
     if field['mode'] == 'REPEATED':
         if field['type'] == 'RECORD':
