@@ -101,7 +101,9 @@ def parse(field: dict[str, Any], value: Any) -> Any:
         )
         raise
 
-    if field['mode'] == 'NULLABLE' and flatten(value) is None:
+    value = flatten(value)
+
+    if field['mode'] == 'NULLABLE' and value is None:
         return None
 
     if field['mode'] == 'REPEATED':
@@ -110,17 +112,17 @@ def parse(field: dict[str, Any], value: Any) -> Any:
                 f['name']: parse(f, x)
                 for f, x in zip(field['fields'], xs)
             }
-                for xs in flatten(value)]
+                for xs in value]
 
-        return [convert(x) for x in flatten(value)]
+        return [convert(x) for x in value]
 
     if field['type'] == 'RECORD':
         return {
             f['name']: parse(f, x)
-            for f, x in zip(field['fields'], flatten(value))
+            for f, x in zip(field['fields'], value)
         }
 
-    return convert(flatten(value))
+    return convert(value)
 
 
 def query_response_to_dict(response: dict[str, Any]) -> list[dict[str, Any]]:
