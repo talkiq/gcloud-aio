@@ -99,7 +99,7 @@ repos:
     - cryptography==46.0.7
     - pyjwt==2.12.1
     - tenacity==9.1.4
-    - types-requests==2.33.0.20260408
+    - types-requests==2.33.0.20260503
     args:
     - --show-error-codes
     - --strict
