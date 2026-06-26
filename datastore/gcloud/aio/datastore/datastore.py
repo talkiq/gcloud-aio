@@ -173,8 +173,8 @@ class Datastore:
 
         body = {
             'keys': [k.to_repr() for k in keys],
+            **self._extra_request_fields()
         }
-        body.update(self._extra_request_fields())
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
