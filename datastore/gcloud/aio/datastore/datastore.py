@@ -134,6 +134,13 @@ class Datastore:
             'Authorization': f'Bearer {token}',
         }
 
+    def _extra_request_fields(self) -> dict[str, Any]:
+        """Returns extra top-level fields to merge into every request body.
+
+        Override in a subclass to inject additional request-level fields.
+        """
+        return {}
+
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
     def make_mutation(
@@ -164,9 +171,11 @@ class Datastore:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
 
-        payload = json.dumps({
+        body = {
             'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
+        }
+        body.update(self._extra_request_fields())
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -192,13 +201,18 @@ class Datastore:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
         headers = await self.headers()
-        headers.update({
-            'Content-Length': '0',
-            'Content-Type': 'application/json',
-        })
+        headers['Content-Type'] = 'application/json'
 
+        extra = self._extra_request_fields()
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, timeout=timeout)
+        if extra:
+            payload = json.dumps(extra).encode('utf-8')
+            headers['Content-Length'] = str(len(payload))
+            resp = await s.post(url, data=payload, headers=headers,
+                                timeout=timeout)
+        else:
+            headers['Content-Length'] = '0'
+            resp = await s.post(url, headers=headers, timeout=timeout)
         data = await resp.json()
 
         transaction: str = data['transaction']
@@ -219,6 +233,7 @@ class Datastore:
             mutations, transaction=transaction,
             mode=mode,
         )
+        body.update(self._extra_request_fields())
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -314,10 +329,12 @@ class Datastore:
             consistency, newTransaction, transaction, read_time,
         )
 
-        payload = json.dumps({
+        lookup_body = {
             'keys': [k.to_repr() for k in keys],
             'readOptions': read_options,
-        }).encode('utf-8')
+        }
+        lookup_body.update(self._extra_request_fields())
+        payload = json.dumps(lookup_body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -385,10 +402,12 @@ class Datastore:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
 
-        payload = json.dumps({
+        reserve_body = {
             'databaseId': database_id,
             'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
+        }
+        reserve_body.update(self._extra_request_fields())
+        payload = json.dumps(reserve_body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -450,6 +469,7 @@ class Datastore:
         }
         if explain_options:
             payload_dict['explainOptions'] = explain_options.to_repr()
+        payload_dict.update(self._extra_request_fields())
         payload = json.dumps(payload_dict).encode('utf-8')
 
         headers = await self.headers()
