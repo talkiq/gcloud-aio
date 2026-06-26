@@ -1,4 +1,11 @@
+import json
+from typing import Any
+from unittest.mock import AsyncMock
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import pytest
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import Key
@@ -40,6 +47,34 @@ class TestDatastore:
                 Consistency.STRONG, None, None, None
             )
             assert result == {'readConsistency': 'STRONG'}
+
+    @staticmethod
+    async def test_extra_request_fields_merged_into_payload():
+        class _WithSentinelField(Datastore):
+            def _extra_request_fields(self) -> dict[str, Any]:
+                return {'sentinel': 'injected'}
+
+        posted_body: dict[str, Any] = {}
+
+        async def _fake_post(self_session, url, headers, data=None, **kwargs):
+            del self_session, url, headers, kwargs
+            nonlocal posted_body
+            if data:
+                posted_body = json.loads(data)
+            resp = MagicMock()
+            resp.json = AsyncMock(
+                return_value={'found': [], 'missing': [], 'deferred': []},
+            )
+            return resp
+
+        key = Key('p', [PathElement('Kind')])
+        with patch.object(AioSession, 'post', _fake_post):
+            async with _WithSentinelField(project='p', api_root='http://dev/'
+                                          ) as ds:
+                # We use lookup as example but most methods do the same
+                await ds.lookup([key])
+
+        assert posted_body.get('sentinel') == 'injected'
 
     @staticmethod
     @pytest.fixture(scope='session')
