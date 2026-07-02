@@ -139,11 +139,13 @@ class Datastore:
         url: str,
         body: dict[str, Any] | None = None,
         *,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
         session: Session | None = None,
         timeout: float = 10.,
     ) -> Any:
-        merged: dict[str, Any] = {**(body or {}), **(extra_fields or {})}
+        merged: dict[str, Any] = {
+            **(body or {}), **(additional_request_fields or {}),
+        }
         headers = await self.headers()
         headers['Content-Type'] = 'application/json'
         s = AioSession(session) if session else self.session
@@ -182,13 +184,14 @@ class Datastore:
         self, keys: list[Key],
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> list[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
         resp = await self._post(
             url, {'keys': [k.to_repr() for k in keys]},
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data = await resp.json()
         return [self.key_kind.from_repr(k) for k in data['keys']]
@@ -198,12 +201,14 @@ class Datastore:
     async def beginTransaction(
         self, session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
         resp = await self._post(
-            url, extra_fields=extra_fields, session=session, timeout=timeout,
+            url,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data = await resp.json()
         transaction: str = data['transaction']
@@ -216,7 +221,7 @@ class Datastore:
         mode: Mode = Mode.TRANSACTIONAL,
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
@@ -224,7 +229,8 @@ class Datastore:
             mutations, transaction=transaction, mode=mode)
         resp = await self._post(
             url, body,
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
         return {
@@ -243,7 +249,7 @@ class Datastore:
         labels: dict[str, str] | None = None,
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
@@ -257,7 +263,8 @@ class Datastore:
         }
         resp = await self._post(
             url, body,
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
         return self.datastore_operation_kind.from_repr(data)
@@ -289,7 +296,7 @@ class Datastore:
             consistency: Consistency = Consistency.STRONG,
             read_time: str | None = None,
             session: Session | None = None, timeout: float = 10.,
-            extra_fields: dict[str, Any] | None = None,
+            additional_request_fields: dict[str, Any] | None = None,
     ) -> LookUpResult:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
@@ -299,7 +306,8 @@ class Datastore:
         resp = await self._post(
             url,
             {'keys': [k.to_repr() for k in keys], 'readOptions': read_options},
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
         return self._build_lookup_result(data)
@@ -350,14 +358,15 @@ class Datastore:
         self, keys: list[Key], database_id: str = '',
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
         await self._post(
             url,
             {'databaseId': database_id, 'keys': [k.to_repr() for k in keys]},
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
@@ -365,13 +374,14 @@ class Datastore:
         self, transaction: str,
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
         await self._post(
             url, {'transaction': transaction},
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
@@ -384,8 +394,9 @@ class Datastore:
         read_time: str | None = None,
         session: Session | None = None,
         timeout: float = 10.,
-        extra_fields: dict[str, Any] | None = None,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> QueryResult:
+        # pylint: disable=too-many-locals
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
         read_options = self._build_read_options(
@@ -403,7 +414,8 @@ class Datastore:
             body['explainOptions'] = explain_options.to_repr()
         resp = await self._post(
             url, body,
-            extra_fields=extra_fields, session=session, timeout=timeout,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
         return self.query_result_kind.from_repr(data)
