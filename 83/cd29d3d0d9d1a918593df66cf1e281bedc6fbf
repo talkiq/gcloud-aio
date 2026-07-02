@@ -1,0 +1,25 @@
+datastore/gcloud/aio/datastore/datastore.py
+  s_507b1d1a42386c::t_4e1bca0be2c540 220,229-230
+  s_507b1d1a42386c::t_502b09f89026ac 453,463,473-474
+  s_507b1d1a42386c::t_79f01147f5c8be 193,198,201-207
+  s_507b1d1a42386c::t_d6ec4b85ea8610 317,327,330-333
+  s_507b1d1a42386c::t_86dda7dd70b187 163,168-171
+  s_507b1d1a42386c::t_022e7fd0102913 424,429-432
+  s_507b1d1a42386c::t_c73b667dd9f046 397,402,405-408
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.8",
+  "base_commit_sha": "83cd29d3d0d9d1a918593df66cf1e281bedc6fbf",
+  "prompts": {},
+  "sessions": {
+    "s_507b1d1a42386c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d76f32d-e7dd-4df4-ad6a-c734fbd55c17",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Shaun Sawyer <ssawyer@dialpad.com>"
+    }
+  }
+}
