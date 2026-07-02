@@ -160,13 +160,15 @@ class Datastore:
         self, keys: list[Key],
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> list[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
 
-        payload = json.dumps({
-            'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
+        body: dict[str, Any] = {'keys': [k.to_repr() for k in keys]}
+        if extra_fields:
+            body.update(extra_fields)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -188,17 +190,21 @@ class Datastore:
     async def beginTransaction(
         self, session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
         headers = await self.headers()
-        headers.update({
-            'Content-Length': '0',
-            'Content-Type': 'application/json',
-        })
+        headers['Content-Type'] = 'application/json'
 
         s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, timeout=timeout)
+        if extra_fields:
+            payload = json.dumps(extra_fields).encode('utf-8')
+            headers['Content-Length'] = str(len(payload))
+            resp = await s.post(url, data=payload, headers=headers, timeout=timeout)
+        else:
+            headers['Content-Length'] = '0'
+            resp = await s.post(url, headers=headers, timeout=timeout)
         data = await resp.json()
 
         transaction: str = data['transaction']
@@ -211,6 +217,7 @@ class Datastore:
         mode: Mode = Mode.TRANSACTIONAL,
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
@@ -219,6 +226,8 @@ class Datastore:
             mutations, transaction=transaction,
             mode=mode,
         )
+        if extra_fields:
+            body.update(extra_fields)
         payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
@@ -250,18 +259,22 @@ class Datastore:
         labels: dict[str, str] | None = None,
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
 
-        payload = json.dumps({
+        body: dict[str, Any] = {
             'entityFilter': {
                 'kinds': kinds or [],
                 'namespaceIds': namespaces or [],
             },
             'labels': labels or {},
             'outputUrlPrefix': f'gs://{output_bucket_prefix}',
-        }).encode('utf-8')
+        }
+        if extra_fields:
+            body.update(extra_fields)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -305,6 +318,7 @@ class Datastore:
             consistency: Consistency = Consistency.STRONG,
             read_time: str | None = None,
             session: Session | None = None, timeout: float = 10.,
+            extra_fields: dict[str, Any] | None = None,
     ) -> LookUpResult:
         # pylint: disable=too-many-locals
         project = await self.project()
@@ -314,10 +328,13 @@ class Datastore:
             consistency, newTransaction, transaction, read_time,
         )
 
-        payload = json.dumps({
+        body: dict[str, Any] = {
             'keys': [k.to_repr() for k in keys],
             'readOptions': read_options,
-        }).encode('utf-8')
+        }
+        if extra_fields:
+            body.update(extra_fields)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -381,14 +398,18 @@ class Datastore:
         self, keys: list[Key], database_id: str = '',
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
 
-        payload = json.dumps({
+        body: dict[str, Any] = {
             'databaseId': database_id,
             'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
+        }
+        if extra_fields:
+            body.update(extra_fields)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -404,13 +425,15 @@ class Datastore:
         self, transaction: str,
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
 
-        payload = json.dumps({
-            'transaction': transaction,
-        }).encode('utf-8')
+        body: dict[str, Any] = {'transaction': transaction}
+        if extra_fields:
+            body.update(extra_fields)
+        payload = json.dumps(body).encode('utf-8')
 
         headers = await self.headers()
         headers.update({
@@ -431,6 +454,7 @@ class Datastore:
         read_time: str | None = None,
         session: Session | None = None,
         timeout: float = 10.,
+        extra_fields: dict[str, Any] | None = None,
     ) -> QueryResult:
         # pylint: disable=too-many-locals
         project = await self.project()
@@ -440,7 +464,7 @@ class Datastore:
             consistency, newTransaction, transaction, read_time,
         )
 
-        payload_dict = {
+        payload_dict: dict[str, Any] = {
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
@@ -450,6 +474,8 @@ class Datastore:
         }
         if explain_options:
             payload_dict['explainOptions'] = explain_options.to_repr()
+        if extra_fields:
+            payload_dict.update(extra_fields)
         payload = json.dumps(payload_dict).encode('utf-8')
 
         headers = await self.headers()
