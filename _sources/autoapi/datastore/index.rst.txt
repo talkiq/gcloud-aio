@@ -883,27 +883,32 @@ Package Contents
 
 
 
+   .. py:method:: _post(url, body = None, *, additional_request_fields = None, session = None, timeout = 10.0)
+      :async:
+
+
+
    .. py:method:: make_mutation(operation, key, properties = None)
       :classmethod:
 
 
 
-   .. py:method:: allocateIds(keys, session = None, timeout = 10.0)
+   .. py:method:: allocateIds(keys, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
 
-   .. py:method:: beginTransaction(session = None, timeout = 10.0)
+   .. py:method:: beginTransaction(session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
 
-   .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10.0)
+   .. py:method:: commit(mutations, transaction = None, mode = Mode.TRANSACTIONAL, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
 
-   .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10.0)
+   .. py:method:: export(output_bucket_prefix, kinds = None, namespaces = None, labels = None, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
@@ -913,7 +918,7 @@ Package Contents
 
 
 
-   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, read_time = None, session = None, timeout = 10.0)
+   .. py:method:: lookup(keys, transaction = None, newTransaction = None, consistency = Consistency.STRONG, read_time = None, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
@@ -924,17 +929,17 @@ Package Contents
    .. py:method:: _build_read_options(consistency, newTransaction, transaction, read_time)
 
 
-   .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10.0)
+   .. py:method:: reserveIds(keys, database_id = '', session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
 
-   .. py:method:: rollback(transaction, session = None, timeout = 10.0)
+   .. py:method:: rollback(transaction, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
 
-   .. py:method:: runQuery(query, explain_options = None, transaction = None, newTransaction = None, consistency = Consistency.EVENTUAL, read_time = None, session = None, timeout = 10.0)
+   .. py:method:: runQuery(query, explain_options = None, transaction = None, newTransaction = None, consistency = Consistency.EVENTUAL, read_time = None, session = None, timeout = 10.0, additional_request_fields = None)
       :async:
 
 
