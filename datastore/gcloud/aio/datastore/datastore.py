@@ -134,6 +134,30 @@ class Datastore:
             'Authorization': f'Bearer {token}',
         }
 
+    async def _post(
+        self,
+        url: str,
+        body: dict[str, Any] | None = None,
+        *,
+        additional_request_fields: dict[str, Any] | None = None,
+        session: Session | None = None,
+        timeout: float = 10.,
+    ) -> Any:
+        merged: dict[str, Any] = {
+            **(body or {}), **(additional_request_fields or {}),
+        }
+        headers = await self.headers()
+        headers['Content-Type'] = 'application/json'
+        s = AioSession(session) if session else self.session
+        if merged:
+            payload = json.dumps(merged).encode('utf-8')
+            headers['Content-Length'] = str(len(payload))
+            return await s.post(
+                url, data=payload, headers=headers, timeout=timeout,
+            )
+        headers['Content-Length'] = '0'
+        return await s.post(url, headers=headers, timeout=timeout)
+
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
     def make_mutation(
@@ -160,27 +184,16 @@ class Datastore:
         self, keys: list[Key],
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> list[Key]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:allocateIds'
-
-        payload = json.dumps({
-            'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
+        resp = await self._post(
+            url, {'keys': [k.to_repr() for k in keys]},
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data = await resp.json()
-
         return [self.key_kind.from_repr(k) for k in data['keys']]
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/beginTransaction
@@ -188,19 +201,16 @@ class Datastore:
     async def beginTransaction(
         self, session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> str:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:beginTransaction'
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': '0',
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(url, headers=headers, timeout=timeout)
+        resp = await self._post(
+            url,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
+        )
         data = await resp.json()
-
         transaction: str = data['transaction']
         return transaction
 
@@ -211,29 +221,18 @@ class Datastore:
         mode: Mode = Mode.TRANSACTIONAL,
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:commit'
-
         body = self._make_commit_body(
-            mutations, transaction=transaction,
-            mode=mode,
-        )
-        payload = json.dumps(body).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
+            mutations, transaction=transaction, mode=mode)
+        resp = await self._post(
+            url, body,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
-
         return {
             'mutationResults': [
                 self.mutation_result_kind.from_repr(r)
@@ -250,32 +249,24 @@ class Datastore:
         labels: dict[str, str] | None = None,
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> DatastoreOperation:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
-
-        payload = json.dumps({
+        body: dict[str, Any] = {
             'entityFilter': {
                 'kinds': kinds or [],
                 'namespaceIds': namespaces or [],
             },
             'labels': labels or {},
             'outputUrlPrefix': f'gs://{output_bucket_prefix}',
-        }).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
+        }
+        resp = await self._post(
+            url, body,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
         data: dict[str, Any] = await resp.json()
-
         return self.datastore_operation_kind.from_repr(data)
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects.operations/get
@@ -305,34 +296,20 @@ class Datastore:
             consistency: Consistency = Consistency.STRONG,
             read_time: str | None = None,
             session: Session | None = None, timeout: float = 10.,
+            additional_request_fields: dict[str, Any] | None = None,
     ) -> LookUpResult:
-        # pylint: disable=too-many-locals
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:lookup'
-
         read_options = self._build_read_options(
             consistency, newTransaction, transaction, read_time,
         )
-
-        payload = json.dumps({
-            'keys': [k.to_repr() for k in keys],
-            'readOptions': read_options,
-        }).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
+        resp = await self._post(
+            url,
+            {'keys': [k.to_repr() for k in keys], 'readOptions': read_options},
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
-
         data: dict[str, Any] = await resp.json()
-
         return self._build_lookup_result(data)
 
     def _build_lookup_result(self, data: dict[str, Any]) -> LookUpResult:
@@ -381,45 +358,31 @@ class Datastore:
         self, keys: list[Key], database_id: str = '',
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:reserveIds'
-
-        payload = json.dumps({
-            'databaseId': database_id,
-            'keys': [k.to_repr() for k in keys],
-        }).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        await self._post(
+            url,
+            {'databaseId': database_id, 'keys': [k.to_repr() for k in keys]},
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
+        )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/rollback
     async def rollback(
         self, transaction: str,
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> None:
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:rollback'
-
-        payload = json.dumps({
-            'transaction': transaction,
-        }).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        await s.post(url, data=payload, headers=headers, timeout=timeout)
+        await self._post(
+            url, {'transaction': transaction},
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
+        )
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
@@ -431,16 +394,15 @@ class Datastore:
         read_time: str | None = None,
         session: Session | None = None,
         timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
     ) -> QueryResult:
         # pylint: disable=too-many-locals
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:runQuery'
-
         read_options = self._build_read_options(
             consistency, newTransaction, transaction, read_time,
         )
-
-        payload_dict = {
+        body: dict[str, Any] = {
             'partitionId': {
                 'projectId': project,
                 'namespaceId': self.namespace,
@@ -449,21 +411,12 @@ class Datastore:
             'readOptions': read_options,
         }
         if explain_options:
-            payload_dict['explainOptions'] = explain_options.to_repr()
-        payload = json.dumps(payload_dict).encode('utf-8')
-
-        headers = await self.headers()
-        headers.update({
-            'Content-Length': str(len(payload)),
-            'Content-Type': 'application/json',
-        })
-
-        s = AioSession(session) if session else self.session
-        resp = await s.post(
-            url, data=payload, headers=headers,
-            timeout=timeout,
+            body['explainOptions'] = explain_options.to_repr()
+        resp = await self._post(
+            url, body,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
         )
-
         data: dict[str, Any] = await resp.json()
         return self.query_result_kind.from_repr(data)
 
