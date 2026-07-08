@@ -43,7 +43,7 @@ Module Contents
 
 .. py:data:: log
 
-.. py:function:: init_api_root(api_root, api_is_dev)
+.. py:function:: init_api_root(api_root, api_is_dev = None)
 
 .. py:class:: PushQueue(project, taskqueue, location = 'us-central1', service_file = None, session = None, token = None, api_root = None, api_is_dev = None)
 

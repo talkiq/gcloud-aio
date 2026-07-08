@@ -41,7 +41,7 @@ Module Contents
 
 .. py:data:: log
 
-.. py:function:: init_api_root(api_root, api_is_dev)
+.. py:function:: init_api_root(api_root, api_is_dev = None)
 
 .. py:class:: SourceFormat
 
