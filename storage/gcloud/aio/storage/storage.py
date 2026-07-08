@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 
 
 def init_api_root(
-        api_root: str | None, api_is_dev: bool | None,
+        api_root: str | None, api_is_dev: bool | None = None,
 ) -> tuple[bool, str]:
     if api_root:
         return api_is_dev is None or api_is_dev, api_root
