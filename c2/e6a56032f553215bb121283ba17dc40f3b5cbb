@@ -1,0 +1,31 @@
+storage/gcloud/aio/storage/storage.py
+  s_cab2c1310cd49a::t_deddea8094badb 46
+pubsub/gcloud/aio/pubsub/subscriber_client.py
+  s_cab2c1310cd49a::t_4ae8c16b45c732 25
+bigquery/gcloud/aio/bigquery/bigquery.py
+  s_cab2c1310cd49a::t_29dabe8b252d92 29
+datastore/gcloud/aio/datastore/datastore.py
+  s_cab2c1310cd49a::t_2123b1569750e5 45
+pubsub/gcloud/aio/pubsub/publisher_client.py
+  s_cab2c1310cd49a::t_413b504a3cd357 29
+kms/gcloud/aio/kms/kms.py
+  s_cab2c1310cd49a::t_f0cec568d9c771 27
+taskqueue/gcloud/aio/taskqueue/queue.py
+  s_cab2c1310cd49a::t_ce17eb641af884 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c2e6a56032f553215bb121283ba17dc40f3b5cbb",
+  "prompts": {},
+  "sessions": {
+    "s_cab2c1310cd49a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "05d31ff4-b4e8-4bc4-9c0c-72e91749754f",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Shaun Sawyer <ssawyer@dialpad.com>"
+    }
+  }
+}
