@@ -112,6 +112,7 @@ repos:
     additional_dependencies:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
+    - types-python-dateutil==2.9.0.20260716
     - types-requests==2.32.4.20260107
     files: bigquery/
   - <<: *mypy
