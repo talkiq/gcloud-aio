@@ -1,0 +1,23 @@
+datastore/tests/unit/post_test.py
+  s_507b1d1a42386c::t_2bd4d0c64fcd43 1-89,94-130,135-137
+  s_507b1d1a42386c::t_066846bd5297dc 131-134
+  s_507b1d1a42386c::t_c0b57dbe9c8eaa 90-93
+bin/build-rest
+  s_507b1d1a42386c::t_620e9ce53ef0b6 90-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.9",
+  "base_commit_sha": "997da5e57d4be359d2c507f7b84ee4e4a226b53d",
+  "prompts": {},
+  "sessions": {
+    "s_507b1d1a42386c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d76f32d-e7dd-4df4-ad6a-c734fbd55c17",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": null
+    }
+  }
+}
