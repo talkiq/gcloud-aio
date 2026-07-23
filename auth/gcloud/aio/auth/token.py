@@ -418,7 +418,7 @@ class Token(BaseToken):
             data['client_secret'] = self.service_data['client_secret']
         # add scopes if configured
         if self.scopes:
-            data['scope'] = ' '.join(self.scopes)
+            data['scope'] = self.scopes
 
         resp = await self.session.post(
             self.service_data['token_url'],
