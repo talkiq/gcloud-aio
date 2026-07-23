@@ -1,0 +1,19 @@
+auth/gcloud/aio/auth/token.py
+  s_7075f6b3fe47fb::t_c8c154cba98e71 421
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "b9cdc6e78f2ce02ab59ed844ae747079e7a90e13",
+  "prompts": {},
+  "sessions": {
+    "s_7075f6b3fe47fb": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f8e91-6740-729a-a080-6fc1454b2ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Kevin James <kevin@talkiq.com>"
+    }
+  }
+}
