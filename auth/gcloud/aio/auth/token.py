@@ -406,19 +406,20 @@ class Token(BaseToken):
             'subject_token': subject_token,
             'subject_token_type': self.service_data['subject_token_type'],
         }
-        # add optional service account impersonation if configured
-        if self.service_data.get('service_account_impersonation_url'):
-            data['service_account_impersonation_url'] = self.service_data[
-                'service_account_impersonation_url'
-            ]
         # add optional client ID and secret if configured
         if self.service_data.get('client_id'):
             data['client_id'] = self.service_data['client_id']
         if self.service_data.get('client_secret'):
             data['client_secret'] = self.service_data['client_secret']
         # add scopes if configured
-        if self.scopes:
-            data['scope'] = ' '.join(self.scopes)
+        if self.impersonation_uri:
+            # The STS token becomes the bearer for the downstream
+            # generateAccessToken call, which requires an IAM scope, not the
+            # caller's app scope. _impersonate applies the caller's scopes to
+            # the final token.
+            data['scope'] = 'https://www.googleapis.com/auth/iam'
+        elif self.scopes:
+            data['scope'] = self.scopes
 
         resp = await self.session.post(
             self.service_data['token_url'],
