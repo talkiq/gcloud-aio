@@ -27,12 +27,12 @@ executors:
 
   python314:
     docker:
-      - image: python:3.14.6
+      - image: python:3.14.7
     resource_class: small
 
   python-integration:
     docker:
-      - image: python:3.14.6
+      - image: python:3.14.7
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
