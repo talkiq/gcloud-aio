@@ -22,7 +22,7 @@ executors:
 
   python313:
     docker:
-      - image: python:3.13.14
+      - image: python:3.13.15
     resource_class: small
 
   python314:
