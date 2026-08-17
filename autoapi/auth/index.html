@@ -55,7 +55,7 @@ managing service accounts and public keys, URL-signing blobs, etc.</p>
 <span class="n">client</span> <span class="o">=</span> <span class="n">IamClient</span><span class="p">()</span>
 <span class="n">pubkeys</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">list_public_keys</span><span class="p">()</span>
 
-<span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span><span class="s1">&#39;https://your.service.url.com&#39;</span><span class="p">)</span>
+<span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span><span class="s1">'https://your.service.url.com'</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">iap_token</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
 
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">()</span>
@@ -114,7 +114,7 @@ is specified in the <code class="docutils literal notranslate"><span class="pre"
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="c1"># Use a specific service account file</span>
-<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/service-account.json&#39;</span><span class="p">)</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/service-account.json'</span><span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="c1"># Use a custom session</span>
@@ -131,8 +131,8 @@ is specified in the <code class="docutils literal notranslate"><span class="pre"
 
 <span class="c1"># Use service account with specific scopes</span>
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span>
-    <span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/service-account.json&#39;</span><span class="p">,</span>
-    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/cloud-platform&#39;</span><span class="p">]</span>
+    <span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/service-account.json'</span><span class="p">,</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://www.googleapis.com/auth/cloud-platform'</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </pre></div>
@@ -143,7 +143,7 @@ is specified in the <code class="docutils literal notranslate"><span class="pre"
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">Token</span>
 
 <span class="c1"># Use authorized user credentials (e.g., from gcloud auth application-default login)</span>
-<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;~/.config/gcloud/application_default_credentials.json&#39;</span><span class="p">)</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">'~/.config/gcloud/application_default_credentials.json'</span><span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -164,18 +164,18 @@ is specified in the <code class="docutils literal notranslate"><span class="pre"
 
 <span class="c1"># Impersonate a service account</span>
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span>
-    <span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/source-credentials.json&#39;</span><span class="p">,</span>
-    <span class="n">target_principal</span><span class="o">=</span><span class="s1">&#39;target-service@project.iam.gserviceaccount.com&#39;</span><span class="p">,</span>
-    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/cloud-platform&#39;</span><span class="p">]</span>
+    <span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/source-credentials.json'</span><span class="p">,</span>
+    <span class="n">target_principal</span><span class="o">=</span><span class="s1">'target-service@project.iam.gserviceaccount.com'</span><span class="p">,</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://www.googleapis.com/auth/cloud-platform'</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="c1"># With delegation chain</span>
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span>
-    <span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/source-credentials.json&#39;</span><span class="p">,</span>
-    <span class="n">target_principal</span><span class="o">=</span><span class="s1">&#39;target-service@project.iam.gserviceaccount.com&#39;</span><span class="p">,</span>
-    <span class="n">delegates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;delegate-service@project.iam.gserviceaccount.com&#39;</span><span class="p">],</span>
-    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/cloud-platform&#39;</span><span class="p">]</span>
+    <span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/source-credentials.json'</span><span class="p">,</span>
+    <span class="n">target_principal</span><span class="o">=</span><span class="s1">'target-service@project.iam.gserviceaccount.com'</span><span class="p">,</span>
+    <span class="n">delegates</span><span class="o">=</span><span class="p">[</span><span class="s1">'delegate-service@project.iam.gserviceaccount.com'</span><span class="p">],</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://www.googleapis.com/auth/cloud-platform'</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </pre></div>
@@ -189,15 +189,15 @@ federation. This allows you to use credentials from external identity providers
 (like AWS, Azure, or OIDC) to access Google Cloud resources.</p>
 <p>Example configuration file:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;external_account&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;audience&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;//iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/pool/subject&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;subject_token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:ietf:params:oauth:token-type:jwt&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;token_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://sts.googleapis.com/v1/token&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;credential_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;url&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://169.254.169.254/metadata/identity/oauth2/token&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;Metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"external_account"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"audience"</span><span class="p">:</span><span class="w"> </span><span class="s2">"//iam.googleapis.com/projects/123456/locations/global/workloadIdentityPools/pool/subject"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"subject_token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"urn:ietf:params:oauth:token-type:jwt"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"token_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://sts.googleapis.com/v1/token"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"credential_source"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"url"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://169.254.169.254/metadata/identity/oauth2/token"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"Metadata"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -207,13 +207,13 @@ federation. This allows you to use credentials from external identity providers
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">Token</span>
 
 <span class="c1"># Basic usage with external account credentials</span>
-<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/external_account_credentials.json&#39;</span><span class="p">)</span>
+<span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/external_account_credentials.json'</span><span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="c1"># With specific scopes</span>
 <span class="n">token</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span>
-    <span class="n">service_file</span><span class="o">=</span><span class="s1">&#39;path/to/external_account_credentials.json&#39;</span><span class="p">,</span>
-    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/cloud-platform&#39;</span><span class="p">]</span>
+    <span class="n">service_file</span><span class="o">=</span><span class="s1">'path/to/external_account_credentials.json'</span><span class="p">,</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://www.googleapis.com/auth/cloud-platform'</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">access_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </pre></div>
@@ -227,13 +227,13 @@ federation. This allows you to use credentials from external identity providers
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">IapToken</span>
 
 <span class="c1"># Basic IAP token usage</span>
-<span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span><span class="s1">&#39;https://your-iap-secured-service.com&#39;</span><span class="p">)</span>
+<span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span><span class="s1">'https://your-iap-secured-service.com'</span><span class="p">)</span>
 <span class="n">id_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">iap_token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="c1"># With service account impersonation</span>
 <span class="n">iap_token</span> <span class="o">=</span> <span class="n">IapToken</span><span class="p">(</span>
-    <span class="s1">&#39;https://your-iap-secured-service.com&#39;</span><span class="p">,</span>
-    <span class="n">impersonating_service_account</span><span class="o">=</span><span class="s1">&#39;service@project.iam.gserviceaccount.com&#39;</span>
+    <span class="s1">'https://your-iap-secured-service.com'</span><span class="p">,</span>
+    <span class="n">impersonating_service_account</span><span class="o">=</span><span class="s1">'service@project.iam.gserviceaccount.com'</span>
 <span class="p">)</span>
 <span class="n">id_token</span> <span class="o">=</span> <span class="k">await</span> <span class="n">iap_token</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </pre></div>
@@ -248,7 +248,7 @@ federation. This allows you to use credentials from external identity providers
 <span class="n">pubkeys</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">list_public_keys</span><span class="p">()</span>
 
 <span class="c1"># Get a specific public key</span>
-<span class="n">key</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_public_key</span><span class="p">(</span><span class="s1">&#39;key-id&#39;</span><span class="p">)</span>
+<span class="n">key</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_public_key</span><span class="p">(</span><span class="s1">'key-id'</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -259,20 +259,20 @@ federation. This allows you to use credentials from external identity providers
 routes, eg. we can list our project’s uptime checks with a tool such as
 <code class="docutils literal notranslate"><span class="pre">curl</span></code>:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>using<span class="w"> </span>default<span class="w"> </span>application<span class="w"> </span>credentials
-<span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import Token; print(Token().get())&#39;)&quot;       &quot;https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs&quot;</span>
+<span class="go">curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"</span>
 
 <span class="gp"># </span>using<span class="w"> </span>a<span class="w"> </span>service<span class="w"> </span>account<span class="w"> </span><span class="o">(</span>make<span class="w"> </span>sure<span class="w"> </span>to<span class="w"> </span>provide<span class="w"> </span>a<span class="w"> </span>scope!<span class="o">)</span>
 <span class="go">export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service.json</span>
-<span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import Token; print(Token(scopes=[&quot;&#39;&quot;https://www.googleapis.com/auth/cloud-platform&quot;&#39;&quot;]).get())&#39;)&quot;       &quot;https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs&quot;</span>
+<span class="go">curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token(scopes=["'"https://www.googleapis.com/auth/cloud-platform"'"]).get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"</span>
 
 <span class="gp"># </span>using<span class="w"> </span>legacy<span class="w"> </span>account<span class="w"> </span>credentials
 <span class="go">export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/EMAIL@DOMAIN.TLD/adc.json</span>
-<span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import Token; print(Token().get())&#39;)&quot;       &quot;https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs&quot;</span>
+<span class="go">curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import Token; print(Token().get())')"       "https://monitoring.googleapis.com/v3/projects/PROJECT_ID/uptimeCheckConfigs"</span>
 </pre></div>
 </div>
 <p>Similarly it can be used to quickly test your IAP-secured endpoints:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>using<span class="w"> </span>default<span class="w"> </span>application<span class="w"> </span>credentials
-<span class="go">curl       -H &quot;Authorization: Bearer $(python3 -c &#39;from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, impersonating_service_account=SA))&#39;)&quot;       APP_URL</span>
+<span class="go">curl       -H "Authorization: Bearer $(python3 -c 'from gcloud.rest.auth import IapToken; print(IapToken(APP_URL, impersonating_service_account=SA))')"       APP_URL</span>
 </pre></div>
 </div>
 </section>

@@ -56,12 +56,12 @@ pubsub’s HTTP API:</p>
 <span class="n">client</span> <span class="o">=</span> <span class="n">SubscriberClient</span><span class="p">()</span>
 <span class="c1"># create subscription</span>
 <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">create_subscription</span><span class="p">(</span>
-    <span class="s1">&#39;projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;projects/&lt;project_name&gt;/topics/&lt;topic_name&gt;&#39;</span><span class="p">)</span>
+    <span class="s1">'projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;'</span><span class="p">,</span>
+    <span class="s1">'projects/&lt;project_name&gt;/topics/&lt;topic_name&gt;'</span><span class="p">)</span>
 
 <span class="c1"># pull messages</span>
 <span class="n">messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SubscriberMessage</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span>
-    <span class="s1">&#39;projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;&#39;</span><span class="p">,</span>
+    <span class="s1">'projects/&lt;project_name&gt;/subscriptions/&lt;subscription_name&gt;'</span><span class="p">,</span>
     <span class="n">max_messages</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -77,7 +77,7 @@ available in the <code class="docutils literal notranslate"><span class="pre">gc
     <span class="k">return</span>
 
 <span class="k">await</span> <span class="n">subscribe</span><span class="p">(</span>
-    <span class="s1">&#39;projects/&lt;my_project&gt;/subscriptions/&lt;my_subscription&gt;&#39;</span><span class="p">,</span>
+    <span class="s1">'projects/&lt;my_project&gt;/subscriptions/&lt;my_subscription&gt;'</span><span class="p">,</span>
     <span class="n">handler</span><span class="p">,</span>
     <span class="n">subscriber_client</span><span class="p">,</span>
     <span class="n">ack_deadline</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -189,15 +189,15 @@ library should be a bit easier to work with.</p>
 <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">PublisherClient</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
 
-    <span class="n">topic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">topic_path</span><span class="p">(</span><span class="s1">&#39;my-gcp-project&#39;</span><span class="p">,</span> <span class="s1">&#39;my-topic-name&#39;</span><span class="p">)</span>
+    <span class="n">topic</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">topic_path</span><span class="p">(</span><span class="s1">'my-gcp-project'</span><span class="p">,</span> <span class="s1">'my-topic-name'</span><span class="p">)</span>
 
     <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;payload&#39;</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
-        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;other payload&#39;</span><span class="p">,</span> <span class="n">other_attribute</span><span class="o">=</span><span class="s1">&#39;whatever&#39;</span><span class="p">,</span>
-                      <span class="n">more_attributes</span><span class="o">=</span><span class="s1">&#39;something else&#39;</span><span class="p">),</span>
+        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">'payload'</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">'value'</span><span class="p">),</span>
+        <span class="n">PubsubMessage</span><span class="p">(</span><span class="sa">b</span><span class="s1">'other payload'</span><span class="p">,</span> <span class="n">other_attribute</span><span class="o">=</span><span class="s1">'whatever'</span><span class="p">,</span>
+                      <span class="n">more_attributes</span><span class="o">=</span><span class="s1">'something else'</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
-    <span class="c1"># response == {&#39;messageIds&#39;: [&#39;1&#39;, &#39;2&#39;]}</span>
+    <span class="c1"># response == {'messageIds': ['1', '2']}</span>
 </pre></div>
 </div>
 </section>
@@ -209,7 +209,7 @@ variable to the local address of your emulator should be enough to do the
 trick.</p>
 <p>For example, using the official Google Pubsub emulator:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">gcloud beta emulators pubsub start --host-port=0.0.0.0:8681</span>
-<span class="go">export PUBSUB_EMULATOR_HOST=&#39;0.0.0.0:8681&#39;</span>
+<span class="go">export PUBSUB_EMULATOR_HOST='0.0.0.0:8681'</span>
 </pre></div>
 </div>
 <p>Any <code class="docutils literal notranslate"><span class="pre">gcloud-aio-pubsub</span></code> Publisher requests made with that environment

@@ -50,10 +50,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.kms</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.kms</span><span class="w"> </span><span class="kn">import</span> <span class="n">encode</span>
 
-<span class="n">kms</span> <span class="o">=</span> <span class="n">KMS</span><span class="p">(</span><span class="s1">&#39;my-kms-project&#39;</span><span class="p">,</span> <span class="s1">&#39;my-keyring&#39;</span><span class="p">,</span> <span class="s1">&#39;my-key-name&#39;</span><span class="p">)</span>
+<span class="n">kms</span> <span class="o">=</span> <span class="n">KMS</span><span class="p">(</span><span class="s1">'my-kms-project'</span><span class="p">,</span> <span class="s1">'my-keyring'</span><span class="p">,</span> <span class="s1">'my-key-name'</span><span class="p">)</span>
 
 <span class="c1"># encrypt</span>
-<span class="n">plaintext</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;the-best-animal-is-the-aardvark&#39;</span>
+<span class="n">plaintext</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'the-best-animal-is-the-aardvark'</span>
 <span class="n">ciphertext</span> <span class="o">=</span> <span class="k">await</span> <span class="n">kms</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">encode</span><span class="p">(</span><span class="n">plaintext</span><span class="p">))</span>
 
 <span class="c1"># decrypt</span>

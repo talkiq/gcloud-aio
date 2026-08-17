@@ -60,17 +60,17 @@ started:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Query</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gcloud.aio.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Value</span>
 
-<span class="n">ds</span> <span class="o">=</span> <span class="n">Datastore</span><span class="p">(</span><span class="s1">&#39;my-gcloud-project&#39;</span><span class="p">,</span> <span class="s1">&#39;/path/to/creds.json&#39;</span><span class="p">)</span>
-<span class="n">key1</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">&#39;my-gcloud-project&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">&#39;Kind&#39;</span><span class="p">,</span> <span class="s1">&#39;entityname&#39;</span><span class="p">)])</span>
-<span class="n">key2</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">&#39;my-gcloud-project&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">&#39;Kind&#39;</span><span class="p">,</span> <span class="s1">&#39;entityname2&#39;</span><span class="p">)])</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">Datastore</span><span class="p">(</span><span class="s1">'my-gcloud-project'</span><span class="p">,</span> <span class="s1">'/path/to/creds.json'</span><span class="p">)</span>
+<span class="n">key1</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">'my-gcloud-project'</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">'Kind'</span><span class="p">,</span> <span class="s1">'entityname'</span><span class="p">)])</span>
+<span class="n">key2</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">'my-gcloud-project'</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">'Kind'</span><span class="p">,</span> <span class="s1">'entityname2'</span><span class="p">)])</span>
 
 <span class="c1"># batched lookups</span>
 <span class="n">entities</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">lookup</span><span class="p">([</span><span class="n">key1</span><span class="p">,</span> <span class="n">key2</span><span class="p">])</span>
 
 <span class="c1"># convenience functions for any datastore mutations</span>
-<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;a_boolean&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;meaning_of_life&#39;</span><span class="p">:</span> <span class="mi">41</span><span class="p">})</span>
-<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;a_boolean&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;meaning_of_life&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
-<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;animal&#39;</span><span class="p">:</span> <span class="s1">&#39;aardvark&#39;</span><span class="p">})</span>
+<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">'a_boolean'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'meaning_of_life'</span><span class="p">:</span> <span class="mi">41</span><span class="p">})</span>
+<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">'a_boolean'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'meaning_of_life'</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
+<span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">upsert</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="p">{</span><span class="s1">'animal'</span><span class="p">:</span> <span class="s1">'aardvark'</span><span class="p">})</span>
 <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">key1</span><span class="p">)</span>
 
 <span class="c1"># or build your own mutation sequences with full transaction support</span>
@@ -78,29 +78,29 @@ started:</p>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">mutations</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">make_mutation</span><span class="p">(</span><span class="n">Operation</span><span class="o">.</span><span class="n">INSERT</span><span class="p">,</span> <span class="n">key1</span><span class="p">,</span>
-                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;animal&#39;</span><span class="p">:</span> <span class="s1">&#39;sloth&#39;</span><span class="p">}),</span>
+                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">'animal'</span><span class="p">:</span> <span class="s1">'sloth'</span><span class="p">}),</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">make_mutation</span><span class="p">(</span><span class="n">Operation</span><span class="o">.</span><span class="n">UPSERT</span><span class="p">,</span> <span class="n">key1</span><span class="p">,</span>
-                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;animal&#39;</span><span class="p">:</span> <span class="s1">&#39;aardvark&#39;</span><span class="p">}),</span>
+                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">'animal'</span><span class="p">:</span> <span class="s1">'aardvark'</span><span class="p">}),</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">make_mutation</span><span class="p">(</span><span class="n">Operation</span><span class="o">.</span><span class="n">INSERT</span><span class="p">,</span> <span class="n">key2</span><span class="p">,</span>
-                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;animal&#39;</span><span class="p">:</span> <span class="s1">&#39;aardvark&#39;</span><span class="p">}),</span>
+                         <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s1">'animal'</span><span class="p">:</span> <span class="s1">'aardvark'</span><span class="p">}),</span>
     <span class="p">]</span>
     <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">transaction</span><span class="p">,</span> <span class="n">mutations</span><span class="o">=</span><span class="n">mutations</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">rollback</span><span class="p">(</span><span class="n">transaction</span><span class="p">)</span>
 
 <span class="c1"># support for partial keys</span>
-<span class="n">partial_key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">&#39;my-gcloud-project&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">&#39;Kind&#39;</span><span class="p">)])</span>
+<span class="n">partial_key</span> <span class="o">=</span> <span class="n">Key</span><span class="p">(</span><span class="s1">'my-gcloud-project'</span><span class="p">,</span> <span class="p">[</span><span class="n">PathElement</span><span class="p">(</span><span class="s1">'Kind'</span><span class="p">)])</span>
 <span class="c1"># and ID allocation or reservation</span>
 <span class="n">allocated_keys</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">allocateIds</span><span class="p">([</span><span class="n">partial_key</span><span class="p">])</span>
 <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">reserveIds</span><span class="p">(</span><span class="n">allocated_keys</span><span class="p">)</span>
 
 <span class="c1"># query support</span>
-<span class="n">property_filter</span> <span class="o">=</span> <span class="n">PropertyFilter</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="s1">&#39;answer&#39;</span><span class="p">,</span>
+<span class="n">property_filter</span> <span class="o">=</span> <span class="n">PropertyFilter</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="s1">'answer'</span><span class="p">,</span>
                                  <span class="n">operator</span><span class="o">=</span><span class="n">PropertyFilterOperator</span><span class="o">.</span><span class="n">EQUAL</span><span class="p">,</span>
                                  <span class="n">value</span><span class="o">=</span><span class="n">Value</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
-<span class="n">property_order</span> <span class="o">=</span> <span class="n">PropertyOrder</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="s1">&#39;length&#39;</span><span class="p">,</span>
+<span class="n">property_order</span> <span class="o">=</span> <span class="n">PropertyOrder</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="s1">'length'</span><span class="p">,</span>
                                <span class="n">direction</span><span class="o">=</span><span class="n">Direction</span><span class="o">.</span><span class="n">DESCENDING</span><span class="p">)</span>
-<span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;the_meaning_of_life&#39;</span><span class="p">,</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">'the_meaning_of_life'</span><span class="p">,</span>
               <span class="n">query_filter</span><span class="o">=</span><span class="n">Filter</span><span class="p">(</span><span class="n">property_filter</span><span class="p">),</span>
               <span class="n">order</span><span class="o">=</span><span class="n">property_order</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">runQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># QueryResult</span>
@@ -109,8 +109,8 @@ started:</p>
 
 <span class="c1"># alternatively, query support using GQL</span>
 <span class="n">gql_query</span> <span class="o">=</span> <span class="n">GQLQuery</span><span class="p">(</span>
-    <span class="s1">&#39;SELECT * FROM meaning_of_life WHERE answer = @answer&#39;</span><span class="p">,</span>
-    <span class="n">named_bindings</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;answer&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
+    <span class="s1">'SELECT * FROM meaning_of_life WHERE answer = @answer'</span><span class="p">,</span>
+    <span class="n">named_bindings</span><span class="o">=</span><span class="p">{</span><span class="s1">'answer'</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ds</span><span class="o">.</span><span class="n">runQuery</span><span class="p">(</span><span class="n">gql_query</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># QueryResult</span>
 <span class="n">batch</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">result_batch</span>  <span class="c1"># QueryResultBatch</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">explain_metrics</span>  <span class="c1"># ExplainMetrics</span>
@@ -136,10 +136,10 @@ custom entity class such as:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyEntityKind</span><span class="p">(</span><span class="n">gcloud</span><span class="o">.</span><span class="n">aio</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">Entity</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_an_aardvark</span> <span class="o">=</span> <span class="p">(</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;aardvark&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_an_aardvark</span> <span class="o">=</span> <span class="p">(</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'aardvark'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;I&#39;m an aardvark!&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_an_aardvark</span> <span class="k">else</span> <span class="s2">&quot;Sorry, nope&quot;</span>
+        <span class="k">return</span> <span class="s2">"I'm an aardvark!"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_an_aardvark</span> <span class="k">else</span> <span class="s2">"Sorry, nope"</span>
 </pre></div>
 </div>
 <p>We can then configure <code class="docutils literal notranslate"><span class="pre">gcloud-aio-datastore</span></code> to serialize/deserialize from
@@ -473,7 +473,7 @@ __getitem__, and __len__.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -534,7 +534,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -595,7 +595,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -656,7 +656,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -717,7 +717,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -788,7 +788,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -854,7 +854,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>
@@ -950,7 +950,7 @@ attributes – see the documentation for details.</p>
 </div>
 </li>
 <li><p>name lookup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">&#39;RED&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="p">[</span><span class="s1">'RED'</span><span class="p">]</span>
 <span class="go">&lt;Color.RED: 1&gt;</span>
 </pre></div>
 </div>

@@ -55,11 +55,11 @@ APIs.</p>
 <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
     <span class="n">client</span> <span class="o">=</span> <span class="n">Storage</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;/path/to/my/file&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'/path/to/my/file'</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">output</span> <span class="o">=</span> <span class="k">await</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-            <span class="s1">&#39;my-bucket-name&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;path/to/gcs/folder&#39;</span><span class="p">,</span>
+            <span class="s1">'my-bucket-name'</span><span class="p">,</span>
+            <span class="s1">'path/to/gcs/folder'</span><span class="p">,</span>
             <span class="n">output</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -73,23 +73,23 @@ parallelize operations like this. Since <code class="docutils literal notranslat
 asyncio-compatible, you can use any of the builtin asyncio method to perform
 more complicated operations:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_files</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;/local/path/to/file.1&#39;</span><span class="p">:</span> <span class="s1">&#39;path/in/gcs.1&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;/local/path/to/file.2&#39;</span><span class="p">:</span> <span class="s1">&#39;path/in/gcs.2&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;/local/path/to/file.3&#39;</span><span class="p">:</span> <span class="s1">&#39;different/gcs/path/filename.3&#39;</span><span class="p">,</span>
+    <span class="s1">'/local/path/to/file.1'</span><span class="p">:</span> <span class="s1">'path/in/gcs.1'</span><span class="p">,</span>
+    <span class="s1">'/local/path/to/file.2'</span><span class="p">:</span> <span class="s1">'path/in/gcs.2'</span><span class="p">,</span>
+    <span class="s1">'/local/path/to/file.3'</span><span class="p">:</span> <span class="s1">'different/gcs/path/filename.3'</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="k">async</span> <span class="k">with</span> <span class="n">Storage</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Prepare all our upload data</span>
     <span class="n">uploads</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">local_name</span><span class="p">,</span> <span class="n">gcs_name</span> <span class="ow">in</span> <span class="n">my_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">local_name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">local_name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">contents</span> <span class="o">=</span> <span class="k">await</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="n">uploads</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">gcs_name</span><span class="p">,</span> <span class="n">contents</span><span class="p">))</span>
 
     <span class="c1"># Simultaneously upload all files</span>
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
         <span class="o">*</span><span class="p">[</span>
-            <span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="s1">&#39;my-bucket-name&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_</span><span class="p">)</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="s1">'my-bucket-name'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_</span> <span class="ow">in</span> <span class="n">uploads</span>
         <span class="p">]</span>
     <span class="p">)</span>
@@ -132,7 +132,7 @@ local GCS emulator. Setting the <code class="docutils literal notranslate"><span
 to the address of your emulator should be enough to do the trick.</p>
 <p>For example, using <a class="reference external" href="https://github.com/fsouza/fake-gcs-server">fsouza/fake-gcs-server</a>, you can do:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -d -p 4443:4443 -v $PWD/my-sample-data:/data fsouza/fake-gcs-server</span>
-<span class="go">export STORAGE_EMULATOR_HOST=&#39;http://0.0.0.0:4443&#39;</span>
+<span class="go">export STORAGE_EMULATOR_HOST='http://0.0.0.0:4443'</span>
 </pre></div>
 </div>
 <p>Any <code class="docutils literal notranslate"><span class="pre">gcloud-aio-storage</span></code> requests made with that environment variable set
