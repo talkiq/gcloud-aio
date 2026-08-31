@@ -85,3 +85,39 @@ async def test_upload_retry(fake_server):  # pylint: disable=redefined-outer-nam
         )
 
     assert response.get('data') == 'test data'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'upload_options',
+    [
+        pytest.param(
+            {'force_resumable_upload': False},
+            id='simple',
+        ),
+        pytest.param(
+            {'force_resumable_upload': True},
+            id='resumable',
+        ),
+    ],
+)
+@pytest.mark.parametrize('as_stream', [False, True])
+async def test_upload_utf8_content_length(
+    fake_server,  # pylint: disable=redefined-outer-name
+    upload_options,
+    as_stream,
+):
+    text = '中文abcdefgh'
+    file_data = io.StringIO(text) if as_stream else text
+
+    async with Session() as session:
+        storage = aio_storage.Storage(session=session, api_root=fake_server)
+
+        response = await storage.upload(
+            'bucket',
+            'object',
+            file_data=file_data,
+            **upload_options,
+        )
+
+    assert response['data'] == text

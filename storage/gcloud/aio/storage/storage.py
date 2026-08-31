@@ -431,9 +431,9 @@ class Storage:
             # load the whole file into memory at once.
             stream = self._compress_file_in_chunks(input_stream=stream)
 
-        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
-            # HACK: `requests` library does not accept `str` as `data` in `put`
-            # HTTP request.
+        if isinstance(stream, io.StringIO):
+            # HTTP requests send encoded bytes, so normalize in-memory text
+            # streams before calculating Content-Length.
             stream = io.BytesIO(stream.getvalue().encode('utf-8'))
 
         content_length = self._get_stream_len(stream)
