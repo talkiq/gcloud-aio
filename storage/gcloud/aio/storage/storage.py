@@ -434,7 +434,7 @@ class Storage:
         if isinstance(stream, io.StringIO):
             # HTTP requests send encoded bytes, so normalize in-memory text
             # streams before calculating Content-Length.
-            stream = io.BytesIO(stream.getvalue().encode('utf-8'))
+            stream = io.BytesIO(stream.read().encode('utf-8'))
 
         content_length = self._get_stream_len(stream)
 
