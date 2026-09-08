@@ -140,8 +140,8 @@ repos:
     name: mypy-storage
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.4
-    - rsa==4.9.1
+    - cryptography==50.0.1
+    - gcloud-aio-auth==5.5.0
     - types-aiofiles==25.1.0.20251011
     - types-requests==2.32.4.20260107
     files: storage/
