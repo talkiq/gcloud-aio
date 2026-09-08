@@ -43,15 +43,6 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.HOST" title="storage.blob.HOST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HOST</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.PKCS1_MARKER" title="storage.blob.PKCS1_MARKER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PKCS1_MARKER</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PKCS8_MARKER" title="storage.blob.PKCS8_MARKER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PKCS8_MARKER</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.PKCS8_SPEC" title="storage.blob.PKCS8_SPEC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PKCS8_SPEC</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </section>
@@ -59,13 +50,10 @@
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.PemKind" title="storage.blob.PemKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PemKind</span></code></a></p></td>
-<td><p>Tracks the response of <code class="docutils literal notranslate"><span class="pre">pem.readPemBlocksFromFile(key,</span> <span class="pre">*args)</span></code>&gt;</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob._SignatureMethod" title="storage.blob._SignatureMethod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_SignatureMethod</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob._SignatureMethod" title="storage.blob._SignatureMethod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_SignatureMethod</span></code></a></p></td>
 <td><p>Indicates where the url signing will be done through Google's</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#storage.blob.Blob" title="storage.blob.Blob"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blob</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#storage.blob.Blob" title="storage.blob.Blob"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Blob</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -77,57 +65,6 @@
 <dt class="sig sig-object py" id="storage.blob.HOST">
 <span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">HOST</span></span><a class="headerlink" href="#storage.blob.HOST" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="storage.blob.PKCS1_MARKER">
-<span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">PKCS1_MARKER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('-----BEGIN</span> <span class="pre">RSA</span> <span class="pre">PRIVATE</span> <span class="pre">KEY-----',</span> <span class="pre">'-----END</span> <span class="pre">RSA</span> <span class="pre">PRIVATE</span> <span class="pre">KEY-----')</span></span><a class="headerlink" href="#storage.blob.PKCS1_MARKER" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="storage.blob.PKCS8_MARKER">
-<span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">PKCS8_MARKER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('-----BEGIN</span> <span class="pre">PRIVATE</span> <span class="pre">KEY-----',</span> <span class="pre">'-----END</span> <span class="pre">PRIVATE</span> <span class="pre">KEY-----')</span></span><a class="headerlink" href="#storage.blob.PKCS8_MARKER" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="storage.blob.PKCS8_SPEC">
-<span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">PKCS8_SPEC</span></span><a class="headerlink" href="#storage.blob.PKCS8_SPEC" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="storage.blob.PemKind">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">storage.blob.</span></span><span class="sig-name descname"><span class="pre">PemKind</span></span><a class="headerlink" href="#storage.blob.PemKind" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<p>Tracks the response of <code class="docutils literal notranslate"><span class="pre">pem.readPemBlocksFromFile(key,</span> <span class="pre">*args)</span></code>&gt;</p>
-<p>Note that the specified method returns <code class="docutils literal notranslate"><span class="pre">(marker_id,</span> <span class="pre">key_bytes)</span></code>, where
-<code class="docutils literal notranslate"><span class="pre">marker_id</span></code> is the integer index of the matching <code class="docutils literal notranslate"><span class="pre">arg</span></code> (or -1 if no
-match was found.</p>
-<p>For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">marker_id</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">pem</span><span class="o">.</span><span class="n">readPemBlocksFromFile</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">PKCS1_MARKER</span><span class="p">,</span>
-                                           <span class="n">PCKS8_MARKER</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">marker_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-    <span class="c1"># "key" did not match either type or was invalid</span>
-<span class="k">if</span> <span class="n">marker_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="c1"># "key" matched the zeroth provided marker arg, eg. PKCS1_MARKER</span>
-<span class="k">if</span> <span class="n">marker_id</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="c1"># "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER</span>
-</pre></div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="storage.blob.PemKind.INVALID">
-<span class="sig-name descname"><span class="pre">INVALID</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></span><a class="headerlink" href="#storage.blob.PemKind.INVALID" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="storage.blob.PemKind.PKCS1">
-<span class="sig-name descname"><span class="pre">PKCS1</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#storage.blob.PemKind.PKCS1" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="storage.blob.PemKind.PKCS8">
-<span class="sig-name descname"><span class="pre">PKCS8</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#storage.blob.PemKind.PKCS8" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="storage.blob._SignatureMethod">

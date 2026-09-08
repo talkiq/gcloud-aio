@@ -10,9 +10,6 @@ Attributes
 .. autoapisummary::
 
    storage.blob.HOST
-   storage.blob.PKCS1_MARKER
-   storage.blob.PKCS8_MARKER
-   storage.blob.PKCS8_SPEC
 
 
 Classes
@@ -20,7 +17,6 @@ Classes
 
 .. autoapisummary::
 
-   storage.blob.PemKind
    storage.blob._SignatureMethod
    storage.blob.Blob
 
@@ -29,54 +25,6 @@ Module Contents
 ---------------
 
 .. py:data:: HOST
-
-.. py:data:: PKCS1_MARKER
-   :value: ('-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----')
-
-
-.. py:data:: PKCS8_MARKER
-   :value: ('-----BEGIN PRIVATE KEY-----', '-----END PRIVATE KEY-----')
-
-
-.. py:data:: PKCS8_SPEC
-
-.. py:class:: PemKind
-
-   Bases: :py:obj:`enum.Enum`
-
-
-   Tracks the response of ``pem.readPemBlocksFromFile(key, *args)``>
-
-   Note that the specified method returns ``(marker_id, key_bytes)``, where
-   ``marker_id`` is the integer index of the matching ``arg`` (or -1 if no
-   match was found.
-
-   For example::
-
-       (marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
-                                                  PCKS8_MARKER)
-       if marker_id == -1:
-           # "key" did not match either type or was invalid
-       if marker_id == 0:
-           # "key" matched the zeroth provided marker arg, eg. PKCS1_MARKER
-       if marker_id == 1:
-           # "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER
-
-
-   .. py:attribute:: INVALID
-      :value: -1
-
-
-
-   .. py:attribute:: PKCS1
-      :value: 0
-
-
-
-   .. py:attribute:: PKCS8
-      :value: 1
-
-
 
 .. py:class:: _SignatureMethod
 
