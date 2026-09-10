@@ -124,7 +124,13 @@ def get_service_data(
                 )
 
         service = os.path.join(sdkpath, 'application_default_credentials.json')
-        set_explicitly = bool(cloudsdk_config)
+        # CLOUDSDK_CONFIG only relocates gcloud CLI's config directory; it is
+        # not an ADC directive. Match google-auth's
+        # _get_gcloud_sdk_credentials(), which silently returns None when the
+        # well-known file is absent so ADC falls through to the GCE metadata
+        # service. Only GOOGLE_APPLICATION_CREDENTIALS (handled above) counts
+        # as explicit user intent.
+        set_explicitly = False
     else:
         set_explicitly = True
 
