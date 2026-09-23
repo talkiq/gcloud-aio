@@ -177,7 +177,7 @@ repos:
 #     args:
 #     - --ignore=D1,D203,D205,D212,D400,D401,D404,D407,D412,D413
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.4.0
+  rev: 7.4.1
   hooks:
   - id: flake8
     language: python
