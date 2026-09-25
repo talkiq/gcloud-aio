@@ -221,6 +221,11 @@ class BaseToken:
 
         self.acquiring: Optional['asyncio.Task[None]'] = None
 
+        # Cache for get_project(): the GCP project a running process is in
+        # never changes over that process's lifetime, so there is no reason
+        # to re-resolve it (eg. re-hit the GCE metadata server) on every call.
+        self._project: str | None = None
+
     async def get_project(self) -> str | None:
         project = (
             os.environ.get('GOOGLE_CLOUD_PROJECT')
@@ -230,6 +235,9 @@ class BaseToken:
         if project:
             return project
 
+        if self._project is not None:
+            return self._project
+
         if self.token_type == Type.GCE_METADATA:
             await self.ensure_token()
             resp = await self.session.get(
@@ -238,12 +246,14 @@ class BaseToken:
             )
 
             try:
-                return await resp.text()
+                self._project = await resp.text()
             except (AttributeError, TypeError):
-                return str(resp.text)
+                self._project = str(resp.text)
+            return self._project
 
         if self.token_type == Type.SERVICE_ACCOUNT:
-            return self.service_data.get('project_id')
+            self._project = self.service_data.get('project_id')
+            return self._project
 
         return None
 
