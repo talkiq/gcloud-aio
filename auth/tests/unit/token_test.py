@@ -2,6 +2,7 @@
 import asyncio
 import io
 import json
+import os
 from unittest import mock
 
 import pytest
@@ -220,3 +221,33 @@ else:
                 ValueError, match='unsupported credential_source type',
         ):
             await t._get_subject_token(invalid_source, timeout=10)
+
+
+def test_get_service_data_cloudsdk_config_missing_wellknown_returns_empty(
+        tmp_path, monkeypatch,
+):
+    """CLOUDSDK_CONFIG only relocates gcloud CLI's config directory; a missing
+    well-known ADC file at that path must not hard-fail. get_service_data must
+    silently return {} so Token can fall back to the GCE metadata service —
+    matching google-auth's _get_gcloud_sdk_credentials() behaviour.
+    """
+    monkeypatch.delenv('GOOGLE_APPLICATION_CREDENTIALS', raising=False)
+    monkeypatch.setenv('CLOUDSDK_CONFIG', str(tmp_path))
+    assert not os.path.exists(
+        os.path.join(str(tmp_path), 'application_default_credentials.json'),
+    )
+    assert token.get_service_data(None) == {}
+
+
+def test_get_service_data_google_application_credentials_missing_raises(
+        tmp_path, monkeypatch,
+):
+    """GOOGLE_APPLICATION_CREDENTIALS is an explicit user directive to use a
+    specific credentials file. A missing file at that path must still raise —
+    this is the "explicit intent" branch and its behaviour is unchanged.
+    """
+    missing = str(tmp_path / 'does-not-exist.json')
+    monkeypatch.delenv('CLOUDSDK_CONFIG', raising=False)
+    monkeypatch.setenv('GOOGLE_APPLICATION_CREDENTIALS', missing)
+    with pytest.raises(FileNotFoundError):
+        token.get_service_data(None)
