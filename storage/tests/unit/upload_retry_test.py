@@ -29,7 +29,12 @@ class FakeHttpServerHandler(BaseHTTPRequestHandler):
     def _read_and_write_data(self):
         content_len = int(self.headers.get('Content-Length'))
         data = self.rfile.read(content_len)
-        payload = {'data': data.decode('utf-8')}
+        payload = {
+            'data': data.decode('utf-8'),
+            'upload_type': (
+                'resumable' if 'Content-Range' in self.headers else 'simple'
+            ),
+        }
         json_payload = json.dumps(payload).encode('utf-8')
         self.wfile.write(json_payload)
 
@@ -85,3 +90,74 @@ async def test_upload_retry(fake_server):  # pylint: disable=redefined-outer-nam
         )
 
     assert response.get('data') == 'test data'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'upload_options',
+    [
+        pytest.param(
+            {'force_resumable_upload': False},
+            id='simple',
+        ),
+        pytest.param(
+            {'force_resumable_upload': True},
+            id='resumable',
+        ),
+        pytest.param(
+            {'force_resumable_upload': None},
+            id='automatic',
+        ),
+    ],
+)
+@pytest.mark.parametrize('as_stream', [False, True])
+async def test_upload_utf8_content_length(
+    fake_server,  # pylint: disable=redefined-outer-name
+    upload_options,
+    as_stream,
+    monkeypatch,
+):
+    text = '中文abcdefgh'
+    # Keep the test payload small while exercising byte-based type selection.
+    monkeypatch.setattr(
+        aio_storage,
+        'MAX_CONTENT_LENGTH_SIMPLE_UPLOAD',
+        len(text))
+    file_data = io.StringIO(text) if as_stream else text
+
+    async with Session() as session:
+        storage = aio_storage.Storage(session=session, api_root=fake_server)
+
+        response = await storage.upload(
+            'bucket',
+            'object',
+            file_data=file_data,
+            **upload_options,
+        )
+
+    assert response['data'] == text
+    if upload_options['force_resumable_upload'] is None:
+        assert response['upload_type'] == 'resumable'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('read_chars', [1, 10])
+async def test_upload_utf8_stream_position(
+    fake_server,  # pylint: disable=redefined-outer-name
+    read_chars,
+):
+    text = '中文abcdefgh'
+    file_data = io.StringIO(text)
+    file_data.read(read_chars)
+
+    async with Session() as session:
+        storage = aio_storage.Storage(session=session, api_root=fake_server)
+
+        response = await storage.upload(
+            'bucket',
+            'object',
+            file_data=file_data,
+            force_resumable_upload=False,
+        )
+
+    assert response['data'] == text[read_chars:]
