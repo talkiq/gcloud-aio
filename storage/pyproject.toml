@@ -30,7 +30,7 @@ gcloud-aio-auth = ">= 5.4.4, < 6.0.0"
 gcloud-aio-auth = { path = "../auth" }
 pytest = "9.1.1"
 pytest-asyncio = "1.4.0"
-pytest-mock = "3.15.1"
+pytest-mock = "3.16.0"
 
 [[tool.poetry.source]]
 name = "pypi"
