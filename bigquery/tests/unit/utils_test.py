@@ -105,6 +105,8 @@ def test_parse_nullable(kind):
     # make sure we never convert to a falsey typed equivalent
     # eg. for BOOLEAN, None != False
     assert parse(field, None) is None
+    # BigQuery API wraps null values as {'v': None} -- must not crash
+    assert parse(field, {'v': None}) is None
 
 
 @pytest.mark.parametrize(
