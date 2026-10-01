@@ -68,7 +68,7 @@ class EntityResult:
         return bool(
             self.entity == other.entity
             and self.version == other.version
-            and self.cursor == self.cursor,
+            and self.cursor == other.cursor,
         )
 
     def __repr__(self) -> str:
