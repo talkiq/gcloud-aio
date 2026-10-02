@@ -4,6 +4,8 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
+from dateutil.relativedelta import relativedelta
+
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +56,40 @@ def flatten(x: Any) -> Any:
     return x
 
 
+def parse_interval(value: str | None) -> relativedelta | None:
+    # https://docs.cloud.google.com/bigquery/docs/reference/standard-sql/data-types#interval_type
+    if value is None:
+        return None
+
+    # signs are always on the front-most item, apply them to every value
+    ymvalue, dvalue, hmsvalue = value.split()
+    yvalue, movalue = ymvalue.lstrip('-').split('-')
+    if ymvalue.startswith('-'):
+        yvalue = f'-{yvalue}'
+        movalue = f'-{movalue}'
+    hvalue, mivalue, smsvalue = hmsvalue.split(':')
+    # microseconds are optional
+    svalue, *msvalues = smsvalue.split('.')
+    msvalue = msvalues.pop().ljust(6, '0')[:6] if msvalues else '0'
+    if hvalue.startswith('-'):
+        mivalue = f'-{mivalue}'
+        svalue = f'-{svalue}'
+        msvalue = f'-{msvalue}'
+
+    # datetime.timedelta doesn't support years/months, since it does not
+    # attempt to be properly relative to a given timestamp and months can vary
+    # in their number of days
+    return relativedelta(
+        years=int(yvalue),
+        months=int(movalue),
+        days=int(dvalue),
+        hours=int(hvalue),
+        minutes=int(mivalue),
+        seconds=int(svalue),
+        microseconds=int(msvalue),
+    )
+
+
 def parse(field: dict[str, Any], value: Any) -> Any:
     """
     Parse a given field back to a Python object.
@@ -80,6 +116,7 @@ def parse(field: dict[str, Any], value: Any) -> Any:
             'DATE': datetime.date.fromisoformat,
             'FLOAT': float,
             'INTEGER': int,
+            'INTERVAL': parse_interval,
             'NUMERIC': lambda x: decimal.Decimal(
                 x, decimal.Context(prec=38),
             ),
