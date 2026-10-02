@@ -19,6 +19,7 @@ Functions
 .. autoapisummary::
 
    bigquery.utils.flatten
+   bigquery.utils.parse_interval
    bigquery.utils.parse
    bigquery.utils.query_response_to_dict
 
@@ -41,6 +42,8 @@ Module Contents
    to indicate groupings of fields and their potential for having multiple
    values. We want those to just be plain old objects.
 
+
+.. py:function:: parse_interval(value)
 
 .. py:function:: parse(field, value)
 

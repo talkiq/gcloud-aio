@@ -56,10 +56,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#bigquery.utils.flatten" title="bigquery.utils.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a>(x)</p></td>
 <td><p>Flatten response objects into something we can actually work with.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#bigquery.utils.parse" title="bigquery.utils.parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse</span></code></a>(field, value)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#bigquery.utils.parse_interval" title="bigquery.utils.parse_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_interval</span></code></a>(value)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#bigquery.utils.parse" title="bigquery.utils.parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse</span></code></a>(field, value)</p></td>
 <td><p>Parse a given field back to a Python object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#bigquery.utils.query_response_to_dict" title="bigquery.utils.query_response_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_response_to_dict</span></code></a>(response)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#bigquery.utils.query_response_to_dict" title="bigquery.utils.query_response_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_response_to_dict</span></code></a>(response)</p></td>
 <td><p>Convert a query response to a dictionary.</p></td>
 </tr>
 </tbody>
@@ -93,6 +96,19 @@ values. We want those to just be plain old objects.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bigquery.utils.parse_interval">
+<span class="sig-prename descclassname"><span class="pre">bigquery.utils.</span></span><span class="sig-name descname"><span class="pre">parse_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bigquery.utils.parse_interval" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em><em> | </em><em>None</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dateutil.relativedelta.relativedelta | None</p>
 </dd>
 </dl>
 </dd></dl>
