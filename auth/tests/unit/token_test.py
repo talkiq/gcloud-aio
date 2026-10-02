@@ -32,6 +32,29 @@ async def test_service_as_io():
     assert t.token_uri == 'https://oauth2.googleapis.com/token'
     assert await t.get_project() == 'random-project-123'
 
+
+@pytest.mark.asyncio
+async def test_get_project_caches_gce_metadata_lookup():
+    t = token.BaseToken()
+    # Force the GCE-metadata code path regardless of what credentials this
+    # test happens to run alongside locally (eg. real ADC on a dev machine).
+    t.token_type = token.Type.GCE_METADATA
+
+    # Pretend we already have a valid access token, so ensure_token() returns
+    # immediately instead of trying a real token refresh.
+    t.access_token = 'fake-token'
+    t.access_token_preempt_after = 9999999999
+    t.access_token_refresh_after = 9999999999
+
+    mock_response = mock.AsyncMock()
+    mock_response.text = mock.AsyncMock(return_value='project-abc')
+    t.session.get = mock.AsyncMock(return_value=mock_response)
+
+    assert await t.get_project() == 'project-abc'
+    assert await t.get_project() == 'project-abc'
+
+    t.session.get.assert_called_once()
+
 # pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
     pass
