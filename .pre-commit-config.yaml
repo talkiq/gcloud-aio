@@ -95,7 +95,7 @@ repos:
     # Note that some libraries keep their type hints in packages named
     # `types-$lib` or `$lib-stubs`.
     additional_dependencies:
-    - aiohttp==3.14.3
+    - aiohttp==3.14.4
     - cryptography==50.0.2
     - pyjwt==2.15.1
     - requests==2.34.2
