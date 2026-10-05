@@ -13,6 +13,7 @@ from .build_constants import BUILD_GCLOUD_REST
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
+    from requests import HTTPError
     from requests import Response
     from requests import Session
 else:
@@ -290,6 +291,37 @@ if not BUILD_GCLOUD_REST:
 
 # pylint: disable=too-complex
 if BUILD_GCLOUD_REST:
+    # Google's error payloads are small JSON documents; cap how much of the
+    # body ends up in the exception message in case a server sends more.
+    _MAX_ERROR_BODY_BYTES = 4096
+
+    def _raise_for_status_sync(resp: Response, stream: bool = False) -> None:
+        """Check resp for status and if error include the body in the error."""
+        # Sync counterpart of `_raise_for_status` above: requests'
+        # `raise_for_status()` only reports the status line and URL, which
+        # drops Google's error details (eg. `rateLimitExceeded`).
+        #
+        # Streamed responses are re-raised as-is: the caller asked us not to
+        # buffer the body, and it may still be read from the exception's
+        # `response` if needed.
+        try:
+            resp.raise_for_status()
+        except HTTPError as e:
+            if stream or not resp.content:
+                raise
+
+            content = resp.content[:_MAX_ERROR_BODY_BYTES]
+            try:
+                body = content.decode(resp.encoding or 'utf-8', 'replace')
+            except LookupError:
+                body = content.decode('utf-8', 'replace')
+            if len(resp.content) > _MAX_ERROR_BODY_BYTES:
+                body += '... (truncated)'
+
+            raise HTTPError(
+                f'{e}: {body}', request=e.request, response=resp,
+            ) from e
+
     class SyncSession(BaseSession):
         _google_api_lock = threading.RLock()
 
@@ -318,7 +350,7 @@ if BUILD_GCLOUD_REST:
                     url, data=data, headers=headers,
                     timeout=timeout, params=params,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp)
             return resp
 
         async def get(
@@ -342,7 +374,7 @@ if BUILD_GCLOUD_REST:
                     url, headers=headers, timeout=timeout,
                     params=params, stream=stream,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp, stream=stream)
             return resp
 
         async def patch(
@@ -355,7 +387,7 @@ if BUILD_GCLOUD_REST:
                     url, data=data, headers=headers,
                     timeout=timeout, params=params,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp)
             return resp
 
         async def put(
@@ -367,7 +399,7 @@ if BUILD_GCLOUD_REST:
                     url, data=data, headers=headers,
                     timeout=timeout,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp)
             return resp
 
         async def delete(
@@ -380,7 +412,7 @@ if BUILD_GCLOUD_REST:
                     url, params=params, headers=headers,
                     timeout=timeout,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp)
             return resp
 
         async def head(
@@ -394,7 +426,7 @@ if BUILD_GCLOUD_REST:
                     url, params=params, headers=headers,
                     timeout=timeout, allow_redirects=allow_redirects,
                 )
-            resp.raise_for_status()
+            _raise_for_status_sync(resp)
             return resp
 
         async def request(
@@ -406,7 +438,9 @@ if BUILD_GCLOUD_REST:
                     method, url, headers=headers, **kwargs,
                 )
             if auto_raise_for_status:
-                resp.raise_for_status()
+                _raise_for_status_sync(
+                    resp, stream=kwargs.get('stream', False),
+                )
             return resp
 
         async def close(self) -> None:
