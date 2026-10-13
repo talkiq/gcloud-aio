@@ -30,6 +30,11 @@ executors:
       - image: python:3.14.8
     resource_class: small
 
+  python315:
+    docker:
+      - image: python:3.15.0
+    resource_class: small
+
   python-integration:
     docker:
       - image: python:3.14.8
@@ -194,7 +199,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python310, python311, python312, python313, python314]
+              executor: [python310, python311, python312, python313, python314, python315]
           filters:
             tags:
               only: /.*/
@@ -233,7 +238,7 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python310, python311, python312, python313, python314]
+              executor: [python310, python311, python312, python313, python314, python315]
           filters:
             tags:
               only: /.*/
