@@ -81,9 +81,8 @@ else:
         while time_budget > 0:
             start = time.perf_counter()
             try:
-                message = await asyncio.wait_for(
-                    queue.get(), timeout=time_budget,
-                )
+                async with asyncio.timeout(time_budget):
+                    message = await queue.get()
                 result.append(message)
             except TimeoutError:
                 break
@@ -431,7 +430,8 @@ else:
                 # Leaving the connection hanging can result in redelivered
                 # messages, so try to finish before shutting down
                 try:
-                    new_messages += await asyncio.wait_for(pull_task, 5)
+                    async with asyncio.timeout(5):
+                        new_messages += await pull_task
                 except (TimeoutError, KeyError):
                     pass
 
