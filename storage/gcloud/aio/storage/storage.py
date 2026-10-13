@@ -854,11 +854,26 @@ class Storage:
                         session_uri, headers=headers,
                         data=stream, timeout=timeout,
                     )
-                except ResponseError:
-                    if tries == retries - 1:
+                except ResponseError as error:
+                    if BUILD_GCLOUD_REST:
+                        status = (error.response.status_code
+                                  if error.response is not None else None)
+                    else:
+                        status = getattr(error, 'status', None)
+
+                    retryable = (
+                        status in {408, 429}
+                        or (status is not None and 500 <= status < 600)
+                    )
+                    log.warning(
+                        'Upload attempt %s/%s failed with HTTP status %s',
+                        tries + 1, retries, status,
+                    )
+                    if not retryable or tries == retries - 1:
                         raise
 
-                    headers.update({'Content-Range': 'bytes */*'})
+                    # A status query requires an empty body. Resend the chunk
+                    # with its original range instead.
                     stream.seek(original_position)
 
                     await sleep(  # type: ignore[func-returns-value,misc]
