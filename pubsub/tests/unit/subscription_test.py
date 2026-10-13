@@ -53,3 +53,28 @@ def test_construct_subscriber_message_no_metadata():
         2020, 1, 1, 0, 0, 1,
     )
     assert message.delivery_attempt is None
+
+
+@pytest.mark.parametrize(
+    'publish_time',
+    [
+        datetime.datetime(2020, 1, 1, 0, 0, 1, 123456),
+        datetime.datetime(2020, 1, 1, 0, 0, 1, 123456, tzinfo=datetime.UTC),
+        datetime.datetime(
+            2020, 1, 1, 2, 0, 1, 123456,
+            tzinfo=datetime.timezone(datetime.timedelta(hours=2)),
+        ),
+        datetime.datetime(
+            2019, 12, 31, 19, 0, 1, 123456,
+            tzinfo=datetime.timezone(datetime.timedelta(hours=-5)),
+        ),
+    ],
+)
+def test_subscriber_message_to_repr_publish_time_is_utc(publish_time):
+    message = SubscriberMessage(
+        ack_id='some_ack_id', message_id='123', publish_time=publish_time,
+        data=None, attributes=None,
+    )
+    assert message.to_repr()['message']['publishTime'] == (
+        '2020-01-01T00:00:01.123456Z'
+    )
