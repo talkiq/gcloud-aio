@@ -6,13 +6,14 @@ import enum
 import json
 import os
 import time
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from typing import AnyStr
 from typing import IO
 from typing import Optional
+from typing import Self
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 from urllib.parse import urlparse
@@ -163,10 +164,9 @@ class TokenResponse:
     expires_in: int  # Token TTL in seconds
 
 
-class BaseToken:
+class BaseToken(ABC):
     """GCP auth token base class."""
     # pylint: disable=too-many-instance-attributes
-    __metaclass__ = ABCMeta
 
     def __init__(
         self, service_file: str | IO[AnyStr] | None = None,
@@ -256,7 +256,7 @@ class BaseToken:
             # Cached token exists
             now_ts = int(
                 datetime.datetime.now(
-                    datetime.timezone.utc).timestamp())
+                    datetime.UTC).timestamp())
             if now_ts > self.access_token_refresh_after:
                 # Cached token does not have enough duration left, fall through
                 pass
@@ -291,7 +291,7 @@ class BaseToken:
         self.access_token = resp.value
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
-            datetime.timezone.utc)
+            datetime.UTC)
         base_timestamp = self.access_token_acquired_at.timestamp()
         self.access_token_preempt_after = int(
             base_timestamp + (resp.expires_in * self.background_refresh_after))
@@ -302,7 +302,7 @@ class BaseToken:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'BaseToken':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

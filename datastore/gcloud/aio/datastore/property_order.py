@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 from .constants import Direction
 
@@ -25,7 +26,7 @@ class PropertyOrder:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'PropertyOrder':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         prop = data['property']['name']
         direction = Direction(data['direction'])
         return cls(prop=prop, direction=direction)

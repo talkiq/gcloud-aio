@@ -11,6 +11,7 @@ from collections.abc import Iterator
 from typing import Any
 from typing import AnyStr
 from typing import IO
+from typing import Self
 from urllib.parse import quote
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
@@ -921,7 +922,7 @@ class Storage:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'Storage':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

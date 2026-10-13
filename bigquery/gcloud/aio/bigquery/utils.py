@@ -10,26 +10,6 @@ from dateutil.relativedelta import relativedelta
 log = logging.getLogger(__name__)
 
 
-try:
-    utc = datetime.timezone.utc
-except AttributeError:
-    # build our own UTC for Python 2
-    class UTC(datetime.tzinfo):
-        def utcoffset(
-            self,
-            _dt: datetime.datetime | None,
-        ) -> datetime.timedelta:
-            return datetime.timedelta(0)
-
-        def tzname(self, _dt: datetime.datetime | None) -> str:
-            return 'UTC'
-
-        def dst(self, _dt: datetime.datetime | None) -> datetime.timedelta:
-            return datetime.timedelta(0)
-
-    utc = UTC()  # type: ignore[assignment]
-
-
 def flatten(x: Any) -> Any:
     """
     Flatten response objects into something we can actually work with.
@@ -123,7 +103,7 @@ def parse(field: dict[str, Any], value: Any) -> Any:
             'RECORD': dict,
             'STRING': str,
             'TIMESTAMP': lambda x: datetime.datetime.fromtimestamp(
-                float(x), tz=utc,
+                float(x), tz=datetime.UTC,
             ),
         }[field['type']]
     except KeyError:

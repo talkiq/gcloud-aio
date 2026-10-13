@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 from .constants import MoreResultsType
 from .constants import ResultType
@@ -20,7 +21,7 @@ class BaseQuery:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'BaseQuery':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         raise NotImplementedError
 
     def to_repr(self) -> dict[str, Any]:
@@ -60,7 +61,7 @@ class Query(BaseQuery):
         )
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Query':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         kind = data['kind'] or ''  # Kind is required
         if not isinstance(kind, str):
             # If 'kind' is not a str, then the only other acceptable format
@@ -136,7 +137,7 @@ class GQLQuery(BaseQuery):
         )
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'GQLQuery':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         allow_literals = data['allowLiterals']
         query_string = data['queryString']
         named_bindings = {
@@ -232,7 +233,7 @@ class QueryResultBatch:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'QueryResultBatch':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         end_cursor = data['endCursor']
         entity_result_type = ResultType(data['entityResultType'])
         entity_results = [
@@ -298,7 +299,7 @@ class QueryResult:
                 and self.transaction == other.transaction)
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'QueryResult':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         result_batch = None
         explain_metrics = None
         transaction = None
