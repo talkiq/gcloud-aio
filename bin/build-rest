@@ -18,7 +18,7 @@ pushd ./build >/dev/null
 trap "popd >/dev/null" EXIT
 
 
-# Rename files and paths to `rest` and make strings py2 compatible
+# Rename files and paths to `rest`
 find . -path '*aio*' -exec dirname {} \; \
     | $SED 's/aio/rest/g' \
     | xargs -L1 mkdir -p

@@ -7,7 +7,7 @@ from . import value
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
 class Array(Sequence):  # type: ignore[type-arg]
     def __init__(self, items: list[value.Value]) -> None:
-        super(Sequence, self).__init__()  # pylint: disable=bad-super-call
+        super().__init__()
         self.items = items
 
     def __eq__(self, other: Any) -> bool:

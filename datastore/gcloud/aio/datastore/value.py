@@ -8,7 +8,7 @@ from .key import Key
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#value
-class Value:  # pylint:disable=useless-object-inheritance
+class Value:
     key_kind = Key
 
     def __init__(self, value: Any, exclude_from_indexes: bool = False) -> None:
@@ -81,8 +81,7 @@ class Value:  # pylint:disable=useless-object-inheritance
         }
 
     def _infer_type(self, value: Any) -> TypeName:
-        odd_strings = {'newstr', 'unicode'}
-        kind = str if value.__class__.__name__ in odd_strings else type(value)
+        kind = type(value)
         supported_types = self._get_supported_types()
 
         try:

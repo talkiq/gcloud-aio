@@ -6,7 +6,7 @@ import enum
 import json
 import os
 import time
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
@@ -163,10 +163,9 @@ class TokenResponse:
     expires_in: int  # Token TTL in seconds
 
 
-class BaseToken:
+class BaseToken(ABC):
     """GCP auth token base class."""
     # pylint: disable=too-many-instance-attributes
-    __metaclass__ = ABCMeta
 
     def __init__(
         self, service_file: str | IO[AnyStr] | None = None,

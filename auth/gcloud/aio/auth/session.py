@@ -1,9 +1,8 @@
 import logging
 import threading
 import warnings
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
-from abc import abstractproperty
 from collections.abc import Mapping
 from typing import Any
 from typing import AnyStr
@@ -23,9 +22,7 @@ else:
 log = logging.getLogger(__name__)
 
 
-class BaseSession:
-    __metaclass__ = ABCMeta
-
+class BaseSession(ABC):
     def __init__(
         self, session: Session | None = None, timeout: float = 10,
         verify_ssl: bool = True,
@@ -35,7 +32,8 @@ class BaseSession:
         self._ssl = verify_ssl
         self._timeout = timeout
 
-    @abstractproperty  # pylint: disable=deprecated-decorator
+    @property
+    @abstractmethod
     def session(self) -> Session | None:
         return self._session
 
