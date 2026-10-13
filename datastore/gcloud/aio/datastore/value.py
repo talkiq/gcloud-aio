@@ -40,12 +40,11 @@ class Value:
                 elif json_key == 'blobValue':
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
-                    date_string = data[json_key].rstrip('Z')[:26]
-                    date_fmt = (
-                        '%Y-%m-%dT%H:%M:%S.%f'
-                        if '.' in date_string else '%Y-%m-%dT%H:%M:%S'
-                    )
-                    value = datetime.strptime(date_string, date_fmt)
+                    value = datetime.fromisoformat(data[json_key])
+                    if value.tzinfo is None:
+                        value = value.replace(tzinfo=UTC)
+                    else:
+                        value = value.astimezone(UTC)
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
                 else:

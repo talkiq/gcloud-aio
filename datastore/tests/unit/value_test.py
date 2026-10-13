@@ -3,11 +3,32 @@ from datetime import timedelta
 from datetime import timezone
 from datetime import UTC
 
+import hypothesis
 import pytest
 from gcloud.aio.datastore import Key
 from gcloud.aio.datastore import LatLng
 from gcloud.aio.datastore import PathElement
 from gcloud.aio.datastore import Value
+from hypothesis import strategies
+
+
+# strftime does not zero-pad years before 1000 on every platform, see
+# https://github.com/python/cpython/issues/120713
+NAIVE_DATETIMES = strategies.datetimes(
+    min_value=datetime(1000, 1, 2),
+    max_value=datetime(9999, 12, 30),
+)
+AWARE_DATETIMES = strategies.datetimes(
+    min_value=datetime(1000, 1, 2),
+    max_value=datetime(9999, 12, 30),
+    timezones=strategies.builds(
+        timezone,
+        strategies.timedeltas(
+            min_value=-timedelta(hours=23, minutes=59),
+            max_value=timedelta(hours=23, minutes=59),
+        ),
+    ),
+)
 
 
 class TestValue:
@@ -54,28 +75,35 @@ class TestValue:
                 '1998-07-12T11:22:33.456789000Z',
                 datetime(
                     year=1998, month=7, day=12, hour=11,
-                    minute=22, second=33, microsecond=456789,
+                    minute=22, second=33, microsecond=456789, tzinfo=UTC,
                 ),
             ),
             (
                 '1998-07-12T11:22:33.456789Z',
                 datetime(
                     year=1998, month=7, day=12, hour=11,
-                    minute=22, second=33, microsecond=456789,
+                    minute=22, second=33, microsecond=456789, tzinfo=UTC,
                 ),
             ),
             (
                 '1998-07-12T11:22:33.456Z',
                 datetime(
                     year=1998, month=7, day=12, hour=11,
-                    minute=22, second=33, microsecond=456000,
+                    minute=22, second=33, microsecond=456000, tzinfo=UTC,
                 ),
             ),
             (
                 '1998-07-12T11:22:33',
                 datetime(
                     year=1998, month=7, day=12, hour=11,
-                    minute=22, second=33, microsecond=0,
+                    minute=22, second=33, microsecond=0, tzinfo=UTC,
+                ),
+            ),
+            (
+                '1998-07-12T13:22:33.456789+02:00',
+                datetime(
+                    year=1998, month=7, day=12, hour=11,
+                    minute=22, second=33, microsecond=456789, tzinfo=UTC,
                 ),
             ),
         ],
@@ -88,6 +116,7 @@ class TestValue:
 
         value = Value.from_repr(data)
         assert value.value == expected
+        assert value.value.utcoffset() == timedelta(0)
 
     @staticmethod
     def test_from_repr_with_blob_value():
@@ -264,3 +293,18 @@ class TestValue:
     @pytest.fixture(scope='session')
     def value() -> Value:
         return Value(value='foobar', exclude_from_indexes=False)
+
+
+@hypothesis.given(dt=AWARE_DATETIMES)
+def test_datetime_repr_roundtrip(dt):
+    roundtripped = Value.from_repr(Value(dt).to_repr()).value
+
+    assert roundtripped == dt
+    assert roundtripped.utcoffset() == timedelta(0)
+
+
+@hypothesis.given(dt=NAIVE_DATETIMES)
+def test_naive_datetime_repr_roundtrip_is_utc(dt):
+    roundtripped = Value.from_repr(Value(dt).to_repr()).value
+
+    assert roundtripped == dt.replace(tzinfo=UTC)
