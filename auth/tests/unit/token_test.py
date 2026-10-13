@@ -72,8 +72,8 @@ else:
         t.acquire_access_token = mock.AsyncMock()
 
         # If we hit a timeout the first time, an error should return
-        t.acquire_access_token.side_effect = asyncio.TimeoutError()
-        with pytest.raises(asyncio.TimeoutError):
+        t.acquire_access_token.side_effect = TimeoutError()
+        with pytest.raises(TimeoutError):
             await t.get()
 
         assert t.acquiring.done(), 'Acquiring should be done after timeout'

@@ -85,7 +85,7 @@ else:
                     queue.get(), timeout=time_budget,
                 )
                 result.append(message)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 break
             time_budget -= (time.perf_counter() - start)
         return result
@@ -413,7 +413,7 @@ else:
                         ),
                     )
                     new_messages = await asyncio.shield(pull_task)
-                except (asyncio.TimeoutError, KeyError):
+                except (TimeoutError, KeyError):
                     continue
 
                 metrics.MESSAGES_RECEIVED.inc(len(new_messages))
@@ -432,7 +432,7 @@ else:
                 # messages, so try to finish before shutting down
                 try:
                     new_messages += await asyncio.wait_for(pull_task, 5)
-                except (asyncio.TimeoutError, KeyError):
+                except (TimeoutError, KeyError):
                     pass
 
             pulled_at = time.perf_counter()

@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 try:
-    utc = datetime.timezone.utc
+    utc = datetime.UTC
 except AttributeError:
     # build our own UTC for Python 2
     class UTC(datetime.tzinfo):

@@ -717,7 +717,7 @@ async def test_lookup_with_read_time(
         ds = Datastore(project=project, service_file=creds, session=s)
 
         # insert and read without readTime
-        time_before_insert = datetime.datetime.now(datetime.timezone.utc)
+        time_before_insert = datetime.datetime.now(datetime.UTC)
         await ds.insert(key,
                         {'value': test_value, 'timestamp': 'after'},
                         session=s)
@@ -728,7 +728,7 @@ async def test_lookup_with_read_time(
         assert isinstance(result['readTime'], str)
 
         # lookup entity version w/ readTime
-        current_time = datetime.datetime.now(datetime.timezone.utc)
+        current_time = datetime.datetime.now(datetime.UTC)
         current_time_str = current_time.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.lookup([key],
                                                read_time=current_time_str,
@@ -757,7 +757,7 @@ async def test_run_query_with_read_time(
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        before_insert = datetime.datetime.now(datetime.timezone.utc)
+        before_insert = datetime.datetime.now(datetime.UTC)
         key = Key(project, [PathElement(kind, name=test_value)])
         await ds.insert(key, {'test_field': test_value}, session=s)
 
@@ -777,7 +777,7 @@ async def test_run_query_with_read_time(
             'test_field'] == test_value
 
         # query w/ readTime
-        current = datetime.datetime.now(datetime.timezone.utc)
+        current = datetime.datetime.now(datetime.UTC)
         current_str = current.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.runQuery(query,
                                                  read_time=current_str,

@@ -219,7 +219,7 @@ else:
         async def f(*args, **kwargs):
             await asyncio.sleep(0)
             mock(*args, **kwargs)
-            raise asyncio.TimeoutError
+            raise TimeoutError
 
         subscriber_client.pull = f
         queue = asyncio.Queue()

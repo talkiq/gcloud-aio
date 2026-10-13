@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.10
+    python: python3.11
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -45,7 +45,7 @@ repos:
     - --max-line-length=79
     - --max-args=10
     - --max-positional-arguments=10
-    - --py-version=3.10
+    - --py-version=3.11
     - --score=n
     # gcloud.aio is a namespace package split across each project; expose
     # every project so imports resolve regardless of which files are linted
@@ -72,12 +72,12 @@ repos:
   rev: v3.17.0
   hooks:
   - id: reorder-python-imports
-    args: [--py310-plus]
+    args: [--py311-plus]
 - repo: https://github.com/asottile/pyupgrade
   rev: v3.21.2
   hooks:
   - id: pyupgrade
-    args: [--py310-plus]
+    args: [--py311-plus]
 # TODO: enable me
 # - repo: https://github.com/asottile/add-trailing-comma
 #   rev: v4.0.0

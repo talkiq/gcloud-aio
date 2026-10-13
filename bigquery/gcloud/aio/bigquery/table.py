@@ -207,7 +207,7 @@ class Table(BigqueryBase):
         s = AioSession(session) if session else self.session
         resp = await s.session.delete(
             url, headers=headers, params=None,
-            timeout=timeout,
+            timeout=timeout,  # type: ignore[arg-type]
         )
         try:
             data: dict[str, Any] = await resp.json()

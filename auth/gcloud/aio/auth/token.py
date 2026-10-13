@@ -256,7 +256,7 @@ class BaseToken:
             # Cached token exists
             now_ts = int(
                 datetime.datetime.now(
-                    datetime.timezone.utc).timestamp())
+                    datetime.UTC).timestamp())
             if now_ts > self.access_token_refresh_after:
                 # Cached token does not have enough duration left, fall through
                 pass
@@ -291,7 +291,7 @@ class BaseToken:
         self.access_token = resp.value
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
-            datetime.timezone.utc)
+            datetime.UTC)
         base_timestamp = self.access_token_acquired_at.timestamp()
         self.access_token_preempt_after = int(
             base_timestamp + (resp.expires_in * self.background_refresh_after))

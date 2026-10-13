@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.10, < 4.0"
+python = ">= 3.11.3, < 4.0"
 aiofiles = ">=0.6.0, <26.0.0"
 # See https://cryptography.io/en/latest/api-stability/#deprecation
 cryptography = ">= 3.1.0, < 52.0.0"  # pin max to < (major + 3)
