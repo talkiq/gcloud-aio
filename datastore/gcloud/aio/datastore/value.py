@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime
+from datetime import UTC
 from typing import Any
 from typing import Self
 
@@ -71,7 +72,10 @@ class Value:
         }:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
-            value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
+            timestamp = self.value
+            if timestamp.tzinfo is not None:
+                timestamp = timestamp.astimezone(UTC)
+            value = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
         elif value_type == TypeName.BLOB:
             value = base64.b64encode(self.value).decode('utf8')
         else:
