@@ -355,8 +355,6 @@ else:
                     semaphore.release()
                     return
 
-                # publish_time is in UTC Zulu
-                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 recv_latency = time.time() - message.publish_time.timestamp()
                 metrics.CONSUME_LATENCY.labels(phase='receive').observe(
                     recv_latency,

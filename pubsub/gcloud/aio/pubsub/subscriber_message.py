@@ -4,14 +4,10 @@ from typing import Any
 
 
 def parse_publish_time(publish_time: str) -> datetime.datetime:
-    try:
-        return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%S.%fZ',
-        )
-    except ValueError:
-        return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%SZ',
-        )
+    parsed = datetime.datetime.fromisoformat(publish_time)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=datetime.UTC)
+    return parsed
 
 
 class SubscriberMessage:
