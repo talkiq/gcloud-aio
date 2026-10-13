@@ -1,4 +1,7 @@
 from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
+from datetime import UTC
 
 import pytest
 from gcloud.aio.datastore import Key
@@ -160,11 +163,21 @@ class TestValue:
         assert r['nullValue'] == 'NULL_VALUE'
 
     @staticmethod
-    def test_to_repr_with_datetime_value():
-        dt = datetime(
-            year=2018, month=7, day=15, hour=11, minute=22,
-            second=33, microsecond=456789,
-        )
+    @pytest.mark.parametrize(
+        'dt', [
+            datetime(2018, 7, 15, 11, 22, 33, 456789),
+            datetime(2018, 7, 15, 11, 22, 33, 456789, tzinfo=UTC),
+            datetime(
+                2018, 7, 15, 13, 22, 33, 456789,
+                tzinfo=timezone(timedelta(hours=2)),
+            ),
+            datetime(
+                2018, 7, 15, 6, 22, 33, 456789,
+                tzinfo=timezone(timedelta(hours=-5)),
+            ),
+        ],
+    )
+    def test_to_repr_with_datetime_value(dt):
         value = Value(dt)
 
         r = value.to_repr()
