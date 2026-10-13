@@ -169,10 +169,10 @@ Module Contents
 
 .. py:class:: BaseToken(service_file = None, session = None, background_refresh_after = 0.5, force_refresh_after = 0.95)
 
+   Bases: :py:obj:`abc.ABC`
+
+
    GCP auth token base class.
-
-
-   .. py:attribute:: __metaclass__
 
 
    .. py:attribute:: background_refresh_after

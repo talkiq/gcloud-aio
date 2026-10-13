@@ -10,7 +10,6 @@ Attributes
 .. autoapisummary::
 
    bigquery.utils.log
-   bigquery.utils.utc
 
 
 Functions
@@ -28,8 +27,6 @@ Module Contents
 ---------------
 
 .. py:data:: log
-
-.. py:data:: utc
 
 .. py:function:: flatten(x)
 

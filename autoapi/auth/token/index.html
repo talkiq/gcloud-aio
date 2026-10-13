@@ -274,7 +274,8 @@ updated to match the following commit:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="auth.token.BaseToken">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">auth.token.</span></span><span class="sig-name descname"><span class="pre">BaseToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_refresh_after</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_refresh_after</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.BaseToken" title="Link to this definition">¶</a></dt>
-<dd><p>GCP auth token base class.</p>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>GCP auth token base class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -285,11 +286,6 @@ updated to match the following commit:</p>
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="auth.token.BaseToken.__metaclass__">
-<span class="sig-name descname"><span class="pre">__metaclass__</span></span><a class="headerlink" href="#auth.token.BaseToken.__metaclass__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="auth.token.BaseToken.background_refresh_after">
 <span class="sig-name descname"><span class="pre">background_refresh_after</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#auth.token.BaseToken.background_refresh_after" title="Link to this definition">¶</a></dt>
@@ -413,7 +409,7 @@ updated to match the following commit:</p>
 <span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">__aenter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.token.BaseToken.__aenter__" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#auth.token.BaseToken" title="auth.token.BaseToken">BaseToken</a></p>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>

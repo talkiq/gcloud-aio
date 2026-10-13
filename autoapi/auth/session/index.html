@@ -54,10 +54,10 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#auth.session.BaseSession" title="auth.session.BaseSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSession</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#auth.session.SyncSession" title="auth.session.SyncSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncSession</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
 </table>
@@ -72,7 +72,10 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="auth.session.BaseSession">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">auth.session.</span></span><span class="sig-name descname"><span class="pre">BaseSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.BaseSession" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
@@ -81,11 +84,6 @@
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="auth.session.BaseSession.__metaclass__">
-<span class="sig-name descname"><span class="pre">__metaclass__</span></span><a class="headerlink" href="#auth.session.BaseSession.__metaclass__" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="auth.session.BaseSession._shared_session">
 <span class="sig-name descname"><span class="pre">_shared_session</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#auth.session.BaseSession._shared_session" title="Link to this definition">¶</a></dt>
@@ -287,6 +285,8 @@
 <dt class="sig sig-object py" id="auth.session.SyncSession">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">auth.session.</span></span><span class="sig-name descname"><span class="pre">SyncSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#auth.session.BaseSession" title="auth.session.BaseSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSession</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

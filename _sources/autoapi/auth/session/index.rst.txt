@@ -29,7 +29,11 @@ Module Contents
 
 .. py:class:: BaseSession(session = None, timeout = 10, verify_ssl = True)
 
-   .. py:attribute:: __metaclass__
+   Bases: :py:obj:`abc.ABC`
+
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
 
    .. py:attribute:: _shared_session
@@ -120,6 +124,10 @@ Module Contents
 .. py:class:: SyncSession(session = None, timeout = 10, verify_ssl = True)
 
    Bases: :py:obj:`BaseSession`
+
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
 
    .. py:attribute:: _google_api_lock
