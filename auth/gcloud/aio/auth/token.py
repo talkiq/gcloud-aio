@@ -13,6 +13,7 @@ from typing import Any
 from typing import AnyStr
 from typing import IO
 from typing import Optional
+from typing import Self
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 from urllib.parse import urlparse
@@ -301,7 +302,7 @@ class BaseToken(ABC):
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'BaseToken':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

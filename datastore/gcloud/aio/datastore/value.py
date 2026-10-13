@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 from typing import Any
+from typing import Self
 
 from .constants import TypeName
 from .constants import TYPES
@@ -28,7 +29,7 @@ class Value:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Value':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         supported_types = cls._get_supported_types()
         for value_type, type_name in supported_types.items():
             json_key = type_name.value

@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from typing import Any
+from typing import Self
 
 from . import value
 
@@ -25,7 +26,7 @@ class Array(Sequence):  # type: ignore[type-arg]
         return len(self.items)
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Array':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls([value.Value.from_repr(x) for x in data.get('values', [])])
 
     def to_repr(self) -> dict[str, Any]:

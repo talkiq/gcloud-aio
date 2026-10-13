@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import Any
 from typing import AnyStr
 from typing import IO
+from typing import Self
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -354,7 +355,7 @@ class SubscriberClient:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'SubscriberClient':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

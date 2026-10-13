@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 from .key import Key
 from .value import Value
@@ -31,7 +32,7 @@ class Entity:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Entity':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         # https://cloud.google.com/datastore/docs/reference/data/rest/v1/Entity
         # "for example, an entity in Value.entity_value may have no key"
         if data.get('key'):
@@ -75,7 +76,7 @@ class EntityResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'EntityResult':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls(
             cls.entity_kind.from_repr(data['entity']),
             data.get('version', ''),

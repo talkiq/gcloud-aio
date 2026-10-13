@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 from .array import Array
 from .constants import CompositeFilterOperator
@@ -13,7 +14,7 @@ class BaseFilter:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'BaseFilter':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         raise NotImplementedError
 
     def to_repr(self) -> dict[str, Any]:
@@ -35,7 +36,7 @@ class Filter:
         return self.inner_filter == other.inner_filter
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Filter':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         if 'compositeFilter' in data:
             return cls(CompositeFilter.from_repr(data['compositeFilter']))
         if 'propertyFilter' in data:
@@ -70,7 +71,7 @@ class CompositeFilter(BaseFilter):
         )
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'CompositeFilter':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         operator = CompositeFilterOperator(data['op'])
         filters = [Filter.from_repr(f) for f in data['filters']]
         return cls(operator=operator, filters=filters)
@@ -105,7 +106,7 @@ class PropertyFilter(BaseFilter):
         )
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'PropertyFilter':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         prop = data['property']['name']
         operator = PropertyFilterOperator(data['op'])
         value = Value.from_repr(data['value'])
