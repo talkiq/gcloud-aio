@@ -27,6 +27,7 @@ gcloud-rest-auth = ">= 3.1.0, < 6.0.0"
 # aiohttp = "3.14.5"
 gcloud-rest-auth = { path = "../auth" }
 gcloud-rest-storage = { path = "../storage" }
+hypothesis = "6.170.2"
 pytest = "9.1.1"
 # pytest-asyncio = "1.4.0"
 pytest-mock = "3.16.0"
