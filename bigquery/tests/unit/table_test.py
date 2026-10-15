@@ -12,7 +12,7 @@ else:
 @pytest.mark.asyncio
 async def test_delete(api_root):
     async with Table('dataset', 'table', api_root=api_root) as table:
-        await table.delete()
+        assert await table.delete() == {'response': ''}
 
 
 @pytest.mark.asyncio
@@ -21,4 +21,6 @@ async def test_delete_raises_for_status(api_root):
         with pytest.raises(ResponseError) as excinfo:
             await table.delete()
 
-    print(excinfo.value)
+    error = excinfo.value
+    status = error.response.status_code if BUILD_GCLOUD_REST else error.status
+    assert status == 404
