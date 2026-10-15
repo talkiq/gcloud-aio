@@ -205,10 +205,7 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.session.delete(
-            url, headers=headers, params=None,
-            timeout=timeout,  # type: ignore[arg-type]
-        )
+        resp = await s.delete(url, headers=headers, timeout=timeout)
         try:
             data: dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
