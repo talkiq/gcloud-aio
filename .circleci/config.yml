@@ -111,7 +111,7 @@ workflows:
           # renovate: datasource=pypi depName=poetry
           version: 2.5.1
           pre-steps:
-            - run: echo "${GOOGLE_SERVICE_PUBLIC}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
           matrix:
             alias: test-integration-aio
             parameters:
@@ -146,7 +146,7 @@ workflows:
           # renovate: datasource=pypi depName=poetry
           version: 2.5.1
           pre-steps:
-            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
             - attach_workspace:
                 at: /rest
           matrix:
