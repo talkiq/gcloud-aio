@@ -39,6 +39,7 @@ async def test_data_is_inserted(
         await t.insert(rows)
 
 
+@pytest.mark.real_gcp(reason='loads from a Datastore export to GCS')
 @pytest.mark.asyncio
 async def test_table_load_copy(
     creds: str, dataset: str, project: str,
