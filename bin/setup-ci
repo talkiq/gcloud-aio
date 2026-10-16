@@ -7,13 +7,28 @@ REPO=talkiq/gcloud-aio
 PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
 RELEASE_REVIEWERS_TEAM=engineering
 
+CIRCLECI_API="https://circleci.com/api/v2/project/gh/${REPO}"
+CIRCLECI_KEY_ENVVAR=GCLOUD_AIO_CI_KEY
+
+GCP_PROJECT=dialpad-oss
+GCP_BUCKET=gs://dialpad-oss-public-test
+GCP_DATASET="${GCP_PROJECT}:public_test"
+GCP_QUEUE=public-test-push
+GCP_QUEUE_LOCATION=us-west2
+CI_SA="gcloud-aio-ci@${GCP_PROJECT}.iam.gserviceaccount.com"
+DELEGATE_SA="gcloud-aio-delegate@${GCP_PROJECT}.iam.gserviceaccount.com"
+TARGET_SA="gcloud-aio-target-principal@${GCP_PROJECT}.iam.gserviceaccount.com"
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") <command>
 
 Commands:
-  github    configure GitHub Pages deployment and the release environments
-  pypi      print the PyPI trusted publisher settings for every package
+  github      configure GitHub Pages deployment and the release environments
+  pypi        print the PyPI trusted publisher settings for every package
+  gcp         configure the integration test service account and its grants
+  rotate-key  issue a new integration test key, store it in CircleCI and
+              delete the old ones (requires CIRCLECI_CLI_TOKEN)
 EOF
 }
 
@@ -82,9 +97,154 @@ EOF
     done
 }
 
+# IAM bindings referencing a just-created service account fail until it has
+# propagated, which can take a few seconds.
+retry() {
+    local attempt
+    for attempt in 1 2 3 4 5; do
+        if "$@" >/dev/null; then
+            return 0
+        fi
+        echo "retrying (${attempt}/5): $*" >&2
+        sleep 10
+    done
+    "$@" >/dev/null
+}
+
+gcp_project_unbind() {
+    local member=$1 role=$2
+    if gcloud projects get-iam-policy "${GCP_PROJECT}" --format=json \
+            | jq -e --arg m "${member}" --arg r "${role}" \
+                '.bindings[] | select(.role == $r and (.members | index($m)))' >/dev/null; then
+        gcloud projects remove-iam-policy-binding "${GCP_PROJECT}" --quiet --all \
+            --member="${member}" --role="${role}" >/dev/null
+        echo "removed ${role} from ${member}"
+    fi
+}
+
+gcp_custom_role() {
+    local id=$1 title=$2 permissions=$3 verb=create
+    if gcloud iam roles describe "${id}" --project="${GCP_PROJECT}" >/dev/null 2>&1; then
+        verb=update
+    fi
+    gcloud iam roles "${verb}" "${id}" --project="${GCP_PROJECT}" --quiet \
+        --title="${title}" --permissions="${permissions}" --stage=GA >/dev/null
+    echo "role ${id}: ${permissions}"
+}
+
+cmd_gcp() {
+    require gcloud bq jq
+    local ci="serviceAccount:${CI_SA}"
+
+    # The impersonation test accounts must not be able to do anything beyond
+    # minting tokens for each other: anything able to impersonate them would
+    # otherwise inherit their access.
+    retry gcloud iam service-accounts add-iam-policy-binding "${TARGET_SA}" \
+        --project="${GCP_PROJECT}" --member="serviceAccount:${DELEGATE_SA}" \
+        --role=roles/iam.serviceAccountTokenCreator
+    gcp_project_unbind "serviceAccount:${DELEGATE_SA}" roles/iam.serviceAccountTokenCreator
+    gcp_project_unbind "serviceAccount:${TARGET_SA}" roles/editor
+    gcp_project_unbind "serviceAccount:${TARGET_SA}" roles/iam.workloadIdentityUser
+
+    gcp_custom_role gcloudAioCiBucketLister 'gcloud-aio CI bucket lister' \
+        storage.buckets.list
+    gcp_custom_role gcloudAioCiOwnKeysViewer 'gcloud-aio CI own keys viewer' \
+        iam.serviceAccountKeys.get,iam.serviceAccountKeys.list
+
+    if ! gcloud iam service-accounts describe "${CI_SA}" --project="${GCP_PROJECT}" >/dev/null 2>&1; then
+        gcloud iam service-accounts create "${CI_SA%%@*}" --project="${GCP_PROJECT}" \
+            --display-name='gcloud-aio CI integration tests' >/dev/null
+    fi
+    echo "service account: ${CI_SA}"
+
+    retry gcloud storage buckets add-iam-policy-binding "${GCP_BUCKET}" \
+        --member="${ci}" --role=roles/storage.objectAdmin
+    local role
+    for role in "projects/${GCP_PROJECT}/roles/gcloudAioCiBucketLister" \
+            roles/datastore.user roles/datastore.importExportAdmin \
+            roles/bigquery.jobUser; do
+        retry gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
+            --member="${ci}" --role="${role}" --condition=None
+    done
+    retry bq add-iam-policy-binding -d --member="${ci}" \
+        --role=roles/bigquery.dataEditor "${GCP_DATASET}"
+    for role in enqueuer viewer taskRunner taskDeleter; do
+        retry gcloud tasks queues add-iam-policy-binding "${GCP_QUEUE}" \
+            --project="${GCP_PROJECT}" --location="${GCP_QUEUE_LOCATION}" \
+            --member="${ci}" --role="roles/cloudtasks.${role}"
+    done
+    # signBlob as itself, and impersonate the test accounts
+    local sa
+    for sa in "${CI_SA}" "${DELEGATE_SA}" "${TARGET_SA}"; do
+        retry gcloud iam service-accounts add-iam-policy-binding "${sa}" \
+            --project="${GCP_PROJECT}" --member="${ci}" \
+            --role=roles/iam.serviceAccountTokenCreator
+    done
+    retry gcloud iam service-accounts add-iam-policy-binding "${CI_SA}" \
+        --project="${GCP_PROJECT}" --member="${ci}" \
+        --role="projects/${GCP_PROJECT}/roles/gcloudAioCiOwnKeysViewer"
+    echo "service account ${CI_SA}: granted"
+}
+
+circleci_api() {
+    local method=$1 path=$2
+    shift 2
+    curl -fsS -X "${method}" "${CIRCLECI_API}${path}" \
+        -H @<(printf 'Circle-Token: %s\n' "${CIRCLECI_CLI_TOKEN}") "$@"
+}
+
+# Writes a project env var and confirms the stored value via its unmasked
+# suffix, since the API does not document whether creating an existing
+# variable overwrites it.
+circleci_set_envvar() {
+    local name=$1 value=$2 attempt
+    for attempt in 1 2; do
+        # via the environment rather than argv, which is visible to other users
+        ENVVAR_VALUE="${value}" jq -n --arg n "${name}" '{name: $n, value: env.ENVVAR_VALUE}' \
+            | circleci_api POST /envvar -H 'content-type: application/json' --data @- >/dev/null
+        if [ "$(circleci_api GET "/envvar/${name}" | jq -r .value)" = "xxxx${value: -4}" ]; then
+            echo "circleci: ${name} updated"
+            return 0
+        fi
+        if [ "${attempt}" = 1 ]; then
+            circleci_api DELETE "/envvar/${name}" >/dev/null
+        fi
+    done
+    echo "error: could not update CircleCI env var ${name}" >&2
+    exit 1
+}
+
+cmd_rotate_key() {
+    require gcloud jq curl base64
+    : "${CIRCLECI_CLI_TOKEN:?must be set to a CircleCI token with admin access to ${REPO}}"
+
+    local tmp
+    tmp=$(mktemp -d)
+    # shellcheck disable=SC2064  # expand now: tmp is local to this function
+    trap "rm -rf '${tmp}'" EXIT
+
+    gcloud iam service-accounts keys create "${tmp}/key.json" --quiet \
+        --iam-account="${CI_SA}" --project="${GCP_PROJECT}"
+    local key_id
+    key_id=$(jq -r .private_key_id "${tmp}/key.json")
+    circleci_set_envvar "${CIRCLECI_KEY_ENVVAR}" "$(base64 < "${tmp}/key.json" | tr -d '\n')"
+
+    local old
+    for old in $(gcloud iam service-accounts keys list --iam-account="${CI_SA}" \
+            --project="${GCP_PROJECT}" --managed-by=user --format='value(name.basename())'); do
+        if [ "${old}" != "${key_id}" ]; then
+            gcloud iam service-accounts keys delete "${old}" --quiet \
+                --iam-account="${CI_SA}" --project="${GCP_PROJECT}"
+        fi
+    done
+    echo "service account ${CI_SA}: only key is ${key_id}"
+}
+
 case "${1:-}" in
     github) cmd_github ;;
     pypi) cmd_pypi ;;
+    gcp) cmd_gcp ;;
+    rotate-key) cmd_rotate_key ;;
     -h|--help|help) usage ;;
     *) usage >&2; exit 1 ;;
 esac
