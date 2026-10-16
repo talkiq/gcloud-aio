@@ -5,11 +5,6 @@ orbs:
   poetry: talkiq/poetry@4.2.1
 
 executors:
-  python310:
-    docker:
-      - image: python:3.10.22
-    resource_class: small
-
   python311:
     docker:
       - image: python:3.11.17
@@ -30,11 +25,43 @@ executors:
       - image: python:3.14.8
     resource_class: small
 
+  python315:
+    docker:
+      - image: python:3.15.0
+    resource_class: small
+
   python-integration:
     docker:
       - image: python:3.14.8
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
+    resource_class: small
+
+  python-emulator-bigquery:
+    docker:
+      - image: python:3.14.8
+      - image: ghcr.io/goccy/bigquery-emulator:0.8.1
+        command: [--project=dialpad-oss, --port=9050]
+    environment:
+      BIGQUERY_EMULATOR_HOST: localhost:9050
+    resource_class: small
+
+  python-emulator-datastore:
+    docker:
+      - image: python:3.14.8
+      - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:589.0.0-emulators
+        command: [gcloud, emulators, firestore, start, --database-mode=datastore-mode, --host-port=0.0.0.0:8081]
+    environment:
+      DATASTORE_EMULATOR_HOST: localhost:8081
+    resource_class: small
+
+  python-emulator-storage:
+    docker:
+      - image: python:3.14.8
+      - image: fsouza/fake-gcs-server:1.56.1
+        command: [-scheme, http, -port, '4443', -external-url, http://localhost:4443]
+    environment:
+      STORAGE_EMULATOR_HOST: http://localhost:4443
     resource_class: small
 
 commands:
@@ -73,112 +100,17 @@ jobs:
       - run: ./bin/build-rest
       - store-rest
 
-  # Inspired by poetry/publish, the addition of `basedir` is meant to support
-  # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
-  # path which breaks the tag filter).
-  poetry-publish-workspace:
-    executor: python314
-    parameters:
-      basedir:
-        enum: [/rest, /root/project]
-        type: enum
-      cwd:
-        type: string
-    steps:
-      - poetry/install:
-          # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
-      - checkout
-      - attach_workspace:
-          at: /rest
-      - run:
-          command: |
-            suffix=$(if [ <<parameters.basedir>> = "/rest" ]; then echo "REST"; else echo "AIO"; fi)
-            token=$(printenv | grep -i PYPI_TOKEN_GCLOUD_$(echo $suffix)_<<parameters.cwd>> | awk -F= '{ print $2 }')
-            echo "export POETRY_PYPI_TOKEN_PYPI=$token" >> "$BASH_ENV"
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-      - run:
-          command: poetry build
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-      - run:
-          command: poetry publish
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-
-  docs:
-    executor: python314
-    steps:
-      - run: pip install sphinx sphinx-autoapi
-      - checkout
-      # TODO: generate gcloud-rest-* docs
-      # - attach_workspace:
-      #     at: rest
-      # TODO: add -W after fixing build issues
-      - run: sphinx-build -b html --keep-going . build/docs/
-      # https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
-      # Uploading /root/project/build/docs/.nojekyll: SKIPPED, file is empty
-      - run: echo " " > build/docs/.nojekyll
-      - persist_to_workspace:
-          root: ./build
-          paths:
-          - ./docs
-      - store_artifacts:
-          path: ./build/docs/
-
-  pages:
-    docker:
-      - image: node:26.10.0
-    steps:
-      - checkout
-      - attach_workspace:
-          at: build
-      - run: npm install -g --silent gh-pages@6.0.0
-      - add_ssh_keys:
-          fingerprints:
-            - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      # https://github.com/tschaub/gh-pages/issues/354
-      - run: mkdir ./tmp-gh-pages
-      - run:
-          command: gh-pages -u "Vi Eng CI <voiceai-eng+ci@dialpad.com>" -m "[skip ci] updated docs" -td build/docs/
-          environment:
-            CACHE_DIR: ./tmp-gh-pages
-
-  github:
-    docker:
-      - image: debian:bullseye-slim
-    steps:
-      - run: apt update -qy
-      - run: apt install -qy hub git
-      - checkout
-      - run:
-          name: create changelog
-          command: |
-            export PROJECT=$(echo "${CIRCLE_TAG}" | sed 's/-.*//')
-            export PREV_RELEASE=$(git tag --sort=version:refname | grep ${PROJECT} | tail -n2 | head -n1)
-            [ "${PREV_RELEASE}" = "${CIRCLE_TAG}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
-            [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
-
-            echo "${CIRCLE_TAG}" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' | grep "${PROJECT}" >> CHANGELOG.md ||:
-      - run: hub release create -FCHANGELOG.md "${CIRCLE_TAG}"
-
 workflows:
   run-jobs:
     jobs:
       # build gcloud-rest-*
-      - build-rest:
-          filters:
-            tags:
-              only: /.*/
+      - build-rest
 
       # run linters
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
           # support.
-          executor: python310
-          filters:
-            tags:
-              only: /.*/
+          executor: python311
 
       # run tests
       - poetry/run:
@@ -194,29 +126,7 @@ workflows:
             alias: test-unit-aio
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              executor: [python310, python311, python312, python313, python314]
-          filters:
-            tags:
-              only: /.*/
-      - poetry/run:
-          name: test-integration-/aio/<<matrix.cwd>>
-          commands:
-            - run:
-                command: poetry run pytest tests/integration
-                working_directory: <<matrix.cwd>>
-          executor: python-integration
-          install_flags: --no-ansi
-          # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
-          pre-steps:
-            - run: echo "${GOOGLE_SERVICE_PUBLIC}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-          matrix:
-            alias: test-integration-aio
-            parameters:
-              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-          filters:
-            tags:
-              only: /.*/
+              executor: [python311, python312, python313, python314, python315]
       - poetry/run:
           name: test-unit-<<matrix.cwd>>-<<matrix.executor>>
           commands:
@@ -233,12 +143,122 @@ workflows:
             alias: test-unit-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
-              executor: [python310, python311, python312, python313, python314]
-          filters:
-            tags:
-              only: /.*/
+              executor: [python311, python312, python313, python314, python315]
           requires:
             - build-rest
+
+      # Integration tests which need no secrets, so also run on fork PRs. Each
+      # package gets its own executor to avoid pulling unneeded emulators.
+      - poetry/run:
+          name: test-emulator-/aio/bigquery-emulator
+          cwd: bigquery
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: bigquery
+          executor: python-emulator-bigquery
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/aio/datastore-emulator
+          cwd: datastore
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: datastore
+          executor: python-emulator-datastore
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/aio/storage-emulator
+          cwd: storage
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: storage
+          executor: python-emulator-storage
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/rest/bigquery-emulator
+          cwd: /rest/bigquery
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/bigquery
+          executor: python-emulator-bigquery
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          requires:
+            - build-rest
+      - poetry/run:
+          name: test-emulator-/rest/datastore-emulator
+          cwd: /rest/datastore
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/datastore
+          executor: python-emulator-datastore
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          requires:
+            - build-rest
+      - poetry/run:
+          name: test-emulator-/rest/storage-emulator
+          cwd: /rest/storage
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/storage
+          executor: python-emulator-storage
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          requires:
+            - build-rest
+
+  # Fork PR pipelines (branch `pull/<N>`) receive no secrets, so these would
+  # only ever fail there. Skipping them leaves their required statuses pending
+  # until a maintainer runs them via `bin/ci-pr`.
+  integration:
+    when:
+      not:
+        matches:
+          pattern: ^pull/[0-9]+$
+          value: << pipeline.git.branch >>
+    jobs:
+      - build-rest:
+          name: build-rest-integration
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-integration-aio
+            parameters:
+              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
       - poetry/run:
           name: test-integration-<<matrix.cwd>>
           commands:
@@ -250,67 +270,12 @@ workflows:
           # renovate: datasource=pypi depName=poetry
           version: 2.5.1
           pre-steps:
-            - run: echo ${GOOGLE_SERVICE_PUBLIC} | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
             - attach_workspace:
                 at: /rest
           matrix:
             alias: test-integration-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
-          filters:
-            tags:
-              only: /.*/
           requires:
-            - build-rest
-
-      # build docs
-      - docs:
-          filters:
-            branches:
-              only: /master/
-            tags:
-              ignore: /.*/
-      - pages:
-          filters:
-            branches:
-              only: /master/
-            tags:
-              ignore: /.*/
-          requires:
-            - docs
-
-      # create github & pypi release
-      - github:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-.*/
-          requires:
-            - linter/pre-commit
-            - test-unit-aio
-            - test-integration-aio
-            - test-unit-rest
-            - test-integration-rest
-      - hold:
-          type: approval
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-.*/
-          requires:
-           - github
-      - poetry-publish-workspace:
-          name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
-          matrix:
-            parameters:
-              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              basedir: [/rest, /root/project]
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /<<matrix.cwd>>-.*/
-          requires:
-            - hold
+            - build-rest-integration

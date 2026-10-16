@@ -3,10 +3,10 @@ import collections
 import datetime
 import enum
 import hashlib
-import os
 from typing import Any
 from typing import TYPE_CHECKING
 from urllib.parse import quote
+from urllib.parse import urlsplit
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
@@ -27,9 +27,6 @@ else:
 
 if TYPE_CHECKING:
     from .bucket import Bucket  # pylint: disable=cyclic-import
-
-
-HOST = os.environ.get('STORAGE_EMULATOR_HOST', 'storage.googleapis.com')
 
 
 class _SignatureMethod(enum.Enum):
@@ -115,7 +112,7 @@ class Blob:
         quoted_name = quote(self.name, safe=b'/~')
         canonical_uri = f'/{self.bucket.name}/{quoted_name}'
 
-        datetime_now = datetime.datetime.now(datetime.timezone.utc)
+        datetime_now = datetime.datetime.now(datetime.UTC)
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
         datestamp = datetime_now.strftime('%Y%m%d')
 
@@ -132,8 +129,9 @@ class Blob:
             signature_method = _SignatureMethod.PEM
             credential = f'{client_email}/{credential_scope}'
 
+        api_root = self.bucket.storage.signed_url_api_root
         headers = headers or {}
-        headers['host'] = HOST
+        headers['host'] = urlsplit(api_root).netloc
 
         ordered_headers = collections.OrderedDict(
             sorted(headers.items(), key=lambda x: x[0].lower()))
@@ -197,7 +195,7 @@ class Blob:
         signature = binascii.hexlify(signed_blob).decode()
 
         return (
-            f'https://{HOST}{canonical_uri}?'
+            f'{api_root}{canonical_uri}?'
             f'{canonical_query_str}&X-Goog-Signature={signature}'
         )
 

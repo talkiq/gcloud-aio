@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-taskqueue"
-version = "7.0.0"
+version = "7.1.0"
 description = "Python Client for Google Cloud Task Queue"
 readme = "README.rst"
 
@@ -20,11 +20,11 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.10, < 4.0"
+python = ">= 3.11.3, < 4.0"
 gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
-aiohttp = "3.14.3"
+aiohttp = "3.14.5"
 gcloud-aio-auth = { path = "../auth" }
 pytest = "9.1.1"
 pytest-asyncio = "1.4.0"

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gcloud-aio-bigquery"
-version = "7.1.0"
+version = "7.3.0"
 description = "Python Client for Google Cloud BigQuery"
 readme = "README.rst"
 
@@ -20,8 +20,9 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">= 3.10, < 4.0"
-gcloud-aio-auth = ">= 3.1.0, < 6.0.0"
+python = ">= 3.11.3, < 4.0"
+python-dateutil = ">= 2.9.0, < 3.0.0"
+gcloud-aio-auth = ">= 3.4.4, < 6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 gcloud-aio-auth = { path = "../auth" }
@@ -30,7 +31,7 @@ gcloud-aio-storage = { path = "../storage" }
 pytest = "9.1.1"
 pytest-asyncio = "1.4.0"
 pytest-mock = "3.16.0"
-tenacity = "9.1.4"
+tenacity = "9.2.1"
 
 [[tool.poetry.source]]
 name = "pypi"

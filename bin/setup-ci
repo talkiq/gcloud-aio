@@ -1,0 +1,402 @@
+#!/usr/bin/env bash
+# Configures the external services our CI depends on. Every subcommand is
+# idempotent and safe to re-run. Requires admin access to the relevant service.
+set -euo pipefail
+
+REPO=talkiq/gcloud-aio
+PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
+EMULATOR_PROJECTS="bigquery datastore storage"
+RELEASE_REVIEWERS_TEAM=engineering
+
+CIRCLECI_V1_PROJECT="https://circleci.com/api/v1.1/project/github/${REPO}"
+CIRCLECI_V2_PROJECT="https://circleci.com/api/v2/project/gh/${REPO}"
+CIRCLECI_KEY_ENVVAR=GCLOUD_AIO_CI_KEY
+
+GCP_PROJECT=dialpad-oss
+GCP_BUCKET=gs://dialpad-oss-public-test
+GCP_DATASET=public_test
+GCP_QUEUE=public-test-push
+GCP_QUEUE_LOCATION=us-west2
+CI_SA="gcloud-aio-ci@${GCP_PROJECT}.iam.gserviceaccount.com"
+DELEGATE_SA="gcloud-aio-delegate@${GCP_PROJECT}.iam.gserviceaccount.com"
+TARGET_SA="gcloud-aio-target-principal@${GCP_PROJECT}.iam.gserviceaccount.com"
+
+LEGACY_SA="gcloud-aio@${GCP_PROJECT}.iam.gserviceaccount.com"
+LEGACY_SSH_KEY_FINGERPRINT=f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3
+LEGACY_DEPLOY_KEY_TITLE='CircleCI Write Key'
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <command>
+
+Commands:
+  github      configure GitHub Pages deployment and the release environments
+  pypi        print the PyPI trusted publisher settings for every package
+  gcp         configure the integration test service account and its grants
+  rotate-key  issue a new integration test key, store it in CircleCI and
+              delete the old ones (requires CIRCLECI_CLI_TOKEN)
+  cleanup     delete the legacy CI credentials, prompting for each
+              (requires CIRCLECI_CLI_TOKEN)
+EOF
+}
+
+require() {
+    for tool in "$@"; do
+        if ! command -v "${tool}" >/dev/null; then
+            echo "error: ${tool} is required" >&2
+            exit 1
+        fi
+    done
+}
+
+# Ensures the environment only allows deployments from refs matching a single
+# name pattern of the given type (branch or tag).
+github_env_ref_policy() {
+    local env=$1 type=$2 pattern=$3
+    local existing
+    existing=$(gh api "repos/${REPO}/environments/${env}/deployment-branch-policies" \
+        --jq ".branch_policies[] | select(.name == \"${pattern}\" and .type == \"${type}\") | .id")
+    if [ -z "${existing}" ]; then
+        gh api -X POST "repos/${REPO}/environments/${env}/deployment-branch-policies" \
+            -f name="${pattern}" -f type="${type}" >/dev/null
+    fi
+    echo "environment ${env}: deployable from ${type} ${pattern}"
+}
+
+cmd_github() {
+    require gh jq
+
+    gh api -X PUT "repos/${REPO}/pages" -f build_type=workflow >/dev/null
+    echo "pages: deployed by GitHub Actions"
+
+    gh api -X PUT "repos/${REPO}/environments/github-pages" --input - >/dev/null <<EOF
+{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}
+EOF
+    github_env_ref_policy github-pages branch master
+
+    local team_id
+    team_id=$(gh api "orgs/${REPO%%/*}/teams/${RELEASE_REVIEWERS_TEAM}" --jq .id)
+    gh api -X PUT "repos/${REPO}/environments/release" --input - >/dev/null <<EOF
+{
+  "prevent_self_review": false,
+  "reviewers": [{"type": "Team", "id": ${team_id}}],
+  "deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}
+}
+EOF
+    echo "environment release: requires approval from @${REPO%%/*}/${RELEASE_REVIEWERS_TEAM}"
+    github_env_ref_policy release tag '*-*'
+
+    github_required_checks
+}
+
+# Requires the emulator test statuses on master. Requiring a status before
+# master's CI reports it would block every open PR, so only add those master
+# already has.
+github_required_checks() {
+    local project flavour context contexts=()
+    for project in ${EMULATOR_PROJECTS}; do
+        for flavour in aio rest; do
+            contexts+=("ci/circleci: ${flavour}/${project}-emulator")
+        done
+    done
+
+    # Any recent master commit will do: the head may still be mid-pipeline.
+    local sha passed='' remaining
+    for sha in $(gh api "repos/${REPO}/commits?sha=master&per_page=20" --jq '.[].sha'); do
+        passed+=$(gh api --paginate "repos/${REPO}/commits/${sha}/status?per_page=100" \
+            --jq '.statuses[] | select(.state == "success") | .context')$'\n'
+        remaining=0
+        for context in "${contexts[@]}"; do
+            grep -qxF "${context}" <<< "${passed}" || remaining=$((remaining + 1))
+        done
+        if [ "${remaining}" = 0 ]; then
+            break
+        fi
+    done
+
+    local required missing=()
+    required=$(gh api "repos/${REPO}/branches/master/protection/required_status_checks" \
+        --jq '.contexts[]')
+    for context in "${contexts[@]}"; do
+        if grep -qxF "${context}" <<< "${required}"; then
+            continue
+        fi
+        if ! grep -qxF "${context}" <<< "${passed}"; then
+            echo "warning: '${context}' has not passed on master yet; re-run after it does" >&2
+            continue
+        fi
+        missing+=("${context}")
+    done
+    if [ ${#missing[@]} -gt 0 ]; then
+        jq -n '$ARGS.positional' --args "${missing[@]}" \
+            | gh api -X POST "repos/${REPO}/branches/master/protection/required_status_checks/contexts" \
+                --input - >/dev/null
+    fi
+    echo "master: requires emulator checks (${#missing[@]} added)"
+}
+
+cmd_pypi() {
+    cat <<EOF
+PyPI has no API for configuring trusted publishers. For each package below,
+add a GitHub publisher at the given URL with:
+
+  Owner:             ${REPO%%/*}
+  Repository name:   ${REPO##*/}
+  Workflow name:     release.yml
+  Environment name:  release
+
+EOF
+    for project in ${PROJECTS}; do
+        for flavour in aio rest; do
+            echo "  https://pypi.org/manage/project/gcloud-${flavour}-${project}/settings/publishing/"
+        done
+    done
+}
+
+# IAM bindings referencing a just-created service account fail until it has
+# propagated, which can take a few seconds.
+retry() {
+    local attempt output
+    for attempt in 1 2 3 4 5; do
+        if output=$("$@" 2>&1); then
+            return 0
+        fi
+        echo "retrying (${attempt}/5) after: $(tail -n1 <<< "${output}")" >&2
+        sleep 10
+    done
+    echo "error: $*" >&2
+    echo "${output}" >&2
+    return 1
+}
+
+# Dataset-level IAM (`bq add-iam-policy-binding -d`) requires allowlisting, so
+# grant via the dataset's access list instead. GRANT's behaviour for existing
+# entries is undocumented, so only issue it when the entry is missing.
+bq_dataset_grant() {
+    local dataset=$1 email=$2 role=$3 basic_role=$4 info
+    info=$(bq show --format=json "${GCP_PROJECT}:${dataset}")
+    if ! jq -e --arg e "${email}" --arg r "${role}" --arg b "${basic_role}" \
+            '.access[] | select(.userByEmail == $e and (.role == $r or .role == $b))' \
+            <<< "${info}" >/dev/null; then
+        retry bq query --nouse_legacy_sql --location="$(jq -r .location <<< "${info}")" \
+            "GRANT \`${role}\` ON SCHEMA \`${GCP_PROJECT}\`.${dataset} TO \"serviceAccount:${email}\""
+    fi
+    echo "dataset ${dataset}: ${email} has ${role}"
+}
+
+gcp_project_unbind() {
+    local member=$1 role=$2
+    if gcloud projects get-iam-policy "${GCP_PROJECT}" --format=json \
+            | jq -e --arg m "${member}" --arg r "${role}" \
+                '.bindings[] | select(.role == $r and (.members | index($m)))' >/dev/null; then
+        gcloud projects remove-iam-policy-binding "${GCP_PROJECT}" --quiet --all \
+            --member="${member}" --role="${role}" >/dev/null 2>&1
+        echo "removed ${role} from ${member}"
+    else
+        echo "${member} has no project-level ${role}"
+    fi
+}
+
+gcp_custom_role() {
+    local id=$1 title=$2 permissions=$3 verb=create
+    if gcloud iam roles describe "${id}" --project="${GCP_PROJECT}" >/dev/null 2>&1; then
+        verb=update
+    fi
+    gcloud iam roles "${verb}" "${id}" --project="${GCP_PROJECT}" --quiet \
+        --title="${title}" --permissions="${permissions}" --stage=GA >/dev/null
+    echo "role ${id}: ${permissions}"
+}
+
+cmd_gcp() {
+    require gcloud bq jq
+    local ci="serviceAccount:${CI_SA}"
+
+    # The impersonation test accounts must not be able to do anything beyond
+    # minting tokens for each other: anything able to impersonate them would
+    # otherwise inherit their access.
+    retry gcloud iam service-accounts add-iam-policy-binding "${TARGET_SA}" \
+        --project="${GCP_PROJECT}" --member="serviceAccount:${DELEGATE_SA}" \
+        --role=roles/iam.serviceAccountTokenCreator
+    gcp_project_unbind "serviceAccount:${DELEGATE_SA}" roles/iam.serviceAccountTokenCreator
+    gcp_project_unbind "serviceAccount:${TARGET_SA}" roles/editor
+    gcp_project_unbind "serviceAccount:${TARGET_SA}" roles/iam.workloadIdentityUser
+
+    gcp_custom_role gcloudAioCiBucketLister 'gcloud-aio CI bucket lister' \
+        storage.buckets.list
+    gcp_custom_role gcloudAioCiOwnKeysViewer 'gcloud-aio CI own keys viewer' \
+        iam.serviceAccountKeys.get,iam.serviceAccountKeys.list
+
+    if ! gcloud iam service-accounts describe "${CI_SA}" --project="${GCP_PROJECT}" >/dev/null 2>&1; then
+        gcloud iam service-accounts create "${CI_SA%%@*}" --project="${GCP_PROJECT}" \
+            --display-name='gcloud-aio CI integration tests' >/dev/null
+    fi
+    echo "service account: ${CI_SA}"
+
+    retry gcloud storage buckets add-iam-policy-binding "${GCP_BUCKET}" \
+        --member="${ci}" --role=roles/storage.objectAdmin
+    local role
+    for role in "projects/${GCP_PROJECT}/roles/gcloudAioCiBucketLister" \
+            roles/datastore.user roles/datastore.importExportAdmin \
+            roles/bigquery.jobUser; do
+        retry gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
+            --member="${ci}" --role="${role}" --condition=None
+    done
+    bq_dataset_grant "${GCP_DATASET}" "${CI_SA}" roles/bigquery.dataEditor WRITER
+    for role in enqueuer viewer taskRunner taskDeleter; do
+        retry gcloud tasks queues add-iam-policy-binding "${GCP_QUEUE}" \
+            --project="${GCP_PROJECT}" --location="${GCP_QUEUE_LOCATION}" \
+            --member="${ci}" --role="roles/cloudtasks.${role}"
+    done
+    # signBlob as itself, and impersonate the test accounts
+    local sa
+    for sa in "${CI_SA}" "${DELEGATE_SA}" "${TARGET_SA}"; do
+        retry gcloud iam service-accounts add-iam-policy-binding "${sa}" \
+            --project="${GCP_PROJECT}" --member="${ci}" \
+            --role=roles/iam.serviceAccountTokenCreator
+    done
+    retry gcloud iam service-accounts add-iam-policy-binding "${CI_SA}" \
+        --project="${GCP_PROJECT}" --member="${ci}" \
+        --role="projects/${GCP_PROJECT}/roles/gcloudAioCiOwnKeysViewer"
+    echo "service account ${CI_SA}: granted"
+}
+
+circleci_api() {
+    local method=$1 url=$2
+    shift 2
+    curl -fsS -X "${method}" "${url}" \
+        -H @<(printf 'Circle-Token: %s\n' "${CIRCLECI_CLI_TOKEN}") "$@"
+}
+
+# Writes a project env var and confirms the stored value via its unmasked
+# suffix, since the API does not document whether creating an existing
+# variable overwrites it.
+circleci_set_envvar() {
+    local name=$1 value=$2 attempt
+    for attempt in 1 2; do
+        # via the environment rather than argv, which is visible to other users
+        ENVVAR_VALUE="${value}" jq -n --arg n "${name}" '{name: $n, value: env.ENVVAR_VALUE}' \
+            | circleci_api POST "${CIRCLECI_V2_PROJECT}/envvar" \
+                -H 'content-type: application/json' --data @- >/dev/null
+        if [ "$(circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${name}" | jq -r .value)" = "xxxx${value: -4}" ]; then
+            echo "circleci: ${name} updated"
+            return 0
+        fi
+        if [ "${attempt}" = 1 ]; then
+            circleci_api DELETE "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null
+        fi
+    done
+    echo "error: could not update CircleCI env var ${name}" >&2
+    exit 1
+}
+
+cmd_rotate_key() {
+    require gcloud jq curl base64
+    : "${CIRCLECI_CLI_TOKEN:?must be set to a CircleCI token with admin access to ${REPO}}"
+
+    local tmp
+    tmp=$(mktemp -d)
+    # shellcheck disable=SC2064  # expand now: tmp is local to this function
+    trap "rm -rf '${tmp}'" EXIT
+
+    gcloud iam service-accounts keys create "${tmp}/key.json" --quiet \
+        --iam-account="${CI_SA}" --project="${GCP_PROJECT}"
+    local key_id
+    key_id=$(jq -r .private_key_id "${tmp}/key.json")
+    circleci_set_envvar "${CIRCLECI_KEY_ENVVAR}" "$(base64 < "${tmp}/key.json" | tr -d '\n')"
+
+    local old
+    for old in $(gcloud iam service-accounts keys list --iam-account="${CI_SA}" \
+            --project="${GCP_PROJECT}" --managed-by=user --format='value(name.basename())'); do
+        if [ "${old}" != "${key_id}" ]; then
+            gcloud iam service-accounts keys delete "${old}" --quiet \
+                --iam-account="${CI_SA}" --project="${GCP_PROJECT}"
+        fi
+    done
+    echo "service account ${CI_SA}: only key is ${key_id}"
+}
+
+confirm() {
+    local answer
+    read -r -p "$1 [y/N] " answer
+    [[ ${answer} =~ ^[Yy]$ ]]
+}
+
+cmd_cleanup() {
+    require gcloud gh jq curl git
+    : "${CIRCLECI_CLI_TOKEN:?must be set to a CircleCI token with admin access to ${REPO}}"
+
+    # Refuse to strand master: it must already have cut over to the
+    # replacement credentials.
+    git fetch -q origin master
+    if git grep -q -E 'GOOGLE_SERVICE_PUBLIC|PYPI_TOKEN|GITHUB_TOKEN|add_ssh_keys' \
+            origin/master -- .circleci/; then
+        echo "error: master's CircleCI config still uses legacy credentials" >&2
+        exit 1
+    fi
+    if ! circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${CIRCLECI_KEY_ENVVAR}" >/dev/null 2>&1; then
+        echo "error: ${CIRCLECI_KEY_ENVVAR} is missing; run rotate-key first" >&2
+        exit 1
+    fi
+
+    local name project flavour
+    local names=(GOOGLE_SERVICE_PUBLIC GITHUB_TOKEN)
+    for project in ${PROJECTS}; do
+        for flavour in AIO REST; do
+            names+=("PYPI_TOKEN_GCLOUD_${flavour}_$(tr '[:lower:]' '[:upper:]' <<< "${project}")")
+        done
+    done
+    for name in "${names[@]}"; do
+        if circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null 2>&1 \
+                && confirm "delete CircleCI env var ${name}?"; then
+            circleci_api DELETE "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null
+            echo "circleci: deleted ${name}"
+        fi
+    done
+
+    local hostname
+    hostname=$(circleci_api GET "${CIRCLECI_V1_PROJECT}/settings" | jq -r --arg f "${LEGACY_SSH_KEY_FINGERPRINT}" \
+        '.ssh_keys[]? | select(.fingerprint == $f) | .hostname')
+    if [ -n "${hostname}" ] && confirm "delete CircleCI SSH key ${LEGACY_SSH_KEY_FINGERPRINT} (${hostname})?"; then
+        jq -n --arg f "${LEGACY_SSH_KEY_FINGERPRINT}" --arg h "${hostname}" '{fingerprint: $f, hostname: $h}' \
+            | circleci_api DELETE "${CIRCLECI_V1_PROJECT}/ssh-key" \
+                -H 'content-type: application/json' --data @- >/dev/null
+        echo "circleci: deleted SSH key ${LEGACY_SSH_KEY_FINGERPRINT}"
+    fi
+
+    local key_id
+    key_id=$(gh api "repos/${REPO}/keys" --jq ".[] | select(.title == \"${LEGACY_DEPLOY_KEY_TITLE}\" and .read_only == false) | .id")
+    if [ -n "${key_id}" ] && confirm "delete GitHub deploy key '${LEGACY_DEPLOY_KEY_TITLE}' (${key_id})?"; then
+        gh api -X DELETE "repos/${REPO}/keys/${key_id}"
+        echo "github: deleted deploy key ${key_id}"
+    fi
+
+    if gcloud iam service-accounts describe "${LEGACY_SA}" --project="${GCP_PROJECT}" >/dev/null 2>&1 \
+            && confirm "delete service account ${LEGACY_SA}, its keys and project grants?"; then
+        # Bindings outlive their deleted service account, so remove them first.
+        local role
+        for role in $(gcloud projects get-iam-policy "${GCP_PROJECT}" --format=json \
+                | jq -r --arg m "serviceAccount:${LEGACY_SA}" '.bindings[] | select(.members | index($m)) | .role'); do
+            gcp_project_unbind "serviceAccount:${LEGACY_SA}" "${role}"
+        done
+        gcloud iam service-accounts delete "${LEGACY_SA}" --project="${GCP_PROJECT}" --quiet
+        echo "gcp: deleted ${LEGACY_SA}"
+    fi
+
+    cat <<EOF
+
+Remaining manual steps:
+  - revoke the PyPI API tokens previously used by CircleCI (pypi.org account
+    settings of each token's owner)
+  - revoke the GitHub token previously stored as GITHUB_TOKEN in CircleCI
+EOF
+}
+
+case "${1:-}" in
+    github) cmd_github ;;
+    pypi) cmd_pypi ;;
+    gcp) cmd_gcp ;;
+    rotate-key) cmd_rotate_key ;;
+    cleanup) cmd_cleanup ;;
+    -h|--help|help) usage ;;
+    *) usage >&2; exit 1 ;;
+esac

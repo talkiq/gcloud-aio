@@ -15,6 +15,7 @@ else:
     from aiohttp import ClientSession as Session
 
 
+@pytest.mark.real_gcp(reason='signs with a real service account key')
 @pytest.mark.asyncio
 @pytest.mark.parametrize('data', ['test'])
 @pytest.mark.parametrize('headers', [
@@ -42,6 +43,7 @@ async def test_gcs_signed_url(bucket_name, creds, data, headers):
         )
 
 
+@pytest.mark.real_gcp(reason='signs via the IAM API')
 @pytest.mark.asyncio
 @pytest.mark.parametrize('data', ['test'])
 @pytest.mark.parametrize('headers', [

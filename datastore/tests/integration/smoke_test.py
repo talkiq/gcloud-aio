@@ -572,6 +572,7 @@ async def test_gql_query_pagination(
         assert num_entity_results == insertion_count - page_size
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support exports')
 @pytest.mark.asyncio
 async def test_datastore_export(
     creds: str, project: str,
@@ -617,6 +618,7 @@ async def test_datastore_export(
             await storage.delete(export_bucket_name, file['name'])
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support query explain')
 @pytest.mark.asyncio
 async def test_default_query_explain(
     creds: str, kind: str, project: str
@@ -652,6 +654,7 @@ async def test_default_query_explain(
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.real_gcp(reason='the emulator does not support query explain')
 @pytest.mark.asyncio
 async def test_analyze_query_explain(
     creds: str, kind: str, project: str
@@ -707,6 +710,7 @@ async def test_analyze_query_explain(
                 await ds.delete(key, session=s)
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support readTime')
 @pytest.mark.asyncio
 async def test_lookup_with_read_time(
         creds: str, kind: str, project: str) -> None:
@@ -717,7 +721,7 @@ async def test_lookup_with_read_time(
         ds = Datastore(project=project, service_file=creds, session=s)
 
         # insert and read without readTime
-        time_before_insert = datetime.datetime.now(datetime.timezone.utc)
+        time_before_insert = datetime.datetime.now(datetime.UTC)
         await ds.insert(key,
                         {'value': test_value, 'timestamp': 'after'},
                         session=s)
@@ -728,7 +732,7 @@ async def test_lookup_with_read_time(
         assert isinstance(result['readTime'], str)
 
         # lookup entity version w/ readTime
-        current_time = datetime.datetime.now(datetime.timezone.utc)
+        current_time = datetime.datetime.now(datetime.UTC)
         current_time_str = current_time.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.lookup([key],
                                                read_time=current_time_str,
@@ -749,6 +753,7 @@ async def test_lookup_with_read_time(
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.real_gcp(reason='the emulator does not support readTime')
 @pytest.mark.asyncio
 async def test_run_query_with_read_time(
         creds: str, kind: str, project: str) -> None:
@@ -757,7 +762,7 @@ async def test_run_query_with_read_time(
     async with Session() as s:
         ds = Datastore(project=project, service_file=creds, session=s)
 
-        before_insert = datetime.datetime.now(datetime.timezone.utc)
+        before_insert = datetime.datetime.now(datetime.UTC)
         key = Key(project, [PathElement(kind, name=test_value)])
         await ds.insert(key, {'test_field': test_value}, session=s)
 
@@ -777,7 +782,7 @@ async def test_run_query_with_read_time(
             'test_field'] == test_value
 
         # query w/ readTime
-        current = datetime.datetime.now(datetime.timezone.utc)
+        current = datetime.datetime.now(datetime.UTC)
         current_str = current.isoformat().replace('+00:00', 'Z')
         result_with_datetime = await ds.runQuery(query,
                                                  read_time=current_str,

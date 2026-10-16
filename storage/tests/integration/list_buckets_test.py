@@ -9,6 +9,7 @@ else:
     from aiohttp import ClientSession as Session
 
 
+@pytest.mark.real_gcp(reason='asserts the real project buckets')
 @pytest.mark.asyncio
 async def test_list_buckets(project_name, creds, expected_buckets):
 
