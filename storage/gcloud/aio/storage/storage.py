@@ -13,6 +13,7 @@ from typing import AnyStr
 from typing import IO
 from typing import Self
 from urllib.parse import quote
+from urllib.parse import urlsplit
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -35,6 +36,10 @@ else:
     )
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
+API_ROOT = 'https://www.googleapis.com'
+# Signed URLs target the XML API, which production serves from a different
+# host than the JSON API.
+API_ROOT_SIGNED_URL = 'https://storage.googleapis.com'
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 SCOPES = [
     'https://www.googleapis.com/auth/devstorage.full_control',
@@ -57,7 +62,7 @@ def init_api_root(
             host = f'http://{host}'
         return True, host
 
-    return False, 'https://www.googleapis.com'
+    return False, API_ROOT
 
 
 def choose_boundary() -> str:
@@ -171,6 +176,15 @@ class Storage:
             service_file=service_file, scopes=SCOPES,
             session=self.session.session,  # type: ignore[arg-type]
         )
+
+    @property
+    def signed_url_api_root(self) -> str:
+        """The scheme and host which signed URLs for this client target."""
+        if self._api_root == API_ROOT:
+            return API_ROOT_SIGNED_URL
+
+        parts = urlsplit(self._api_root)
+        return f'{parts.scheme}://{parts.netloc}'
 
     async def _headers(self) -> dict[str, str]:
         if self._api_is_dev:
