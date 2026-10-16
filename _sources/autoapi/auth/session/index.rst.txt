@@ -11,6 +11,7 @@ Attributes
 
    auth.session.log
    auth.session.Timeout
+   auth.session._MAX_ERROR_BODY_BYTES
 
 
 Classes
@@ -19,7 +20,6 @@ Classes
 .. autoapisummary::
 
    auth.session.BaseSession
-   auth.session.SyncSession
 
 
 Module Contents
@@ -121,65 +121,7 @@ Module Contents
 
 .. py:data:: Timeout
 
-.. py:class:: SyncSession(session = None, timeout = 10, verify_ssl = True)
-
-   Bases: :py:obj:`BaseSession`
-
-
-   Helper class that provides a standard way to create an ABC using
-   inheritance.
-
-
-   .. py:attribute:: _google_api_lock
-
-
-   .. py:property:: google_api_lock
-      :type: threading.RLock
-
-
-
-   .. py:property:: session
-      :type: requests.Session
-
-
-
-   .. py:method:: post(url, headers, data = None, timeout = 10, params = None)
-      :async:
-
-
-
-   .. py:method:: get(url, headers = None, timeout = 10, params = None, stream = False, auto_decompress = True)
-      :async:
-
-
-
-   .. py:method:: patch(url, headers, data = None, timeout = 10, params = None)
-      :async:
-
-
-
-   .. py:method:: put(url, headers, data, timeout = 10)
-      :async:
-
-
-
-   .. py:method:: delete(url, headers, params = None, timeout = 10)
-      :async:
-
-
-
-   .. py:method:: head(url, headers = None, timeout = 10, params = None, allow_redirects = False)
-      :async:
-
-
-
-   .. py:method:: request(method, url, headers, auto_raise_for_status = True, **kwargs)
-      :async:
-
-
-
-   .. py:method:: close()
-      :async:
-
+.. py:data:: _MAX_ERROR_BODY_BYTES
+   :value: 4096
 
 

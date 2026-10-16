@@ -46,6 +46,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#auth.session.Timeout" title="auth.session.Timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Timeout</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#auth.session._MAX_ERROR_BODY_BYTES" title="auth.session._MAX_ERROR_BODY_BYTES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_MAX_ERROR_BODY_BYTES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -54,9 +57,6 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#auth.session.BaseSession" title="auth.session.BaseSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSession</span></code></a></p></td>
-<td><p>Helper class that provides a standard way to create an ABC using</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#auth.session.SyncSession" title="auth.session.SyncSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncSession</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
@@ -281,189 +281,10 @@ inheritance.</p>
 <span class="sig-prename descclassname"><span class="pre">auth.session.</span></span><span class="sig-name descname"><span class="pre">Timeout</span></span><a class="headerlink" href="#auth.session.Timeout" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="auth.session.SyncSession">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">auth.session.</span></span><span class="sig-name descname"><span class="pre">SyncSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_ssl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#auth.session.BaseSession" title="auth.session.BaseSession"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseSession</span></code></a></p>
-<p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>session</strong> (<em>requests.Session</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>verify_ssl</strong> (<em>bool</em>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="auth.session.SyncSession._google_api_lock">
-<span class="sig-name descname"><span class="pre">_google_api_lock</span></span><a class="headerlink" href="#auth.session.SyncSession._google_api_lock" title="Link to this definition">¶</a></dt>
+<dl class="py data">
+<dt class="sig sig-object py" id="auth.session._MAX_ERROR_BODY_BYTES">
+<span class="sig-prename descclassname"><span class="pre">auth.session.</span></span><span class="sig-name descname"><span class="pre">_MAX_ERROR_BODY_BYTES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4096</span></span><a class="headerlink" href="#auth.session._MAX_ERROR_BODY_BYTES" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="auth.session.SyncSession.google_api_lock">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">google_api_lock</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">threading.RLock</span></span><a class="headerlink" href="#auth.session.SyncSession.google_api_lock" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>threading.RLock</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="auth.session.SyncSession.session">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">session</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">requests.Session</span></span><a class="headerlink" href="#auth.session.SyncSession.session" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>requests.Session</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.post">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.post" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>AnyStr</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.get">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_decompress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.get" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>stream</strong> (<em>bool</em>)</p></li>
-<li><p><strong>auto_decompress</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.patch">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.patch" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.put">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.put" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>data</strong> (<em>bytes</em><em> | </em><em>str</em><em> | </em><em>IO</em><em>[</em><em>Any</em><em>]</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.delete">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.delete" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.head">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">head</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_redirects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.head" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>timeout</strong> (<em>float</em>)</p></li>
-<li><p><strong>params</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>int</em><em> | </em><em>str</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>allow_redirects</strong> (<em>bool</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.request">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_raise_for_status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.request" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>method</strong> (<em>str</em>)</p></li>
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>headers</strong> (<em>collections.abc.Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>auto_raise_for_status</strong> (<em>bool</em>)</p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="auth.session.SyncSession.close">
-<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#auth.session.SyncSession.close" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
 
 </section>
 </section>
