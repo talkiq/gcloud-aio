@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#Projection
@@ -16,7 +17,7 @@ class Projection:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Projection':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls(prop=data['property']['name'])
 
     def to_repr(self) -> dict[str, Any]:

@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 from .key import Key
 
@@ -31,7 +32,7 @@ class MutationResult:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'MutationResult':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         if 'key' in data:
             key: Key | None = cls.key_kind.from_repr(data['key'])
         else:

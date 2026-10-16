@@ -207,7 +207,8 @@ else:
                 max_messages=1,
             ),
         )
-        message, pulled_at = await asyncio.wait_for(queue.get(), 0.1)
+        async with asyncio.timeout(0.1):
+            message, pulled_at = await queue.get()
         producer_task.cancel()
         assert message
         assert isinstance(pulled_at, float)
@@ -219,7 +220,7 @@ else:
         async def f(*args, **kwargs):
             await asyncio.sleep(0)
             mock(*args, **kwargs)
-            raise asyncio.TimeoutError
+            raise TimeoutError
 
         subscriber_client.pull = f
         queue = asyncio.Queue()
@@ -335,7 +336,8 @@ else:
             ),
         )
         await asyncio.sleep(0)
-        await asyncio.wait_for(queue.get(), 1.0)
+        async with asyncio.timeout(1.0):
+            await queue.get()
         producer_task.cancel()
         queue.task_done()
         await asyncio.sleep(0)
@@ -366,7 +368,8 @@ else:
         await asyncio.sleep(0)
         consumer_task.cancel()
 
-        result = await asyncio.wait_for(ack_queue.get(), 1)
+        async with asyncio.timeout(1):
+            result = await ack_queue.get()
         assert result == 'ack_id'
         ack_queue.task_done()
 
@@ -376,7 +379,8 @@ else:
 
         # verify that the consumer shuts down gracefully
         with pytest.raises(asyncio.CancelledError):
-            await asyncio.wait_for(consumer_task, 1)
+            async with asyncio.timeout(1):
+                await consumer_task
 
     @pytest.mark.asyncio
     async def test_consumer_tasks_limited_by_pool_size(ack_deadline_cache):
@@ -420,7 +424,8 @@ else:
 
         consumer_task.cancel()
         with pytest.raises(asyncio.CancelledError):
-            await asyncio.wait_for(consumer_task, 1)
+            async with asyncio.timeout(1):
+                await consumer_task
 
     @pytest.mark.asyncio
     async def test_consumer_drops_expired_messages(
@@ -507,7 +512,8 @@ else:
         nack_queue.task_done()
 
         with pytest.raises(asyncio.CancelledError):
-            await asyncio.wait_for(consumer_task, 1)
+            async with asyncio.timeout(1):
+                await consumer_task
 
     @pytest.mark.asyncio
     async def test_consumer_gracefull_shutdown(
@@ -915,7 +921,8 @@ else:
 
         # verify that the subscriber shuts down gracefully
         with pytest.raises(asyncio.CancelledError):
-            await asyncio.wait_for(subscribe_task, 1)
+            async with asyncio.timeout(1):
+                await subscribe_task
 
     @pytest.mark.asyncio
     async def test_task_error_after_cancel(
@@ -964,4 +971,5 @@ else:
 
         # verify that the subscriber still shuts down gracefully
         with pytest.raises(asyncio.CancelledError):
-            await asyncio.wait_for(subscribe_task, 1)
+            async with asyncio.timeout(1):
+                await subscribe_task

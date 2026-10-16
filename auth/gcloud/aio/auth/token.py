@@ -6,13 +6,14 @@ import enum
 import json
 import os
 import time
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from typing import AnyStr
 from typing import IO
 from typing import Optional
+from typing import Self
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 from urllib.parse import urlparse
@@ -169,10 +170,9 @@ class TokenResponse:
     expires_in: int  # Token TTL in seconds
 
 
-class BaseToken:
+class BaseToken(ABC):
     """GCP auth token base class."""
     # pylint: disable=too-many-instance-attributes
-    __metaclass__ = ABCMeta
 
     def __init__(
         self, service_file: str | IO[AnyStr] | None = None,
@@ -262,7 +262,7 @@ class BaseToken:
             # Cached token exists
             now_ts = int(
                 datetime.datetime.now(
-                    datetime.timezone.utc).timestamp())
+                    datetime.UTC).timestamp())
             if now_ts > self.access_token_refresh_after:
                 # Cached token does not have enough duration left, fall through
                 pass
@@ -297,7 +297,7 @@ class BaseToken:
         self.access_token = resp.value
         self.access_token_duration = resp.expires_in
         self.access_token_acquired_at = datetime.datetime.now(
-            datetime.timezone.utc)
+            datetime.UTC)
         base_timestamp = self.access_token_acquired_at.timestamp()
         self.access_token_preempt_after = int(
             base_timestamp + (resp.expires_in * self.background_refresh_after))
@@ -308,7 +308,7 @@ class BaseToken:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'BaseToken':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:
@@ -412,19 +412,20 @@ class Token(BaseToken):
             'subject_token': subject_token,
             'subject_token_type': self.service_data['subject_token_type'],
         }
-        # add optional service account impersonation if configured
-        if self.service_data.get('service_account_impersonation_url'):
-            data['service_account_impersonation_url'] = self.service_data[
-                'service_account_impersonation_url'
-            ]
         # add optional client ID and secret if configured
         if self.service_data.get('client_id'):
             data['client_id'] = self.service_data['client_id']
         if self.service_data.get('client_secret'):
             data['client_secret'] = self.service_data['client_secret']
         # add scopes if configured
-        if self.scopes:
-            data['scope'] = ' '.join(self.scopes)
+        if self.impersonation_uri:
+            # The STS token becomes the bearer for the downstream
+            # generateAccessToken call, which requires an IAM scope, not the
+            # caller's app scope. _impersonate applies the caller's scopes to
+            # the final token.
+            data['scope'] = 'https://www.googleapis.com/auth/iam'
+        elif self.scopes:
+            data['scope'] = self.scopes
 
         resp = await self.session.post(
             self.service_data['token_url'],

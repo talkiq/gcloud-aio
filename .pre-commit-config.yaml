@@ -3,7 +3,7 @@ ci:
     autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
 
 default_language_version:
-    python: python3.10
+    python: python3.11
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -36,7 +36,7 @@ repos:
   - id: name-tests-test
   - id: requirements-txt-fixer
 - repo: https://github.com/PyCQA/pylint
-  rev: v4.0.6
+  rev: v4.1.3
   hooks:
   - id: pylint
     args:
@@ -45,8 +45,11 @@ repos:
     - --max-line-length=79
     - --max-args=10
     - --max-positional-arguments=10
-    - --py-version=3.10
+    - --py-version=3.11
     - --score=n
+    # gcloud.aio is a namespace package split across each project; expose
+    # every project so imports resolve regardless of which files are linted
+    - "--init-hook=import pathlib, sys; sys.path[:0] = [str(p.parent) for p in pathlib.Path().glob('*/gcloud')]"
     - -d broad-except
     - -d broad-exception-raised  # TODO: fixme
     - -d duplicate-code
@@ -66,22 +69,22 @@ repos:
   - id: remove-crlf
   - id: remove-tabs
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.17.0
+  rev: v3.19.0
   hooks:
   - id: reorder-python-imports
-    args: [--py310-plus]
+    args: [--py311-plus]
 - repo: https://github.com/asottile/pyupgrade
-  rev: v3.21.2
+  rev: v3.22.0
   hooks:
   - id: pyupgrade
-    args: [--py310-plus]
+    args: [--py311-plus]
 # TODO: enable me
 # - repo: https://github.com/asottile/add-trailing-comma
 #   rev: v4.0.0
 #   hooks:
 #   - id: add-trailing-comma
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v2.3.0
+  rev: v2.4.0
   hooks:
   - &mypy
     id: mypy
@@ -95,11 +98,11 @@ repos:
     # Note that some libraries keep their type hints in packages named
     # `types-$lib` or `$lib-stubs`.
     additional_dependencies:
-    - aiohttp==3.14.3
-    - cryptography==49.0.0
-    - pyjwt==2.13.0
-    - tenacity==9.1.4
-    - types-requests==2.33.0.20260712
+    - aiohttp==3.14.5
+    - cryptography==50.0.2
+    - pyjwt==2.15.1
+    - requests==2.34.2
+    - tenacity==9.2.1
     args:
     - --show-error-codes
     - --strict
@@ -112,21 +115,22 @@ repos:
     additional_dependencies:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
-    - types-requests==2.32.4.20260107
+    - types-python-dateutil==2.9.0.20260716
+    - requests==2.34.2
     files: bigquery/
   - <<: *mypy
     name: mypy-datastore
     additional_dependencies:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
-    - types-requests==2.32.4.20260107
+    - requests==2.34.2
     files: datastore/
   - <<: *mypy
     name: mypy-kms
     additional_dependencies:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
-    - types-requests==2.32.4.20260107
+    - requests==2.34.2
     files: kms/
   - <<: *mypy
     name: mypy-pubsub
@@ -134,23 +138,23 @@ repos:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
     - prometheus-client==0.24.1
-    - types-requests==2.32.4.20260107
+    - requests==2.34.2
     files: pubsub/
   - <<: *mypy
     name: mypy-storage
     additional_dependencies:
     - aiohttp==3.13.3
-    - gcloud-aio-auth==5.4.4
-    - rsa==4.9.1
+    - cryptography==50.0.1
+    - gcloud-aio-auth==5.5.0
+    - requests==2.34.2
     - types-aiofiles==25.1.0.20251011
-    - types-requests==2.32.4.20260107
     files: storage/
   - <<: *mypy
     name: mypy-taskqueue
     additional_dependencies:
     - aiohttp==3.13.3
     - gcloud-aio-auth==5.4.4
-    - types-requests==2.32.4.20260107
+    - requests==2.34.2
     files: taskqueue/
 - repo: https://github.com/asottile/yesqa
   rev: v1.5.0
@@ -177,7 +181,7 @@ repos:
 #     args:
 #     - --ignore=D1,D203,D205,D212,D400,D401,D404,D407,D412,D413
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.3.0
+  rev: 7.4.1
   hooks:
   - id: flake8
     language: python
@@ -193,7 +197,7 @@ repos:
     entry: bash -c 'set -e; for toml in "$@"; do pushd ./${toml%pyproject.toml}; poetry check; popd; done' --
     language: python
     additional_dependencies:
-    - poetry==2.4.1
+    - poetry==2.5.1
     pass_filenames: true
     files: 'pyproject\.toml$'
   - id: poetry-use-version-ranges
@@ -223,7 +227,7 @@ repos:
 
 # json
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.37.4
+  rev: 0.38.2
   hooks:
   - id: check-circle-ci
   - id: check-github-workflows

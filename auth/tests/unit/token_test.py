@@ -10,6 +10,11 @@ from gcloud.aio.auth import BUILD_GCLOUD_REST
 from gcloud.aio.auth import token
 
 
+class FakeToken(token.BaseToken):
+    async def refresh(self, *, timeout: int) -> token.TokenResponse:
+        raise NotImplementedError
+
+
 @pytest.mark.asyncio
 async def test_service_as_io():
     # pylint: disable=line-too-long
@@ -27,7 +32,7 @@ async def test_service_as_io():
     }
 
     service_file = io.StringIO(f'{json.dumps(service_data)}')
-    t = token.BaseToken(service_file=service_file)
+    t = FakeToken(service_file=service_file)
 
     assert t.token_type == token.Type.SERVICE_ACCOUNT
     assert t.token_uri == 'https://oauth2.googleapis.com/token'
@@ -39,7 +44,7 @@ if BUILD_GCLOUD_REST:
 else:
     @pytest.mark.asyncio
     async def test_acquiring_refresh_called_once():
-        t = token.BaseToken()
+        t = FakeToken()
         t.refresh = mock.AsyncMock()
 
         # Use a future so we can control when refresh returns
@@ -69,12 +74,12 @@ else:
 
     @pytest.mark.asyncio
     async def test_acquiring_cancellation():
-        t = token.BaseToken()
+        t = FakeToken()
         t.acquire_access_token = mock.AsyncMock()
 
         # If we hit a timeout the first time, an error should return
-        t.acquire_access_token.side_effect = asyncio.TimeoutError()
-        with pytest.raises(asyncio.TimeoutError):
+        t.acquire_access_token.side_effect = TimeoutError()
+        with pytest.raises(TimeoutError):
             await t.get()
 
         assert t.acquiring.done(), 'Acquiring should be done after timeout'
@@ -104,7 +109,7 @@ else:
         }
 
         service_file = io.StringIO(json.dumps(service_data))
-        t = token.BaseToken(service_file=service_file)
+        t = FakeToken(service_file=service_file)
 
         assert t.token_type == token.Type.EXTERNAL_ACCOUNT
         assert t.token_uri == 'https://oauth2.googleapis.com/token'

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Runs the secret-requiring CI (real-GCP integration tests) for a fork PR, by
+# pushing its reviewed head commit to an origin branch. CircleCI builds that
+# branch with project secrets and posts statuses to the same commit, so they
+# show up on the PR.
+#
+# Only run this after reviewing the PR: its code, CI config and test fixtures
+# all run with our CI credentials.
+set -euo pipefail
+
+REPO=talkiq/gcloud-aio
+# Paths where credential-stealing changes would most likely hide.
+RISKY_PATHS=(.circleci/ .github/ bin/ ':(glob)**/conftest.py' ':(glob)**/pyproject*.toml' ':(glob)**/poetry*.lock')
+
+usage() {
+    echo "Usage: $(basename "$0") <pr-number>"
+}
+
+fetch_pr_head() {
+    git fetch -q origin "pull/$1/head"
+    git rev-parse FETCH_HEAD
+}
+
+# Deletes the CI branches of PRs which are no longer open.
+cleanup() {
+    local ref number
+    for ref in $(git ls-remote --heads origin 'ci/pr-*' | cut -f2); do
+        number=${ref#refs/heads/ci/pr-}
+        if [ "$(gh pr view "${number}" --repo "${REPO}" --json state --jq .state)" != OPEN ]; then
+            git push -q origin --delete "${ref#refs/heads/}"
+            echo "deleted ${ref#refs/heads/} (PR #${number} is closed)"
+        fi
+    done
+}
+
+main() {
+    if [ $# -ne 1 ] || ! [[ $1 =~ ^[0-9]+$ ]]; then
+        usage >&2
+        exit 1
+    fi
+    local number=$1 pr sha risky answer
+    for tool in gh git jq; do
+        if ! command -v "${tool}" >/dev/null; then
+            echo "error: ${tool} is required" >&2
+            exit 1
+        fi
+    done
+
+    pr=$(gh pr view "${number}" --repo "${REPO}" \
+        --json state,isCrossRepository,author,title,url)
+    if [ "$(jq -r .state <<< "${pr}")" != OPEN ]; then
+        echo "error: PR #${number} is not open" >&2
+        exit 1
+    fi
+    if [ "$(jq -r .isCrossRepository <<< "${pr}")" != true ]; then
+        echo "error: PR #${number} is not from a fork; its pipeline already has secrets" >&2
+        exit 1
+    fi
+
+    git fetch -q origin master
+    while true; do
+        sha=$(fetch_pr_head "${number}")
+
+        echo
+        jq -r --arg n "${number}" '"#\($n) \(.title)\nauthor: \(.author.login)\n\(.url)"' <<< "${pr}"
+        git log -1 --format='head:   %H%n        %s (%an, %cr)' "${sha}"
+        echo
+        echo "Changes to sensitive paths since master:"
+        risky=$(git diff --stat "origin/master...${sha}" -- "${RISKY_PATHS[@]}")
+        risky=${risky:-(none)}
+        echo "  ${risky//$'\n'/$'\n'  }"
+        echo
+
+        read -r -p "Run CI with secrets on ${sha:0:12}? [y/N] " answer
+        if [[ ! ${answer} =~ ^[Yy]$ ]]; then
+            echo "aborted"
+            exit 1
+        fi
+
+        if [ "$(fetch_pr_head "${number}")" = "${sha}" ]; then
+            break
+        fi
+        echo "PR #${number} changed since it was shown; please review the new head."
+    done
+
+    git push -q --force origin "${sha}:refs/heads/ci/pr-${number}"
+    echo "pushed ${sha} to ci/pr-${number}"
+    echo "https://app.circleci.com/pipelines/github/${REPO}?branch=ci%2Fpr-${number}"
+
+    cleanup
+}
+
+main "$@"

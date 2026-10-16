@@ -163,3 +163,18 @@ class TestQueryResultBatch:
 
         result = batch.to_repr()
         assert 'readTime' not in result
+
+    @staticmethod
+    def test_query_result_batch_without_end_cursor():
+        # proto3 JSON omits empty fields; the Datastore emulator does so for
+        # the cursor of an empty batch
+        data = {
+            'entityResultType': 'FULL',
+            'moreResults': 'NO_MORE_RESULTS',
+            'snapshotVersion': '1792179311',
+            'readTime': '2026-10-16T19:35:11.475601Z',
+        }
+
+        batch = QueryResultBatch.from_repr(data)
+        assert batch.end_cursor == ''
+        assert batch.entity_results == []
