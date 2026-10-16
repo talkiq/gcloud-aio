@@ -101,22 +101,6 @@ workflows:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
               executor: [python311, python312, python313, python314, python315]
       - poetry/run:
-          name: test-integration-/aio/<<matrix.cwd>>
-          commands:
-            - run:
-                command: poetry run pytest tests/integration
-                working_directory: <<matrix.cwd>>
-          executor: python-integration
-          install_flags: --no-ansi
-          # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
-          pre-steps:
-            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
-          matrix:
-            alias: test-integration-aio
-            parameters:
-              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-      - poetry/run:
           name: test-unit-<<matrix.cwd>>-<<matrix.executor>>
           commands:
             - run:
@@ -135,6 +119,35 @@ workflows:
               executor: [python311, python312, python313, python314, python315]
           requires:
             - build-rest
+
+  # Fork PR pipelines (branch `pull/<N>`) receive no secrets, so these would
+  # only ever fail there. Skipping them leaves their required statuses pending
+  # until a maintainer runs them via `bin/ci-pr`.
+  integration:
+    when:
+      not:
+        matches:
+          pattern: ^pull/[0-9]+$
+          value: << pipeline.git.branch >>
+    jobs:
+      - build-rest:
+          name: build-rest-integration
+      - poetry/run:
+          name: test-integration-/aio/<<matrix.cwd>>
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: <<matrix.cwd>>
+          executor: python-integration
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          matrix:
+            alias: test-integration-aio
+            parameters:
+              cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
       - poetry/run:
           name: test-integration-<<matrix.cwd>>
           commands:
@@ -154,4 +167,4 @@ workflows:
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
           requires:
-            - build-rest
+            - build-rest-integration

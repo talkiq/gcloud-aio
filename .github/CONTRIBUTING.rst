@@ -86,18 +86,32 @@ The first line is the most specific in this format, it should have the format
 PR Tests
 ~~~~~~~~
 
-Note that some integration tests require authentication with Google. Since we
-don't want to expose our private keys to the world, this means your PR tests
-might fail for that subset of test cases when you submit your changes.
+Linting and unit tests run automatically on every PR. Integration tests which
+run against Google Cloud require credentials we can't share with forks, so on
+PRs from forks the ``ci/circleci: aio/<project>`` and
+``ci/circleci: rest/<project>`` checks will show as "Expected" until a
+maintainer has reviewed your changes and run them for you. No need to ask:
+we'll do so as part of reviewing your PR.
 
-Long-term, we'd like to switch all such integration tests to using Google
-`emulators`_ and would appreciate any help in getting us closer to that goal!
-Note that unfortunately Google has not yet release emulators for all the
-features we have under test, so we'll not yet be able to entirely eliminate
-this problem.
+Long-term, we'd like to switch as many of these integration tests as possible
+to using Google `emulators`_ and would appreciate any help in getting us closer
+to that goal! Note that unfortunately Google has not yet released emulators for
+all the features we have under test, so we'll not be able to entirely eliminate
+the need for real credentials.
 
-In the meantime, we are able to manually trigger integration tests for you on
-any specific commit. Please feel free to add a comment requesting we do so!
+For maintainers: once you have reviewed a fork PR (including any changes to
+CI configuration, scripts, ``conftest.py`` files and dependencies, which all
+run with our CI credentials), run its integration tests with:
+
+.. code-block:: console
+
+    bin/ci-pr <pr-number>
+
+This pushes the PR's head commit to a ``ci/pr-<pr-number>`` branch, whose
+CircleCI statuses show up on the PR. Re-run it after any new pushes to the PR.
+Avoid CircleCI's "rerun from failed" on workflows older than a couple of
+weeks: their ``build-rest`` workspace will have expired, failing every
+``rest/*`` job. Rerun the whole workflow instead.
 
 Coding Conventions
 ------------------
