@@ -93,23 +93,39 @@ EOF
 # master's CI reports it would block every open PR, so only add those master
 # already has.
 github_required_checks() {
-    local reported required project flavour context missing=()
-    reported=$(gh api --paginate "repos/${REPO}/commits/master/status?per_page=100" \
-        --jq '.statuses[].context')
-    required=$(gh api "repos/${REPO}/branches/master/protection/required_status_checks" \
-        --jq '.contexts[]')
+    local project flavour context contexts=()
     for project in ${EMULATOR_PROJECTS}; do
         for flavour in aio rest; do
-            context="ci/circleci: ${flavour}/${project}-emulator"
-            if grep -qxF "${context}" <<< "${required}"; then
-                continue
-            fi
-            if ! grep -qxF "${context}" <<< "${reported}"; then
-                echo "warning: master has not reported '${context}' yet; re-run after it does" >&2
-                continue
-            fi
-            missing+=("${context}")
+            contexts+=("ci/circleci: ${flavour}/${project}-emulator")
         done
+    done
+
+    # Any recent master commit will do: the head may still be mid-pipeline.
+    local sha passed='' remaining
+    for sha in $(gh api "repos/${REPO}/commits?sha=master&per_page=20" --jq '.[].sha'); do
+        passed+=$(gh api --paginate "repos/${REPO}/commits/${sha}/status?per_page=100" \
+            --jq '.statuses[] | select(.state == "success") | .context')$'\n'
+        remaining=0
+        for context in "${contexts[@]}"; do
+            grep -qxF "${context}" <<< "${passed}" || remaining=$((remaining + 1))
+        done
+        if [ "${remaining}" = 0 ]; then
+            break
+        fi
+    done
+
+    local required missing=()
+    required=$(gh api "repos/${REPO}/branches/master/protection/required_status_checks" \
+        --jq '.contexts[]')
+    for context in "${contexts[@]}"; do
+        if grep -qxF "${context}" <<< "${required}"; then
+            continue
+        fi
+        if ! grep -qxF "${context}" <<< "${passed}"; then
+            echo "warning: '${context}' has not passed on master yet; re-run after it does" >&2
+            continue
+        fi
+        missing+=("${context}")
     done
     if [ ${#missing[@]} -gt 0 ]; then
         jq -n '$ARGS.positional' --args "${missing[@]}" \
