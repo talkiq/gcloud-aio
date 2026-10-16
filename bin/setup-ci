@@ -12,7 +12,7 @@ CIRCLECI_KEY_ENVVAR=GCLOUD_AIO_CI_KEY
 
 GCP_PROJECT=dialpad-oss
 GCP_BUCKET=gs://dialpad-oss-public-test
-GCP_DATASET="${GCP_PROJECT}:public_test"
+GCP_DATASET=public_test
 GCP_QUEUE=public-test-push
 GCP_QUEUE_LOCATION=us-west2
 CI_SA="gcloud-aio-ci@${GCP_PROJECT}.iam.gserviceaccount.com"
@@ -100,15 +100,32 @@ EOF
 # IAM bindings referencing a just-created service account fail until it has
 # propagated, which can take a few seconds.
 retry() {
-    local attempt
+    local attempt output
     for attempt in 1 2 3 4 5; do
-        if "$@" >/dev/null; then
+        if output=$("$@" 2>&1); then
             return 0
         fi
-        echo "retrying (${attempt}/5): $*" >&2
+        echo "retrying (${attempt}/5) after: $(tail -n1 <<< "${output}")" >&2
         sleep 10
     done
-    "$@" >/dev/null
+    echo "error: $*" >&2
+    echo "${output}" >&2
+    return 1
+}
+
+# Dataset-level IAM (`bq add-iam-policy-binding -d`) requires allowlisting, so
+# grant via the dataset's access list instead. GRANT's behaviour for existing
+# entries is undocumented, so only issue it when the entry is missing.
+bq_dataset_grant() {
+    local dataset=$1 email=$2 role=$3 basic_role=$4 info
+    info=$(bq show --format=json "${GCP_PROJECT}:${dataset}")
+    if ! jq -e --arg e "${email}" --arg r "${role}" --arg b "${basic_role}" \
+            '.access[] | select(.userByEmail == $e and (.role == $r or .role == $b))' \
+            <<< "${info}" >/dev/null; then
+        retry bq query --nouse_legacy_sql --location="$(jq -r .location <<< "${info}")" \
+            "GRANT \`${role}\` ON SCHEMA \`${GCP_PROJECT}\`.${dataset} TO \"serviceAccount:${email}\""
+    fi
+    echo "dataset ${dataset}: ${email} has ${role}"
 }
 
 gcp_project_unbind() {
@@ -117,8 +134,10 @@ gcp_project_unbind() {
             | jq -e --arg m "${member}" --arg r "${role}" \
                 '.bindings[] | select(.role == $r and (.members | index($m)))' >/dev/null; then
         gcloud projects remove-iam-policy-binding "${GCP_PROJECT}" --quiet --all \
-            --member="${member}" --role="${role}" >/dev/null
+            --member="${member}" --role="${role}" >/dev/null 2>&1
         echo "removed ${role} from ${member}"
+    else
+        echo "${member} has no project-level ${role}"
     fi
 }
 
@@ -166,8 +185,7 @@ cmd_gcp() {
         retry gcloud projects add-iam-policy-binding "${GCP_PROJECT}" \
             --member="${ci}" --role="${role}" --condition=None
     done
-    retry bq add-iam-policy-binding -d --member="${ci}" \
-        --role=roles/bigquery.dataEditor "${GCP_DATASET}"
+    bq_dataset_grant "${GCP_DATASET}" "${CI_SA}" roles/bigquery.dataEditor WRITER
     for role in enqueuer viewer taskRunner taskDeleter; do
         retry gcloud tasks queues add-iam-policy-binding "${GCP_QUEUE}" \
             --project="${GCP_PROJECT}" --location="${GCP_QUEUE_LOCATION}" \
