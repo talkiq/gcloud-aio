@@ -234,7 +234,7 @@ class QueryResultBatch:
 
     @classmethod
     def from_repr(cls, data: dict[str, Any]) -> Self:
-        end_cursor = data['endCursor']
+        end_cursor = data.get('endCursor', '')
         entity_result_type = ResultType(data['entityResultType'])
         entity_results = [
             cls.entity_result_kind.from_repr(er)
