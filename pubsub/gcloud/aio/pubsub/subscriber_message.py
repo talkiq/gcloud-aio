@@ -7,7 +7,7 @@ def parse_publish_time(publish_time: str) -> datetime.datetime:
     parsed = datetime.datetime.fromisoformat(publish_time)
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=datetime.UTC)
-    return parsed
+    return parsed.astimezone(datetime.UTC)
 
 
 class SubscriberMessage:
