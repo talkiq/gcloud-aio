@@ -125,10 +125,18 @@ def test_subscriber_message_to_repr_publish_time_is_utc(publish_time):
             '2020-01-01T00:00:01',
             datetime.datetime(2020, 1, 1, 0, 0, 1, tzinfo=datetime.UTC),
         ),
+        (
+            '2020-01-01T02:00:01.123456+02:00',
+            datetime.datetime(
+                2020, 1, 1, 0, 0, 1, 123456, tzinfo=datetime.UTC,
+            ),
+        ),
     ],
 )
 def test_parse_publish_time(publish_time, expected):
-    assert parse_publish_time(publish_time) == expected
+    parsed = parse_publish_time(publish_time)
+    assert parsed == expected
+    assert parsed.utcoffset() == datetime.timedelta(0)
 
 
 def _roundtrip(publish_time):
