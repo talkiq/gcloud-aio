@@ -16,6 +16,22 @@ async def test_delete(api_root):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('insert', [
+    lambda table: table.insert_via_copy('project', 'dataset', 'copy'),
+    lambda table: table.insert_via_load(['gs://bucket/object.csv']),
+    lambda table: table.insert_via_query('SELECT 1'),
+])
+@pytest.mark.filterwarnings('ignore:using Table#insert_via_query')
+async def test_insert_jobs_use_table_api_root(api_root, insert):
+    async with Table('dataset', 'table', api_root=api_root) as table:
+        job = await insert(table)
+        result = await job.get_job()
+
+    print(result)
+    assert result == {'jobReference': {'jobId': 'fake-job'}}
+
+
+@pytest.mark.asyncio
 async def test_delete_raises_for_status(api_root):
     async with Table('dataset', 'missing', api_root=api_root) as table:
         with pytest.raises(ResponseError) as excinfo:
