@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Configures the external services our CI depends on. Every subcommand is
+# idempotent and safe to re-run. Requires admin access to the relevant service.
+set -euo pipefail
+
+REPO=talkiq/gcloud-aio
+PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
+RELEASE_REVIEWERS_TEAM=engineering
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <command>
+
+Commands:
+  github    configure GitHub Pages deployment and the release environments
+  pypi      print the PyPI trusted publisher settings for every package
+EOF
+}
+
+require() {
+    for tool in "$@"; do
+        if ! command -v "${tool}" >/dev/null; then
+            echo "error: ${tool} is required" >&2
+            exit 1
+        fi
+    done
+}
+
+# Ensures the environment only allows deployments from refs matching a single
+# name pattern of the given type (branch or tag).
+github_env_ref_policy() {
+    local env=$1 type=$2 pattern=$3
+    local existing
+    existing=$(gh api "repos/${REPO}/environments/${env}/deployment-branch-policies" \
+        --jq ".branch_policies[] | select(.name == \"${pattern}\" and .type == \"${type}\") | .id")
+    if [ -z "${existing}" ]; then
+        gh api -X POST "repos/${REPO}/environments/${env}/deployment-branch-policies" \
+            -f name="${pattern}" -f type="${type}" >/dev/null
+    fi
+    echo "environment ${env}: deployable from ${type} ${pattern}"
+}
+
+cmd_github() {
+    require gh jq
+
+    gh api -X PUT "repos/${REPO}/pages" -f build_type=workflow >/dev/null
+    echo "pages: deployed by GitHub Actions"
+
+    gh api -X PUT "repos/${REPO}/environments/github-pages" --input - >/dev/null <<EOF
+{"deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}}
+EOF
+    github_env_ref_policy github-pages branch master
+
+    local team_id
+    team_id=$(gh api "orgs/${REPO%%/*}/teams/${RELEASE_REVIEWERS_TEAM}" --jq .id)
+    gh api -X PUT "repos/${REPO}/environments/release" --input - >/dev/null <<EOF
+{
+  "prevent_self_review": false,
+  "reviewers": [{"type": "Team", "id": ${team_id}}],
+  "deployment_branch_policy": {"protected_branches": false, "custom_branch_policies": true}
+}
+EOF
+    echo "environment release: requires approval from @${REPO%%/*}/${RELEASE_REVIEWERS_TEAM}"
+    github_env_ref_policy release tag '*-*'
+}
+
+cmd_pypi() {
+    cat <<EOF
+PyPI has no API for configuring trusted publishers. For each package below,
+add a GitHub publisher at the given URL with:
+
+  Owner:             ${REPO%%/*}
+  Repository name:   ${REPO##*/}
+  Workflow name:     release.yml
+  Environment name:  release
+
+EOF
+    for project in ${PROJECTS}; do
+        for flavour in aio rest; do
+            echo "  https://pypi.org/manage/project/gcloud-${flavour}-${project}/settings/publishing/"
+        done
+    done
+}
+
+case "${1:-}" in
+    github) cmd_github ;;
+    pypi) cmd_pypi ;;
+    -h|--help|help) usage ;;
+    *) usage >&2; exit 1 ;;
+esac

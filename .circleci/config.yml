@@ -73,112 +73,17 @@ jobs:
       - run: ./bin/build-rest
       - store-rest
 
-  # Inspired by poetry/publish, the addition of `basedir` is meant to support
-  # gcloud-rest builds in a matrix (eg. without having `cwd` be a complicated
-  # path which breaks the tag filter).
-  poetry-publish-workspace:
-    executor: python314
-    parameters:
-      basedir:
-        enum: [/rest, /root/project]
-        type: enum
-      cwd:
-        type: string
-    steps:
-      - poetry/install:
-          # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
-      - checkout
-      - attach_workspace:
-          at: /rest
-      - run:
-          command: |
-            suffix=$(if [ <<parameters.basedir>> = "/rest" ]; then echo "REST"; else echo "AIO"; fi)
-            token=$(printenv | grep -i PYPI_TOKEN_GCLOUD_$(echo $suffix)_<<parameters.cwd>> | awk -F= '{ print $2 }')
-            echo "export POETRY_PYPI_TOKEN_PYPI=$token" >> "$BASH_ENV"
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-      - run:
-          command: poetry build
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-      - run:
-          command: poetry publish
-          working_directory: <<parameters.basedir>>/<<parameters.cwd>>
-
-  docs:
-    executor: python314
-    steps:
-      - run: pip install sphinx sphinx-autoapi
-      - checkout
-      # TODO: generate gcloud-rest-* docs
-      # - attach_workspace:
-      #     at: rest
-      # TODO: add -W after fixing build issues
-      - run: sphinx-build -b html --keep-going . build/docs/
-      # https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/
-      # Uploading /root/project/build/docs/.nojekyll: SKIPPED, file is empty
-      - run: echo " " > build/docs/.nojekyll
-      - persist_to_workspace:
-          root: ./build
-          paths:
-          - ./docs
-      - store_artifacts:
-          path: ./build/docs/
-
-  pages:
-    docker:
-      - image: node:26.12.0
-    steps:
-      - checkout
-      - attach_workspace:
-          at: build
-      - run: npm install -g --silent gh-pages@6.0.0
-      - add_ssh_keys:
-          fingerprints:
-            - "f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3"
-      # https://github.com/tschaub/gh-pages/issues/354
-      - run: mkdir ./tmp-gh-pages
-      - run:
-          command: gh-pages -u "Vi Eng CI <voiceai-eng+ci@dialpad.com>" -m "[skip ci] updated docs" -td build/docs/
-          environment:
-            CACHE_DIR: ./tmp-gh-pages
-
-  github:
-    docker:
-      - image: debian:trixie-slim
-    steps:
-      - run: apt update -qy
-      - run: apt install -qy hub git
-      - checkout
-      - run:
-          name: create changelog
-          command: |
-            export PROJECT=$(echo "${CIRCLE_TAG}" | sed 's/-.*//')
-            export PREV_RELEASE=$(git tag --sort=version:refname | grep ${PROJECT} | tail -n2 | head -n1)
-            [ "${PREV_RELEASE}" = "${CIRCLE_TAG}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
-            [ -z "${PREV_RELEASE}" ] && export PREV_RELEASE=$(git rev-list --max-parents=0 HEAD)
-
-            echo "${CIRCLE_TAG}" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            git log ${PREV_RELEASE}..${CIRCLE_TAG} --pretty=format:'- %s' | grep "${PROJECT}" >> CHANGELOG.md ||:
-      - run: hub release create -FCHANGELOG.md "${CIRCLE_TAG}"
-
 workflows:
   run-jobs:
     jobs:
       # build gcloud-rest-*
-      - build-rest:
-          filters:
-            tags:
-              only: /.*/
+      - build-rest
 
       # run linters
       - linter/pre-commit:
           # N.B. keep this pinned to the oldest 3.x to make sure we maintain
           # support.
           executor: python311
-          filters:
-            tags:
-              only: /.*/
 
       # run tests
       - poetry/run:
@@ -195,9 +100,6 @@ workflows:
             parameters:
               cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
               executor: [python311, python312, python313, python314, python315]
-          filters:
-            tags:
-              only: /.*/
       - poetry/run:
           name: test-integration-/aio/<<matrix.cwd>>
           commands:
@@ -214,9 +116,6 @@ workflows:
             alias: test-integration-aio
             parameters:
               cwd: [auth, bigquery, datastore, pubsub, storage, taskqueue]
-          filters:
-            tags:
-              only: /.*/
       - poetry/run:
           name: test-unit-<<matrix.cwd>>-<<matrix.executor>>
           commands:
@@ -234,9 +133,6 @@ workflows:
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
               executor: [python311, python312, python313, python314, python315]
-          filters:
-            tags:
-              only: /.*/
           requires:
             - build-rest
       - poetry/run:
@@ -257,60 +153,5 @@ workflows:
             alias: test-integration-rest
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/pubsub, /rest/storage, /rest/taskqueue]
-          filters:
-            tags:
-              only: /.*/
           requires:
             - build-rest
-
-      # build docs
-      - docs:
-          filters:
-            branches:
-              only: /master/
-            tags:
-              ignore: /.*/
-      - pages:
-          filters:
-            branches:
-              only: /master/
-            tags:
-              ignore: /.*/
-          requires:
-            - docs
-
-      # create github & pypi release
-      - github:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-.*/
-          requires:
-            - linter/pre-commit
-            - test-unit-aio
-            - test-integration-aio
-            - test-unit-rest
-            - test-integration-rest
-      - hold:
-          type: approval
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[a-z]+-.*/
-          requires:
-           - github
-      - poetry-publish-workspace:
-          name: deploy-<<matrix.basedir>>-<<matrix.cwd>>
-          matrix:
-            parameters:
-              cwd: [auth, bigquery, datastore, kms, pubsub, storage, taskqueue]
-              basedir: [/rest, /root/project]
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /<<matrix.cwd>>-.*/
-          requires:
-            - hold
