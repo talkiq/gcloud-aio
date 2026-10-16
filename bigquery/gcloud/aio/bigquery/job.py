@@ -22,12 +22,14 @@ class Job(BigqueryBase):
             session: Session | None = None, token: Token | None = None,
             api_root: str | None = None,
             location: str | None = None,
+            api_is_dev: bool | None = None,
     ) -> None:
         self.job_id = job_id
         self.location = location
         super().__init__(
             project=project, service_file=service_file,
             session=session, token=token, api_root=api_root,
+            api_is_dev=api_is_dev,
         )
 
     @staticmethod

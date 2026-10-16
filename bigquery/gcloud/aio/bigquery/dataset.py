@@ -21,11 +21,13 @@ class Dataset(BigqueryBase):
             service_file: str | IO[AnyStr] | None = None,
             session: Session | None = None, token: Token | None = None,
             api_root: str | None = None,
+            api_is_dev: bool | None = None,
     ) -> None:
         self.dataset_name = dataset_name
         super().__init__(
             project=project, service_file=service_file,
             session=session, token=token, api_root=api_root,
+            api_is_dev=api_is_dev,
         )
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tables/list
