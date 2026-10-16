@@ -4,14 +4,10 @@ from typing import Any
 
 
 def parse_publish_time(publish_time: str) -> datetime.datetime:
-    try:
-        return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%S.%fZ',
-        )
-    except ValueError:
-        return datetime.datetime.strptime(
-            publish_time, '%Y-%m-%dT%H:%M:%SZ',
-        )
+    parsed = datetime.datetime.fromisoformat(publish_time)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=datetime.UTC)
+    return parsed
 
 
 class SubscriberMessage:
@@ -52,13 +48,14 @@ class SubscriberMessage:
         )
 
     def to_repr(self) -> dict[str, Any]:
+        publish_time = self.publish_time
+        if publish_time.tzinfo is not None:
+            publish_time = publish_time.astimezone(datetime.UTC)
         r: dict[str, Any] = {
             'ackId': self.ack_id,
             'message': {
                 'messageId': self.message_id,
-                'publishTime': (
-                    self.publish_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-                ),
+                'publishTime': publish_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             },
         }
         if self.attributes is not None:
