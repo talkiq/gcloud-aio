@@ -1,3 +1,6 @@
+import io
+import json
+
 import pytest
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
@@ -5,6 +8,8 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 from gcloud.aio.storage import Blob
+from gcloud.aio.storage import Bucket
+from gcloud.aio.storage import Storage
 
 
 def generate_key(encoding_format):
@@ -46,6 +51,43 @@ def test_get_pem_signature_truncated_key():
 
     with pytest.raises(ValueError):
         Blob.get_pem_signature('test-payload', truncated)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ('api_root', 'emulator_host', 'expected_root'), [
+        (None, None, 'https://storage.googleapis.com'),
+        (None, 'http://0.0.0.0:4443', 'http://0.0.0.0:4443'),
+        (None, 'localhost:4443', 'http://localhost:4443'),
+        ('http://localhost:9023/', None, 'http://localhost:9023'),
+        (
+            'https://storage-foo.p.googleapis.com', 'http://0.0.0.0:4443',
+            'https://storage-foo.p.googleapis.com',
+        ),
+    ],
+)
+async def test_get_signed_url_root(
+    monkeypatch, api_root, emulator_host, expected_root,
+):
+    # set after import: the signed URL root must not be fixed at import time
+    if emulator_host:
+        monkeypatch.setenv('STORAGE_EMULATOR_HOST', emulator_host)
+    else:
+        monkeypatch.delenv('STORAGE_EMULATOR_HOST', raising=False)
+
+    _, private_key = generate_key(serialization.PrivateFormat.PKCS8)
+    service_file = io.StringIO(json.dumps({
+        'type': 'service_account',
+        'client_email': 'signer@example.com',
+        'private_key': private_key,
+    }))
+    storage = Storage(service_file=service_file, api_root=api_root)
+    blob = Blob(Bucket(storage, 'bucket'), 'path/to/object', {'size': 1})
+
+    url = await blob.get_signed_url(60)
+
+    print(url)
+    assert url.startswith(f'{expected_root}/bucket/path/to/object?')
 
 
 def test_get_pem_signature_non_rsa_key():
