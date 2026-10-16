@@ -7,7 +7,8 @@ REPO=talkiq/gcloud-aio
 PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
 RELEASE_REVIEWERS_TEAM=engineering
 
-CIRCLECI_API="https://circleci.com/api/v2/project/gh/${REPO}"
+CIRCLECI_V1_PROJECT="https://circleci.com/api/v1.1/project/github/${REPO}"
+CIRCLECI_V2_PROJECT="https://circleci.com/api/v2/project/gh/${REPO}"
 CIRCLECI_KEY_ENVVAR=GCLOUD_AIO_CI_KEY
 
 GCP_PROJECT=dialpad-oss
@@ -19,6 +20,10 @@ CI_SA="gcloud-aio-ci@${GCP_PROJECT}.iam.gserviceaccount.com"
 DELEGATE_SA="gcloud-aio-delegate@${GCP_PROJECT}.iam.gserviceaccount.com"
 TARGET_SA="gcloud-aio-target-principal@${GCP_PROJECT}.iam.gserviceaccount.com"
 
+LEGACY_SA="gcloud-aio@${GCP_PROJECT}.iam.gserviceaccount.com"
+LEGACY_SSH_KEY_FINGERPRINT=f6:b5:5d:10:ed:5d:cd:e0:83:28:dd:39:8c:f8:0b:c3
+LEGACY_DEPLOY_KEY_TITLE='CircleCI Write Key'
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") <command>
@@ -29,6 +34,8 @@ Commands:
   gcp         configure the integration test service account and its grants
   rotate-key  issue a new integration test key, store it in CircleCI and
               delete the old ones (requires CIRCLECI_CLI_TOKEN)
+  cleanup     delete the legacy CI credentials, prompting for each
+              (requires CIRCLECI_CLI_TOKEN)
 EOF
 }
 
@@ -205,9 +212,9 @@ cmd_gcp() {
 }
 
 circleci_api() {
-    local method=$1 path=$2
+    local method=$1 url=$2
     shift 2
-    curl -fsS -X "${method}" "${CIRCLECI_API}${path}" \
+    curl -fsS -X "${method}" "${url}" \
         -H @<(printf 'Circle-Token: %s\n' "${CIRCLECI_CLI_TOKEN}") "$@"
 }
 
@@ -219,13 +226,14 @@ circleci_set_envvar() {
     for attempt in 1 2; do
         # via the environment rather than argv, which is visible to other users
         ENVVAR_VALUE="${value}" jq -n --arg n "${name}" '{name: $n, value: env.ENVVAR_VALUE}' \
-            | circleci_api POST /envvar -H 'content-type: application/json' --data @- >/dev/null
-        if [ "$(circleci_api GET "/envvar/${name}" | jq -r .value)" = "xxxx${value: -4}" ]; then
+            | circleci_api POST "${CIRCLECI_V2_PROJECT}/envvar" \
+                -H 'content-type: application/json' --data @- >/dev/null
+        if [ "$(circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${name}" | jq -r .value)" = "xxxx${value: -4}" ]; then
             echo "circleci: ${name} updated"
             return 0
         fi
         if [ "${attempt}" = 1 ]; then
-            circleci_api DELETE "/envvar/${name}" >/dev/null
+            circleci_api DELETE "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null
         fi
     done
     echo "error: could not update CircleCI env var ${name}" >&2
@@ -258,11 +266,88 @@ cmd_rotate_key() {
     echo "service account ${CI_SA}: only key is ${key_id}"
 }
 
+confirm() {
+    local answer
+    read -r -p "$1 [y/N] " answer
+    [[ ${answer} =~ ^[Yy]$ ]]
+}
+
+cmd_cleanup() {
+    require gcloud gh jq curl git
+    : "${CIRCLECI_CLI_TOKEN:?must be set to a CircleCI token with admin access to ${REPO}}"
+
+    # Refuse to strand master: it must already have cut over to the
+    # replacement credentials.
+    git fetch -q origin master
+    if git grep -q -E 'GOOGLE_SERVICE_PUBLIC|PYPI_TOKEN|GITHUB_TOKEN|add_ssh_keys' \
+            origin/master -- .circleci/; then
+        echo "error: master's CircleCI config still uses legacy credentials" >&2
+        exit 1
+    fi
+    if ! circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${CIRCLECI_KEY_ENVVAR}" >/dev/null 2>&1; then
+        echo "error: ${CIRCLECI_KEY_ENVVAR} is missing; run rotate-key first" >&2
+        exit 1
+    fi
+
+    local name project flavour
+    local names=(GOOGLE_SERVICE_PUBLIC GITHUB_TOKEN)
+    for project in ${PROJECTS}; do
+        for flavour in AIO REST; do
+            names+=("PYPI_TOKEN_GCLOUD_${flavour}_$(tr '[:lower:]' '[:upper:]' <<< "${project}")")
+        done
+    done
+    for name in "${names[@]}"; do
+        if circleci_api GET "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null 2>&1 \
+                && confirm "delete CircleCI env var ${name}?"; then
+            circleci_api DELETE "${CIRCLECI_V2_PROJECT}/envvar/${name}" >/dev/null
+            echo "circleci: deleted ${name}"
+        fi
+    done
+
+    local hostname
+    hostname=$(circleci_api GET "${CIRCLECI_V1_PROJECT}/settings" | jq -r --arg f "${LEGACY_SSH_KEY_FINGERPRINT}" \
+        '.ssh_keys[]? | select(.fingerprint == $f) | .hostname')
+    if [ -n "${hostname}" ] && confirm "delete CircleCI SSH key ${LEGACY_SSH_KEY_FINGERPRINT} (${hostname})?"; then
+        jq -n --arg f "${LEGACY_SSH_KEY_FINGERPRINT}" --arg h "${hostname}" '{fingerprint: $f, hostname: $h}' \
+            | circleci_api DELETE "${CIRCLECI_V1_PROJECT}/ssh-key" \
+                -H 'content-type: application/json' --data @- >/dev/null
+        echo "circleci: deleted SSH key ${LEGACY_SSH_KEY_FINGERPRINT}"
+    fi
+
+    local key_id
+    key_id=$(gh api "repos/${REPO}/keys" --jq ".[] | select(.title == \"${LEGACY_DEPLOY_KEY_TITLE}\" and .read_only == false) | .id")
+    if [ -n "${key_id}" ] && confirm "delete GitHub deploy key '${LEGACY_DEPLOY_KEY_TITLE}' (${key_id})?"; then
+        gh api -X DELETE "repos/${REPO}/keys/${key_id}"
+        echo "github: deleted deploy key ${key_id}"
+    fi
+
+    if gcloud iam service-accounts describe "${LEGACY_SA}" --project="${GCP_PROJECT}" >/dev/null 2>&1 \
+            && confirm "delete service account ${LEGACY_SA}, its keys and project grants?"; then
+        # Bindings outlive their deleted service account, so remove them first.
+        local role
+        for role in $(gcloud projects get-iam-policy "${GCP_PROJECT}" --format=json \
+                | jq -r --arg m "serviceAccount:${LEGACY_SA}" '.bindings[] | select(.members | index($m)) | .role'); do
+            gcp_project_unbind "serviceAccount:${LEGACY_SA}" "${role}"
+        done
+        gcloud iam service-accounts delete "${LEGACY_SA}" --project="${GCP_PROJECT}" --quiet
+        echo "gcp: deleted ${LEGACY_SA}"
+    fi
+
+    cat <<EOF
+
+Remaining manual steps:
+  - revoke the PyPI API tokens previously used by CircleCI (pypi.org account
+    settings of each token's owner)
+  - revoke the GitHub token previously stored as GITHUB_TOKEN in CircleCI
+EOF
+}
+
 case "${1:-}" in
     github) cmd_github ;;
     pypi) cmd_pypi ;;
     gcp) cmd_gcp ;;
     rotate-key) cmd_rotate_key ;;
+    cleanup) cmd_cleanup ;;
     -h|--help|help) usage ;;
     *) usage >&2; exit 1 ;;
 esac
