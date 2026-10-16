@@ -295,7 +295,7 @@ if BUILD_GCLOUD_REST:
     # body ends up in the exception message in case a server sends more.
     _MAX_ERROR_BODY_BYTES = 4096
 
-    def _raise_for_status_sync(resp: Response, stream: bool = False) -> None:
+    def _raise_for_status(resp: Response, stream: bool = False) -> None:
         """Check resp for status and if error include the body in the error."""
         # Sync counterpart of `_raise_for_status` above: requests'
         # `raise_for_status()` only reports the status line and URL, which
