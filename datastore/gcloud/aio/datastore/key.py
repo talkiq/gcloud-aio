@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 
 class PathElement:
@@ -26,7 +27,7 @@ class PathElement:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'PathElement':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         kind: str = data['kind']
         id_: int | None = data.get('id')
         name: str | None = data.get('name')
@@ -67,7 +68,7 @@ class Key:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Key':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls(
             data['partitionId']['projectId'],
             path=[

@@ -6,6 +6,7 @@ import os
 from typing import Any
 from typing import AnyStr
 from typing import IO
+from typing import Self
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -24,7 +25,7 @@ SCOPES = [
 
 
 def init_api_root(
-        api_root: str | None, api_is_dev: bool | None,
+        api_root: str | None, api_is_dev: bool | None = None,
 ) -> tuple[bool, str]:
     if api_root:
         return api_is_dev is None or api_is_dev, api_root
@@ -110,7 +111,7 @@ class KMS:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'KMS':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

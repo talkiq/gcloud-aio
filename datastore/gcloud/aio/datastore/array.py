@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from typing import Any
+from typing import Self
 
 from . import value
 
@@ -7,7 +8,7 @@ from . import value
 # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery#ArrayValue
 class Array(Sequence):  # type: ignore[type-arg]
     def __init__(self, items: list[value.Value]) -> None:
-        super(Sequence, self).__init__()  # pylint: disable=bad-super-call
+        super().__init__()
         self.items = items
 
     def __eq__(self, other: Any) -> bool:
@@ -25,7 +26,7 @@ class Array(Sequence):  # type: ignore[type-arg]
         return len(self.items)
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'Array':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls([value.Value.from_repr(x) for x in data.get('values', [])])
 
     def to_repr(self) -> dict[str, Any]:

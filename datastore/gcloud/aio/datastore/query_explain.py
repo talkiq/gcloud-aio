@@ -1,6 +1,7 @@
 import enum
 import re
 from typing import Any
+from typing import Self
 
 
 class ExplainOptions(enum.Enum):
@@ -55,7 +56,7 @@ class IndexDefinition:
                 and self.properties == other.properties)
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'IndexDefinition':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         query_scope = ''
         properties = []
 
@@ -88,7 +89,7 @@ class PlanSummary:
         return self.indexes_used == other.indexes_used
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'PlanSummary':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         indexes_used = data.get('indexesUsed', [])
         index_definitions = []
         for index in indexes_used:
@@ -156,7 +157,7 @@ class ExecutionStats:
         return debug_stats
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'ExecutionStats':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls(
             results_returned=int(data.get('resultsReturned', 0)),
             execution_duration=cls._parse_execution_duration(
@@ -194,7 +195,7 @@ class ExplainMetrics:
                 and self.execution_stats == other.execution_stats)
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'ExplainMetrics':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         plan_summary = None
         execution_stats = None
 

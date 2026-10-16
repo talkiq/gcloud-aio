@@ -30,12 +30,21 @@ class Table(BigqueryBase):
             service_file: str | IO[AnyStr] | None = None,
             session: Session | None = None, token: Token | None = None,
             api_root: str | None = None,
+            api_is_dev: bool | None = None,
     ) -> None:
         self.dataset_name = dataset_name
         self.table_name = table_name
         super().__init__(
             project=project, service_file=service_file,
             session=session, token=token, api_root=api_root,
+            api_is_dev=api_is_dev,
+        )
+
+    def _job(self, job_id: str | None) -> Job:
+        return Job(
+            job_id, self._project, token=self.token,
+            session=self.session.session,  # type: ignore[arg-type]
+            api_root=self._api_root, api_is_dev=self._api_is_dev,
         )
 
     @staticmethod
@@ -205,10 +214,7 @@ class Table(BigqueryBase):
         headers = await self.headers()
 
         s = AioSession(session) if session else self.session
-        resp = await s.session.delete(
-            url, headers=headers, params=None,
-            timeout=timeout,
-        )
+        resp = await s.delete(url, headers=headers, timeout=timeout)
         try:
             data: dict[str, Any] = await resp.json()
         except Exception:  # pylint: disable=broad-except
@@ -288,11 +294,7 @@ class Table(BigqueryBase):
             destination_dataset, destination_table,
         )
         response = await self._post_json(url, body, session, timeout)
-        return Job(
-            response['jobReference']['jobId'], self._project,
-            session=self.session.session,  # type: ignore[arg-type]
-            token=self.token,
-        )
+        return self._job(response['jobReference']['jobId'])
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationLoad
@@ -314,11 +316,7 @@ class Table(BigqueryBase):
             ignore_unknown_values, schema_update_options or [],
         )
         response = await self._post_json(url, body, session, timeout)
-        return Job(
-            response['jobReference']['jobId'], self._project,
-            session=self.session.session,  # type: ignore[arg-type]
-            token=self.token,
-        )
+        return self._job(response['jobReference']['jobId'])
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs/insert
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
@@ -342,10 +340,7 @@ class Table(BigqueryBase):
         )
         response = await self._post_json(url, body, session, timeout)
         job_id = response['jobReference']['jobId'] if not dry_run else None
-        return Job(
-            job_id, self._project, token=self.token,
-            session=self.session.session,  # type: ignore[arg-type]
-        )
+        return self._job(job_id)
 
     # https://cloud.google.com/bigquery/docs/reference/rest/v2/tabledata/list
     async def list_tabledata(

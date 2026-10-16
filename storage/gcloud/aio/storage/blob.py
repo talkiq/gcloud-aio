@@ -3,20 +3,19 @@ import collections
 import datetime
 import enum
 import hashlib
-import io
-import os
 from typing import Any
 from typing import TYPE_CHECKING
 from urllib.parse import quote
+from urllib.parse import urlsplit
 
-import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import decode  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import IamClient  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import Token  # pylint: disable=no-name-in-module
-from pyasn1.codec.der import decoder
-from pyasn1_modules import pem
-from pyasn1_modules.rfc5208 import PrivateKeyInfo
 
 from .constants import DEFAULT_TIMEOUT
 
@@ -28,44 +27,6 @@ else:
 
 if TYPE_CHECKING:
     from .bucket import Bucket  # pylint: disable=cyclic-import
-
-
-HOST = os.environ.get('STORAGE_EMULATOR_HOST', 'storage.googleapis.com')
-
-PKCS1_MARKER = (
-    '-----BEGIN RSA PRIVATE KEY-----',
-    '-----END RSA PRIVATE KEY-----',
-)
-PKCS8_MARKER = (
-    '-----BEGIN PRIVATE KEY-----',
-    '-----END PRIVATE KEY-----',
-)
-PKCS8_SPEC = PrivateKeyInfo()
-
-
-class PemKind(enum.Enum):
-    """
-    Tracks the response of ``pem.readPemBlocksFromFile(key, *args)``>
-
-    Note that the specified method returns ``(marker_id, key_bytes)``, where
-    ``marker_id`` is the integer index of the matching ``arg`` (or -1 if no
-    match was found.
-
-    For example::
-
-        (marker_id, _) = pem.readPemBlocksFromFile(key, PKCS1_MARKER,
-                                                   PCKS8_MARKER)
-        if marker_id == -1:
-            # "key" did not match either type or was invalid
-        if marker_id == 0:
-            # "key" matched the zeroth provided marker arg, eg. PKCS1_MARKER
-        if marker_id == 1:
-            # "key" matched the zeroth provided marker arg, eg. PKCS8_MARKER
-    """
-
-    INVALID = -1
-    PKCS1 = 0
-    PKCS8 = 1
 
 
 class _SignatureMethod(enum.Enum):
@@ -151,7 +112,7 @@ class Blob:
         quoted_name = quote(self.name, safe=b'/~')
         canonical_uri = f'/{self.bucket.name}/{quoted_name}'
 
-        datetime_now = datetime.datetime.now(datetime.timezone.utc)
+        datetime_now = datetime.datetime.now(datetime.UTC)
         request_timestamp = datetime_now.strftime('%Y%m%dT%H%M%SZ')
         datestamp = datetime_now.strftime('%Y%m%d')
 
@@ -168,8 +129,9 @@ class Blob:
             signature_method = _SignatureMethod.PEM
             credential = f'{client_email}/{credential_scope}'
 
+        api_root = self.bucket.storage.signed_url_api_root
         headers = headers or {}
-        headers['host'] = HOST
+        headers['host'] = urlsplit(api_root).netloc
 
         ordered_headers = collections.OrderedDict(
             sorted(headers.items(), key=lambda x: x[0].lower()))
@@ -233,41 +195,29 @@ class Blob:
         signature = binascii.hexlify(signed_blob).decode()
 
         return (
-            f'https://{HOST}{canonical_uri}?'
+            f'{api_root}{canonical_uri}?'
             f'{canonical_query_str}&X-Goog-Signature={signature}'
         )
 
     @staticmethod
     def get_pem_signature(str_to_sign: str, private_key: str) -> bytes:
-        # N.B. see the ``PemKind`` enum
-        marker_id, key_bytes = pem.readPemBlocksFromFile(
-            io.StringIO(private_key), PKCS1_MARKER, PKCS8_MARKER,
-        )
-        if marker_id == PemKind.INVALID.value:
+        try:
+            key = serialization.load_pem_private_key(
+                private_key.encode(), password=None,
+            )
+        except (ValueError, TypeError) as e:
+            # N.B. TypeError is raised when the key is encrypted, ie. when a
+            # password would have been required.
+            raise ValueError('private key is invalid or unsupported') from e
+
+        if not isinstance(key, rsa.RSAPrivateKey):
             raise ValueError('private key is invalid or unsupported')
 
-        if marker_id == PemKind.PKCS8.value:
-            # convert from pkcs8 to pkcs1
-            key_info, remaining = decoder.decode(
-                key_bytes,
-                asn1Spec=PKCS8_SPEC,
-            )
-            if remaining != b'':
-                raise ValueError(
-                    'could not read PKCS8 key: found extra bytes',
-                    remaining,
-                )
-
-            private_key_info = key_info.getComponentByName('privateKey')
-            key_bytes = private_key_info.asOctets()
-
-        key = rsa.key.PrivateKey.load_pkcs1(key_bytes, format='DER')
-        signed_blob = rsa.pkcs1.sign(
+        return key.sign(
             str_to_sign.encode(),
-            key,
-            'SHA-256',
+            padding.PKCS1v15(),
+            hashes.SHA256(),
         )
-        return signed_blob
 
     @staticmethod
     async def get_iam_api_signature(

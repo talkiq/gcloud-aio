@@ -2,10 +2,10 @@
 import datetime
 
 import pytest
+from dateutil.relativedelta import relativedelta
 from gcloud.aio.bigquery.utils import flatten
 from gcloud.aio.bigquery.utils import parse
 from gcloud.aio.bigquery.utils import query_response_to_dict
-from gcloud.aio.bigquery.utils import utc
 
 
 @pytest.mark.parametrize(
@@ -45,6 +45,54 @@ def test_flatten(data, expected):
         ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '0', 0),
         ({'type': 'INTEGER', 'mode': 'NULLABLE'}, '1', 1),
 
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '1-2 3 4:5:6.002000',
+            relativedelta(
+                years=1, months=2, days=3,
+                hours=4, minutes=5, seconds=6, microseconds=2000,
+            ),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '-1-2 -3 -4:5:6.002000',
+            relativedelta(
+                years=-1, months=-2, days=-3,
+                hours=-4, minutes=-5, seconds=-6, microseconds=-2000,
+            ),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '1-2 -3 4:5:6',
+            relativedelta(
+                years=1, months=2, days=-3,
+                hours=4, minutes=5, seconds=6, microseconds=0,
+            ),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '0-0 0 0:0:0',
+            relativedelta(
+                years=0, months=0, days=0,
+                hours=0, minutes=0, seconds=0, microseconds=0,
+            ),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '0-0 0 -0:15:30',
+            relativedelta(
+                years=0, months=0, days=0,
+                hours=0, minutes=-15, seconds=-30, microseconds=0,
+            ),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '0-0 0 0:0:0.5',
+            relativedelta(seconds=0, microseconds=500000),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '0-0 0 0:0:0.123456',
+            relativedelta(seconds=0, microseconds=123456),
+        ),
+        (
+            {'type': 'INTERVAL', 'mode': 'NULLABLE'}, '0-0 0 0:0:0.1234567',
+            relativedelta(seconds=0, microseconds=123456),
+        ),
+
         ({'type': 'NUMERIC', 'mode': 'NULLABLE'}, '0.0', 0.0),
         ({'type': 'NUMERIC', 'mode': 'NULLABLE'}, '1.25', 1.25),
 
@@ -69,11 +117,13 @@ def test_flatten(data, expected):
 
         (
             {'type': 'TIMESTAMP', 'mode': 'NULLABLE'}, '0.0',
-            datetime.datetime(1970, 1, 1, 0, tzinfo=utc),
+            datetime.datetime(1970, 1, 1, 0, tzinfo=datetime.UTC),
         ),
         (
             {'type': 'TIMESTAMP', 'mode': 'NULLABLE'}, '1656511192.51',
-            datetime.datetime(2022, 6, 29, 13, 59, 52, 510000, tzinfo=utc),
+            datetime.datetime(
+                2022, 6, 29, 13, 59, 52, 510000, tzinfo=datetime.UTC,
+            ),
         ),
 
         ({'type': 'STRING', 'mode': 'REQUIRED'}, '', ''),
@@ -95,6 +145,7 @@ def test_parse(field, value, expected):
         'BOOLEAN',
         'FLOAT',
         'INTEGER',
+        'INTERVAL',
         'RECORD',
         'STRING',
         'TIMESTAMP',
@@ -203,7 +254,7 @@ def test_parse_nullable(kind):
             ],
             [
                 {
-                    'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=utc),
+                    'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=datetime.UTC),
                     'id': 'ident1',
                     'isfakedata': True,
                     'nested': [
@@ -223,7 +274,7 @@ def test_parse_nullable(kind):
                     'repeated': ['foo', 'bar'],
                     'unixtime': 1654122422181,
                 }, {
-                    'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=utc),
+                    'PARTITIONTIME': datetime.datetime(2022, 6, 1, 0, 0, tzinfo=datetime.UTC),
                     'id': 'ident2',
                     'isfakedata': False,
                     'nested': [],

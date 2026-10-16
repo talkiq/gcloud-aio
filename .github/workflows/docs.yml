@@ -1,0 +1,45 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - master
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.14'
+      - run: pip install sphinx sphinx-autoapi
+      # TODO: generate gcloud-rest-* docs
+      # TODO: add -W after fixing build issues
+      - run: sphinx-build -b html --keep-going . build/docs/
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: build/docs/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5.0.1

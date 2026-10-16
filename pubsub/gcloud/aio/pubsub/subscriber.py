@@ -81,11 +81,10 @@ else:
         while time_budget > 0:
             start = time.perf_counter()
             try:
-                message = await asyncio.wait_for(
-                    queue.get(), timeout=time_budget,
-                )
+                async with asyncio.timeout(time_budget):
+                    message = await queue.get()
                 result.append(message)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 break
             time_budget -= (time.perf_counter() - start)
         return result
@@ -356,8 +355,6 @@ else:
                     semaphore.release()
                     return
 
-                # publish_time is in UTC Zulu
-                # https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
                 recv_latency = time.time() - message.publish_time.timestamp()
                 metrics.CONSUME_LATENCY.labels(phase='receive').observe(
                     recv_latency,
@@ -413,7 +410,7 @@ else:
                         ),
                     )
                     new_messages = await asyncio.shield(pull_task)
-                except (asyncio.TimeoutError, KeyError):
+                except (TimeoutError, KeyError):
                     continue
 
                 metrics.MESSAGES_RECEIVED.inc(len(new_messages))
@@ -431,8 +428,9 @@ else:
                 # Leaving the connection hanging can result in redelivered
                 # messages, so try to finish before shutting down
                 try:
-                    new_messages += await asyncio.wait_for(pull_task, 5)
-                except (asyncio.TimeoutError, KeyError):
+                    async with asyncio.timeout(5):
+                        new_messages += await pull_task
+                except (TimeoutError, KeyError):
                     pass
 
             pulled_at = time.perf_counter()
@@ -521,12 +519,7 @@ else:
                     ),
                 )
 
-            # TODO: since this is in a `not BUILD_GCLOUD_REST` section, we
-            # shouldn't have to care about py2 support. Using splat syntax
-            # here, though, breaks the coverage.py reporter for this file even
-            # though it would never be loaded at runtime in py2.
-            # all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
-            all_tasks = producer_tasks + consumer_tasks + acker_tasks
+            all_tasks = [*producer_tasks, *consumer_tasks, *acker_tasks]
             done, _ = await asyncio.wait(
                 all_tasks,
                 return_when=asyncio.FIRST_COMPLETED,

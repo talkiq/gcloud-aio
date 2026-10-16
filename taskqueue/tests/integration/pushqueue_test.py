@@ -10,7 +10,7 @@ async def test_task_lifecycle_in_push_queue(
 ):
     # Set to run in the future, giving us enough time to test all
     # functionalities before the task gets dispatched automatically.
-    schedule_time = (datetime.datetime.now(datetime.timezone.utc)
+    schedule_time = (datetime.datetime.now(datetime.UTC)
                      + datetime.timedelta(days=1))
 
     task = {

@@ -18,7 +18,7 @@ pushd ./build >/dev/null
 trap "popd >/dev/null" EXIT
 
 
-# Rename files and paths to `rest` and make strings py2 compatible
+# Rename files and paths to `rest`
 find . -path '*aio*' -exec dirname {} \; \
     | $SED 's/aio/rest/g' \
     | xargs -L1 mkdir -p
@@ -59,7 +59,7 @@ for folder in ${PROJECTS}; do
 
     if diff "../../${folder}/pyproject.rest.toml" pyproject.toml; then
         if [ ! -e poetry.rest.lock ]; then
-            poetry lock
+            poetry lock --regenerate
             cp poetry.lock "../../${folder}/poetry.rest.lock"
         else
             cp poetry.rest.lock poetry.lock
@@ -67,7 +67,7 @@ for folder in ${PROJECTS}; do
     else
         echo "${folder}/pyproject.toml changed, rebuilding rest lockfile..."
         cp pyproject.toml "../../${folder}/pyproject.rest.toml"
-        poetry lock
+        poetry lock --regenerate
         cp poetry.lock "../../${folder}/poetry.rest.lock"
     fi
 
@@ -87,6 +87,8 @@ find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/@pytest.mark.asyncio/#@pytest.mark.asyncio/g'
 find . -type f -path '*tests/*' \
     | xargs -L1 $SED -Ei 's/Session\(.*\)\sas/Session() as/g'
+find . -type f -path '*tests/*' \
+    | xargs -L1 $SED -Ei 's/AsyncMock/MagicMock/g'
 find . -type f -path '*py' \
     | xargs -L1 $SED -Ei 's/__aenter__/__enter__/g'
 find . -type f -path '*py' \

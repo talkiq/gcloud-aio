@@ -11,7 +11,9 @@ from collections.abc import Iterator
 from typing import Any
 from typing import AnyStr
 from typing import IO
+from typing import Self
 from urllib.parse import quote
+from urllib.parse import urlsplit
 
 from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
@@ -34,6 +36,10 @@ else:
     )
     from aiohttp import ClientSession as Session  # type: ignore[assignment]
 
+API_ROOT = 'https://www.googleapis.com'
+# Signed URLs target the XML API, which production serves from a different
+# host than the JSON API.
+API_ROOT_SIGNED_URL = 'https://storage.googleapis.com'
 MAX_CONTENT_LENGTH_SIMPLE_UPLOAD = 5 * 1024 * 1024  # 5 MB
 SCOPES = [
     'https://www.googleapis.com/auth/devstorage.full_control',
@@ -43,7 +49,7 @@ log = logging.getLogger(__name__)
 
 
 def init_api_root(
-        api_root: str | None, api_is_dev: bool | None,
+        api_root: str | None, api_is_dev: bool | None = None,
 ) -> tuple[bool, str]:
     if api_root:
         return api_is_dev is None or api_is_dev, api_root
@@ -56,7 +62,7 @@ def init_api_root(
             host = f'http://{host}'
         return True, host
 
-    return False, 'https://www.googleapis.com'
+    return False, API_ROOT
 
 
 def choose_boundary() -> str:
@@ -170,6 +176,15 @@ class Storage:
             service_file=service_file, scopes=SCOPES,
             session=self.session.session,  # type: ignore[arg-type]
         )
+
+    @property
+    def signed_url_api_root(self) -> str:
+        """The scheme and host which signed URLs for this client target."""
+        if self._api_root == API_ROOT:
+            return API_ROOT_SIGNED_URL
+
+        parts = urlsplit(self._api_root)
+        return f'{parts.scheme}://{parts.netloc}'
 
     async def _headers(self) -> dict[str, str]:
         if self._api_is_dev:
@@ -431,10 +446,10 @@ class Storage:
             # load the whole file into memory at once.
             stream = self._compress_file_in_chunks(input_stream=stream)
 
-        if BUILD_GCLOUD_REST and isinstance(stream, io.StringIO):
-            # HACK: `requests` library does not accept `str` as `data` in `put`
-            # HTTP request.
-            stream = io.BytesIO(stream.getvalue().encode('utf-8'))
+        if isinstance(stream, io.StringIO):
+            # HTTP requests send encoded bytes, so normalize in-memory text
+            # streams before calculating Content-Length.
+            stream = io.BytesIO(stream.read().encode('utf-8'))
 
         content_length = self._get_stream_len(stream)
 
@@ -921,7 +936,7 @@ class Storage:
     async def close(self) -> None:
         await self.session.close()
 
-    async def __aenter__(self) -> 'Storage':
+    async def __aenter__(self) -> Self:
         return self
 
     async def __aexit__(self, *args: Any) -> None:

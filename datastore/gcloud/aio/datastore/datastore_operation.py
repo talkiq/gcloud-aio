@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Self
 
 
 class DatastoreOperation:
@@ -19,7 +20,7 @@ class DatastoreOperation:
         return str(self.to_repr())
 
     @classmethod
-    def from_repr(cls, data: dict[str, Any]) -> 'DatastoreOperation':
+    def from_repr(cls, data: dict[str, Any]) -> Self:
         return cls(
             data['name'], data.get('done', False), data.get('metadata'),
             data.get('error'), data.get('response'),
