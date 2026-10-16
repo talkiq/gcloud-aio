@@ -37,6 +37,33 @@ executors:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
 
+  python-emulator-bigquery:
+    docker:
+      - image: python:3.14.8
+      - image: ghcr.io/goccy/bigquery-emulator:0.8.1
+        command: [--project=dialpad-oss, --port=9050]
+    environment:
+      BIGQUERY_EMULATOR_HOST: localhost:9050
+    resource_class: small
+
+  python-emulator-datastore:
+    docker:
+      - image: python:3.14.8
+      - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:589.0.0-emulators
+        command: [gcloud, emulators, firestore, start, --database-mode=datastore-mode, --host-port=0.0.0.0:8081]
+    environment:
+      DATASTORE_EMULATOR_HOST: localhost:8081
+    resource_class: small
+
+  python-emulator-storage:
+    docker:
+      - image: python:3.14.8
+      - image: fsouza/fake-gcs-server:1.56.1
+        command: [-scheme, http, -port, '4443', -external-url, http://localhost:4443]
+    environment:
+      STORAGE_EMULATOR_HOST: http://localhost:4443
+    resource_class: small
+
 commands:
   store-rest:
     description: >
@@ -117,6 +144,90 @@ workflows:
             parameters:
               cwd: [/rest/auth, /rest/bigquery, /rest/datastore, /rest/kms, /rest/pubsub, /rest/storage, /rest/taskqueue]
               executor: [python311, python312, python313, python314, python315]
+          requires:
+            - build-rest
+
+      # Integration tests which need no secrets, so also run on fork PRs. Each
+      # package gets its own executor to avoid pulling unneeded emulators.
+      - poetry/run:
+          name: test-emulator-/aio/bigquery-emulator
+          cwd: bigquery
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: bigquery
+          executor: python-emulator-bigquery
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/aio/datastore-emulator
+          cwd: datastore
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: datastore
+          executor: python-emulator-datastore
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/aio/storage-emulator
+          cwd: storage
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: storage
+          executor: python-emulator-storage
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+      - poetry/run:
+          name: test-emulator-/rest/bigquery-emulator
+          cwd: /rest/bigquery
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/bigquery
+          executor: python-emulator-bigquery
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          requires:
+            - build-rest
+      - poetry/run:
+          name: test-emulator-/rest/datastore-emulator
+          cwd: /rest/datastore
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/datastore
+          executor: python-emulator-datastore
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
+          requires:
+            - build-rest
+      - poetry/run:
+          name: test-emulator-/rest/storage-emulator
+          cwd: /rest/storage
+          commands:
+            - run:
+                command: poetry run pytest tests/integration
+                working_directory: /rest/storage
+          executor: python-emulator-storage
+          install_flags: --no-ansi
+          # renovate: datasource=pypi depName=poetry
+          version: 2.5.1
+          pre-steps:
+            - attach_workspace:
+                at: /rest
           requires:
             - build-rest
 

@@ -93,11 +93,28 @@ PRs from forks the ``ci/circleci: aio/<project>`` and
 maintainer has reviewed your changes and run them for you. No need to ask:
 we'll do so as part of reviewing your PR.
 
-Long-term, we'd like to switch as many of these integration tests as possible
-to using Google `emulators`_ and would appreciate any help in getting us closer
-to that goal! Note that unfortunately Google has not yet released emulators for
-all the features we have under test, so we'll not be able to entirely eliminate
-the need for real credentials.
+The ``bigquery``, ``datastore`` and ``storage`` integration tests also run
+against local emulators on every PR, including those from forks (the
+``ci/circleci: aio/<project>-emulator`` and
+``ci/circleci: rest/<project>-emulator`` checks). Tests which need features
+the emulators lack are marked ``real_gcp`` and skipped there. You can run them
+locally too, eg. for ``storage``:
+
+.. code-block:: console
+
+    docker run -d -p 4443:4443 fsouza/fake-gcs-server -scheme http -port 4443
+    cd storage
+    STORAGE_EMULATOR_HOST=http://localhost:4443 poetry run pytest tests/integration
+
+See the ``python-emulator-*`` executors in ``.circleci/config.yml`` for the
+``bigquery`` and ``datastore`` equivalents. The tests create any resources
+they need in the emulator.
+
+We'd like to run as many integration tests as possible against Google
+`emulators`_ and would appreciate any help in getting us closer to that goal!
+Note that unfortunately emulators don't exist for all the services and
+features we have under test, so we'll not be able to entirely eliminate the
+need for real credentials.
 
 For maintainers: once you have reviewed a fork PR (including any changes to
 CI configuration, scripts, ``conftest.py`` files and dependencies, which all

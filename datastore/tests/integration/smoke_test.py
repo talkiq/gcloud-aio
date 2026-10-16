@@ -572,6 +572,7 @@ async def test_gql_query_pagination(
         assert num_entity_results == insertion_count - page_size
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support exports')
 @pytest.mark.asyncio
 async def test_datastore_export(
     creds: str, project: str,
@@ -617,6 +618,7 @@ async def test_datastore_export(
             await storage.delete(export_bucket_name, file['name'])
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support query explain')
 @pytest.mark.asyncio
 async def test_default_query_explain(
     creds: str, kind: str, project: str
@@ -652,6 +654,7 @@ async def test_default_query_explain(
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.real_gcp(reason='the emulator does not support query explain')
 @pytest.mark.asyncio
 async def test_analyze_query_explain(
     creds: str, kind: str, project: str
@@ -707,6 +710,7 @@ async def test_analyze_query_explain(
                 await ds.delete(key, session=s)
 
 
+@pytest.mark.real_gcp(reason='the emulator does not support readTime')
 @pytest.mark.asyncio
 async def test_lookup_with_read_time(
         creds: str, kind: str, project: str) -> None:
@@ -749,6 +753,7 @@ async def test_lookup_with_read_time(
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.real_gcp(reason='the emulator does not support readTime')
 @pytest.mark.asyncio
 async def test_run_query_with_read_time(
         creds: str, kind: str, project: str) -> None:

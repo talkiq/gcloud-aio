@@ -5,6 +5,7 @@ set -euo pipefail
 
 REPO=talkiq/gcloud-aio
 PROJECTS="auth bigquery datastore kms pubsub storage taskqueue"
+EMULATOR_PROJECTS="bigquery datastore storage"
 RELEASE_REVIEWERS_TEAM=engineering
 
 CIRCLECI_V1_PROJECT="https://circleci.com/api/v1.1/project/github/${REPO}"
@@ -84,6 +85,38 @@ EOF
 EOF
     echo "environment release: requires approval from @${REPO%%/*}/${RELEASE_REVIEWERS_TEAM}"
     github_env_ref_policy release tag '*-*'
+
+    github_required_checks
+}
+
+# Requires the emulator test statuses on master. Requiring a status before
+# master's CI reports it would block every open PR, so only add those master
+# already has.
+github_required_checks() {
+    local reported required project flavour context missing=()
+    reported=$(gh api --paginate "repos/${REPO}/commits/master/status?per_page=100" \
+        --jq '.statuses[].context')
+    required=$(gh api "repos/${REPO}/branches/master/protection/required_status_checks" \
+        --jq '.contexts[]')
+    for project in ${EMULATOR_PROJECTS}; do
+        for flavour in aio rest; do
+            context="ci/circleci: ${flavour}/${project}-emulator"
+            if grep -qxF "${context}" <<< "${required}"; then
+                continue
+            fi
+            if ! grep -qxF "${context}" <<< "${reported}"; then
+                echo "warning: master has not reported '${context}' yet; re-run after it does" >&2
+                continue
+            fi
+            missing+=("${context}")
+        done
+    done
+    if [ ${#missing[@]} -gt 0 ]; then
+        jq -n '$ARGS.positional' --args "${missing[@]}" \
+            | gh api -X POST "repos/${REPO}/branches/master/protection/required_status_checks/contexts" \
+                --input - >/dev/null
+    fi
+    echo "master: requires emulator checks (${#missing[@]} added)"
 }
 
 cmd_pypi() {
