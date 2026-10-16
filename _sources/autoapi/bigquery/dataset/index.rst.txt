@@ -15,7 +15,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: Dataset(dataset_name = None, project = None, service_file = None, session = None, token = None, api_root = None)
+.. py:class:: Dataset(dataset_name = None, project = None, service_file = None, session = None, token = None, api_root = None, api_is_dev = None)
 
    Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
 

@@ -15,7 +15,7 @@ Classes
 Module Contents
 ---------------
 
-.. py:class:: Table(dataset_name, table_name, project = None, service_file = None, session = None, token = None, api_root = None)
+.. py:class:: Table(dataset_name, table_name, project = None, service_file = None, session = None, token = None, api_root = None, api_is_dev = None)
 
    Bases: :py:obj:`bigquery.bigquery.BigqueryBase`
 
@@ -24,6 +24,9 @@ Module Contents
 
 
    .. py:attribute:: table_name
+
+
+   .. py:method:: _job(job_id)
 
 
    .. py:method:: _mk_unique_insert_id(row)
