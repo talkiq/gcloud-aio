@@ -227,6 +227,42 @@ else:
         ):
             await t._get_subject_token(invalid_source, timeout=10)
 
+    @pytest.mark.asyncio
+    async def test_external_account_credential_source_type_inferred():
+        # gcloud-generated configs have no `type` in their credential_source
+        t = token.Token()
+
+        file_source = {'file': '/path/to/oidc-token'}
+        with mock.patch(
+                'builtins.open',
+                mock.mock_open(read_data='token_from_file\n'),
+        ):
+            token_value = await t._get_subject_token(file_source, timeout=10)
+            assert token_value == 'token_from_file'
+
+        url_source = {'url': 'http://example.com/token'}
+        mock_response = mock.AsyncMock()
+        mock_response.status = 200
+        mock_response.text = 'token_from_url'
+        t.session.get = mock.AsyncMock(return_value=mock_response)
+        token_value = await t._get_subject_token(url_source, timeout=10)
+        assert token_value == 'token_from_url'
+
+        aws_source = {
+            'environment_id': 'aws1',
+            'region_url': 'http://169.254.169.254/latest/meta-data/region',
+            'url': 'http://169.254.169.254/latest/meta-data/iam',
+        }
+        with pytest.raises(ValueError, match='aws credential_source'):
+            await t._get_subject_token(aws_source, timeout=10)
+
+        executable_source = {'executable': {'command': '/bin/token'}}
+        with pytest.raises(ValueError, match='executable credential_source'):
+            await t._get_subject_token(executable_source, timeout=10)
+
+        with pytest.raises(ValueError, match='missing type field'):
+            await t._get_subject_token({}, timeout=10)
+
 
 def test_get_service_data_cloudsdk_config_missing_wellknown_returns_empty(
         tmp_path, monkeypatch,
