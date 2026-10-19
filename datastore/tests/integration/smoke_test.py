@@ -4,6 +4,7 @@ import uuid
 import pytest
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Array
+from gcloud.aio.datastore import Consistency
 from gcloud.aio.datastore import Datastore
 from gcloud.aio.datastore import ExecutionStats
 from gcloud.aio.datastore import ExplainMetrics
@@ -33,6 +34,37 @@ if BUILD_GCLOUD_REST:
 else:
     from aiohttp import ClientSession as Session
     from asyncio import sleep
+
+
+@pytest.mark.asyncio
+async def test_run_aggregation_query(
+        creds: str, kind: str, project: str) -> None:
+    namespace = str(uuid.uuid4())
+    key = Key(
+        project, [PathElement(kind, name='counted')], namespace=namespace,
+    )
+    aggregations = [{'alias': 'count', 'count': {}}]
+
+    async with Datastore(
+        project=project, namespace=namespace, service_file=creds,
+    ) as ds:
+        await ds.insert(key, {'value': 42})
+        try:
+            result = await ds.runAggregationQuery(
+                Query(kind=kind), aggregations, consistency=Consistency.STRONG,
+            )
+            assert result['batch']['aggregationResults'] == [{
+                'aggregateProperties': {'count': {'integerValue': '1'}},
+            }]
+        finally:
+            await ds.delete(key)
+
+        result = await ds.runAggregationQuery(
+            Query(kind=kind), aggregations, consistency=Consistency.STRONG,
+        )
+        assert result['batch']['aggregationResults'] == [{
+            'aggregateProperties': {'count': {'integerValue': '0'}},
+        }]
 
 
 @pytest.mark.asyncio
