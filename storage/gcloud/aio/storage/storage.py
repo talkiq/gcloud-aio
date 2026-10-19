@@ -25,12 +25,20 @@ from .constants import DEFAULT_TIMEOUT
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
     from time import sleep
+    from requests import ConnectionError as ConnectionFailure
     from requests import HTTPError as ResponseError
     from requests import Session
+    from requests import Timeout as RequestTimeout
     from builtins import open as file_open
 else:
     from aiofiles import open as file_open  # type: ignore[no-redef]
     from asyncio import sleep  # type: ignore[assignment]
+    from asyncio import (  # type: ignore[assignment]
+        TimeoutError as RequestTimeout,
+    )
+    from aiohttp import (  # type: ignore[assignment]
+        ClientConnectionError as ConnectionFailure,
+    )
     from aiohttp import (  # type: ignore[assignment]
         ClientResponseError as ResponseError,
     )
@@ -869,30 +877,35 @@ class Storage:
                         session_uri, headers=headers,
                         data=stream, timeout=timeout,
                     )
-                except ResponseError as error:
-                    if BUILD_GCLOUD_REST:
-                        status = (error.response.status_code
-                                  if error.response is not None else None)
-                    else:
-                        status = getattr(error, 'status', None)
+                except (ResponseError, ConnectionFailure,
+                        RequestTimeout,) as error:
+                    retryable = True
+                    if isinstance(error, ResponseError):
+                        if BUILD_GCLOUD_REST:
+                            status = (error.response.status_code
+                                      if error.response is not None else None)
+                        else:
+                            status = getattr(error, 'status', None)
 
-                    retryable = (
-                        status in {408, 429}
-                        or (status is not None and 500 <= status < 600)
-                    )
-                    log.warning(
-                        'Upload attempt %s/%s failed with HTTP status %s',
-                        tries + 1, retries, status,
-                    )
+                        retryable = (
+                            status in {408, 429}
+                            or (status is not None and 500 <= status < 600)
+                        )
                     if not retryable or tries == retries - 1:
                         raise
 
-                    # A status query requires an empty body. Resend the chunk
-                    # with its original range instead.
+                    delay = 2. ** tries
+                    log.warning(
+                        'Upload attempt %d/%d failed, retrying in %.0fs: %s',
+                        tries + 1, retries, delay, error,
+                    )
+                    # GCS ignores resent bytes at offsets it has already
+                    # persisted, so resending from the original offset is safe.
+                    # https://cloud.google.com/storage/docs/resumable-uploads#resent-data
                     stream.seek(original_position)
 
                     await sleep(  # type: ignore[func-returns-value,misc]
-                        2. ** tries,
+                        delay,
                     )
                 else:
                     break

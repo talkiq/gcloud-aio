@@ -16,7 +16,9 @@ if BUILD_GCLOUD_REST:
     from requests import ConnectionError as ConnectionFailure
     from requests import HTTPError as ResponseError
     from requests import Session
+    from requests import Timeout as RequestTimeout
 else:
+    from asyncio import TimeoutError as RequestTimeout
     from aiohttp import ClientConnectionError as ConnectionFailure
     from aiohttp import ClientResponseError as ResponseError
     from aiohttp import ClientSession as Session
@@ -188,6 +190,7 @@ async def test_does_not_retry_non_retryable_status(
     server,
     retry_delays,
     status,
+    caplog,
 ):
     server.statuses = [status]
 
@@ -197,9 +200,10 @@ async def test_does_not_retry_non_retryable_status(
     assert status_of(excinfo.value) == status
     assert len(server.puts) == 1
     assert not retry_delays
+    assert not retry_logs(caplog)
 
 
-async def test_gives_up_after_max_attempts(server, retry_delays):
+async def test_gives_up_after_max_attempts(server, retry_delays, caplog):
     server.statuses = [500] * MAX_ATTEMPTS
 
     with pytest.raises(ResponseError) as excinfo:
@@ -208,22 +212,58 @@ async def test_gives_up_after_max_attempts(server, retry_delays):
     assert status_of(excinfo.value) == 500
     assert len(server.puts) == MAX_ATTEMPTS
     assert retry_delays == [1.0, 2.0, 4.0, 8.0]
+    records = retry_logs(caplog)
+    assert len(records) == MAX_ATTEMPTS - 1
+    assert all(r.levelno == logging.WARNING for r in records)
+    assert all('500' in r.message for r in records)
 
 
-async def test_does_not_retry_connection_errors(
+@pytest.mark.parametrize('error_type', [ConnectionFailure, RequestTimeout])
+async def test_retries_connection_errors_and_timeouts(
     server,
     retry_delays,
-    monkeypatch,
+    mocker,
+    error_type,
 ):
-    async def failing_put(*args, **kwargs):
-        raise ConnectionFailure('connection reset')
+    response = mocker.AsyncMock()
+    response.json.return_value = {'uploaded': True}
+    put = mocker.patch.object(
+        aio_storage.AioSession,
+        'put',
+        side_effect=[error_type('upload interrupted'), response],
+    )
 
-    monkeypatch.setattr(aio_storage.AioSession, 'put', failing_put)
+    assert await upload(server) == {'uploaded': True}
+    assert put.call_count == 2
+    assert retry_delays == [1.0]
 
-    with pytest.raises(ConnectionFailure):
-        await upload(server)
 
-    assert not retry_delays
+@pytest.mark.parametrize('error_type', [ConnectionFailure, RequestTimeout])
+async def test_gives_up_after_connection_errors_and_timeouts(
+    server,
+    retry_delays,
+    mocker,
+    caplog,
+    error_type,
+):
+    error = error_type('upload interrupted')
+    put = mocker.patch.object(aio_storage.AioSession, 'put', side_effect=error)
+    stream = io.BytesIO(DATA)
+
+    with pytest.raises(error_type) as excinfo:
+        await upload(server, stream)
+
+    assert excinfo.value is error
+    assert put.call_count == MAX_ATTEMPTS
+    assert retry_delays == [1.0, 2.0, 4.0, 8.0]
+    assert stream.closed
+    assert len(retry_logs(caplog)) == MAX_ATTEMPTS - 1
+    assert all(
+        r.levelno == logging.WARNING
+        and str(error) in r.message
+        and 'retrying in' in r.message
+        for r in retry_logs(caplog)
+    )
 
 
 # Retried request contents
@@ -306,7 +346,7 @@ async def test_closes_stream(server, statuses):
 # Logging
 
 
-async def test_logs_each_failed_attempt(server, caplog):
+async def test_logs_only_retried_attempts(server, caplog, retry_delays):
     server.statuses = [503, 400]
 
     with pytest.raises(ResponseError) as excinfo:
@@ -314,8 +354,9 @@ async def test_logs_each_failed_attempt(server, caplog):
 
     assert status_of(excinfo.value) == 400
     records = retry_logs(caplog)
-    assert [r.levelno for r in records] == [logging.WARNING] * 2
-    assert [r.message for r in records] == [
-        f'Upload attempt 1/{MAX_ATTEMPTS} failed with HTTP status 503',
-        f'Upload attempt 2/{MAX_ATTEMPTS} failed with HTTP status 400',
-    ]
+    assert len(records) == 1
+    assert records[0].levelno == logging.WARNING
+    assert '503' in records[0].message
+    assert 'attempt' in records[0].message  # The server's error response body.
+    assert 'retrying in 1s' in records[0].message
+    assert retry_delays == [1.0]
