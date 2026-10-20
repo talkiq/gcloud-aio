@@ -18,6 +18,7 @@ from .entity import EntityResult
 from .key import Key
 from .mutation import MutationResult
 from .query import BaseQuery
+from .query import Query
 from .query import QueryResult
 from .query import QueryResultBatch
 from .query_explain import ExplainOptions
@@ -384,6 +385,43 @@ class Datastore:
             additional_request_fields=additional_request_fields,
             session=session, timeout=timeout,
         )
+
+    # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runAggregationQuery
+    async def runAggregationQuery(
+        self, query: Query, aggregations: list[dict[str, Any]], *,
+        explain_options: ExplainOptions | None = None,
+        transaction: str | None = None,
+        newTransaction: TransactionOptions | None = None,
+        consistency: Consistency = Consistency.EVENTUAL,
+        read_time: str | None = None,
+        session: Session | None = None,
+        timeout: float = 10.,
+        additional_request_fields: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Run structured aggregations and return the decoded REST response."""
+        project = await self.project()
+        body: dict[str, Any] = {
+            'partitionId': {
+                'projectId': project,
+                'namespaceId': self.namespace,
+            },
+            'aggregationQuery': {
+                'nestedQuery': query.to_repr(),
+                'aggregations': aggregations,
+            },
+            'readOptions': self._build_read_options(
+                consistency, newTransaction, transaction, read_time,
+            ),
+        }
+        if explain_options:
+            body['explainOptions'] = explain_options.to_repr()
+        resp = await self._post(
+            f'{self._api_root}/projects/{project}:runAggregationQuery', body,
+            additional_request_fields=additional_request_fields,
+            session=session, timeout=timeout,
+        )
+        data: dict[str, Any] = await resp.json()
+        return data
 
     # https://cloud.google.com/datastore/docs/reference/data/rest/v1/projects/runQuery
     async def runQuery(
