@@ -39,7 +39,7 @@ class IamClient:
                 Type.SERVICE_ACCOUNT,
                 Type.IMPERSONATED_SERVICE_ACCOUNT,
             }
-            and not getattr(self.token, 'impersonation_uri', None)
+            and not self.token.impersonation_uri
         ):
             raise TypeError(
                 'IAM Credentials Client is only valid for use '
@@ -57,7 +57,7 @@ class IamClient:
     def service_account_email(self) -> str | None:
         if email := self.token.service_data.get('client_email'):
             return str(email)
-        if impersonation_uri := getattr(self.token, 'impersonation_uri', None):
+        if impersonation_uri := self.token.impersonation_uri:
             if '/serviceAccounts/' in impersonation_uri:
                 email = (
                     impersonation_uri.split('/serviceAccounts/')[-1]
