@@ -111,11 +111,15 @@ jobs:
           git log "${prev_release}..${GITHUB_REF_NAME}" --pretty=format:'- %s' \
             | grep "${PROJECT}" > CHANGELOG.md || :
           cat CHANGELOG.md
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: dist
+          path: dist/
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" --verify-tag \
-            --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG.md
+            --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG.md dist/*
 
   # Each PyPI project's trusted publisher is pinned to this workflow and the
   # `release` environment, whose required reviewers gate publishing.
