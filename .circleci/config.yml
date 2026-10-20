@@ -49,7 +49,7 @@ executors:
   python-emulator-datastore:
     docker:
       - image: python:3.14.8
-      - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:589.0.0-emulators
+      - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:590.0.0-emulators
         command: [gcloud, emulators, firestore, start, --database-mode=datastore-mode, --host-port=0.0.0.0:8081]
     environment:
       DATASTORE_EMULATOR_HOST: localhost:8081
