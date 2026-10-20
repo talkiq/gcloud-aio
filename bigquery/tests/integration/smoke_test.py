@@ -91,31 +91,34 @@ async def test_table_load_copy(
             f'{gs_prefix}/all_namespaces/kind_{kind}/'
             f'all_namespaces_kind_{kind}.export_metadata'
         )
-        await t.insert_via_load(
+        # Job.result() raises OSError while the job is pending and a plain
+        # Exception carrying BigQuery's errors if the job failed.
+        wait_for_job = retry(
+            retry=retry_if_exception_type(OSError),
+            wait=wait_fixed(5),
+            stop=stop_after_delay(600),
+            reraise=True,
+        )
+
+        load_job = await t.insert_via_load(
             [gs_file],
             source_format=SourceFormat.DATASTORE_BACKUP,
         )
+        await wait_for_job(load_job.result)()
 
-        source_table = await retry(
-            retry=retry_if_exception_type(Exception),
-            wait=wait_fixed(10),
-            stop=stop_after_delay(60),
-            reraise=True,
-        )(t.get)()
+        source_table = await t.get()
         assert int(source_table['numRows']) > 0
 
-        await t.insert_via_copy(project, dataset, copy_entity_table)
+        copy_job = await t.insert_via_copy(
+            project, dataset, copy_entity_table,
+        )
+        await wait_for_job(copy_job.result)()
+
         t1 = Table(
             dataset, copy_entity_table, project=project,
             service_file=creds, session=s,
         )
-
-        copy_table = await retry(
-            retry=retry_if_exception_type(Exception),
-            wait=wait_fixed(10),
-            stop=stop_after_delay(60),
-            reraise=True,
-        )(t1.get)()
+        copy_table = await t1.get()
         assert copy_table['numRows'] == source_table['numRows']
 
         # delete the backup and copy table
