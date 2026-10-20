@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   autoapproval:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Auto-Approval Bot
     steps:
       - uses: dkhmelenko/autoapproval@v1.0
