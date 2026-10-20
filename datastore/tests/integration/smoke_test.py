@@ -136,6 +136,28 @@ async def test_insert_value_object(
 
 
 @pytest.mark.asyncio
+async def test_timestamp_roundtrip(
+    creds: str, kind: str, project: str,
+) -> None:
+    key = Key(project, [PathElement(kind, name=str(uuid.uuid4()))])
+    timestamp = datetime.datetime(
+        2018, 7, 15, 13, 22, 33, 456789,
+        tzinfo=datetime.timezone(datetime.timedelta(hours=2)),
+    )
+
+    async with Session() as s:
+        ds = Datastore(project=project, service_file=creds, session=s)
+        await ds.insert(key, {'timestamp': timestamp}, session=s)
+        try:
+            actual = await ds.lookup([key], session=s)
+            stored = actual['found'][0].entity.properties['timestamp']
+            assert stored == timestamp
+            assert stored.utcoffset() == datetime.timedelta(0)
+        finally:
+            await ds.delete(key, session=s)
+
+
+@pytest.mark.asyncio
 async def test_start_transaction_on_lookup(creds: str,
                                            kind: str,
                                            project: str) -> None:
