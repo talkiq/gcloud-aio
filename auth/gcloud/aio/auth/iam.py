@@ -33,13 +33,18 @@ class IamClient:
             session=self.session.session,  # type: ignore[arg-type]
         )
 
-        if self.token.token_type not in {
-            Type.GCE_METADATA,
-            Type.SERVICE_ACCOUNT,
-        }:
+        if (
+            self.token.token_type not in {
+                Type.GCE_METADATA,
+                Type.SERVICE_ACCOUNT,
+                Type.IMPERSONATED_SERVICE_ACCOUNT,
+            }
+            and not self.token.impersonation_uri
+        ):
             raise TypeError(
                 'IAM Credentials Client is only valid for use '
-                'with Service Accounts or GCE Metadata',
+                'with Service Accounts, GCE Metadata, or '
+                'Impersonated Service Accounts',
             )
 
     async def headers(self) -> dict[str, str]:
@@ -50,7 +55,19 @@ class IamClient:
 
     @property
     def service_account_email(self) -> str | None:
-        return self.token.service_data.get('client_email')
+        if email := self.token.service_data.get('client_email'):
+            return str(email)
+        if impersonation_uri := self.token.impersonation_uri:
+            if '/serviceAccounts/' in impersonation_uri:
+                email = (
+                    impersonation_uri.split('/serviceAccounts/')[-1]
+                    .split(':')[0]
+                    .split('?')[0]
+                    .strip('/')
+                )
+                if email:
+                    return email
+        return None
 
     # https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts.keys/get
     async def get_public_key(
