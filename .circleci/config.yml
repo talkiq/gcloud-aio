@@ -17,29 +17,29 @@ executors:
 
   python313:
     docker:
-      - image: python:3.13.16
+      - image: python:3.13.17
     resource_class: small
 
   python314:
     docker:
-      - image: python:3.14.8
+      - image: python:3.14.9
     resource_class: small
 
   python315:
     docker:
-      - image: python:3.15.0
+      - image: python:3.15.1
     resource_class: small
 
   python-integration:
     docker:
-      - image: python:3.14.8
+      - image: python:3.14.9
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /key.json
     resource_class: small
 
   python-emulator-bigquery:
     docker:
-      - image: python:3.14.8
+      - image: python:3.14.9
       - image: ghcr.io/goccy/bigquery-emulator:0.8.1
         command: [--project=dialpad-oss, --port=9050]
     environment:
@@ -48,7 +48,7 @@ executors:
 
   python-emulator-datastore:
     docker:
-      - image: python:3.14.8
+      - image: python:3.14.9
       - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:590.0.0-emulators
         command: [gcloud, emulators, firestore, start, --database-mode=datastore-mode, --host-port=0.0.0.0:8081]
     environment:
@@ -57,7 +57,7 @@ executors:
 
   python-emulator-storage:
     docker:
-      - image: python:3.14.8
+      - image: python:3.14.9
       - image: fsouza/fake-gcs-server:1.56.1
         command: [-scheme, http, -port, '4443', -external-url, http://localhost:4443]
     environment:
