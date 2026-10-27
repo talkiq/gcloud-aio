@@ -896,8 +896,9 @@ class Storage:
 
                     delay = 2. ** tries
                     log.warning(
-                        'Upload attempt %d/%d failed, retrying in %.0fs: %s',
-                        tries + 1, retries, delay, error,
+                        'Upload attempt %d/%d failed with %s, '
+                        'retrying in %.0fs',
+                        tries + 1, retries, type(error).__name__, delay,
                     )
                     # GCS ignores resent bytes at offsets it has already
                     # persisted, so resending from the original offset is safe.

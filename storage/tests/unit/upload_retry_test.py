@@ -215,7 +215,9 @@ async def test_gives_up_after_max_attempts(server, retry_delays, caplog):
     records = retry_logs(caplog)
     assert len(records) == MAX_ATTEMPTS - 1
     assert all(r.levelno == logging.WARNING for r in records)
-    assert all('500' in r.message for r in records)
+    # Status/body are not logged (may carry a session URL or response body);
+    # only the exception type is.
+    assert all(ResponseError.__name__ in r.message for r in records)
 
 
 @pytest.mark.parametrize('error_type', [ConnectionFailure, RequestTimeout])
@@ -260,7 +262,9 @@ async def test_gives_up_after_connection_errors_and_timeouts(
     assert len(retry_logs(caplog)) == MAX_ATTEMPTS - 1
     assert all(
         r.levelno == logging.WARNING
-        and str(error) in r.message
+        # The raw exception is never logged (may carry sensitive request
+        # details); only its type is.
+        and error_type.__name__ in r.message
         and 'retrying in' in r.message
         for r in retry_logs(caplog)
     )
@@ -356,7 +360,9 @@ async def test_logs_only_retried_attempts(server, caplog, retry_delays):
     records = retry_logs(caplog)
     assert len(records) == 1
     assert records[0].levelno == logging.WARNING
-    assert '503' in records[0].message
-    assert 'attempt' in records[0].message  # The server's error response body.
+    # The server's error response body (and status) must not leak into the
+    # log; only the exception type does.
+    assert ResponseError.__name__ in records[0].message
+    assert '"attempt"' not in records[0].message
     assert 'retrying in 1s' in records[0].message
     assert retry_delays == [1.0]
