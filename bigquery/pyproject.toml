@@ -29,7 +29,7 @@ gcloud-aio-auth = { path = "../auth" }
 gcloud-aio-datastore = { path = "../datastore" }
 gcloud-aio-storage = { path = "../storage" }
 pytest = "9.1.1"
-pytest-asyncio = "1.4.0"
+pytest-asyncio = "1.4.1"
 pytest-mock = "3.17.0"
 tenacity = "9.2.1"
 

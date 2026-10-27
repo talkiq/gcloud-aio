@@ -29,7 +29,7 @@ gcloud-aio-auth = ">= 5.4.4, < 6.0.0"
 [tool.poetry.group.dev.dependencies]
 gcloud-aio-auth = { path = "../auth" }
 pytest = "9.1.1"
-pytest-asyncio = "1.4.0"
+pytest-asyncio = "1.4.1"
 pytest-mock = "3.17.0"
 
 [[tool.poetry.source]]
