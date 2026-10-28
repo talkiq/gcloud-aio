@@ -28,7 +28,7 @@ prometheus-client = ">= 0.13.1, < 1.0.0"
 aiohttp = "3.14.5"
 gcloud-aio-auth = { path = "../auth" }
 hypothesis = "6.170.12"
-pytest = "9.1.1"
+pytest = "9.2.0"
 pytest-asyncio = "1.4.1"
 pytest-mock = "3.17.0"
 
