@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime
+from datetime import UTC
 from typing import Any
 from typing import Self
 
@@ -39,12 +40,11 @@ class Value:
                 elif json_key == 'blobValue':
                     value = base64.b64decode(data[json_key])
                 elif value_type == datetime:
-                    date_string = data[json_key].rstrip('Z')[:26]
-                    date_fmt = (
-                        '%Y-%m-%dT%H:%M:%S.%f'
-                        if '.' in date_string else '%Y-%m-%dT%H:%M:%S'
-                    )
-                    value = datetime.strptime(date_string, date_fmt)
+                    value = datetime.fromisoformat(data[json_key])
+                    if value.tzinfo is None:
+                        value = value.replace(tzinfo=UTC)
+                    else:
+                        value = value.astimezone(UTC)
                 elif hasattr(value_type, 'from_repr'):
                     value = value_type.from_repr(data[json_key])
                 else:
@@ -71,7 +71,10 @@ class Value:
         }:
             value = self.value.to_repr()
         elif value_type == TypeName.TIMESTAMP:
-            value = self.value.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
+            timestamp = self.value
+            if timestamp.tzinfo is not None:
+                timestamp = timestamp.astimezone(UTC)
+            value = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f000Z')
         elif value_type == TypeName.BLOB:
             value = base64.b64encode(self.value).decode('utf8')
         else:
