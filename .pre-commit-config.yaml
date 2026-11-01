@@ -84,7 +84,7 @@ repos:
 #   hooks:
 #   - id: add-trailing-comma
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v2.4.0
+  rev: v2.4.1
   hooks:
   - &mypy
     id: mypy
