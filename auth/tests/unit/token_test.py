@@ -41,7 +41,7 @@ async def test_service_as_io():
 
 @pytest.mark.asyncio
 async def test_get_project_caches_gce_metadata_lookup():
-    t = token.BaseToken()
+    t = FakeToken()
     # Force the GCE-metadata code path regardless of what credentials this
     # test happens to run alongside locally (eg. real ADC on a dev machine).
     t.token_type = token.Type.GCE_METADATA
