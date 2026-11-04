@@ -15,6 +15,35 @@ from gcloud.aio.datastore.transaction_options import ReadOnly
 from gcloud.aio.datastore.transaction_options import TransactionOptions
 
 
+NAMED_KEY = Key(
+    'test-project', [PathElement('Kind', name='n')], database='eu-db',
+)
+
+# Every Datastore data method, as (name, positional args, JSON response)
+DATA_METHOD_CALLS = [
+    ('lookup', ([NAMED_KEY],), {}),
+    ('runQuery', (Query(kind='Kind'),), {}),
+    (
+        'runAggregationQuery',
+        (Query(kind='Kind'), [{'alias': 'count', 'count': {}}]),
+        {},
+    ),
+    ('beginTransaction', (), {'transaction': 't'}),
+    (
+        'commit',
+        (
+            [Datastore.make_mutation(Operation.UPSERT, NAMED_KEY, {'a': 1})],
+            't',
+        ),
+        {},
+    ),
+    ('rollback', ('t',), {}),
+    ('allocateIds', ([NAMED_KEY],), {'keys': []}),
+    # No database_id, so reserveIds has to use the client's database
+    ('reserveIds', ([NAMED_KEY],), {}),
+]
+
+
 class TestDatastore:
     @staticmethod
     @pytest.mark.parametrize(('options', 'read_options'), [
@@ -127,7 +156,72 @@ class TestDatastore:
             assert result == {'readConsistency': 'STRONG'}
 
     @staticmethod
+    @pytest.mark.parametrize(
+        ('method', 'args', 'response'), DATA_METHOD_CALLS,
+    )
+    async def test_named_database_requests(
+        method, args, response, mock_session,
+    ):
+        mock_session.post.return_value.json.return_value = response
+        async with Datastore(
+            project='test-project', api_root='http://localhost/v1',
+            database='eu-db',
+        ) as ds:
+            await getattr(ds, method)(*args)
+
+        kwargs = mock_session.post.call_args.kwargs
+        body = json.loads(kwargs['data'])
+        assert body['databaseId'] == 'eu-db'
+        assert kwargs['headers']['x-goog-request-params'] == (
+            'project_id=test-project&database_id=eu-db'
+        )
+        if method in ('runQuery', 'runAggregationQuery'):
+            assert body['partitionId']['databaseId'] == 'eu-db'
+
+    @staticmethod
+    @pytest.mark.parametrize('client_database', ['', 'eu-db'])
+    async def test_reserve_ids_database_id_overrides_client(
+        client_database, mock_session,
+    ):
+        key = Key(
+            'test-project', [PathElement('Kind', name='n')], database='other',
+        )
+        async with Datastore(
+            project='test-project', api_root='http://localhost/v1',
+            database=client_database,
+        ) as ds:
+            await ds.reserveIds([key], database_id='other')
+
+        kwargs = mock_session.post.call_args.kwargs
+        assert json.loads(kwargs['data'])['databaseId'] == 'other'
+        assert kwargs['headers']['x-goog-request-params'] == (
+            'project_id=test-project&database_id=other'
+        )
+
+    @staticmethod
+    async def test_export_named_database_raises(mock_session):
+        async with Datastore(
+            project='test-project', api_root='http://localhost/v1',
+            database='eu-db',
+        ) as ds:
+            with pytest.raises(Exception, match='named database'):
+                await ds.export('bucket')
+
+        mock_session.post.assert_not_called()
+
+    @staticmethod
     @pytest.fixture(scope='session')
     def key() -> Key:
         path = PathElement(kind='my-kind', name='path-name')
         return Key(project='my-project', path=[path], namespace='my-namespace')
+
+    @staticmethod
+    @pytest.fixture(scope='function')
+    def mock_session(mocker):
+        session = MagicMock()
+        session.close = AsyncMock()
+        session.post = AsyncMock(return_value=AsyncMock())
+        mocker.patch(
+            'gcloud.aio.datastore.datastore.AioSession', return_value=session,
+        )
+        return session

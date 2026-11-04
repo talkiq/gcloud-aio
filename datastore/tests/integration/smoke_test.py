@@ -252,6 +252,72 @@ async def test_rollback(creds: str, project: str) -> None:
 
 
 @pytest.mark.asyncio
+async def test_named_database(creds: str, kind: str, project: str) -> None:
+    # pylint: disable=too-many-locals
+    namespace = str(uuid.uuid4())
+    database = 'gcloud-aio-test'
+    path = [PathElement(kind, name='same-path')]
+    default_key = Key(project, path, namespace=namespace)
+    named_key = Key(project, path, namespace=namespace, database=database)
+
+    async with Session() as s:
+        default_ds = Datastore(
+            project=project, namespace=namespace, service_file=creds,
+            session=s,
+        )
+        named_ds = Datastore(
+            project=project, namespace=namespace, service_file=creds,
+            session=s, database=database,
+        )
+
+        try:
+            # The same key path holds a separate entity in each database
+            await default_ds.upsert(default_key, {'source': 'default'})
+            await named_ds.upsert(named_key, {'source': 'named'})
+
+            actual = await default_ds.lookup([default_key])
+            assert actual['found'][0].entity.properties == {
+                'source': 'default',
+            }
+            actual = await named_ds.lookup([named_key])
+            assert actual['found'][0].entity.properties == {'source': 'named'}
+            assert actual['found'][0].entity.key == named_key
+
+            result = await named_ds.runQuery(
+                Query(kind=kind), consistency=Consistency.STRONG,
+            )
+            assert [
+                r.entity.key for r in result.result_batch.entity_results
+            ] == [named_key]
+
+            aggregation = await named_ds.runAggregationQuery(
+                Query(kind=kind), [{'alias': 'count', 'count': {}}],
+                consistency=Consistency.STRONG,
+            )
+            assert aggregation['batch']['aggregationResults'] == [{
+                'aggregateProperties': {'count': {'integerValue': '1'}},
+            }]
+
+            partial_key = Key(
+                project, [PathElement(kind)], namespace=namespace,
+                database=database,
+            )
+            allocated = await named_ds.allocateIds([partial_key])
+            assert allocated[0].database == database
+            await named_ds.reserveIds(allocated)
+
+            transaction = await named_ds.beginTransaction()
+            actual = await named_ds.lookup(
+                [named_key], transaction=transaction,
+            )
+            assert actual['found'][0].entity.properties == {'source': 'named'}
+            await named_ds.rollback(transaction)
+        finally:
+            await default_ds.delete(default_key)
+            await named_ds.delete(named_key)
+
+
+@pytest.mark.asyncio
 async def test_query_with_key_projection(
     creds: str, kind: str,
     project: str,

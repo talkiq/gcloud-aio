@@ -84,6 +84,15 @@ started:
     batch = results.result_batch  # QueryResultBatch
     metrics = results.explain_metrics  # ExplainMetrics
 
+    # named databases: each client serves one database, and every Key passed
+    # to it needs the same database. Note that export() doesn't support them.
+    named_ds = Datastore('my-gcloud-project', '/path/to/creds.json',
+                         database='my-database')
+    named_key = Key('my-gcloud-project',
+                    [PathElement('Kind', name='entityname')],
+                    database='my-database')
+    entities = await named_ds.lookup([named_key])
+
     # close the HTTP session
     # Note that other options include:
     # * providing your own session: `Datastore(.., session=session)`
