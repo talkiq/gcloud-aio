@@ -636,7 +636,7 @@ files = [
 
 [[package]]
 name = "gcloud-aio-auth"
-version = "5.6.0"
+version = "5.6.1"
 description = "Python Client for Google Cloud Auth"
 optional = false
 python-versions = ">= 3.11.3, < 4.0"
