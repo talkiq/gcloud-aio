@@ -60,8 +60,11 @@ executors:
       - image: python:3.14.10
       - image: fsouza/fake-gcs-server:1.56.1
         command: [-scheme, http, -port, '4443', -external-url, http://localhost:4443]
+      # Fault injection for the resumable upload retry tests.
+      - image: ghcr.io/shopify/toxiproxy:2.13.0
     environment:
       STORAGE_EMULATOR_HOST: http://localhost:4443
+      TOXIPROXY_HOST: http://localhost:8474
     resource_class: small
 
 commands:

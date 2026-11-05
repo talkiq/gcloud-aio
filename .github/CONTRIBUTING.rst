@@ -110,6 +110,20 @@ See the ``python-emulator-*`` executors in ``.circleci/config.yml`` for the
 ``bigquery`` and ``datastore`` equivalents. The tests create any resources
 they need in the emulator.
 
+The ``storage`` resumable upload retry tests also inject connection faults
+through a `Toxiproxy`_ server, and are skipped unless ``TOXIPROXY_HOST`` is
+set. To run them locally, start Toxiproxy in the emulator's network namespace
+(so that it can reach it on ``localhost``) and publish its ports:
+
+.. code-block:: console
+
+    docker run -d --name fgcs -p 4443:4443 -p 8474:8474 -p 4444:4444 \
+        fsouza/fake-gcs-server -scheme http -port 4443 -external-url http://localhost:4443
+    docker run -d --network container:fgcs ghcr.io/shopify/toxiproxy
+    cd storage
+    STORAGE_EMULATOR_HOST=http://localhost:4443 TOXIPROXY_HOST=http://localhost:8474 \
+        poetry run pytest tests/integration/upload_resumable_retry_test.py
+
 We'd like to run as many integration tests as possible against Google
 `emulators`_ and would appreciate any help in getting us closer to that goal!
 Note that unfortunately emulators don't exist for all the services and
@@ -160,4 +174,5 @@ Vi Engineering
 .. _emulators: https://cloud.google.com/sdk/gcloud/reference/emulators
 .. _poetry: https://python-poetry.org/
 .. _pre-commit: http://pre-commit.com/
+.. _Toxiproxy: https://github.com/Shopify/toxiproxy
 .. _release documentation: https://github.com/talkiq/gcloud-aio/blob/master/.github/RELEASE.rst
