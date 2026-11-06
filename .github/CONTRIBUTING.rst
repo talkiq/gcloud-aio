@@ -110,6 +110,18 @@ See the ``python-emulator-*`` executors in ``.circleci/config.yml`` for the
 ``bigquery`` and ``datastore`` equivalents. The tests create any resources
 they need in the emulator.
 
+The real-GCP integration tests run against the ``dialpad-oss`` project. The
+``datastore`` named database test needs a Datastore-mode database there:
+``gcloud-aio-test`` for the ``aio`` tests and ``gcloud-rest-test`` for the
+``rest`` ones (``bin/build-rest`` renames the first). If one is missing the
+test fails early with the command to create it, eg.:
+
+.. code-block:: console
+
+    gcloud firestore databases create --database=gcloud-aio-test \
+        --project=dialpad-oss --location=us-west2 --type=datastore-mode \
+        --delete-protection
+
 We'd like to run as many integration tests as possible against Google
 `emulators`_ and would appreciate any help in getting us closer to that goal!
 Note that unfortunately emulators don't exist for all the services and
