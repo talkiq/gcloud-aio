@@ -18,30 +18,37 @@ from gcloud.aio.datastore.transaction_options import TransactionOptions
 NAMED_KEY = Key(
     'test-project', [PathElement('Kind', name='n')], database='eu-db',
 )
+DEFAULT_KEY = Key('test-project', [PathElement('Kind', name='n')])
 
-# Every Datastore data method, as (name, positional args, JSON response)
-DATA_METHOD_CALLS = [
-    ('lookup', ([NAMED_KEY],), {}),
-    ('runQuery', (Query(kind='Kind'),), {}),
-    (
-        'runAggregationQuery',
-        (Query(kind='Kind'), [{'alias': 'count', 'count': {}}]),
-        {},
-    ),
-    ('beginTransaction', (), {'transaction': 't'}),
-    (
-        'commit',
+
+def data_method_calls(key):
+    """Every Datastore data method, as (name, positional args, response)."""
+    return [
+        ('lookup', ([key],), {}),
+        ('runQuery', (Query(kind='Kind'),), {}),
         (
-            [Datastore.make_mutation(Operation.UPSERT, NAMED_KEY, {'a': 1})],
-            't',
+            'runAggregationQuery',
+            (Query(kind='Kind'), [{'alias': 'count', 'count': {}}]),
+            {},
         ),
-        {},
-    ),
-    ('rollback', ('t',), {}),
-    ('allocateIds', ([NAMED_KEY],), {'keys': []}),
-    # No database_id, so reserveIds has to use the client's database
-    ('reserveIds', ([NAMED_KEY],), {}),
-]
+        ('beginTransaction', (), {'transaction': 't'}),
+        (
+            'commit',
+            (
+                [Datastore.make_mutation(Operation.UPSERT, key, {'a': 1})],
+                't',
+            ),
+            {},
+        ),
+        ('rollback', ('t',), {}),
+        ('allocateIds', ([key],), {'keys': []}),
+        # No database_id, so reserveIds has to use the client's database
+        ('reserveIds', ([key],), {}),
+    ]
+
+
+DATA_METHOD_CALLS = data_method_calls(NAMED_KEY)
+DEFAULT_DATA_METHOD_CALLS = data_method_calls(DEFAULT_KEY)
 
 
 class TestDatastore:
@@ -177,6 +184,26 @@ class TestDatastore:
         )
         if method in ('runQuery', 'runAggregationQuery'):
             assert body['partitionId']['databaseId'] == 'eu-db'
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        ('method', 'args', 'response'), DEFAULT_DATA_METHOD_CALLS,
+    )
+    async def test_default_database_requests(
+        method, args, response, mock_session,
+    ):
+        mock_session.post.return_value.json.return_value = response
+        async with Datastore(
+            project='test-project', api_root='http://localhost/v1',
+        ) as ds:
+            await getattr(ds, method)(*args)
+
+        kwargs = mock_session.post.call_args.kwargs
+        body = json.loads(kwargs['data']) if kwargs.get('data') else {}
+        assert not body.get('databaseId')
+        assert 'x-goog-request-params' not in kwargs['headers']
+        if method in ('runQuery', 'runAggregationQuery'):
+            assert 'databaseId' not in body['partitionId']
 
     @staticmethod
     @pytest.mark.parametrize('client_database', ['', 'eu-db'])
