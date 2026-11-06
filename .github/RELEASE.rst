@@ -31,8 +31,9 @@ Once approved, the workflow publishes said project and version to PyPI via
 trusted publishing. Note that this will release both ``gcloud-aio-foo`` and
 ``gcloud-rest-foo``.
 
-The GitHub environments and PyPI trusted publishers this relies on are
-configured by ``bin/setup-ci github`` and ``bin/setup-ci pypi``.
+The ``release`` GitHub environment and the PyPI trusted publishers this relies
+on are set up in the repository's GitHub settings and in each PyPI project's
+publishing settings.
 
 .. _GitHub release: https://github.com/talkiq/gcloud-aio/releases
 .. _semantic version: http://semver.org/
