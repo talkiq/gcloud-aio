@@ -657,7 +657,7 @@ url = "../auth"
 
 [[package]]
 name = "gcloud-aio-datastore"
-version = "9.2.2"
+version = "9.3.0"
 description = "Python Client for Google Cloud Datastore"
 optional = false
 python-versions = ">= 3.11.3, < 4.0"

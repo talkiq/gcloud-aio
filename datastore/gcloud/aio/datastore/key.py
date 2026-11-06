@@ -46,12 +46,18 @@ class PathElement:
 class Key:
     path_element_kind = PathElement
 
+    # Default for Key objects that skip __init__, such as ones unpickled from
+    # state saved without a database attribute. Those are keys in the
+    # (default) database.
+    database: str = ''
+
     def __init__(
         self, project: str, path: list[PathElement],
-        namespace: str = '',
+        namespace: str = '', database: str = '',
     ) -> None:
         self.project = project
         self.namespace = namespace
+        self.database = database
         self.path = path
 
     def __eq__(self, other: Any) -> bool:
@@ -61,6 +67,7 @@ class Key:
         return bool(
             self.project == other.project
             and self.namespace == other.namespace
+            and self.database == other.database
             and self.path == other.path,
         )
 
@@ -69,6 +76,10 @@ class Key:
 
     @classmethod
     def from_repr(cls, data: dict[str, Any]) -> Self:
+        # database is only passed for a named database, so subclasses whose
+        # __init__ has no database argument can parse keys in the (default)
+        # database.
+        database = data['partitionId'].get('databaseId', '')
         return cls(
             data['partitionId']['projectId'],
             path=[
@@ -76,13 +87,20 @@ class Key:
                 for p in data['path']
             ],
             namespace=data['partitionId'].get('namespaceId', ''),
+            **({'database': database} if database else {}),
         )
 
     def to_repr(self) -> dict[str, Any]:
+        partition_id = {
+            'projectId': self.project,
+            'namespaceId': self.namespace,
+        }
+        # Only written for a named database. The API treats a partitionId
+        # without databaseId as the (default) database.
+        if self.database:
+            partition_id['databaseId'] = self.database
+
         return {
-            'partitionId': {
-                'projectId': self.project,
-                'namespaceId': self.namespace,
-            },
+            'partitionId': partition_id,
             'path': [p.to_repr() for p in self.path],
         }

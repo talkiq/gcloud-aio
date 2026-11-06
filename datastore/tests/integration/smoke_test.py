@@ -1,7 +1,9 @@
 import datetime
+import os
 import uuid
 
 import pytest
+from gcloud.aio.auth import AioSession  # pylint: disable=no-name-in-module
 from gcloud.aio.auth import BUILD_GCLOUD_REST  # pylint: disable=no-name-in-module
 from gcloud.aio.datastore import Array
 from gcloud.aio.datastore import Consistency
@@ -29,9 +31,11 @@ from gcloud.aio.storage import Storage  # pylint: disable=no-name-in-module
 
 # Selectively load libraries based on the package
 if BUILD_GCLOUD_REST:
+    from requests import HTTPError as ResponseError
     from requests import Session
     from time import sleep
 else:
+    from aiohttp import ClientResponseError as ResponseError
     from aiohttp import ClientSession as Session
     from asyncio import sleep
 
@@ -249,6 +253,99 @@ async def test_rollback(creds: str, project: str) -> None:
 
         transaction = await ds.beginTransaction(session=s)
         await ds.rollback(transaction, session=s)
+
+
+async def require_database(
+        ds: Datastore, session: Session, project: str, database: str,
+) -> None:
+    """Fails with how to create the database if it is missing from GCP."""
+    if os.environ.get('DATASTORE_EMULATOR_HOST'):
+        return
+
+    # One read-only metadata request, which roles/datastore.user can make.
+    url = (
+        'https://firestore.googleapis.com/v1/'
+        f'projects/{project}/databases/{database}'
+    )
+    try:
+        await AioSession(session).get(url, headers=await ds.headers())
+    except ResponseError as e:
+        status = e.response.status_code if BUILD_GCLOUD_REST else e.status
+        if status != 404:
+            raise
+        pytest.fail(
+            f'The test database {database} does not exist in {project}. '
+            f'Create it with: gcloud firestore databases create '
+            f'--database={database} --project={project} '
+            f'--location=us-west2 --type=datastore-mode --delete-protection',
+        )
+
+
+@pytest.mark.asyncio
+async def test_named_database(creds: str, kind: str, project: str) -> None:
+    # pylint: disable=too-many-locals
+    namespace = str(uuid.uuid4())
+    database = 'gcloud-aio-test'
+    path = [PathElement(kind, name='same-path')]
+    default_key = Key(project, path, namespace=namespace)
+    named_key = Key(project, path, namespace=namespace, database=database)
+
+    async with Session() as s:
+        default_ds = Datastore(
+            project=project, namespace=namespace, service_file=creds,
+            session=s,
+        )
+        named_ds = Datastore(
+            project=project, namespace=namespace, service_file=creds,
+            session=s, database=database,
+        )
+        await require_database(named_ds, s, project, database)
+
+        try:
+            # The same key path holds a separate entity in each database
+            await default_ds.upsert(default_key, {'source': 'default'})
+            await named_ds.upsert(named_key, {'source': 'named'})
+
+            actual = await default_ds.lookup([default_key])
+            assert actual['found'][0].entity.properties == {
+                'source': 'default',
+            }
+            actual = await named_ds.lookup([named_key])
+            assert actual['found'][0].entity.properties == {'source': 'named'}
+            assert actual['found'][0].entity.key == named_key
+
+            result = await named_ds.runQuery(
+                Query(kind=kind), consistency=Consistency.STRONG,
+            )
+            assert [
+                r.entity.key for r in result.result_batch.entity_results
+            ] == [named_key]
+
+            aggregation = await named_ds.runAggregationQuery(
+                Query(kind=kind), [{'alias': 'count', 'count': {}}],
+                consistency=Consistency.STRONG,
+            )
+            assert aggregation['batch']['aggregationResults'] == [{
+                'aggregateProperties': {'count': {'integerValue': '1'}},
+            }]
+
+            partial_key = Key(
+                project, [PathElement(kind)], namespace=namespace,
+                database=database,
+            )
+            allocated = await named_ds.allocateIds([partial_key])
+            assert allocated[0].database == database
+            await named_ds.reserveIds(allocated)
+
+            transaction = await named_ds.beginTransaction()
+            actual = await named_ds.lookup(
+                [named_key], transaction=transaction,
+            )
+            assert actual['found'][0].entity.properties == {'source': 'named'}
+            await named_ds.rollback(transaction)
+        finally:
+            await default_ds.delete(default_key)
+            await named_ds.delete(named_key)
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import urllib.parse
 from typing import Any
 from typing import AnyStr
 from typing import IO
@@ -77,9 +78,32 @@ class Datastore:
             token: Token | None = None,
             api_root: str | None = None,
             api_is_dev: bool | None = None,
+            database: str = '',
     ) -> None:
+        """Configures a client for the Datastore API.
+
+        Only api_root and database are described here.
+
+        Args:
+            api_root: the root URL of the API. Note that passing it puts the
+                client in dev mode, which sends no Authorization header,
+                unless api_is_dev=False is passed too. So a client for a real
+                endpoint, such as the EU regional endpoint
+                https://datastore.eu.rep.googleapis.com/v1, needs both.
+            database: the ID of the named database that every request goes
+                to. Empty means the (default) database. Use '' rather than
+                '(default)', which the API rejects. Note that each client
+                serves one database, so the Keys passed to it must carry the
+                same database. Passing a databaseId per call through
+                additional_request_fields is not supported, because the
+                partitionId of queries still uses this database.
+                reserveIds(database_id=...) is the only per-call override
+                (its keys must carry that database), and export() doesn't
+                support named databases.
+        """
         self._api_is_dev, self._api_root = init_api_root(api_root, api_is_dev)
         self.namespace = namespace
+        self.database = database
         self.session = AioSession(session)
         self.token = token or Token(
             service_file=service_file, scopes=SCOPES,
@@ -146,10 +170,22 @@ class Datastore:
         timeout: float = 10.,
     ) -> Any:
         merged: dict[str, Any] = {
+            **({'databaseId': self.database} if self.database else {}),
             **(body or {}), **(additional_request_fields or {}),
         }
         headers = await self.headers()
         headers['Content-Type'] = 'application/json'
+        # NOTE: a named database needs both the databaseId field and this
+        # routing header. A body without databaseId is silently served from
+        # (default), and a header that doesn't match the body is rejected with
+        # a 400. So the header is built from the final body rather than from
+        # self.database, which also covers reserveIds(database_id=...).
+        if merged.get('databaseId'):
+            params = {
+                'project_id': await self.project(),
+                'database_id': merged['databaseId'],
+            }
+            headers['x-goog-request-params'] = urllib.parse.urlencode(params)
         s = AioSession(session) if session else self.session
         if merged:
             payload = json.dumps(merged).encode('utf-8')
@@ -159,6 +195,14 @@ class Datastore:
             )
         headers['Content-Length'] = '0'
         return await s.post(url, headers=headers, timeout=timeout)
+
+    def _partition_id(self, project: str) -> dict[str, str]:
+        partition_id = {'projectId': project, 'namespaceId': self.namespace}
+        # A query partitionId without databaseId is rejected with a 400
+        # ("mismatched databases") when the request names a database.
+        if self.database:
+            partition_id['databaseId'] = self.database
+        return partition_id
 
     # TODO: support mutations w version specifiers, return new version (commit)
     @classmethod
@@ -253,6 +297,13 @@ class Datastore:
         timeout: float = 10.,
         additional_request_fields: dict[str, Any] | None = None,
     ) -> DatastoreOperation:
+        if self.database:
+            raise Exception(
+                'export does not support named databases, because the '
+                'Datastore Admin export request has no database field and '
+                'can only export the (default) database',
+            )
+
         project = await self.project()
         url = f'{self._api_root}/projects/{project}:export'
         body: dict[str, Any] = {
@@ -366,7 +417,11 @@ class Datastore:
         url = f'{self._api_root}/projects/{project}:reserveIds'
         await self._post(
             url,
-            {'databaseId': database_id, 'keys': [k.to_repr() for k in keys]},
+            # An empty database_id falls back to the client's database
+            {
+                'databaseId': database_id or self.database,
+                'keys': [k.to_repr() for k in keys],
+            },
             additional_request_fields=additional_request_fields,
             session=session, timeout=timeout,
         )
@@ -401,10 +456,7 @@ class Datastore:
         """Run structured aggregations and return the decoded REST response."""
         project = await self.project()
         body: dict[str, Any] = {
-            'partitionId': {
-                'projectId': project,
-                'namespaceId': self.namespace,
-            },
+            'partitionId': self._partition_id(project),
             'aggregationQuery': {
                 'nestedQuery': query.to_repr(),
                 'aggregations': aggregations,
@@ -442,10 +494,7 @@ class Datastore:
             consistency, newTransaction, transaction, read_time,
         )
         body: dict[str, Any] = {
-            'partitionId': {
-                'projectId': project,
-                'namespaceId': self.namespace,
-            },
+            'partitionId': self._partition_id(project),
             query.json_key: query.to_repr(),
             'readOptions': read_options,
         }
