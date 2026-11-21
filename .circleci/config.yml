@@ -95,7 +95,7 @@ jobs:
     steps:
       - poetry/install:
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
       - checkout
       - run: ./bin/build-rest
       - store-rest
@@ -121,7 +121,7 @@ workflows:
                 working_directory: <<matrix.cwd>>
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           matrix:
             alias: test-unit-aio
             parameters:
@@ -135,7 +135,7 @@ workflows:
                 working_directory: <<matrix.cwd>>
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -159,7 +159,7 @@ workflows:
           executor: python-emulator-bigquery
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
       - poetry/run:
           name: test-emulator-/aio/datastore-emulator
           cwd: datastore
@@ -170,7 +170,7 @@ workflows:
           executor: python-emulator-datastore
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
       - poetry/run:
           name: test-emulator-/aio/storage-emulator
           cwd: storage
@@ -181,7 +181,7 @@ workflows:
           executor: python-emulator-storage
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
       - poetry/run:
           name: test-emulator-/rest/bigquery-emulator
           cwd: /rest/bigquery
@@ -192,7 +192,7 @@ workflows:
           executor: python-emulator-bigquery
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -208,7 +208,7 @@ workflows:
           executor: python-emulator-datastore
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -224,7 +224,7 @@ workflows:
           executor: python-emulator-storage
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - attach_workspace:
                 at: /rest
@@ -252,7 +252,7 @@ workflows:
           executor: python-integration
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
           matrix:
@@ -268,7 +268,7 @@ workflows:
           executor: python-integration
           install_flags: --no-ansi
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
           pre-steps:
             - run: echo "${GCLOUD_AIO_CI_KEY}" | base64 -d > "${GOOGLE_APPLICATION_CREDENTIALS}"
             - attach_workspace:

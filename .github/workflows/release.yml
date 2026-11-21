@@ -76,7 +76,7 @@ jobs:
       - uses: snok/install-poetry@v1.4.2
         with:
           # renovate: datasource=pypi depName=poetry
-          version: 2.5.1
+          version: 2.5.2
       - name: build gcloud-aio
         run: poetry build --output "${GITHUB_WORKSPACE}/dist"
         working-directory: ${{ env.PROJECT }}
